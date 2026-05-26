@@ -19,14 +19,14 @@ export function MainBanner() {
         />
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-[96px] tracking-[-0.03em]">
           <div className="flex flex-col items-center">
-            <div className="text-head1_b_40 flex flex-col items-center text-black md:text-nowrap">
-              <h1>코드당과 함께 오늘의 코드를</h1>
-              <h1>내일의 커리어로 만들어보세요</h1>
-            </div>
-            <div className="text-title2_m_20 text-color-cool-neutral-40 mt-3 flex flex-col items-center whitespace-pre-line">
-              <h2>성균관대학교 소프트웨어학과의 공식 학습 플랫폼 코드당에서</h2>
-              <h2>한 단계 더 스마트해진 코딩 라이프를 시작하세요.</h2>
-            </div>
+            <h1 className="text-head1_b_40 flex flex-col items-center text-black md:text-nowrap">
+              <span>코드당과 함께 오늘의 코드를</span>
+              <span>내일의 커리어로 만들어보세요</span>
+            </h1>
+            <p className="text-title2_m_20 text-color-cool-neutral-40 mt-3 flex flex-col items-center whitespace-pre-line">
+              <span>성균관대학교 소프트웨어학과의 공식 학습 플랫폼 코드당에서</span>
+              <span>한 단계 더 스마트해진 코딩 라이프를 시작하세요.</span>
+            </p>
             <Button className="mt-10 h-[46px] w-[145px] rounded-[1000px] bg-[#21273C] px-6 py-3 text-white">
               <Link
                 href={`https://what-is-codedang.framer.website`}
