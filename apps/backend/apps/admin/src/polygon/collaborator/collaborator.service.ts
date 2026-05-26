@@ -267,7 +267,7 @@ export class CollaboratorService {
   /**
    * 협업자의 role을 변경합니다.
    *
-   * role : Viewer, Editor로만 변경
+   * role : Reviewer, Editor로만 변경
    *
    * @param {number} inviterId 초대자의 id
    * @param {number} polygonId 생성 문제의 id
@@ -360,7 +360,7 @@ export class CollaboratorService {
 
   /**
    * 사용자가 협업자가 되기 위해 요청합니다.
-   * -role: Viewer, Editor
+   * -role: Reviewer, Editor
    *
    * @param {number} userId 요청자의 id
    * @param {number} polygonId 해당 문제의 polygonId

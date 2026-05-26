@@ -40,7 +40,7 @@ const exampleViewerCollaborator = {
   id: 1,
   problemId: 10,
   userId: exampleViewerUser.id,
-  role: CollaboratorRole.Viewer,
+  role: CollaboratorRole.Reviewer,
   status: CollaboratorStatus.Active
 }
 
@@ -56,7 +56,7 @@ const examplePendingCollaborator = {
   id: 3,
   problemId: 10,
   userId: examplePendingUser.id,
-  role: CollaboratorRole.Viewer,
+  role: CollaboratorRole.Reviewer,
   status: CollaboratorStatus.Pending
 }
 
@@ -144,7 +144,7 @@ describe('CollaboratorService', () => {
         exampleProblem.id,
         {
           userEmail: exampleUser.email,
-          role: CollaboratorRole.Viewer
+          role: CollaboratorRole.Reviewer
         }
       )
       expect(result).to.deep.equal(exampleViewerCollaborator)
@@ -160,7 +160,7 @@ describe('CollaboratorService', () => {
       await expect(
         service.inviteCollaborator(exampleViewerUser.id, exampleProblem.id, {
           userEmail: exampleUser.email,
-          role: CollaboratorRole.Viewer
+          role: CollaboratorRole.Reviewer
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
