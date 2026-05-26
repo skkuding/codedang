@@ -92,6 +92,7 @@ export class StudyRoomService {
     const { state, isFirst } = await this.initOrGetRoom(
       groupId,
       userId,
+      membership.isLeader,
       now,
       membership.endTime
     )
@@ -104,7 +105,7 @@ export class StudyRoomService {
       client,
       groupId,
       userId,
-      membership,
+      membership.userName,
       now,
       isRecovered
     )
@@ -129,7 +130,7 @@ export class StudyRoomService {
         members,
         endAt: state.endAt,
         remainMs: Math.max(0, state.endAt - Date.now()),
-        hostUserId: state.hostUserId
+        leaderId: state.leaderId
       }
     }
   }
@@ -174,6 +175,7 @@ export class StudyRoomService {
    * 3. 2의 결과 여부에 따라 State를 설정하여 isFirst와 함께 반환
    *    - 성공이면, 첫 번째 입장자로 -> 생성한 activeState 사용
    *    - 실패이면, 이후 입장자로 -> Redis에서 기존 상태를 조회하여 사용
+   *      - 리더 입장이고 leaderId가 미설정 상태이면 KEEPTTL로 업데이트
    *
    * @param {number} groupId 스터디 그룹 ID
    * @param {number} userId 현재 사용자 ID
@@ -183,12 +185,13 @@ export class StudyRoomService {
   private async initOrGetRoom(
     groupId: number,
     userId: number,
+    isLeader: boolean,
     now: number,
     endTime: Date
   ): Promise<{ state: RoomState | null; isFirst: boolean }> {
     const activeState: RoomState = {
       endAt: endTime.getTime(),
-      hostUserId: userId
+      leaderId: isLeader ? userId : null
     }
 
     const isFirst = !!(await this.redis.set(
@@ -199,7 +202,16 @@ export class StudyRoomService {
       'NX'
     ))
 
-    const state = isFirst ? activeState : await this.getRoomState(groupId)
+    if (isFirst) return { state: activeState, isFirst }
+
+    const state = await this.getRoomState(groupId)
+
+    if (isLeader && state && state.leaderId === null) {
+      const updated = { ...state, leaderId: userId }
+      await this.redis.set(roomKey(groupId), JSON.stringify(updated), 'KEEPTTL')
+      return { state: updated, isFirst }
+    }
+
     return { state, isFirst }
   }
 
@@ -218,7 +230,7 @@ export class StudyRoomService {
    * @param {Socket} client 연결된 Socket 인스턴스
    * @param {number} groupId 스터디 그룹 ID
    * @param {number} userId 사용자 ID
-   * @param { userName: string; isLeader: boolean } membership 사용자 이름과 리더 여부
+   * @param {string} userName 사용자 이름과 리더 여부
    * @param {number} now 입장 시각(ms)
    * @param {boolean} isRecovered 재연결 복구 여부
    * @returns 입장 성공 여부 (false면 중복 입장 또는 재연결 경쟁 패배)
@@ -227,7 +239,7 @@ export class StudyRoomService {
     client: Socket,
     groupId: number,
     userId: number,
-    membership: { userName: string; isLeader: boolean },
+    userName: string,
     now: number,
     isRecovered: boolean
   ): Promise<boolean> {
@@ -242,23 +254,30 @@ export class StudyRoomService {
     }
 
     client.data.room = {
-      userName: membership.userName,
-      isLeader: membership.isLeader,
+      userName,
       groupId
     }
 
     const member: RoomMember = {
       userId,
-      userName: membership.userName,
-      isLeader: membership.isLeader,
+      userName,
       joinedAt: now
     }
 
     if (isRecovered) {
+      const existing = await this.redis.hget(
+        membersKey(groupId),
+        String(userId)
+      )
+
+      if (!existing) return false
+
+      const { joinedAt: originalJoinedAt } = JSON.parse(existing) as RoomMember
+
       await this.redis.hset(
         membersKey(groupId),
         String(userId),
-        JSON.stringify(member)
+        JSON.stringify({ ...member, joinedAt: originalJoinedAt })
       )
     } else {
       const added = await this.redis.hsetnx(
@@ -392,8 +411,7 @@ export class StudyRoomService {
    * 2. roomKey 존재 여부 확인 (없으면 이미 처리한 것으로 판단하고 중단)
    * 3. Redis Hash에서 해당 사용자의 멤버 정보 삭제
    * 4. Socket.io 룸에서 클라이언트를 제외(leave)
-   * 5. 호스트 퇴장 시 새 호스트 지정
-   * 6. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
+   * 5. 룸에 남아있는 참여자들에게 업데이트된 멤버 목록 브로드캐스트
    *
    * @param {Socket} client 연결된 Socket 인스턴스
    * @returns 퇴장 성공 여부
@@ -410,7 +428,7 @@ export class StudyRoomService {
     await this.removeMember(groupId, userId)
     client.leave(roomKey(groupId))
 
-    const members = await this.transferHostIfNeeded(groupId, userId)
+    const members = await this.getMembers(groupId)
 
     this.server
       .to(roomKey(groupId))
@@ -521,8 +539,7 @@ export class StudyRoomService {
    *    - 반환값이 0이면 이미 재연결로 복구된 것 → 중단
    *    - 반환값이 1이면 유예 시간 만료 → 완전 퇴장 처리
    * 2. Redis 멤버 목록에서 해당 사용자 삭제
-   * 3. 호스트 퇴장 시 새 호스트 지정
-   * 4. 룸에 남아있는 참여자들에게 최신 멤버 목록 브로드캐스트
+   * 3. 룸에 남아있는 참여자들에게 최신 멤버 목록 브로드캐스트
    *
    * @param payload
    * @param {number} payload.userId 사용자 ID
@@ -539,46 +556,11 @@ export class StudyRoomService {
 
     await this.removeMember(groupId, userId)
 
-    const members = await this.transferHostIfNeeded(groupId, userId)
+    const members = await this.getMembers(groupId)
 
     this.server
       .to(roomKey(groupId))
       .emit('room:participantsChanged', { members })
-  }
-
-  /**
-   * 호스트가 퇴장했을 때 새 호스트를 지정합니다.
-   * 우선순위: isLeader인 멤버 → 없으면 joinedAt 기준 가장 먼저 입장한 멤버
-   *
-   * @param {number} groupId 스터디 그룹 ID
-   * @param {number} leavingUserId 퇴장한 호스트 userId
-   * @returns 스터디 룸에 남아있는 사용자들
-   */
-  private async transferHostIfNeeded(
-    groupId: number,
-    leavingUserId: number
-  ): Promise<RoomMember[]> {
-    const state = await this.getRoomState(groupId)
-    const members = await this.getMembers(groupId)
-
-    if (state && state.hostUserId === leavingUserId && members.length > 0) {
-      const newHost =
-        members.find((m) => m.isLeader) ??
-        [...members].sort((a, b) => a.joinedAt - b.joinedAt)[0]
-
-      await this.redis.set(
-        roomKey(groupId),
-        JSON.stringify({ ...state, hostUserId: newHost.userId }),
-        'KEEPTTL'
-      )
-
-      this.server.to(roomKey(groupId)).emit('room:hostChanged', {
-        hostUserId: newHost.userId,
-        hostUserName: newHost.userName
-      })
-    }
-
-    return members
   }
 
   // Redis
