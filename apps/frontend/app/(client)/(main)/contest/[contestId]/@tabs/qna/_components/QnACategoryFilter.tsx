@@ -13,8 +13,9 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/shadcn/popover'
-import ArrowDownIcon from '@/public/icons/arrow-down.svg'
+import DownArrow from '@/public/icons/arrow-down.svg'
 import type { Column } from '@tanstack/react-table'
+import Image from 'next/image'
 import React, { type ReactNode } from 'react'
 
 export interface QnACategoryFilterProps<TData, TValue> {
@@ -60,7 +61,10 @@ export function QnACategoryFilter<TData, TValue>({
             )}
           </div>
 
-          <ArrowDownIcon className="size-[18px]" />
+          <div className="-z-1 relative size-[18px]">
+            {' '}
+            <Image src={DownArrow} alt="Bottom" fill />
+          </div>
         </Button>
       </PopoverTrigger>
 

@@ -1,4 +1,3 @@
-import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt'
@@ -28,8 +27,7 @@ import { AuthService } from './auth.service'
     UserModule,
     PassportModule.register({
       strategies: [GithubStrategy, KakaoStrategy]
-    }),
-    HttpModule
+    })
   ],
   controllers: [AuthController],
   providers: [AuthService, GithubStrategy, KakaoStrategy],

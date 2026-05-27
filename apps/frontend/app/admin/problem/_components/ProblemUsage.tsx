@@ -5,13 +5,14 @@ import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
-import ArrowRightIcon from '@/public/icons/arrow-right.svg'
-import FileInfoIcon from '@/public/icons/file-info.svg'
-import FilePenIcon from '@/public/icons/file-pen.svg'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
-import PrizeIcon from '@/public/icons/prize.svg'
-import TaskCompleteIcon from '@/public/icons/task-complete.svg'
+import arrowRightIcon from '@/public/icons/arrow-right.svg'
+import fileInfoIcon from '@/public/icons/file-info.svg'
+import filePenIcon from '@/public/icons/file-pen.svg'
+import infoGrayIcon from '@/public/icons/info-gray.svg'
+import prizeIcon from '@/public/icons/prize.svg'
+import taskCompleteIcon from '@/public/icons/task-complete.svg'
 import { useQuery } from '@apollo/client'
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface ProblemUsageProps {
@@ -71,14 +72,22 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
-                  <FilePenIcon className="h-6 w-6" />
+                  <Image
+                    src={filePenIcon}
+                    alt="filePenIcon"
+                    className="h-6 w-6"
+                  />
 
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
                       <span>
                         [{content.title}] Week {content.week}
                       </span>
-                      <ArrowRightIcon className="text-color-black h-3 w-3" />
+                      <Image
+                        src={arrowRightIcon}
+                        alt="arrowRightIcon"
+                        className="text-color-black h-3 w-3"
+                      />
                     </div>
 
                     <span className="text-color-neutral-50 text-sm">
@@ -103,11 +112,15 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
         <Link key={content.id} href={`/contest/${content.id}`}>
           <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
             <div className="flex items-start gap-[10px]">
-              <PrizeIcon />
+              <Image src={prizeIcon} alt="prizeIcon" />
 
               <div className="flex items-center gap-[2px] self-stretch hover:brightness-110">
                 <span>{content.title}</span>
-                <ArrowRightIcon className="text-color-black h-3 w-3" />
+                <Image
+                  src={arrowRightIcon}
+                  alt="arrowRightIcon"
+                  className="text-color-black h-3 w-3"
+                />
               </div>
             </div>
           </div>
@@ -129,14 +142,22 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
-                  <TaskCompleteIcon className="h-6 w-6" />
+                  <Image
+                    src={taskCompleteIcon}
+                    alt="taskCompleteIcon"
+                    className="h-6 w-6"
+                  />
 
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
                       <span>
                         [{content.title}] Week {content.week}
                       </span>
-                      <ArrowRightIcon className="text-color-black h-3 w-3" />
+                      <Image
+                        src={arrowRightIcon}
+                        alt="arrowRightIcon"
+                        className="text-color-black h-3 w-3"
+                      />
                     </div>
 
                     <span className="text-color-neutral-50 text-sm">
@@ -158,9 +179,13 @@ function NoContentsSection({ label }: { label: string }) {
   return (
     <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-1 self-stretch rounded-lg px-5 pb-10 pt-7">
       <div className="text-color-neutral-80 relative h-7 w-7 overflow-hidden">
-        <InfoGrayIcon className="absolute left-[2.40px] top-[2.40px] h-6 w-6" />
+        <Image
+          src={infoGrayIcon}
+          alt="infoGrayIcon"
+          className="absolute left-[2.40px] top-[2.40px] h-6 w-6"
+        />
       </div>
-      <div className="text-color-neutral-80 text-body1_m_16 justify-start self-stretch text-center">
+      <div className="text-color-neutral-80 justify-start self-stretch text-center text-base font-medium">
         No {label} have used this problem
       </div>
     </div>
@@ -219,7 +244,7 @@ export function ProblemUsage({ problemId }: ProblemUsageProps) {
       type="custom"
       title="Using this problem"
       headerDescription="This problem is used in the following contexts"
-      trigger={<FileInfoIcon />}
+      trigger={<Image src={fileInfoIcon} alt="fileinfo" />}
     >
       <ScrollArea className="h-full w-full pr-2">
         <div className="border-line flex min-h-0 flex-col items-start gap-[30px] self-stretch rounded-[16px] border bg-white p-[30px]">

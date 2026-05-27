@@ -1,12 +1,14 @@
 import { cn } from '@/libs/utils'
 import type { Range } from '@tiptap/core'
 import type { Editor } from '@tiptap/react'
+import Image from 'next/image'
+import type { StaticImageData } from 'next/image'
 import type { KeyboardEvent } from 'react'
 import React, { Component } from 'react'
 
 export interface CommandItem {
   title: string
-  icon: React.ElementType
+  icon: StaticImageData
   command: (options: { editor: Editor; range: Range }) => void
   element?: React.ReactNode
 }
@@ -102,7 +104,7 @@ class CommandList extends Component<CommandListProps, CommandListState> {
             onMouseEnter={() => this.handleMouseEnter(index)}
           >
             <div className="flex h-9 w-9 items-center justify-center">
-              <item.icon className="h-4 w-4" />
+              <Image src={item.icon} alt={item.title} className="h-4 w-4" />
             </div>
             {item.element || item.title}
           </button>

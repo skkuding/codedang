@@ -5,7 +5,8 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import RightArrowIcon from '@/public/icons/arrow-right.svg'
+import GrayRightArrow from '@/public/icons/arrow-right-gray.svg'
+import Image from 'next/image'
 import Link from 'next/link'
 import { getProblemList } from '../../_libs/apis/problem'
 import { NewProblemCard } from './NewProblemCard'
@@ -21,24 +22,39 @@ export async function NewProblemCards() {
     problems.length > 0 && (
       <div className="relative w-full">
         {/* Desktop View */}
-        <div className="hidden max-w-[1440px] flex-col items-start gap-7 px-10 md:flex">
-          <Carousel className="flex w-full flex-col">
+        <div className="hidden max-w-[1440px] flex-col items-start gap-5 px-[116px] md:flex">
+          <Carousel className="flex w-full flex-col gap-10">
             <div className="flex w-full justify-between">
-              <p className="text-head1_b_40">최신 코딩 문제를 연습해보세요</p>
+              <p className="text-3xl font-semibold leading-[36px] tracking-[-0.9px]">
+                PRACTICE WITH CODING PROBLEMS
+              </p>
               <div className="flex h-[30px] w-[78px] gap-[18px]">
                 <CarouselPrevious />
                 <CarouselNext />
               </div>
             </div>
 
-            <CarouselContent className="mx-0 my-8">
-              {problems.map((problem) => (
-                <CarouselItem key={problem.id}>
-                  <NewProblemCard problem={problem} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
+            <div className="relative left-1/2 -my-8 -ml-2 w-screen -translate-x-1/2">
+              <CarouselContent className="mx-[116px] my-8 max-w-[1224px] md:mx-auto">
+                {problems.map((problem) => (
+                  <CarouselItem key={problem.id}>
+                    <NewProblemCard problem={problem} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </div>
           </Carousel>
+
+          <Link href={'/problem'}>
+            <div className="border-color-neutral-50 flex items-center justify-center gap-[2px] border-b py-[4px]">
+              <p className="font-pretendard flex h-8 items-center text-[16px] font-medium leading-[22.4px] tracking-[-0.48px] text-[#5C5C5C]">
+                Go to Problem
+              </p>
+              <div className="relative size-[16px]">
+                <Image src={GrayRightArrow} alt="Right" fill />
+              </div>
+            </div>
+          </Link>
         </div>
         {/* Desktop View */}
         <div className="flex w-full flex-col gap-4 px-5 py-[30px] md:hidden">
@@ -53,7 +69,7 @@ export async function NewProblemCards() {
                   Go to Problem
                 </p>
                 <div className="relative size-[12px]">
-                  <RightArrowIcon className="text-color-neutral-90 h-4 w-4" />
+                  <Image src={GrayRightArrow} alt="Right" fill />
                 </div>
               </div>
             </Link>

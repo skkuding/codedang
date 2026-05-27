@@ -52,7 +52,7 @@ export function SharedProblemTable() {
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" sizeVariant="sm" />
+        <DataTableSearchBar columndId="title" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
         <div className="ml-auto flex gap-2">

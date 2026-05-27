@@ -1,8 +1,7 @@
 import { dateFormatter } from '@/libs/utils'
-import ClockIcon from '@/public/icons/clock.svg'
 import type { GetContestQnaQuery } from '@generated/graphql'
 import React, { type ReactElement } from 'react'
-import { FaCircleCheck } from 'react-icons/fa6'
+import { FaCircleCheck, FaClock } from 'react-icons/fa6'
 
 // Qna 쿼리에서 규정된 comment의 타입.
 export type QnaCommentFromQuery = NonNullable<
@@ -18,7 +17,7 @@ export function QnaSingleComment({
 }) {
   return (
     <div
-      className={`border-line-default flex flex-col gap-[20px] rounded-xl border border-solid p-[30px]`}
+      className={`border-line-default flex flex-col gap-[20px] rounded-xl border border-[1px] border-solid p-[30px]`}
     >
       <div className="flex flex-col gap-[4px]">
         <div className="relative flex items-center gap-[4px]">
@@ -27,13 +26,13 @@ export function QnaSingleComment({
           </span>
           {comment.isContestStaff && (
             <div className="grid h-[24px] w-[24px] place-content-center">
-              <FaCircleCheck size={21} className="text-primary" />
+              <FaCircleCheck size={21} className="text-color-blue-50" />
             </div>
           )}
           <div className="absolute right-0 top-0">{DeleteButtonComponent}</div>
         </div>
         <div className="flex items-center gap-[8px]">
-          <ClockIcon className="text-primary h-4" />
+          <FaClock className="text-color-blue-50" size={13} />
           <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
             <span>
               {dateFormatter(new Date(comment.createdTime), 'YYYY-MM-DD')}

@@ -6,12 +6,12 @@ import { DeleteButton } from '@/components/DeleteButton'
 import { Button } from '@/components/shadcn/button'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
-import ArrowLeftBlackIcon from '@/public/icons/arrow-left-black.svg'
-import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
-import LockGrayIcon from '@/public/icons/lock-gray.svg'
-import PenIcon from '@/public/icons/pen.svg'
-import UserIcon from '@/public/icons/person-fill.svg'
+import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
+import checkBlueIcon from '@/public/icons/check-blue.svg'
+import infoGrayIcon from '@/public/icons/info-gray.svg'
+import lockGrayIcon from '@/public/icons/lock-gray.svg'
+import penIcon from '@/public/icons/pen.svg'
+import userIcon from '@/public/icons/person-fill.svg'
 import type { CourseQnAItem } from '@/types/type'
 import {
   useSuspenseQuery,
@@ -19,6 +19,7 @@ import {
   useQueryClient,
   useQuery
 } from '@tanstack/react-query'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -111,7 +112,11 @@ export function QnaDetailView() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-2xl font-semibold"
         >
-          <ArrowLeftBlackIcon className="h-6 w-6 text-black" />
+          <Image
+            src={arrowLeftIcon}
+            alt="arrowLeftIcon"
+            className="h-6 w-6 text-black"
+          />{' '}
           Question & Answer
         </button>
         <DeleteButton
@@ -137,12 +142,14 @@ export function QnaDetailView() {
 
       <div className="flex flex-col gap-4 pb-8">
         <h1 className="flex items-center gap-2 text-2xl font-semibold">
-          {qna.isPrivate && <LockGrayIcon className="h-6 w-6" />}
+          {qna.isPrivate && (
+            <Image src={lockGrayIcon} alt="lockGrayIcon" className="h-6 w-6" />
+          )}
           {qna.title}
         </h1>
         <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
           <div className="flex items-center gap-[10px]">
-            <UserIcon className="text-primary h-4 w-4" />
+            <Image src={userIcon} alt="userIcon" className="h-4 w-4" />
             {qna.createdBy?.username}
           </div>
           <div className="flex items-center gap-[10px]">
@@ -159,7 +166,7 @@ export function QnaDetailView() {
         </span>
         {!qna.comments || qna.comments.length === 0 ? (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <InfoGrayIcon />
+            <Image src={infoGrayIcon} alt="infoGrayIcon" />
             <span>Comments not registered</span>
           </div>
         ) : (
@@ -179,7 +186,11 @@ export function QnaDetailView() {
                           {comment.createdBy?.username}
                         </span>
                         {isWriter && (
-                          <CheckCircleIcon className="text-primary h-5 w-5" />
+                          <Image
+                            src={checkBlueIcon}
+                            alt="checkBlueIcon"
+                            className="h-5 w-5"
+                          />
                         )}
                       </div>
                       <div className="text-color-neutral-50 flex items-center gap-1 text-[13px]">
@@ -227,7 +238,7 @@ export function QnaDetailView() {
             disabled={!commentContent.trim()}
             className="bg-primary flex h-12 w-full items-center justify-center gap-2 rounded-full hover:bg-blue-600"
           >
-            <PenIcon className="w-4 text-white" />
+            <Image src={penIcon} alt="penIcon" />
             Post
           </Button>
         </div>

@@ -22,18 +22,18 @@ import (
 )
 
 type Request struct {
-	ProblemId          int    `json:"problemId"`
-	Language           string `json:"language"`
-	MinimumTokens      int    `json:"minTokens"`
-	EnableMerging      bool   `json:"enableMerging"`
-	UseJplagClustering bool   `json:"useJplagClustering"`
-	AssignmentId       *int   `json:"assignmentId,omitempty"`
-	ContestId          *int   `json:"contestId,omitempty"`
-	WorkbookId         *int   `json:"workbookId,omitempty"`
+	ProblemId               int    `json:"problemId"`
+	Language                string `json:"language"`
+	MinimumTokens           int    `json:"minTokens"`
+	EnableMerging           bool   `json:"enableMerging"`
+	UseJplagClustering      bool   `json:"useJplagClustering"`
+	AssignmentId            *int   `json:"assignmentId,omitempty"`
+	ContestId               *int   `json:"contestId,omitempty"`
+	WorkbookId              *int   `json:"workbookId,omitempty"`
 }
 
 type CheckResult struct {
-	JplagOut string `json:"jplagOutput"`
+	JplagOut                string `json:"jplagOutput"`
 }
 
 type CheckResultMessage struct {
@@ -101,12 +101,12 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 	if err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		close(out)
 		return
 	}
@@ -115,12 +115,12 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	//validReq is unused util now...
 	if err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "request validate",
-			err:     fmt.Errorf("%w: %s", ErrValidate, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "request validate",
+        err:     fmt.Errorf("%w: %s", ErrValidate, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		close(out)
 		return
 	}
@@ -134,36 +134,36 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 	if err := c.file.CreateDir(dir); err != nil { // 작업용 임시 디렉토리 생성
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating base directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("creating base directory: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
 	subDir := dir + "/submission"
 	if err := c.file.CreateDir(subDir); err != nil { // 작업용 임시 제출물 디렉토리 생성
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating submission directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("creating submission directory: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
 	resDir := dir + "/result"
 	if err := c.file.CreateDir(resDir); err != nil { // 작업용 임시 결과물 디렉토리 생성
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("creating result directory: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("creating result directory: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
@@ -173,23 +173,23 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	checkInput := <-checkInputCh
 	if checkInput.Err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("getCheckInput error: %s", checkInput.Err),
-			level:   logger.ERROR,
-			Message: checkInput.Err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("getCheckInput error: %s", checkInput.Err),
+        level:   logger.ERROR,
+        Message: checkInput.Err.Error(),
+      },
+    }
 		return
 	}
 
 	chIn, ok := checkInput.Data.(check.CheckInput) // 검사 입력 데이터
 	if !ok {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: CheckInput", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		},
-		}
+        caller: "handle",
+        err:    fmt.Errorf("%w: CheckInput", ErrTypeAssertionFail),
+        level:  logger.ERROR,
+      },
+    }
 		return
 	}
 
@@ -201,23 +201,23 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 		if err != nil {
 			out <- CheckResultMessage{nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("parsing code: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			},
-			}
+          caller:  "handle",
+          err:     fmt.Errorf("parsing code: %w", err),
+          level:   logger.ERROR,
+          Message: err.Error(),
+        },
+      }
 			return
 		}
 
 		if err := c.file.CreateFile(srcPath, sub.Code); err != nil {
 			out <- CheckResultMessage{nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating submission file: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			},
-			}
+          caller:  "handle",
+          err:     fmt.Errorf("creating submission file: %w", err),
+          level:   logger.ERROR,
+          Message: err.Error(),
+        },
+      }
 			return
 		}
 	}
@@ -231,20 +231,20 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 
 		if err := c.file.CreateFile(path, chIn.BaseCode); err != nil {
 			out <- CheckResultMessage{nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("creating base code file: %w", err),
-				level:   logger.ERROR,
-				Message: err.Error(),
-			},
-			}
+          caller:  "handle",
+          err:     fmt.Errorf("creating base code file: %w", err),
+          level:   logger.ERROR,
+          Message: err.Error(),
+        },
+      }
 			return
 		}
 	}
 
 	checkSetting := check.CheckSettings{
-		MinTokens:          req.MinimumTokens,
-		EnableMerging:      req.EnableMerging,
-		UseJplagClustering: req.UseJplagClustering,
+		MinTokens:               req.MinimumTokens,
+		EnableMerging:           req.EnableMerging,
+		UseJplagClustering:      req.UseJplagClustering,
 	}
 
 	jplagOut, err := c.check.CheckPlagiarismRate( // 표절 검사
@@ -255,39 +255,39 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		checkSetting,
 	)
 
-	if err != nil {
+  if err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrRunJPlag, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrRunJPlag, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
-	if err := c.check.AnalyzeJplagOut(jplagOut); err != nil {
-		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrSmallTokens, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+  if err := c.check.AnalyzeJplagOut(jplagOut); err != nil {
+    out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrSmallTokens, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
-	}
+  }
 
 	if err := c.file.Unzip( // 검사 결과물 압축 해제
 		c.file.MakeFilePath(dir, "result.jplag").String(),
 		c.file.GetBasePath(resDir),
 	); err != nil { // 파일 압축 해제 실패 시
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("unzip jplag file: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("unzip jplag file: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
@@ -297,85 +297,85 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 	comparison := <-comparisonCh
 	if comparison.Err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("readComparisons error: %s", comparison.Err),
-			level:   logger.ERROR,
-			Message: comparison.Err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("readComparisons error: %s", comparison.Err),
+        level:   logger.ERROR,
+        Message: comparison.Err.Error(),
+      },
+    }
 		return
 	}
 
-	comps, ok := comparison.Data.([]check.ComparisonWithID)
+  comps, ok := comparison.Data.([]check.ComparisonWithID)
 	if !ok {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller: "handle",
-			err:    fmt.Errorf("%w: ComparisonWithID", ErrTypeAssertionFail),
-			level:  logger.ERROR,
-		},
-		}
+        caller: "handle",
+        err:    fmt.Errorf("%w: ComparisonWithID", ErrTypeAssertionFail),
+        level:  logger.ERROR,
+      },
+    }
 		return
 	}
 
-	var clus []check.ClusterWithID = nil
-	if req.UseJplagClustering {
-		clustersCh := make(chan result.ChResult)
-		go c.readClusters(handleCtx, clustersCh, resDir)
+  var clus []check.ClusterWithID = nil
+  if req.UseJplagClustering {
+    clustersCh := make(chan result.ChResult)
+    go c.readClusters(handleCtx, clustersCh, resDir)
 
-		clusters := <-clustersCh
-		if clusters.Err != nil {
-			out <- CheckResultMessage{nil, &HandlerError{
-				caller:  "handle",
-				err:     fmt.Errorf("readClusters error: %s", clusters.Err),
-				level:   logger.ERROR,
-				Message: clusters.Err.Error(),
-			},
-			}
-			return
-		}
+    clusters := <-clustersCh
+    if clusters.Err != nil {
+      out <- CheckResultMessage{nil, &HandlerError{
+        caller:  "handle",
+        err:     fmt.Errorf("readClusters error: %s", clusters.Err),
+        level:   logger.ERROR,
+        Message: clusters.Err.Error(),
+      },
+    }
+      return
+    }
 
-		clus, ok = clusters.Data.([]check.ClusterWithID)
-		if !ok {
-			out <- CheckResultMessage{nil, &HandlerError{
-				caller: "handle",
-				err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
-				level:  logger.ERROR,
-			},
-			}
-			return
-		}
-	}
+    clus, ok = clusters.Data.([]check.ClusterWithID)
+    if !ok {
+      out <- CheckResultMessage{nil, &HandlerError{
+          caller: "handle",
+          err:    fmt.Errorf("%w: Cluster", ErrTypeAssertionFail),
+          level:  logger.ERROR,
+        },
+      }
+      return
+    }
+  }
 
 	if err := c.check.SaveResult(
-		id,
+    id,
 		comps,
 		clus,
 	); err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("save check result in bucket: %w", err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("save check result in bucket: %w", err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
-	result := CheckResult{string(jplagOut)}
-	r, err := json.Marshal(result)
+  result := CheckResult{string(jplagOut)}
+  r, err := json.Marshal(result)
 
-	if err != nil {
+  if err != nil {
 		out <- CheckResultMessage{nil, &HandlerError{
-			caller:  "handle",
-			err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
-			level:   logger.ERROR,
-			Message: err.Error(),
-		},
-		}
+        caller:  "handle",
+        err:     fmt.Errorf("%w: %s", ErrMarshalJson, err),
+        level:   logger.ERROR,
+        Message: err.Error(),
+      },
+    }
 		return
 	}
 
-	out <- CheckResultMessage{r, nil}
+  out <- CheckResultMessage{r, nil}
 }
 
 func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChResult, req Request) {
@@ -431,8 +431,8 @@ func (c *CheckHandler) readComparisons(ctx context.Context, out chan<- result.Ch
 
 	comparisonDir := resDir + "/comparisons"
 	fileNames, err := c.file.CollectFiles(
-		c.file.GetBasePath(comparisonDir),
-	)
+    c.file.GetBasePath(comparisonDir),
+  )
 	if err != nil {
 		out <- result.ChResult{Err: err}
 		return
@@ -488,15 +488,15 @@ func (c *CheckHandler) readClusters(ctx context.Context, out chan<- result.ChRes
 		return
 	}
 
-	clustersWID := []check.ClusterWithID{}
-	for _, cluster := range clusters {
-		cwi, err := cluster.ToClusterWithID()
-		if err != nil {
-			out <- result.ChResult{Err: err}
-			return
-		}
-		clustersWID = append(clustersWID, cwi)
-	}
+  clustersWID := []check.ClusterWithID{}
+  for _, cluster := range clusters {
+    cwi, err := cluster.ToClusterWithID()
+    if err != nil {
+      out <- result.ChResult{Err: err}
+      return
+    }
+    clustersWID = append(clustersWID, cwi)
+  }
 
 	out <- result.ChResult{Data: clustersWID}
 }

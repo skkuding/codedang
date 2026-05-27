@@ -1,5 +1,6 @@
 import { formatDateRange } from '@/libs/utils'
-import CalendarIcon from '@/public/icons/calendar.svg'
+import calendarIcon from '@/public/icons/calendar.svg'
+import Image from 'next/image'
 
 interface DateRangeDisplayProps {
   startTime: Date
@@ -12,7 +13,7 @@ export function DateRangeDisplay({
 }: DateRangeDisplayProps) {
   return (
     <div className="flex items-center gap-2 text-sm font-normal">
-      <CalendarIcon width={14} />
+      <Image src={calendarIcon} alt="calendar" width={14} />
       <p>{formatDateRange(startTime, endTime)}</p>
     </div>
   )

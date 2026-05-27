@@ -1,13 +1,16 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { Suspense } from 'react'
-import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
+import {
+  ProblemInfiniteTable,
+  ProblemInfiniteTableFallback
+} from './_components/ProblemInfiniteTable'
 
 export default function ProblemListPage() {
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
-      <Suspense fallback={<ProblemTableFallback />}>
-        <ProblemTable />
+      <Suspense fallback={<ProblemInfiniteTableFallback />}>
+        <ProblemInfiniteTable />
       </Suspense>
     </TanstackQueryErrorBoundary>
   )

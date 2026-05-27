@@ -10,11 +10,9 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
-import PlusCircleWhiteIcon from '@/public/icons/plus-circle-white.svg'
-import SearchIcon from '@/public/icons/search.svg'
-import TrashcanIcon from '@/public/icons/trashcan.svg'
 import type { ZipUploadedTestcase } from '@/types/type'
 import type { Testcase } from '@generated/graphql'
+import Image from 'next/image'
 import {
   useEffect,
   useMemo,
@@ -435,23 +433,25 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
 
     const isHundred = useMemo(() => {
       const EPS = 0.0001
-      const sum = watchedItems.reduce((acc, tc) => {
-        if (typeof tc.scoreWeight === 'number') {
-          return acc + tc.scoreWeight
-        }
-        if (
-          typeof tc.scoreWeightNumerator === 'number' &&
-          typeof tc.scoreWeightDenominator === 'number' &&
-          tc.scoreWeightDenominator
-        ) {
-          return (
-            acc + (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
-          )
-        }
-        return acc
-      }, 0)
+      const sum = watchedItems
+        .filter((tc) => (testcaseFlag === 0 ? !tc.isHidden : tc.isHidden))
+        .reduce((acc, tc) => {
+          if (typeof tc.scoreWeight === 'number') {
+            return acc + tc.scoreWeight
+          }
+          if (
+            typeof tc.scoreWeightNumerator === 'number' &&
+            typeof tc.scoreWeightDenominator === 'number' &&
+            tc.scoreWeightDenominator
+          ) {
+            return (
+              acc + (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
+            )
+          }
+          return acc
+        }, 0)
       return Math.abs(sum - 100) <= EPS
-    }, [watchedItems])
+    }, [watchedItems, testcaseFlag])
 
     useEffect(() => {
       const newItems = watchedItems
@@ -579,7 +579,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
-                <SearchIcon width={16} height={16} />
+                <Image
+                  src="/icons/search.svg"
+                  alt="Search Icon"
+                  width={16}
+                  height={16}
+                />
                 <input
                   type="text"
                   placeholder="Search"
@@ -605,7 +610,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <TrashcanIcon width={18} height={18} />
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
@@ -630,7 +640,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             hasZipUploaded.sample
                           }
                         >
-                          <TrashcanIcon width={18} height={18} />
+                          <Image
+                            src="/icons/trashcan.svg"
+                            alt="trashcan Icon"
+                            width={18}
+                            height={18}
+                          />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Delete
                           </span>
@@ -649,7 +664,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           )}
                           disabled={hasZipUploaded.sample}
                         >
-                          <PlusCircleWhiteIcon width={18} height={18} />
+                          <Image
+                            src="/icons/plus-circle-white.svg"
+                            alt="plus circle white Icon"
+                            width={18}
+                            height={18}
+                          />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Add
                           </span>
@@ -703,7 +723,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
-                <SearchIcon width={16} height={16} />
+                <Image
+                  src="/icons/search.svg"
+                  alt="Search Icon"
+                  width={16}
+                  height={16}
+                />
                 <input
                   type="text"
                   placeholder="Search"
@@ -729,7 +754,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <TrashcanIcon width={18} height={18} />
+                        <Image
+                          src="/icons/trashcan.svg"
+                          alt="trashcan Icon"
+                          width={18}
+                          height={18}
+                        />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
@@ -754,7 +784,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             hasZipUploaded.hidden
                           }
                         >
-                          <TrashcanIcon width={18} height={18} />
+                          <Image
+                            src="/icons/trashcan.svg"
+                            alt="trashcan Icon"
+                            width={18}
+                            height={18}
+                          />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Delete
                           </span>
@@ -774,7 +809,12 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           )}
                           disabled={hasZipUploaded.hidden}
                         >
-                          <PlusCircleWhiteIcon width={18} height={18} />
+                          <Image
+                            src="/icons/plus-circle-white.svg"
+                            alt="plus circle white Icon"
+                            width={18}
+                            height={18}
+                          />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Add
                           </span>
@@ -847,14 +887,16 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Tooltip>
           </TooltipProvider>
           <div className="flex items-center">
-            <span className="text-body1_m_16 text-[#474747]">Total of</span>
+            <span className="text-base font-medium text-[#474747]">
+              Total of
+            </span>
             <span className="ml-1 mr-5 font-medium text-[#3581FA]">
               {filteredItems.length}
             </span>
-            <div className="hide-spin-button text-body1_m_16 mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-[#000000]">
+            <div className="hide-spin-button mr-1 flex h-7 w-20 items-center justify-center rounded-[1000px] border border-[#D8D8D8] bg-[#F5F5F5] px-2 py-1 text-center text-base font-medium text-[#000000]">
               {totalScore}
             </div>
-            <span className="text-sub4_sb_14 text-[#737373]">(%)</span>
+            <span className="text-sm font-semibold text-[#737373]">(%)</span>
           </div>
         </div>
         <div className="mt-5 flex w-full justify-end gap-3">

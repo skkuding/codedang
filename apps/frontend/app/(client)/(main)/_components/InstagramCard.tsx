@@ -1,4 +1,4 @@
-import InstagramLogoIcon from '@/public/icons/instagram-logo.svg'
+import instagramLogo from '@/public/icons/instagram-logo.svg'
 import type { Post } from '@/types/instagram'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,7 +17,12 @@ export function InstagramCard({ post }: InstagramCardProps) {
     >
       <div className="flex items-center gap-2 px-[10px] py-2">
         <div className="flex h-full w-auto items-center justify-center rounded-full bg-white shadow-[0_0_20px_0_rgba(53,78,116,0.10)]">
-          <InstagramLogoIcon width={24} height={24} />
+          <Image
+            src={instagramLogo}
+            alt="Instagram Logo"
+            width={24}
+            height={24}
+          />
         </div>
         <span className="text-base font-medium leading-[140%] tracking-[-0.48px]">
           SKKUDING

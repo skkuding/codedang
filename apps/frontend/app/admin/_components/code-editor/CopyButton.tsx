@@ -5,8 +5,9 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
-import CopyBlueIcon from '@/public/icons/copy-blue.svg'
+import copyBlueIcon from '@/public/icons/copy-blue.svg'
 import { LazyMotion, m, domAnimation } from 'framer-motion'
+import Image from 'next/image'
 import {
   useEffect,
   useRef,
@@ -82,7 +83,7 @@ export function CopyButton({
                   toast('Successfully copied', {
                     unstyled: true,
                     closeButton: false,
-                    icon: <CopyBlueIcon />,
+                    icon: <Image src={copyBlueIcon} alt="copy" />,
                     style: { backgroundColor: '#f0f8ff' },
                     classNames: {
                       toast:

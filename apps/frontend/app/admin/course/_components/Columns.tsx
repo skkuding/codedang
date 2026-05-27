@@ -58,7 +58,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
             'border-primary text-primary flex h-[30px] w-[116px] items-center justify-center rounded-full border'
           )}
         >
-          <p className="text-body2_m_14">{yearSeason}</p>
+          <p className="text-sm font-medium">{yearSeason}</p>
         </div>
       )
     }

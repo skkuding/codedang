@@ -12,8 +12,8 @@ import {
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { cn, convertToLetter } from '@/libs/utils'
-import ArrowBottomIcon from '@/public/icons/arrow-bottom.svg'
-import CheckCircleIcon from '@/public/icons/check-circle.svg'
+import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
+import checkIcon from '@/public/icons/check-green.svg'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSuspenseQuery } from '@apollo/client'
 import type { Route } from 'next'
@@ -82,7 +82,9 @@ export function AssignmentHeader() {
         <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
           <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">
             <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
-            <ArrowBottomIcon
+            <Image
+              src={arrowBottomIcon}
+              alt="open dropdown"
               width={16}
               height={16}
               className={cn(
@@ -114,7 +116,12 @@ export function AssignmentHeader() {
                       score.finalScore !== null
                   ) && (
                     <div className="flex items-center justify-center pl-2">
-                      <CheckCircleIcon className="text-color-green-50 h-4 w-4" />
+                      <Image
+                        src={checkIcon}
+                        alt="check"
+                        width={16}
+                        height={16}
+                      />
                     </div>
                   )}
                 </DropdownMenuItem>

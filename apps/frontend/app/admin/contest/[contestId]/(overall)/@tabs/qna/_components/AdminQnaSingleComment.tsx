@@ -29,7 +29,7 @@ export function AdminQnaSingleComment({
           )}
           <div className="absolute right-0 top-0">{DeleteButtonComponent}</div>
         </div>
-        <div className="text-body2_m_14 flex items-center gap-[4px] text-[#787E80]">
+        <div className="flex items-center gap-[4px] text-sm font-medium text-[#787E80]">
           <span>
             {dateFormatter(new Date(comment.createdTime), 'YYYY-MM-DD')}
           </span>

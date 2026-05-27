@@ -2,8 +2,9 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import InfoIcon from '@/public/icons/info.svg'
+import confirmIcon from '@/public/icons/check-blue.svg'
+import warningIcon from '@/public/icons/info.svg'
+import Image from 'next/image'
 import { useState } from 'react'
 import {
   AlertDialog,
@@ -21,7 +22,6 @@ interface ButtonProps {
   text: string
   onClick: () => void
   variant?: 'default' | 'outline'
-  disabled?: boolean
 }
 
 interface AlertModalProps {
@@ -74,12 +74,14 @@ export function AlertModal({
         onEscapeKeyDown={onClose}
       >
         <AlertDialogHeader className="flex flex-col items-center justify-center">
-          {showIcon &&
-            (type === 'warning' ? (
-              <InfoIcon className="h-[42px] w-[42px]" />
-            ) : (
-              <CheckCircleIcon className="text-primary h-[42px] w-[42px]" />
-            ))}
+          {showIcon && (
+            <Image
+              src={type === 'warning' ? warningIcon : confirmIcon}
+              alt={type === 'warning' ? 'warning' : 'confirm'}
+              width={42}
+              height={42}
+            />
+          )}
           <AlertDialogTitle
             className={cn(
               'w-full text-2xl font-semibold',
@@ -116,7 +118,6 @@ export function AlertModal({
                 type === 'warning' ? 'bg-error hover:bg-red-500/90' : null
               )}
               variant={primaryButton.variant}
-              disabled={primaryButton.disabled}
             >
               {primaryButton.text}
             </Button>

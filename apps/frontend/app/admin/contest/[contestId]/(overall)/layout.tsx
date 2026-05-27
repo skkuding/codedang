@@ -4,12 +4,12 @@ import { AdminContestStatusTimeDiff } from '@/app/admin/_components/AdminContest
 import { TimeStatusBadge } from '@/components/TimeStatusBadge'
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST } from '@/graphql/contest/queries'
-import KeyBlueIcon from '@/public/icons/key-blue.svg'
-import PenIcon from '@/public/icons/pen.svg'
+import keyBlueIcon from '@/public/icons/key-blue.svg'
 import { useQuery } from '@apollo/client'
+import Image from 'next/image'
 import Link from 'next/link'
 import { use } from 'react'
-import { FaAngleLeft, FaUser } from 'react-icons/fa6'
+import { FaAngleLeft, FaPencil, FaUser } from 'react-icons/fa6'
 import { ContestOverallTabs } from '../_components/ContestOverallTabs'
 
 export default function Layout(props: {
@@ -38,7 +38,7 @@ export default function Layout(props: {
         </div>
         <Link href={`/admin/contest/${contestId}/edit`}>
           <Button variant="default" className="h-[50px] w-[120px]">
-            <PenIcon className="mr-2 w-[18px] text-white" />
+            <FaPencil className="mr-2 h-4 w-4" />
             <p className="text-lg font-semibold">Edit</p>
           </Button>
         </Link>
@@ -50,7 +50,7 @@ export default function Layout(props: {
           <span>{contestData?.createdBy?.username}</span>
         </div>
         <div className="flex items-center gap-[6px] text-[#333333E5]">
-          <KeyBlueIcon />
+          <Image src={keyBlueIcon} alt="keyBlueicon" />
           <span className="text-primary font-medium">Invitation code : </span>
           <span>{contestData?.invitationCode ?? '-'}</span>
           <TimeStatusBadge

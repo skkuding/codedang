@@ -24,7 +24,6 @@ import { GroupModule } from './group/group.module'
 import { NoticeModule } from './notice/notice.module'
 import { NotificationModule } from './notification/notification.module'
 import { ProblemModule } from './problem/problem.module'
-import { StudyModule } from './study/study.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
 import { WorkbookModule } from './workbook/workbook.module'
@@ -54,8 +53,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     AssignmentModule,
     NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
-    OpenTelemetryModule.forRoot(openTelemetryModuleOption),
-    StudyModule
+    OpenTelemetryModule.forRoot(openTelemetryModuleOption)
   ],
   controllers: [AppController],
   providers: [

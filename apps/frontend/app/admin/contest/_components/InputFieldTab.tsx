@@ -286,7 +286,7 @@ export function InputFieldTab({
       >
         <div className="text-color-blue-50 flex h-full items-center gap-[4px] px-[22px]">
           <HiMiniPlus size={16} />
-          <p className="text-body2_m_14">Add</p>
+          <p className="text-sm font-medium">Add</p>
         </div>
       </Button>
     </div>

@@ -2,11 +2,12 @@
 
 import { DurationDisplay } from '@/components//DurationDisplay'
 import { cn } from '@/libs/utils'
-import ClockIcon from '@/public/icons/clock.svg'
+import clockIcon from '@/public/icons/clock.svg'
 import type { ContestStatus } from '@/types/type'
 import type { GetContestQuery } from '@generated/graphql'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useInterval } from 'react-use'
@@ -113,7 +114,7 @@ export function AdminContestStatusTimeDiff({
     >
       {contestStatus === 'finished' ? (
         <>
-          <ClockIcon className="text-flowkit-red h-4" />
+          <Image src={clockIcon} alt="clock" width={16} height={16} />
           Finished
           <p className="overflow-hidden text-ellipsis whitespace-nowrap">
             {timeDiff.days > 0
@@ -124,7 +125,7 @@ export function AdminContestStatusTimeDiff({
         </>
       ) : (
         <>
-          <ClockIcon className="text-flowkit-red h-4" />
+          <Image src={clockIcon} alt="clock" width={16} height={16} />
           {contestStatus === 'ongoing' || contestStatus === 'registeredOngoing'
             ? 'Ends in'
             : 'Starts in'}

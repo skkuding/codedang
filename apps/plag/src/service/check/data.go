@@ -46,24 +46,24 @@ type Comparison struct {
 }
 
 type ComparisonWithID struct {
-	FirstSubmissionId  int          `json:"firstSubmissionId"`
-	SecondSubmissionId int          `json:"secondSubmissionId"`
-	Similarities       Similarities `json:"similarities"`
-	Matches            []Match      `json:"matches"`
-	Similarity1        float32      `json:"firstSimilarity"`
-	Similarity2        float32      `json:"secondSimilarity"`
+	FirstSubmissionId  int        `json:"firstSubmissionId"`
+	SecondSubmissionId int        `json:"secondSubmissionId"`
+	Similarities  Similarities `json:"similarities"`
+	Matches       []Match      `json:"matches"`
+	Similarity1   float32      `json:"firstSimilarity"`
+	Similarity2   float32      `json:"secondSimilarity"`
 }
 
 type Cluster struct {
-	AvgSimilarity float32  `json:"averageSimilarity"`
-	Strength      float32  `json:"strength"`
-	Members       []string `json:"members"`
+  AvgSimilarity  float32      `json:"averageSimilarity"`
+	Strength       float32      `json:"strength"`
+	Members        []string     `json:"members"`
 }
 
 type ClusterWithID struct {
-	AvgSimilarity float32 `json:"averageSimilarity"`
-	Strength      float32 `json:"strength"`
-	Members       []int   `json:"members"`
+  AvgSimilarity  float32      `json:"averageSimilarity"`
+	Strength       float32      `json:"strength"`
+	Members        []int        `json:"members"`
 }
 
 func (s *CheckInput) Count() int {
@@ -71,13 +71,13 @@ func (s *CheckInput) Count() int {
 }
 
 func keepDigits(input string) string {
-	var b strings.Builder
-	for _, r := range input {
-		if unicode.IsDigit(r) {
-			b.WriteRune(r)
-		}
-	}
-	return b.String()
+    var b strings.Builder
+    for _, r := range input {
+        if unicode.IsDigit(r) {
+            b.WriteRune(r)
+        }
+    }
+    return b.String()
 }
 
 func (c *Comparison) ToComparisonWithID() (ComparisonWithID, error) {
@@ -92,7 +92,7 @@ func (c *Comparison) ToComparisonWithID() (ComparisonWithID, error) {
 
 	return ComparisonWithID{
 		submissionId1,
-		submissionId2,
+    submissionId2,
 		c.Similarities,
 		c.Matches,
 		c.Similarity1,
@@ -103,17 +103,17 @@ func (c *Comparison) ToComparisonWithID() (ComparisonWithID, error) {
 func (c *Cluster) ToClusterWithID() (ClusterWithID, error) {
 	ids := []int{}
 
-	for _, m := range c.Members {
-		id, err := strconv.Atoi(keepDigits(m))
-		if err != nil {
-			return ClusterWithID{}, err
-		}
-		ids = append(ids, id)
-	}
+  for _, m := range c.Members{
+    id, err := strconv.Atoi(keepDigits(m))
+    if err != nil {
+      return ClusterWithID{}, err
+    }
+    ids = append(ids, id)
+  }
 
 	return ClusterWithID{
 		c.AvgSimilarity,
-		c.Strength,
-		ids,
+    c.Strength,
+    ids,
 	}, nil
 }

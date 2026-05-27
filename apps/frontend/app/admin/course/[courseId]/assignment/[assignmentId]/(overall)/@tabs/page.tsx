@@ -118,11 +118,11 @@ export default function Information(props: InformationProps) {
                     <TableRow>
                       <TableCell
                         colSpan={2}
-                        className="text-sub4_sb_14 rounded-bl-xl bg-gray-50 text-right text-gray-700"
+                        className="rounded-bl-xl bg-gray-50 text-right text-sm font-semibold text-gray-700"
                       >
                         Total
                       </TableCell>
-                      <TableCell className="text-primary text-sub4_sb_14 bg-gray-50 text-center">
+                      <TableCell className="text-primary bg-gray-50 text-center text-sm font-semibold">
                         {problemsData.reduce(
                           (acc, cur) => acc + (cur.score || 0),
                           0

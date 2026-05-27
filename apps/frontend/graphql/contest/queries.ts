@@ -12,6 +12,7 @@ const GET_CONTEST = gql(`
       registerDueTime
       createTime
       title
+      invitationCode
       posterUrl
       summary
       freezeTime

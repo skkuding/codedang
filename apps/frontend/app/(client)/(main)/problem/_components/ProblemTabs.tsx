@@ -24,21 +24,21 @@ export function ProblemTabs() {
           variant="problem"
           onClick={() => router.push(`/problem`)}
         >
-          등록된 문제
+          Published
         </TabsTrigger>
         <TabsTrigger
           value="creating"
           variant="problem"
           onClick={() => router.push(`/problem/creating`)}
         >
-          제작 중인 문제
+          Creating
         </TabsTrigger>
         <TabsTrigger
           value="my-problem"
           variant="problem"
           onClick={() => router.push(`/problem/my-problem`)}
         >
-          내가 만든 문제
+          My Problem
         </TabsTrigger>
       </TabsList>
     </Tabs>

@@ -8,17 +8,6 @@ patches:
       kind: CronJob
       name: sealed-secrets-backup
     patch: |
-      apiVersion: batch/v1
-      kind: CronJob
-      metadata:
-        name: sealed-secrets-backup
-      spec:
-        jobTemplate:
-          spec:
-            template:
-              spec:
-                containers:
-                  - name: backup
-                    env:
-                      - name: S3_KEY_PREFIX
-                        value: stage
+      - op: replace
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env/0/value
+        value: Codedang-Sealed-Secrets-Stage

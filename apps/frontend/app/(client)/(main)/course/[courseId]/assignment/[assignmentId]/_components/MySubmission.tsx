@@ -12,11 +12,12 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import SeeSubmissionIcon from '@/public/icons/see-submission.svg'
+import seeSubmissionIcon from '@/public/icons/see-submission.svg'
 import type { AssignmentProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { ErrorBoundary } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
 import {
@@ -50,10 +51,12 @@ export function MySubmission({ problem }: { problem: AssignmentProblem }) {
         <Tooltip>
           <DialogTrigger asChild>
             <TooltipTrigger asChild>
-              <SeeSubmissionIcon
+              <Image
+                src={seeSubmissionIcon}
                 width={20}
                 height={20}
-                onClick={(e: React.MouseEvent) => {
+                alt={'See submission'}
+                onClick={(e) => {
                   e.stopPropagation()
                   setIsTooltipOpen(true)
                 }}
