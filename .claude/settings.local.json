@@ -7,7 +7,8 @@
       "Bash(nc -zv 127.0.0.1 5432)",
       "Bash(docker compose *)",
       "Bash(psql -h 127.0.0.1 -p 5433 -U postgres -c \"\\\\l\")",
-      "Bash(fuser 5433/tcp)"
+      "Bash(fuser 5433/tcp)",
+      "Bash(npx tsc *)"
     ]
   }
 }
