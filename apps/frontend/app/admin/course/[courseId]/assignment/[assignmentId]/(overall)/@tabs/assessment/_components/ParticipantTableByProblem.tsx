@@ -195,7 +195,7 @@ export function ParticipantTableByProblem() {
         >
           <button
             onClick={handleRejudge}
-            className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
+            className="bg-primary text-body2_m_14 flex items-center gap-2 rounded-full px-5 py-3 text-white transition-opacity hover:opacity-85"
           >
             Rejudge
           </button>
@@ -208,7 +208,7 @@ export function ParticipantTableByProblem() {
             data={csvData}
             headers={headers}
             filename={fileName}
-            className="bg-primary flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-85"
+            className="bg-primary text-body2_m_14 flex items-center gap-2 rounded-full px-5 py-3 text-white transition-opacity hover:opacity-85"
           >
             Download
           </CSVLink>

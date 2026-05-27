@@ -6,6 +6,7 @@ resources:
   - configmap.yaml
   - deployment.yaml
   - namespace.yaml
+  - rabbitmq-ca-cert.yaml
   - rabbitmq-credentials.yaml
 
 commonAnnotations:
