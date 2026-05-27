@@ -1,10 +1,12 @@
 'use client'
 
 import { allMajors } from '@/libs/constants'
-import { cn, safeFetcher } from '@/libs/utils'
+import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import resetGray from '@/public/icons/reset-gray.svg'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { searchUniversities } from 'korea-universities'
+// @ts-expect-error: no type declarations for this package
+import randomNameGenerator from 'korean-random-names-generator'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -15,35 +17,6 @@ import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
 
 const JOB_OPTIONS = ['고등학생', '대학생', '직장인', '기타'] as const
-
-const NICKNAME_ADJECTIVES = [
-  '신나는',
-  '빠른',
-  '멋진',
-  '귀여운',
-  '용감한',
-  '활발한',
-  '똑똑한',
-  '재미있는',
-  '행복한',
-  '따뜻한',
-  '씩씩한',
-  '유쾌한'
-]
-const NICKNAME_NOUNS = [
-  '청사과',
-  '고양이',
-  '펭귄',
-  '토끼',
-  '고래',
-  '독수리',
-  '호랑이',
-  '다람쥐',
-  '여우',
-  '늑대',
-  '곰',
-  '사자'
-]
 
 const PIN_EXPIRE_SECONDS = 300
 
@@ -103,8 +76,7 @@ export function SignUpPage() {
   const [agreements, setAgreements] = useState({
     terms: false,
     privacy: false,
-    minorPrivacy: false,
-    marketing: false
+    minorPrivacy: false
   })
 
   const {
@@ -132,16 +104,13 @@ export function SignUpPage() {
       email: '',
       terms: false,
       privacy: false,
-      minorPrivacy: false,
-      marketing: false
+      minorPrivacy: false
     }
   })
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isUserIdAvailable, setIsUserIdAvailable] = useState(false)
   const [isCheckingUserId, setIsCheckingUserId] = useState(false)
-  const [isNicknameAvailable, setIsNicknameAvailable] = useState(false)
-  const [nicknameChecked, setNicknameChecked] = useState(false)
   const [emailLocal, setEmailLocal] = useState('')
   const [emailSent, setEmailSent] = useState(false)
   const [emailVerified, setEmailVerified] = useState(false)
@@ -175,10 +144,7 @@ export function SignUpPage() {
   const isSKKU = watchUniversity.startsWith('성균관대학교')
 
   const isAllChecked =
-    agreements.terms &&
-    agreements.privacy &&
-    agreements.minorPrivacy &&
-    agreements.marketing
+    agreements.terms && agreements.privacy && agreements.minorPrivacy
 
   useEffect(() => {
     if (!emailSent || codeExpired || emailVerified) {
@@ -197,11 +163,6 @@ export function SignUpPage() {
   useEffect(() => {
     setIsUserIdAvailable(false)
   }, [watchUserId])
-
-  useEffect(() => {
-    setIsNicknameAvailable(false)
-    setNicknameChecked(false)
-  }, [watchNickname])
 
   useEffect(() => {
     const fullEmail = isSKKU ? `${emailLocal}@skku.edu` : emailLocal
@@ -251,10 +212,14 @@ export function SignUpPage() {
       setEmailVerified(false)
       setVerificationCode('')
       setPinError('')
-    } catch {
-      setError('email', {
-        message: '이메일 전송에 실패했습니다. 다시 시도해주세요'
-      })
+    } catch (error) {
+      if (isHttpError(error) && error.response.status === 409) {
+        setError('email', { message: '이미 사용 중인 이메일입니다' })
+      } else {
+        setError('email', {
+          message: '이메일 전송에 실패했습니다. 다시 시도해주세요'
+        })
+      }
     }
   }
 
@@ -303,47 +268,18 @@ export function SignUpPage() {
   }
 
   const generateNickname = () => {
-    const adj =
-      NICKNAME_ADJECTIVES[
-        Math.floor(Math.random() * NICKNAME_ADJECTIVES.length)
-      ]
-    const noun =
-      NICKNAME_NOUNS[Math.floor(Math.random() * NICKNAME_NOUNS.length)]
-    setValue('nickname', `${adj} ${noun}`, { shouldValidate: true })
-  }
-
-  const checkNickname = async () => {
-    if (!watchNickname) {
-      return
-    }
-    try {
-      await safeFetcher.get(
-        `user/nickname-check?nickname=${encodeURIComponent(watchNickname)}`
-      )
-      setIsNicknameAvailable(true)
-      setNicknameChecked(true)
-    } catch {
-      setIsNicknameAvailable(false)
-      setNicknameChecked(true)
-    }
+    setValue('nickname', randomNameGenerator(), { shouldValidate: true })
   }
 
   const handleAllAgreementChange = (checked: boolean) => {
-    const next = {
-      terms: checked,
-      privacy: checked,
-      minorPrivacy: checked,
-      marketing: checked
-    }
-    setAgreements(next)
+    setAgreements({ terms: checked, privacy: checked, minorPrivacy: checked })
     setValue('terms', checked)
     setValue('privacy', checked)
     setValue('minorPrivacy', checked)
-    setValue('marketing', checked)
   }
 
   const handleAgreementChange = (
-    key: 'terms' | 'privacy' | 'minorPrivacy' | 'marketing',
+    key: 'terms' | 'privacy' | 'minorPrivacy',
     checked: boolean
   ) => {
     setAgreements((prev) => ({ ...prev, [key]: checked }))
@@ -614,7 +550,7 @@ export function SignUpPage() {
                 <div className="relative flex-1">
                   <input
                     type="text"
-                    placeholder="신나는 청사과"
+                    placeholder="희망찬 올빼미"
                     className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-[52px] outline-none"
                     {...register('nickname')}
                   />
@@ -632,28 +568,10 @@ export function SignUpPage() {
                     />
                   </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={checkNickname}
-                  disabled={!watchNickname}
-                  className="text-sub3_sb_16 border-primary-light text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  중복 확인
-                </button>
               </div>
               {!watchNickname && (
                 <p className="text-caption3_r_13 text-color-cool-neutral-60">
                   * 닉네임 미입력시, 코드당이 자동으로 닉네임을 추천해드려요!
-                </p>
-              )}
-              {nicknameChecked && isNicknameAvailable && (
-                <p className="text-caption3_r_13 text-primary">
-                  사용 가능한 닉네임입니다
-                </p>
-              )}
-              {nicknameChecked && !isNicknameAvailable && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  중복된 닉네임입니다
                 </p>
               )}
             </div>
@@ -1048,15 +966,6 @@ export function SignUpPage() {
               }
             >
               14세미만 개인정보 이용 보호
-            </AgreementCheckbox>
-
-            <AgreementCheckbox
-              checked={agreements.marketing}
-              onChange={(checked) =>
-                handleAgreementChange('marketing', checked)
-              }
-            >
-              [선택] 마케팅 활용 동의 및 광고 수신 동의
             </AgreementCheckbox>
           </div>
 

@@ -56,8 +56,7 @@ export const signupSchema = v.pipe(
 
     terms: v.boolean(),
     privacy: v.boolean(),
-    minorPrivacy: v.boolean(),
-    marketing: v.boolean()
+    minorPrivacy: v.boolean()
   }),
   v.forward(
     v.check(
