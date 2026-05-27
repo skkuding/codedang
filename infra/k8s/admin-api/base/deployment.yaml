@@ -32,10 +32,6 @@ spec:
                 name: database-credentials
             - secretRef:
                 name: security-keys
-          volumeMounts:
-            - name: rabbitmq-ca-cert
-              mountPath: /etc/ssl/rabbitmq
-              readOnly: true
           env:
             - name: RABBITMQ_DEFAULT_USER
               valueFrom:
@@ -52,10 +48,3 @@ spec:
                 secretKeyRef:
                   name: redis-credentials
                   key: password
-      volumes:
-        - name: rabbitmq-ca-cert
-          secret:
-            secretName: rabbitmq-ca-cert
-            items:
-              - key: ca.crt
-                path: ca.crt
