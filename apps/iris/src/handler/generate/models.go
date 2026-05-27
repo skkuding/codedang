@@ -56,7 +56,14 @@ func (r GenerateRequest) Validate() (*GenerateRequest, error) {
 	return &r, nil
 }
 
-type GenerateResult struct {
-	GeneratedTestcases int `json:"generatedTestcases"`
-	TotalTestcases     int `json:"totalTestcases"`
+type GenerateToolResult struct {
+	GeneratedCount int                     `json:"generatedCount"`
+	RequestedCount int                     `json:"requestedCount"`
+	Errors         []GenerateTestcaseError `json:"errors,omitempty"` // only failed indices
+}
+
+type GenerateTestcaseError struct {
+	Index   int    `json:"index"`
+	Message string `json:"message"`
+	Stderr  string `json:"stderr,omitempty"`
 }

@@ -28,13 +28,15 @@ func (r ValidateRequest) Validate() (*ValidateRequest, error) {
 	return &r, nil
 }
 
-type ValidateTestcaseResult struct {
-	Id      int  `json:"id"`
-	IsValid bool `json:"isValid"`
+type ValidateTestcaseToolResult struct {
+	TestcaseId int    `json:"testcaseId"`
+	IsValid    bool   `json:"isValid"`
+	Message    string `json:"message,omitempty"` // testlib validation message
+	Stderr     string `json:"stderr,omitempty"`  // raw stderr from validator
 }
 
-type ValidateResult struct {
-	IsValid       bool                     `json:"isValid"`
-	TestcaseCount int                      `json:"testcaseCount"`
-	Results       []ValidateTestcaseResult `json:"results"`
+type ValidateToolResult struct {
+	IsAllValid    bool                         `json:"isAllValid"`
+	TestcaseCount int                          `json:"testcaseCount"`
+	Results       []ValidateTestcaseToolResult `json:"results"`
 }

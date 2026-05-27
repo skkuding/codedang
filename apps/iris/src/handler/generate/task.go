@@ -74,11 +74,18 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 
 	count := validReq.TestcaseCount
 
-	collected := t.runGenerations(ctx, count, generatorUnit, solutionUnit)
+	collected, generateErrors := t.runGenerations(ctx, count, generatorUnit, solutionUnit)
 
 	if len(collected) == 0 {
+		// all failed
+		res := GenerateToolResult{
+			GeneratedCount: 0,
+			RequestedCount: count,
+			Errors:         generateErrors,
+		}
+		marshaledRes, _ := json.Marshal(res)
 		sendResult(handler.ResultMessage{
-			Result: nil,
+			Result: marshaledRes,
 			Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("all testcase generations failed")),
 		})
 		return
@@ -105,9 +112,10 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 		return
 	}
 
-	res := GenerateResult{
-		GeneratedTestcases: len(collected),
-		TotalTestcases:     count,
+	res := GenerateToolResult{
+		GeneratedCount: len(collected),
+		RequestedCount: count,
+		Errors:         generateErrors,
 	}
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {
@@ -121,11 +129,11 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 }
 
 func (t *Task) runGenerations(
-	ctx           context.Context,
-	count         int,
+	ctx context.Context,
+	count int,
 	generatorUnit *build.BuildUnit,
-	solutionUnit  *build.BuildUnit,
-) []loader.ElementIn {
+	solutionUnit *build.BuildUnit,
+) ([]loader.ElementIn, []GenerateTestcaseError) {
 	limit, _ := strconv.Atoi(os.Getenv("GENERATE_CONCURRENCY"))
 	if limit <= 0 {
 		limit = 4
@@ -135,6 +143,8 @@ func (t *Task) runGenerations(
 	sem := make(chan struct{}, limit)
 	pairs := make([]loader.ElementIn, count)
 	pairOk := make([]bool, count)
+	errs := make([]GenerateTestcaseError, count)
+	hasErr := make([]bool, count)
 
 	for i := 0; i < count; i++ {
 		i := i
@@ -150,12 +160,14 @@ func (t *Task) runGenerations(
 				return nil
 			}
 			defer func() { <-sem }()
-			pair, err := t.generateOne(i, generatorUnit, solutionUnit)
-			if err != nil {
+			pair, genErr := t.generateOne(i, generatorUnit, solutionUnit)
+			if genErr != nil {
 				t.logger.Log(logger.ERROR, fmt.Sprintf(
 					"Error generating testcase %d for problemId %d: %s",
-					i, t.req.ProblemId, err.Error(),
+					i, t.req.ProblemId, genErr.Message,
 				))
+				errs[i] = *genErr
+				hasErr[i] = true
 				return nil
 			}
 			pairs[i] = pair
@@ -166,19 +178,23 @@ func (t *Task) runGenerations(
 	g.Wait() //nolint:errcheck // goroutines always return nil
 
 	var collected []loader.ElementIn
-	for i, ok := range pairOk {
-		if ok {
+	var collectedErrs []GenerateTestcaseError
+	for i := range pairOk {
+		if pairOk[i] {
 			collected = append(collected, pairs[i])
 		}
+		if hasErr[i] {
+			collectedErrs = append(collectedErrs, errs[i])
+		}
 	}
-	return collected
+	return collected, collectedErrs
 }
 
 func (t *Task) generateOne(
 	index int,
 	generatorUnit *build.BuildUnit,
 	solutionUnit *build.BuildUnit,
-) (loader.ElementIn, error) {
+) (loader.ElementIn, *GenerateTestcaseError) {
 	runResult, err := generatorUnit.Run(t.sandbox, sandbox.RunRequest{
 		Order:       index,
 		TimeLimit:   2000,
@@ -186,15 +202,14 @@ func (t *Task) generateOne(
 		ExtraArgs:   t.req.GeneratorArgs,
 	}, []byte{})
 	if err != nil {
-		return loader.ElementIn{}, fmt.Errorf("generator run failed: %w", err)
+		return loader.ElementIn{}, &GenerateTestcaseError{Index: index, Message: fmt.Sprintf("generator run failed: %v", err)}
 	}
 	if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
-		return loader.ElementIn{}, fmt.Errorf(
-			"generator execution failed at index %d, status: %v, stderr: %s",
-			index,
-			runResult.ExecResult.StatusCode,
-			string(runResult.ErrOutput),
-		)
+		return loader.ElementIn{}, &GenerateTestcaseError{
+			Index:   index,
+			Message: fmt.Sprintf("generator execution failed at index %d, status: %v", index, runResult.ExecResult.StatusCode),
+			Stderr:  string(runResult.ErrOutput),
+		}
 	}
 
 	out := []byte{}
@@ -206,15 +221,14 @@ func (t *Task) generateOne(
 			ExtraArgs:   []string{},
 		}, runResult.Output)
 		if solutionErr != nil {
-			return loader.ElementIn{}, fmt.Errorf("solution run failed: %w", solutionErr)
+			return loader.ElementIn{}, &GenerateTestcaseError{Index: index, Message: fmt.Sprintf("solution run failed: %v", solutionErr)}
 		}
 		if solutionRunResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
-			return loader.ElementIn{}, fmt.Errorf(
-				"solution execution failed at index %d, status: %v, stderr: %s",
-				index,
-				solutionRunResult.ExecResult.StatusCode,
-				string(solutionRunResult.ErrOutput),
-			)
+			return loader.ElementIn{}, &GenerateTestcaseError{
+				Index:   index,
+				Message: fmt.Sprintf("solution execution failed at index %d, status: %v", index, solutionRunResult.ExecResult.StatusCode),
+				Stderr:  string(solutionRunResult.ErrOutput),
+			}
 		}
 		out = solutionRunResult.Output
 	}

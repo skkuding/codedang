@@ -73,8 +73,8 @@ func (t *Task) RunAction(ctx context.Context, resultSender handler.ResultSender2
 		return
 	}
 
-	res := ValidateResult{
-		IsValid:       allValid,
+	res := ValidateToolResult{
+		IsAllValid:    allValid,
 		TestcaseCount: len(tc.Elements),
 		Results:       results,
 	}
@@ -90,7 +90,7 @@ func (t *Task) runValidations(
 	ctx context.Context,
 	validatorUnit *build.BuildUnit,
 	elements []loader.ElementOut,
-) (bool, []ValidateTestcaseResult, error) {
+) (bool, []ValidateTestcaseToolResult, error) {
 	limitStr := os.Getenv("VALIDATE_CONCURRENCY")
 	concurrencyLimit, err := strconv.Atoi(limitStr)
 	if err != nil || concurrencyLimit <= 0 {
@@ -99,7 +99,7 @@ func (t *Task) runValidations(
 
 	g, gCtx := errgroup.WithContext(ctx)
 	sem := make(chan struct{}, concurrencyLimit)
-	results := make([]ValidateTestcaseResult, len(elements))
+	results := make([]ValidateTestcaseToolResult, len(elements))
 	errs := make([]error, len(elements))
 
 	for i, el := range elements {
@@ -110,12 +110,12 @@ func (t *Task) runValidations(
 				return nil
 			}
 			defer func() { <-sem }()
-			isValid, err := t.validateTestcase(gCtx, i, el, validatorUnit)
-			if err != nil {
-				errs[i] = err
+			tcRes, tcErr := t.validateTestcase(gCtx, i, el, validatorUnit)
+			if tcErr != nil {
+				errs[i] = tcErr
 				return nil
 			}
-			results[i] = ValidateTestcaseResult{Id: el.Id, IsValid: isValid}
+			results[i] = tcRes
 			return nil
 		})
 	}
@@ -135,7 +135,7 @@ func (t *Task) runValidations(
 
 	allValid := true
 	for _, r := range results {
-		if r.Id != 0 && !r.IsValid {
+		if r.TestcaseId != 0 && !r.IsValid {
 			allValid = false
 			break
 		}
@@ -149,7 +149,7 @@ func (t *Task) validateTestcase(
 	idx int,
 	element loader.ElementOut,
 	validatorUnit *build.BuildUnit,
-) (isValid bool, err error) {
+) (res ValidateTestcaseToolResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic in validate TC %d: %v", idx, r)
@@ -165,19 +165,29 @@ func (t *Task) validateTestcase(
 
 	if runErr != nil {
 		t.logger.Log(logger.ERROR, fmt.Sprintf("Error while validating testcase: %s", runErr.Error()))
-		return false, runErr
+		return ValidateTestcaseToolResult{TestcaseId: element.Id}, runErr
 	}
 
 	if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		t.logger.Log(logger.ERROR, fmt.Sprintf("Validator execution failed at testcase %d", idx))
-		return false, fmt.Errorf("validator execution failed")
+		return ValidateTestcaseToolResult{
+			TestcaseId: element.Id,
+			IsValid:    false,
+			Message:    "Execution failed",
+			Stderr:     string(runResult.ErrOutput),
+		}, nil
 	}
 
-	isValid = runResult.ExecResult.ExitCode == 0
+	isValid := runResult.ExecResult.ExitCode == 0
 	if !isValid {
 		t.logger.Log(logger.INFO, fmt.Sprintf("Validation failed at testcase %d", idx))
 	}
-	return isValid, nil
+	return ValidateTestcaseToolResult{
+		TestcaseId: element.Id,
+		IsValid:    isValid,
+		Message:    string(runResult.Output),
+		Stderr:     string(runResult.ErrOutput),
+	}, nil
 }
 
 
