@@ -1,6 +1,5 @@
 export interface SignUpFormValues {
   name: string
-  birth: string
   userId: string
   password: string
   passwordConfirm: string
@@ -13,5 +12,4 @@ export interface SignUpFormValues {
   terms: boolean
   privacy: boolean
   minorPrivacy: boolean
-  marketing: boolean
 }
