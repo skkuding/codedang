@@ -55,7 +55,8 @@ export function NoticeCommentCard({
     new Date(comment.updateTime).getTime()
 
   const isDeleted = comment.isDeleted
-  const isHiddenMasked = !comment.createdBy && comment.isSecret
+  const isHiddenMasked =
+    comment.isSecret && !comment.isDeleted && comment.content === ''
   const isMasked = isDeleted || isHiddenMasked
 
   const canEdit = isMine && !isDeleted && Boolean(comment.createdBy)
@@ -112,12 +113,64 @@ export function NoticeCommentCard({
     return (
       <div className="bg-color-neutral-95 rounded-xl px-6 py-4">
         {displayWriter && (
-          <div className="text-sub2_m_18 mb-2">{displayWriter}</div>
+          <div className="text-sub2_m_18 mb-[2px]">{displayWriter}</div>
         )}
+        <div className="text-caption3_r_13 text-color-cool-neutral-50 mb-5 flex items-center gap-1">
+          <IoTime className="text-color-blue-50 h-[14px] w-[14px]" />
+          <span>
+            {dateFormatter(comment.createdTime, 'YYYY-MM-DD HH:mm:ss')}
+          </span>
+        </div>
         <div className="text-body1_m_16 text-color-neutral-60 flex items-center gap-2">
           <ExclamationMarkIcon className="relative top-[-4px] mr-3 h-4 w-4 shrink-0 overflow-visible" />
           {displayContent}
         </div>
+      </div>
+    )
+  }
+
+  if (!isReply && isHiddenMasked) {
+    return (
+      <div
+        className={cn(
+          'border px-6 py-6',
+          hasReplySection ? 'rounded-b-none rounded-t-xl' : 'rounded-xl',
+          'border-color-neutral-95'
+        )}
+      >
+        {displayWriter && (
+          <div className="mb-[2px] flex items-center gap-2">
+            <span className="text-sub2_m_18">{displayWriter}</span>
+            <span className="bg-color-blue-90 text-caption1_m_13 text-primary rounded-[4px] px-2 py-1">
+              <LockBlueIcon
+                width={14}
+                height={14}
+                className="mr-1 inline-block align-[-2px]"
+              />
+              Hidden
+            </span>
+          </div>
+        )}
+        <div className="text-caption3_r_13 text-color-cool-neutral-50 flex items-center gap-1">
+          <IoTime className="text-color-blue-50 h-[14px] w-[14px]" />
+          <span>
+            {dateFormatter(comment.createdTime, 'YYYY-MM-DD HH:mm:ss')}
+          </span>
+        </div>
+        <div className="text-body1_m_16 text-color-neutral-60 mt-5 flex items-center">
+          <ExclamationMarkIcon className="relative top-[-4px] mr-3 h-4 w-4 shrink-0 overflow-visible" />
+          {displayContent}
+        </div>
+        <button
+          type="button"
+          onClick={() => onReplyToggle(comment.id)}
+          className="text-caption3_r_13 text-color-neutral-70 border-line mt-2 border-b"
+        >
+          {isReplyOpen ? 'Hide Reply' : 'Reply'}
+          {!isReplyOpen && (
+            <span className="text-primary ml-1">{replyCount}</span>
+          )}
+        </button>
       </div>
     )
   }

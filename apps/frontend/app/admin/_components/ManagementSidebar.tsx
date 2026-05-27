@@ -39,7 +39,7 @@ interface NavItem {
   path: string
   icon: IconType | ComponentType<{ className: string }>
 }
-<<<<<<< HEAD
+
 // Pending : 2중 사이드바 구조 철회
 // const getCourseNavItems = (courseId: string): NavItem[] => [
 //   {
@@ -73,41 +73,6 @@ interface NavItem {
 //     icon: ExerciseIcon
 //   }
 // ]
-=======
-
-const getCourseNavItems = (courseId: string): NavItem[] => [
-  {
-    name: 'Home',
-    path: `/admin/course/${courseId}` as const,
-    icon: HomeIcon
-  },
-  {
-    name: 'Notice',
-    path: `/admin/course/${courseId}/notice`,
-    icon: FaBell
-  },
-  {
-    name: 'Member',
-    path: `/admin/course/${courseId}/user` as const,
-    icon: MemberIcon
-  },
-  {
-    name: 'Assignment',
-    path: `/admin/course/${courseId}/assignment` as const,
-    icon: AssignmentIcon
-  },
-  {
-    name: 'Exercise',
-    path: `/admin/course/${courseId}/exercise` as const,
-    icon: ExerciseIcon
-  },
-  {
-    name: 'Q&A',
-    path: `/admin/course/${courseId}/qna` as const,
-    icon: ExerciseIcon
-  }
-]
->>>>>>> 88b66fdab (feat(fe): make notice frame)
 
 interface SidebarLinkProps {
   item: NavItem

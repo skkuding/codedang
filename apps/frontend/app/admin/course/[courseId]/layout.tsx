@@ -32,11 +32,39 @@ export default function CourseDetailLayout({
     currentCourse?.groupName || (loading ? '로딩 중...' : '과목 정보 없음')
 
   const tabs = [
-    { name: 'Home', href: `/admin/course/${courseId}` },
-    { name: 'Member', href: `/admin/course/${courseId}/user` },
-    { name: 'Assignment', href: `/admin/course/${courseId}/assignment` },
-    { name: 'Exercise', href: `/admin/course/${courseId}/exercise` },
-    { name: 'Notice', href: `/admin/course/${courseId}/notice` }
+    { name: 'Home', title: 'HOME', href: `/admin/course/${courseId}` },
+    {
+      name: 'Member',
+      title: 'MEMBER',
+      description:
+        "Here's a list of the instructors and students of the course",
+      href: `/admin/course/${courseId}/user`
+    },
+    {
+      name: 'Assignment',
+      title: 'ASSIGNMENT',
+      description: "Here's a assignment list you made",
+      href: `/admin/course/${courseId}/assignment`
+    },
+    {
+      name: 'Exercise',
+      title: 'EXERCISE',
+      description: "Here's a exercise list you made",
+      href: `/admin/course/${courseId}/exercise`
+    },
+    {
+      name: 'Notice',
+      title: 'NOTICE',
+      description: "Here's a notice list you made",
+      href: `/admin/course/${courseId}/notice`
+    },
+    {
+      name: 'Q&A',
+      title: 'Question & Answer',
+      description:
+        'Assignment와 Exercise 문제와 관련된 질문과 답변을 제공합니다.',
+      href: `/admin/course/${courseId}/qna`
+    }
   ]
 
   const activeTabName =
