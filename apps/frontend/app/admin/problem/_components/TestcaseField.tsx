@@ -451,7 +451,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
         return acc
       }, 0)
       return Math.abs(sum - 100) <= EPS
-    }, [watchedItems, testcaseFlag])
+    }, [watchedItems])
 
     useEffect(() => {
       const newItems = watchedItems
