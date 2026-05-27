@@ -149,3 +149,4 @@ coverage
 
 .idea
 .codex
+.claude/settings.local.json

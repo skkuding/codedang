@@ -4,20 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net"
+	"log"
 	"net/http"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -29,9 +24,9 @@ import (
 )
 
 const (
-	RunnerImageTag          = "RUNNER_IMAGE_TAG"
-	RunnerNamespace         = "runner"
-	SharedLeaseTTLSeconds   = 200
+	RunnerImageTag         = "RUNNER_IMAGE_TAG"
+	RunnerNamespace        = "runner"
+	SharedLeaseTTLSeconds  = 200
 	GlobalPoolReservationID = "__global__"
 )
 
@@ -49,29 +44,11 @@ type RunnerNodePool struct {
 	MaxPods    int
 }
 
-var requestSequence uint64
-
-type requestLogContext struct {
-	RequestID  string
-	ClientAddr string
-	StartedAt  time.Time
-	TraceCtx   context.Context
-}
-
-type leaseAttemptSummary struct {
-	Attempts           int
-	NilCount           int
-	ValidationFailures int
-}
-
 type PodManager struct {
 	clientset       *kubernetes.Clientset
-	logger          Logger
+	logger          *log.Logger
 	namespace       string
 	imageTag        string
-	appEnv          string
-	otlpEndpoint    string
-	disableOTel     bool
 	targetPoolSize  int
 	leaseTimeout    time.Duration
 	readyTimeout    time.Duration
@@ -86,11 +63,11 @@ type PodManager struct {
 	managerPodUID  string
 	stateStore     RunnerStateStore
 	sharedLeaseTTL time.Duration
-	tracer         trace.Tracer
 }
 
-func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager, error) {
-	imageTag := strings.TrimSpace(getenv(RunnerImageTag, ""))
+func NewPodManager(clientset *kubernetes.Clientset) (*PodManager, error) {
+	logger := log.New(os.Stdout, "[Pod Manager] ", log.LstdFlags)
+	imageTag := os.Getenv(RunnerImageTag)
 	if imageTag == "" {
 		return nil, fmt.Errorf("environment variable %s is not set", RunnerImageTag)
 	}
@@ -133,9 +110,6 @@ func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager,
 		logger:          logger,
 		namespace:       RunnerNamespace,
 		imageTag:        imageTag,
-		appEnv:          getenv("APP_ENV", "stage"),
-		otlpEndpoint:    strings.TrimSpace(getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")),
-		disableOTel:     strings.EqualFold(getenv("DISABLE_INSTRUMENTATION", "false"), "true"),
 		targetPoolSize:  poolSize,
 		leaseTimeout:    time.Duration(leaseTimeoutSec) * time.Second,
 		readyTimeout:    time.Duration(readyTimeoutSec) * time.Second,
@@ -144,7 +118,6 @@ func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager,
 		busyPods:        make(map[string]*RunnerPod),
 		managerPodName:  strings.TrimSpace(os.Getenv("HOSTNAME")),
 		sharedLeaseTTL:  time.Duration(SharedLeaseTTLSeconds) * time.Second,
-		tracer:          otel.Tracer(podManagerServiceName),
 	}
 
 	pm.stateStore = NewRunnerStateStoreFromEnv(logger)
@@ -156,7 +129,7 @@ func NewPodManager(clientset *kubernetes.Clientset, logger Logger) (*PodManager,
 }
 
 func envInt(key string, fallback int) int {
-	value := getenv(key, "")
+	value := os.Getenv(key)
 	if value == "" {
 		return fallback
 	}
@@ -167,108 +140,6 @@ func envInt(key string, fallback int) int {
 	}
 
 	return parsed
-}
-
-func getenv(key, fallback string) string {
-	value := strings.TrimSpace(os.Getenv(key))
-	if value != "" {
-		return value
-	}
-	return fallback
-}
-
-func newRequestLogContext(r *http.Request, traceCtx context.Context) *requestLogContext {
-	seq := atomic.AddUint64(&requestSequence, 1)
-	now := time.Now().UTC()
-
-	return &requestLogContext{
-		RequestID:  fmt.Sprintf("run-%d-%d", now.UnixNano(), seq),
-		ClientAddr: clientAddress(r),
-		StartedAt:  now,
-		TraceCtx:   traceCtx,
-	}
-}
-
-func clientAddress(r *http.Request) string {
-	if r == nil {
-		return ""
-	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err == nil {
-		return host
-	}
-	return r.RemoteAddr
-}
-
-func (pm *PodManager) logRequestEventLevel(level LogLevel, ctx *requestLogContext, event string, fields map[string]any) {
-	if pm == nil || pm.logger == nil {
-		return
-	}
-
-	messageFields := map[string]any{
-		"manager_pod": pm.managerPodName,
-	}
-	if ctx != nil {
-		messageFields["request_id"] = ctx.RequestID
-		messageFields["client_addr"] = ctx.ClientAddr
-	}
-	for key, value := range fields {
-		if value == nil {
-			continue
-		}
-		messageFields[key] = value
-	}
-
-	message := formatLogMessage(event, messageFields)
-	if ctx != nil && ctx.TraceCtx != nil {
-		pm.logger.LogWithContext(level, message, ctx.TraceCtx)
-		return
-	}
-	pm.logger.Log(level, message)
-}
-
-func (pm *PodManager) logRequestEvent(ctx *requestLogContext, event string, fields map[string]any) {
-	pm.logRequestEventLevel(LogLevelInfo, ctx, event, fields)
-}
-
-func validationFailureReason(err error) string {
-	if err == nil {
-		return ""
-	}
-	msg := err.Error()
-	switch {
-	case msg == "leased pod is deleting":
-		return "runner_deleting"
-	case msg == "leased pod container not ready":
-		return "runner_container_not_ready"
-	case msg == "nil lease":
-		return "nil_lease"
-	case len(msg) >= len("leased pod not ready") && msg[:len("leased pod not ready")] == "leased pod not ready":
-		return "runner_not_ready"
-	case len(msg) >= len("get leased pod:") && msg[:len("get leased pod:")] == "get leased pod:":
-		return "runner_lookup_failed"
-	default:
-		return "validation_failed"
-	}
-}
-
-func formatLogMessage(event string, fields map[string]any) string {
-	if len(fields) == 0 {
-		return event
-	}
-
-	keys := make([]string, 0, len(fields))
-	for key := range fields {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-
-	parts := make([]string, 0, len(keys)+1)
-	parts = append(parts, event)
-	for _, key := range keys {
-		parts = append(parts, fmt.Sprintf("%s=%v", key, fields[key]))
-	}
-	return strings.Join(parts, " ")
 }
 
 func loadRunnerNodePools(defaultPoolSize int) (string, []RunnerNodePool, error) {
@@ -620,21 +491,6 @@ func (pm *PodManager) createAndWaitRunnerPod(nodeValue string) (*RunnerPod, erro
 
 func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 	privileged := true
-	runnerEnv := []corev1.EnvVar{
-		{Name: "APP_ENV", Value: pm.appEnv},
-	}
-	if pm.otlpEndpoint != "" {
-		runnerEnv = append(runnerEnv, corev1.EnvVar{
-			Name:  "OTEL_EXPORTER_OTLP_ENDPOINT_URL",
-			Value: pm.otlpEndpoint,
-		})
-	}
-	if pm.disableOTel {
-		runnerEnv = append(runnerEnv, corev1.EnvVar{
-			Name:  "DISABLE_INSTRUMENTATION",
-			Value: "true",
-		})
-	}
 
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
@@ -650,7 +506,6 @@ func (pm *PodManager) createRunnerPod(nodeValue string) (*RunnerPod, error) {
 					Name:            "runner",
 					Image:           fmt.Sprintf("%s:%s", "ghcr.io/skkuding/codedang-runner", pm.imageTag),
 					ImagePullPolicy: corev1.PullIfNotPresent,
-					Env:             runnerEnv,
 					Ports: []corev1.ContainerPort{
 						{ContainerPort: 8000},
 					},
@@ -803,55 +658,38 @@ func (pm *PodManager) deleteRunnerPod(podName string) error {
 	return nil
 }
 
-func (pm *PodManager) leasePod(ctx *requestLogContext) (*RunnerPod, leaseAttemptSummary, error) {
-	return pm.leasePodFromSharedPool(ctx)
+func (pm *PodManager) leasePod() (*RunnerPod, error) {
+	return pm.leasePodFromSharedPool()
 }
 
 func (pm *PodManager) useGlobalRedisScheduler() bool {
 	return pm.stateStore != nil && pm.stateStore.Enabled()
 }
 
-func (pm *PodManager) leasePodFromSharedPool(ctx *requestLogContext) (*RunnerPod, leaseAttemptSummary, error) {
-	leaseCtx, leaseSpan := pm.tracer.Start(
-		ctx.TraceCtx,
-		semanticSpanName(podManagerServiceName, "pod-manager", "leasePodFromSharedPool"),
-	)
-	defer leaseSpan.End()
-
+func (pm *PodManager) leasePodFromSharedPool() (*RunnerPod, error) {
 	deadline := time.Now().Add(pm.leaseTimeout)
-	summary := leaseAttemptSummary{}
 	for {
 		if time.Now().After(deadline) {
-			return nil, summary, errors.New("global warm pod pool exhausted")
+			return nil, errors.New("global warm pod pool exhausted")
 		}
 
-		summary.Attempts++
 		lease, err := pm.stateStore.AcquireIdleRunnerLease(
-			leaseCtx,
+			context.Background(),
 			pm.managerPodName,
 			pm.managerPodUID,
 			pm.sharedLeaseTTL,
 		)
 		if err != nil {
-			return nil, summary, fmt.Errorf("shared lease acquire failed: %w", err)
+			return nil, fmt.Errorf("shared lease acquire failed: %w", err)
 		}
 		if lease == nil {
-			summary.NilCount++
 			time.Sleep(50 * time.Millisecond)
 			continue
 		}
 
-		pod, err := pm.loadLeasedRunnerPod(leaseCtx, lease)
+		pod, err := pm.loadLeasedRunnerPod(lease)
 		if err != nil {
-			summary.ValidationFailures++
-			pm.logRequestEvent(ctx, "run.validation_failed", map[string]any{
-				"runner_pod":       lease.Record.PodName,
-				"runner_node_pool": lease.Record.NodePoolID,
-				"lease_attempt":    summary.Attempts,
-				"failure_reason":   validationFailureReason(err),
-				"result":           "failure",
-				"error":            err.Error(),
-			})
+			pm.logger.Printf("Discarding leased runner %s after validation failure: %v", lease.Record.PodName, err)
 			_ = pm.deleteRunnerPod(lease.Record.PodName)
 			time.Sleep(25 * time.Millisecond)
 			continue
@@ -860,27 +698,17 @@ func (pm *PodManager) leasePodFromSharedPool(ctx *requestLogContext) (*RunnerPod
 		pm.mu.Lock()
 		pm.busyPods[pod.Name] = pod
 		pm.mu.Unlock()
-		return pod, summary, nil
+		return pod, nil
 	}
 }
 
-func (pm *PodManager) loadLeasedRunnerPod(ctx context.Context, lease *RunnerLease) (*RunnerPod, error) {
-	validateCtx, validateSpan := pm.tracer.Start(
-		ctx,
-		semanticSpanName(podManagerServiceName, "pod-manager", "loadLeasedRunnerPod"),
-	)
-	defer validateSpan.End()
-
+func (pm *PodManager) loadLeasedRunnerPod(lease *RunnerLease) (*RunnerPod, error) {
 	if lease == nil {
 		return nil, errors.New("nil lease")
 	}
-	validateSpan.SetAttributes(
-		attribute.String("runner.pod_name", lease.Record.PodName),
-		attribute.String("runner.node_pool", lease.Record.NodePoolID),
-	)
 
 	pod, err := pm.clientset.CoreV1().Pods(pm.namespace).Get(
-		validateCtx,
+		context.Background(),
 		lease.Record.PodName,
 		metav1.GetOptions{},
 	)
@@ -909,25 +737,14 @@ func (pm *PodManager) loadLeasedRunnerPod(ctx context.Context, lease *RunnerLeas
 	}, nil
 }
 
-func (pm *PodManager) releasePod(ctx *requestLogContext, pod *RunnerPod, forceReplace bool) {
-	releaseCtx, releaseSpan := pm.tracer.Start(
-		ctx.TraceCtx,
-		semanticSpanName(podManagerServiceName, "pod-manager", "releasePod"),
-	)
-	defer releaseSpan.End()
-	releaseSpan.SetAttributes(
-		attribute.String("runner.pod_name", pod.Name),
-		attribute.String("runner.node_pool", pod.NodePoolID),
-		attribute.Bool("runner.force_replace", forceReplace),
-	)
-
+func (pm *PodManager) releasePod(pod *RunnerPod, forceReplace bool) {
 	pm.mu.Lock()
 	delete(pm.busyPods, pod.Name)
 	pm.mu.Unlock()
 
 	if !forceReplace && pm.isPodReusable(pod.Name) {
 		ok, err := pm.stateStore.ReleaseRunnerLease(
-			releaseCtx,
+			context.Background(),
 			pod.Name,
 			pod.LeaseToken,
 			RunnerStateIdle,
@@ -936,35 +753,14 @@ func (pm *PodManager) releasePod(ctx *requestLogContext, pod *RunnerPod, forceRe
 			return
 		}
 		if err != nil {
-			pm.logRequestEvent(ctx, "run.release_failed", map[string]any{
-				"runner_pod":       pod.Name,
-				"runner_node_pool": pod.NodePoolID,
-				"result":           "failure",
-				"force_replace":    false,
-				"failure_reason":   "release_lease_error",
-				"error":            err.Error(),
-			})
+			pm.logger.Printf("Failed to release shared lease for %s: %v", pod.Name, err)
 		} else {
-			pm.logRequestEvent(ctx, "run.release_failed", map[string]any{
-				"runner_pod":       pod.Name,
-				"runner_node_pool": pod.NodePoolID,
-				"result":           "failure",
-				"force_replace":    true,
-				"failure_reason":   "release_rejected",
-			})
+			pm.logger.Printf("Shared lease release rejected for %s; replacing pod", pod.Name)
 		}
 	}
 
 	if err := pm.deleteRunnerPod(pod.Name); err != nil {
-		pm.logRequestEvent(ctx, "run.force_replace_failed", map[string]any{
-			"runner_pod":       pod.Name,
-			"runner_node_pool": pod.NodePoolID,
-			"result":           "failure",
-			"force_replace":    true,
-			"failure_reason":   "delete_pod_failed",
-			"error":            err.Error(),
-		})
-	} else {
+		pm.logger.Printf("Failed to delete pod %s: %v", pod.Name, err)
 	}
 	pm.ensurePool()
 }
@@ -1061,12 +857,12 @@ func (pm *PodManager) reconcileRunnerSharedState() {
 			desiredState = RunnerStateIdle
 		}
 
-		record := RunnerStateRecord{
-			PodName:     pod.Name,
-			NodePoolID:  pod.Labels["runner-node-pool"],
-			PodIP:       pod.Status.PodIP,
-			State:       desiredState,
-			OwnerPod:    existing.OwnerPod,
+			record := RunnerStateRecord{
+				PodName:     pod.Name,
+				NodePoolID:  pod.Labels["runner-node-pool"],
+				PodIP:       pod.Status.PodIP,
+				State:       desiredState,
+				OwnerPod:    existing.OwnerPod,
 			OwnerPodUID: existing.OwnerPodUID,
 			LeaseToken:  existing.LeaseToken,
 			UpdatedAt:   time.Now(),
@@ -1122,12 +918,12 @@ func (pm *PodManager) reapOrphanLeases() {
 		}
 
 		if pm.isPodReady(pod) {
-			record := RunnerStateRecord{
-				PodName:     pod.Name,
-				NodePoolID:  pod.Labels["runner-node-pool"],
-				PodIP:       pod.Status.PodIP,
-				State:       RunnerStateIdle,
-				OwnerPod:    "",
+				record := RunnerStateRecord{
+					PodName:     pod.Name,
+					NodePoolID:  pod.Labels["runner-node-pool"],
+					PodIP:       pod.Status.PodIP,
+					State:       RunnerStateIdle,
+					OwnerPod:    "",
 				OwnerPodUID: "",
 				LeaseToken:  "",
 				UpdatedAt:   time.Now(),
@@ -1147,17 +943,7 @@ func (pm *PodManager) reapOrphanLeases() {
 	}
 }
 
-func (pm *PodManager) dialPodWebSocket(ctx *requestLogContext, pod *RunnerPod) (*websocket.Conn, int, error) {
-	_, dialSpan := pm.tracer.Start(
-		ctx.TraceCtx,
-		semanticSpanName(podManagerServiceName, "pod-manager", "dialPodWebSocket"),
-	)
-	defer dialSpan.End()
-	dialSpan.SetAttributes(
-		attribute.String("runner.pod_name", pod.Name),
-		attribute.String("runner.node_pool", pod.NodePoolID),
-	)
-
+func (pm *PodManager) dialPodWebSocket(pod *RunnerPod) (*websocket.Conn, error) {
 	wsURL := fmt.Sprintf("ws://%s:8000/ws", pod.IP)
 	dialer := &websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
@@ -1169,62 +955,19 @@ func (pm *PodManager) dialPodWebSocket(ctx *requestLogContext, pod *RunnerPod) (
 	for i := 0; i < 3; i++ {
 		conn, _, err := dialer.Dial(wsURL, nil)
 		if err == nil {
-			return conn, i, nil
+			return conn, nil
 		}
 		lastErr = err
-		pm.logRequestEventLevel(LogLevelDebug, ctx, "run.runner_dial_retry", map[string]any{
-			"runner_pod":       pod.Name,
-			"runner_node_pool": pod.NodePoolID,
-			"dial_retry_count": i + 1,
-			"result":           "retry",
-			"failure_reason":   "runner_dial_failed",
-			"error":            err.Error(),
-		})
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	return nil, 3, fmt.Errorf("failed to connect pod websocket %s: %w", wsURL, lastErr)
+	return nil, fmt.Errorf("failed to connect pod websocket %s: %w", wsURL, lastErr)
 }
 
 func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	traceCtx, rootSpan := pm.tracer.Start(
-		r.Context(),
-		semanticSpanName(podManagerServiceName, "pod-manager", "handleWebSocket"),
-	)
-	defer rootSpan.End()
-
-	reqCtx := newRequestLogContext(r, traceCtx)
-	rootSpan.SetAttributes(
-		attribute.String("request.id", reqCtx.RequestID),
-		attribute.String("client.addr", reqCtx.ClientAddr),
-		attribute.String("http.route", "/run"),
-	)
-	pm.logRequestEvent(reqCtx, "run.request_started", map[string]any{
-		"result": "started",
-	})
-
-	result := "success"
-	failureReason := ""
-	leaseSummary := leaseAttemptSummary{}
-	dialRetryCount := 0
-
-	pod, leaseSummary, err := pm.leasePod(reqCtx)
+	pod, err := pm.leasePod()
 	if err != nil {
-		result = "failure"
-		switch {
-		case strings.HasPrefix(err.Error(), "shared lease acquire failed:"):
-			failureReason = "redis_acquire_error"
-		default:
-			failureReason = "lease_timeout"
-		}
-		pm.logRequestEvent(reqCtx, "run.request_rejected", map[string]any{
-			"result":                result,
-			"failure_reason":        failureReason,
-			"lease_attempt":         leaseSummary.Attempts,
-			"lease_nil_count":       leaseSummary.NilCount,
-			"validation_fail_count": leaseSummary.ValidationFailures,
-			"error":                 err.Error(),
-		})
+		pm.logger.Printf("Rejecting request: %v", err)
 		w.Header().Set("Retry-After", strconv.Itoa(int(pm.leaseTimeout.Seconds())))
 		http.Error(w, "Runner capacity exhausted, retry later", http.StatusServiceUnavailable)
 		return
@@ -1232,42 +975,12 @@ func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	forceReplace := false
 	defer func() {
-		pm.releasePod(reqCtx, pod, forceReplace)
-		rootSpan.SetAttributes(
-			attribute.String("runner.pod_name", pod.Name),
-			attribute.String("runner.node_pool", pod.NodePoolID),
-			attribute.String("result", result),
-			attribute.String("failure.reason", failureReason),
-			attribute.Int("lease.attempt", leaseSummary.Attempts),
-			attribute.Int("lease.nil_count", leaseSummary.NilCount),
-			attribute.Int("validation.fail_count", leaseSummary.ValidationFailures),
-			attribute.Int("dial.retry_count", dialRetryCount),
-		)
-		pm.logRequestEvent(reqCtx, "run.request_finished", map[string]any{
-			"runner_pod":            pod.Name,
-			"runner_node_pool":      pod.NodePoolID,
-			"result":                result,
-			"failure_reason":        failureReason,
-			"lease_attempt":         leaseSummary.Attempts,
-			"lease_nil_count":       leaseSummary.NilCount,
-			"validation_fail_count": leaseSummary.ValidationFailures,
-			"dial_retry_count":      dialRetryCount,
-			"force_replace":         forceReplace,
-		})
+		pm.releasePod(pod, forceReplace)
 	}()
 
-	podConn, dialRetryCount, err := pm.dialPodWebSocket(reqCtx, pod)
+	podConn, err := pm.dialPodWebSocket(pod)
 	if err != nil {
-		result = "failure"
-		failureReason = "runner_dial_failed"
-		pm.logRequestEvent(reqCtx, "run.runner_dial_failed", map[string]any{
-			"runner_pod":       pod.Name,
-			"runner_node_pool": pod.NodePoolID,
-			"result":           result,
-			"failure_reason":   failureReason,
-			"dial_retry_count": dialRetryCount,
-			"error":            err.Error(),
-		})
+		pm.logger.Printf("Failed to connect to leased pod %s: %v", pod.Name, err)
 		forceReplace = true
 		http.Error(w, "Runner pod is unavailable", http.StatusServiceUnavailable)
 		return
@@ -1285,15 +998,7 @@ func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	clientConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		result = "failure"
-		failureReason = "client_upgrade_failed"
-		pm.logRequestEvent(reqCtx, "run.client_upgrade_failed", map[string]any{
-			"runner_pod":       pod.Name,
-			"runner_node_pool": pod.NodePoolID,
-			"result":           result,
-			"failure_reason":   failureReason,
-			"error":            err.Error(),
-		})
+		pm.logger.Printf("WebSocket upgrade failed: %v", err)
 		return
 	}
 	defer clientConn.Close()
@@ -1344,15 +1049,7 @@ func (pm *PodManager) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	if proxyErr := <-errorChan; proxyErr != nil {
-		result = "failure"
-		failureReason = "proxy_io_error"
-		pm.logRequestEvent(reqCtx, "run.proxy_io_error", map[string]any{
-			"runner_pod":       pod.Name,
-			"runner_node_pool": pod.NodePoolID,
-			"result":           result,
-			"failure_reason":   failureReason,
-			"error":            proxyErr.Error(),
-		})
+		pm.logger.Printf("Connection ended with error for pod %s: %v", pod.Name, proxyErr)
 	}
 }
 
@@ -1410,37 +1107,16 @@ func (pm *PodManager) handleHealth(w http.ResponseWriter, _ *http.Request) {
 func main() {
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create in-cluster config: %v", err))
+		log.Fatalf("Failed to create in-cluster config: %v", err)
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create clientset: %v", err))
+		log.Fatalf("Failed to create clientset: %v", err)
 	}
 
-	ctx := context.Background()
-	var shutdown func(context.Context) error
-	if getenv("DISABLE_INSTRUMENTATION", "false") != "true" {
-		endpoint := strings.TrimSpace(getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", ""))
-		if endpoint == "" {
-			panic("OTEL_EXPORTER_OTLP_ENDPOINT_URL must be set when instrumentation is enabled")
-		}
-		shutdown, err = initInstrumentation(ctx, podManagerServiceName, "0.1.0", endpoint)
-		if err != nil {
-			panic(fmt.Sprintf("Failed to initialize instrumentation: %v", err))
-		}
-		defer func() {
-			if shutdownErr := shutdown(ctx); shutdownErr != nil {
-				fmt.Printf("instrumentation shutdown error: %v\n", shutdownErr)
-			}
-		}()
-	}
-
-	logger := newLogger(podManagerServiceName, strings.EqualFold(getenv("APP_ENV", "stage"), "production"))
-	defer logger.Sync()
-
-	podManager, err := NewPodManager(clientset, logger)
+	podManager, err := NewPodManager(clientset)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to initialize pod manager: %v", err))
+		log.Fatalf("Failed to initialize pod manager: %v", err)
 	}
 
 	podManager.startWarmPool()
@@ -1451,7 +1127,7 @@ func main() {
 	addr := ":8080"
 	podManager.logger.Printf("Pod Manager running on %s (pool=%d)", addr, podManager.targetPoolSize)
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		panic(fmt.Sprintf("Failed to start server: %v", err))
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
 

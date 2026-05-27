@@ -435,25 +435,23 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
 
     const isHundred = useMemo(() => {
       const EPS = 0.0001
-      const sum = watchedItems
-        .filter((tc) => (testcaseFlag === 0 ? !tc.isHidden : tc.isHidden))
-        .reduce((acc, tc) => {
-          if (typeof tc.scoreWeight === 'number') {
-            return acc + tc.scoreWeight
-          }
-          if (
-            typeof tc.scoreWeightNumerator === 'number' &&
-            typeof tc.scoreWeightDenominator === 'number' &&
-            tc.scoreWeightDenominator
-          ) {
-            return (
-              acc + (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
-            )
-          }
-          return acc
-        }, 0)
+      const sum = watchedItems.reduce((acc, tc) => {
+        if (typeof tc.scoreWeight === 'number') {
+          return acc + tc.scoreWeight
+        }
+        if (
+          typeof tc.scoreWeightNumerator === 'number' &&
+          typeof tc.scoreWeightDenominator === 'number' &&
+          tc.scoreWeightDenominator
+        ) {
+          return (
+            acc + (tc.scoreWeightNumerator / tc.scoreWeightDenominator) * 100
+          )
+        }
+        return acc
+      }, 0)
       return Math.abs(sum - 100) <= EPS
-    }, [watchedItems, testcaseFlag])
+    }, [watchedItems])
 
     useEffect(() => {
       const newItems = watchedItems
