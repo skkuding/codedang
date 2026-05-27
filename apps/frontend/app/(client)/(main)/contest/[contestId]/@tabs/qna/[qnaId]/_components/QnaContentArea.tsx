@@ -1,8 +1,9 @@
 import { dateFormatter } from '@/libs/utils'
-import ClockIcon from '@/public/icons/clock.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { GetContestQnaQuery } from '@generated/graphql'
+import Image from 'next/image'
 import type { ReactElement } from 'react'
+import { FaClock } from 'react-icons/fa6'
 
 /**
  * Qna 상세 페이지의 글 내용 UI 컴포넌트
@@ -42,12 +43,13 @@ export function QnaContentArea({
         {/* userID & time */}
         <div className="flex flex-col gap-[6px] font-medium text-[#787E80]">
           <div className="flex items-center gap-[10px]">
-            <PersonFillIcon className="text-primary h-4" />
+            <div className="size-[16px]">
+              <Image src={PersonFillIcon} alt="person" />
+            </div>
             <p className="text-sm">{createdBy?.username}</p>
           </div>
           <div className="flex items-center gap-[10px]">
-            <ClockIcon className="text-primary h-4" />
-            {/* <ClockIcon className="h-[14px]" /> */}
+            <FaClock className="text-color-blue-50" size={13} />
             <div className="flex items-center gap-[4px] text-sm">
               <p>{dateFormatter(new Date(createTime), 'YYYY-MM-DD')}</p>
               <p>{dateFormatter(new Date(createTime), 'HH:mm:ss')}</p>

@@ -1,3 +1,0 @@
-# Production-specific Redis values
-# Uses default StorageClass (local-path)
-# No additional overrides needed

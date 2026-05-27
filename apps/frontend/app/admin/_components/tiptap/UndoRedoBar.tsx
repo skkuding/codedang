@@ -1,6 +1,7 @@
-import RedoIcon from '@/public/icons/texteditor-redo.svg'
-import UndoIcon from '@/public/icons/texteditor-undo.svg'
+import Redo from '@/public/icons/texteditor-redo.svg'
+import Undo from '@/public/icons/texteditor-undo.svg'
 import type { Editor } from '@tiptap/react'
+import Image from 'next/image'
 
 interface UndoRedoBarProps {
   editor: Editor
@@ -21,7 +22,7 @@ export function UndoRedoBar({ editor }: UndoRedoBarProps) {
         }}
         className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md align-middle hover:bg-gray-100"
       >
-        <UndoIcon className="h-4 w-4" />
+        <Image src={Undo} alt="Undo" className="h-4 w-4" />
       </button>
       <button
         type="button"
@@ -32,7 +33,7 @@ export function UndoRedoBar({ editor }: UndoRedoBarProps) {
         }}
         className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md align-middle hover:bg-gray-100"
       >
-        <RedoIcon className="h-4 w-4" />
+        <Image src={Redo} alt="Redo" className="h-4 w-4" />
       </button>
     </div>
   )

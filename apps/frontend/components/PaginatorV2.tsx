@@ -5,25 +5,17 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/shadcn/pagination'
-import { cn, getPageArray } from '@/libs/utils'
+import { getPageArray } from '@/libs/utils'
 import type { ReactNode } from 'react'
 
 interface PaginatorProps {
   children: ReactNode
-  className?: string
-  contentClassName?: string
 }
 
-export function Paginator({
-  children,
-  className,
-  contentClassName
-}: PaginatorProps) {
+export function Paginator({ children }: PaginatorProps) {
   return (
-    <Pagination className={className}>
-      <PaginationContent
-        className={cn('flex items-center gap-[10px] py-2', contentClassName)}
-      >
+    <Pagination>
+      <PaginationContent className="flex items-center gap-[10px] py-2">
         {children}
       </PaginationContent>
     </Pagination>
@@ -35,16 +27,12 @@ interface SlotNavigationProps {
   direction: Direction
   disabled: boolean
   gotoSlot: (dir: Direction) => void
-  className?: string
-  spacerClassName?: string
 }
 
 export function SlotNavigation({
   direction,
   gotoSlot,
-  disabled,
-  className,
-  spacerClassName
+  disabled
 }: SlotNavigationProps) {
   return direction === 'prev' ? (
     <>
@@ -54,20 +42,18 @@ export function SlotNavigation({
         }}
         isActive={!disabled}
         disabled={disabled}
-        className={className}
       />
-      <div className={cn('w-[26px]', spacerClassName)} />
+      <div className="w-[26px]" />
     </>
   ) : (
     <>
-      <div className={cn('w-[26px]', spacerClassName)} />
+      <div className="w-[26px]" />
       <PaginationNext
         onClick={() => {
           gotoSlot('next')
         }}
         isActive={!disabled}
         disabled={disabled}
-        className={className}
       />
     </>
   )
@@ -78,19 +64,13 @@ interface PageNavigationProps {
   lastPage: number
   currentPage: number
   gotoPage: (page: number) => void
-  buttonClassName?: string
-  activeButtonClassName?: string
-  inactiveButtonClassName?: string
 }
 
 export function PageNavigation({
   firstPage,
   lastPage,
   currentPage,
-  gotoPage,
-  buttonClassName,
-  activeButtonClassName,
-  inactiveButtonClassName
+  gotoPage
 }: PageNavigationProps) {
   return (
     <>
@@ -98,12 +78,6 @@ export function PageNavigation({
         <PaginationButton
           key={item}
           isActive={currentPage === item}
-          className={cn(
-            buttonClassName,
-            currentPage === item
-              ? activeButtonClassName
-              : inactiveButtonClassName
-          )}
           onClick={() => {
             gotoPage(item)
           }}

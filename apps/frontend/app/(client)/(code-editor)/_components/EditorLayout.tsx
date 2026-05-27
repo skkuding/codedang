@@ -3,14 +3,7 @@ import { CountdownStatus } from '@/components/CountdownStatus'
 import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
-import {
-  dateFormatter,
-  fetcher,
-  fetcherWithAuth,
-  getStatusWithStartEnd,
-  hasDueDate,
-  omitString
-} from '@/libs/utils'
+import { fetcher, fetcherWithAuth, hasDueDate, omitString } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import type { Assignment, Contest, Course, ProblemDetail } from '@/types/type'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
@@ -54,22 +47,7 @@ export async function EditorLayout({
       `contest/${contestId}/problem/${problemId}`
     )
     if (!res.ok && (res.status === 403 || res.status === 401)) {
-      const contest: Contest = await fetcher(`contest/${contestId}`).json()
-      const formattedStartTime = dateFormatter(
-        contest.startTime,
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      const formattedEndTime = dateFormatter(
-        contest.endTime,
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      const status = getStatusWithStartEnd(formattedStartTime, formattedEndTime)
-
-      if (status === 'upcoming') {
-        redirect(`/contest/${contestId}/problem`)
-      } else {
-        redirect(`/contest/${contestId}/finished/problem/${problemId}`)
-      }
+      redirect(`/contest/${contestId}/finished/problem/${problemId}`)
     }
 
     const contestProblem = await res.json<GetContestProblemDetailResponse>()

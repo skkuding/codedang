@@ -18,12 +18,13 @@ import {
 } from '@/components/shadcn/tooltip'
 import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
-import BottomCenterIcon from '@/public/icons/bottom-center.svg'
-import SyncIcon from '@/public/icons/sync.svg'
+import bottomCenterIcon from '@/public/icons/bottom-center.svg'
+import syncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
 import type { ProblemDetail, Contest } from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
@@ -233,7 +234,9 @@ export function EditorMainResizablePanel({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <SyncIcon
+                        <Image
+                          src={syncIcon}
+                          alt="Sync"
                           className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto`}
                           onClick={() => {
                             if (!isFrozen) {
@@ -247,7 +250,11 @@ export function EditorMainResizablePanel({
                           side="bottom"
                           className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
                         >
-                          <BottomCenterIcon className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform" />
+                          <Image
+                            src={bottomCenterIcon}
+                            alt="Tooltip arrow"
+                            className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform"
+                          />
                           <p className="text-xs">Leaderboard is frozen</p>
                         </TooltipContent>
                       )}
@@ -258,7 +265,9 @@ export function EditorMainResizablePanel({
             )}
             {tabValue === 'Submission' && contestId && (
               <div className="flex w-full gap-x-4">
-                <SyncIcon
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
                   className={'ml-auto cursor-pointer'}
                   onClick={() => {
                     isSubmissionDetail
@@ -270,7 +279,9 @@ export function EditorMainResizablePanel({
             )}
             {tabValue === 'Qna' && contestId && (
               <div className="ml-auto flex gap-x-4">
-                <SyncIcon
+                <Image
+                  src={syncIcon}
+                  alt="Sync"
                   className={'ml-4 cursor-pointer'}
                   onClick={() => {
                     triggerQnaRefresh()

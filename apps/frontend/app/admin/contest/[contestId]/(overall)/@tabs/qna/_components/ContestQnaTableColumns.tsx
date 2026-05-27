@@ -42,7 +42,7 @@ function AnsweredCell({ row }: { row: Row<DataTableQna> }) {
           row.original.isResolved
             ? 'bg-color-neutral-99 border-color-neutral-90 text-color-neutral-70 border'
             : 'text-primary border-primary border'
-        } text-body2_m_14 h-9 w-[102px] rounded-full px-3 py-1 transition hover:opacity-80`}
+        } h-9 w-[102px] rounded-full px-3 py-1 text-sm font-medium transition hover:opacity-80`}
         onClick={async (e) => {
           e.stopPropagation()
           try {

@@ -5,13 +5,19 @@ import {
   DialogTitle
 } from '@/components/shadcn/dialog'
 import InfoIcon from '@/public/icons/info-icon.svg'
+import Image from 'next/image'
 
 export function LeaderboardModalDialog() {
   return (
     <div className="flex">
       <Dialog>
         <DialogTrigger asChild>
-          <InfoIcon className="cursor-pointer" width={24} />
+          <Image
+            className="cursor-pointer"
+            src={InfoIcon}
+            alt="info"
+            width={24}
+          />
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}

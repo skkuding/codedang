@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
-import PenIcon from '@/public/icons/pen.svg'
 import type { Dispatch, SetStateAction } from 'react'
+import { BiSolidPencil } from 'react-icons/bi'
 
 export function QnaCommentPostArea({
   username,
@@ -40,7 +40,7 @@ export function QnaCommentPostArea({
         onClick={() => onPost()}
         className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-[6px]"
       >
-        <PenIcon className="w-4 text-white" />
+        <BiSolidPencil className="white" />
         <p className="text-base font-medium text-white">Post</p>
       </Button>
     </div>

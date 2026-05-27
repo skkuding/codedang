@@ -1,9 +1,10 @@
 'use client'
 
 import { cn, dateFormatter, getStatusColor } from '@/libs/utils'
-import CheckCircleIcon from '@/public/icons/check-circle.svg'
+import checkIcon from '@/public/icons/check-blue.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
+import Image from 'next/image'
 import { getStatusText } from '../_libs/utils'
 
 export const columns: ColumnDef<Contest>[] = [
@@ -62,7 +63,13 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) =>
       row.original.isRegistered && (
         <div className="flex h-full w-full items-center justify-center">
-          <CheckCircleIcon className="text-primary block h-6 w-6" />
+          <Image
+            src={checkIcon}
+            alt="check"
+            width={24}
+            height={24}
+            className="block"
+          />
         </div>
       )
   }

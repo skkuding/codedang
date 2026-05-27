@@ -219,7 +219,7 @@ export default {
           white: '#FFFFFF'
         },
         color: {
-          common: {
+          commmon: {
             100: '#FFF',
             0: '#000'
           },

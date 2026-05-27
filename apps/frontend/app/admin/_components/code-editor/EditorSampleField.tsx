@@ -19,7 +19,7 @@ export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
             <div className="flex space-x-2 text-base">
               <div className="w-1/2 space-y-2">
                 <div className="flex items-center space-x-3">
-                  <h3 className="text-sub4_sb_14 select-none">
+                  <h3 className="select-none text-sm font-semibold">
                     Input {index + 1}
                   </h3>
                   <CopyButton value={input} />
@@ -31,7 +31,7 @@ export function EditorSampleField({ problemTestCase }: EditorSampleFieldProps) {
 
               <div className="w-1/2 space-y-2">
                 <div className="flex items-center space-x-3">
-                  <h3 className="text-sub4_sb_14 select-none">
+                  <h3 className="select-none text-sm font-semibold">
                     Output {index + 1}
                   </h3>
                   <CopyButton value={output} />

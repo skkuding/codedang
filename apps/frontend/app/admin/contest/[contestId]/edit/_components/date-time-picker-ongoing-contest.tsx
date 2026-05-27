@@ -9,8 +9,9 @@ import {
 } from '@/components/shadcn/popover'
 import { TimePickerDemo } from '@/components/shadcn/time-picker-demo'
 import { cn } from '@/libs/utils'
-import CalendarIcon from '@/public/icons/calendar.svg'
+import calendarIcon from '@/public/icons/calendar.svg'
 import { format } from 'date-fns'
+import Image from 'next/image'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -87,9 +88,13 @@ export function DateTimePickerContest({
             !date && 'text-muted-foreground'
           )}
         >
-          <CalendarIcon
+          <Image
             className="mr-2 h-4 w-4"
             style={{ filter: 'grayscale(100%)' }}
+            src={calendarIcon}
+            alt="calendar"
+            width={16}
+            height={16}
           />
 
           {date ? (

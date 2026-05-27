@@ -27,13 +27,9 @@ spec:
                 - secretRef:
                     name: aws-credentials
               env:
-                - name: AWS_DEFAULT_REGION
-                  value: ap-northeast-2
-                - name: S3_BUCKET
-                  value: codedang-sealed-secrets-backup
-                - name: S3_KEY_PREFIX
+                - name: SECRET_NAME
                   # Note: This value is overridden in overlays
-                  value: production
+                  value: Codedang-Sealed-Secrets-Prod
               volumeMounts:
                 - name: scripts
                   mountPath: /scripts

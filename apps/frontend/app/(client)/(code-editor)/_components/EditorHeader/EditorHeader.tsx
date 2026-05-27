@@ -24,7 +24,7 @@ import {
 } from '@/components/shadcn/tooltip'
 import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
-import SubmitIcon from '@/public/icons/submit.svg'
+import submitIcon from '@/public/icons/submit.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import {
   getCodeFromLocalStorage,
@@ -47,6 +47,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
@@ -606,7 +607,7 @@ export function EditorHeader({
                   'Judging'
                 ) : (
                   <>
-                    <SubmitIcon width={22} /> Submit
+                    <Image src={submitIcon} width={22} alt={'submit'} /> Submit
                   </>
                 )}
               </Button>

@@ -4,7 +4,8 @@ import {
   DialogTrigger,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import FileInfoGrayIcon from '@/public/icons/file-info-gray.svg'
+import infoIcon from '@/public/icons/file-info-gray.svg'
+import Image from 'next/image'
 
 interface LeaderboardScoreExplanationRowProps {
   isTalkBalloon: boolean
@@ -67,7 +68,9 @@ export function LeaderboardModalDialog() {
     <div className="flex">
       <Dialog>
         <DialogTrigger asChild>
-          <FileInfoGrayIcon
+          <Image
+            src={infoIcon}
+            alt="info-icon"
             width={32}
             height={32}
             className="ml-1 cursor-pointer"

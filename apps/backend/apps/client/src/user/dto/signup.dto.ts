@@ -36,8 +36,4 @@ export class SignUpDto {
   @IsOptional()
   @IsString()
   readonly major?: string
-
-  @IsOptional()
-  @IsString()
-  readonly oauthToken?: string
 }

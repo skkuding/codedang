@@ -5,12 +5,12 @@ import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { UPDATE_COURSE } from '@/graphql/course/mutation'
 import { GET_COURSE } from '@/graphql/course/queries'
-import PenIcon from '@/public/icons/pen.svg'
 import { useMutation, useQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
+import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 import { courseSchema } from '../_libs/schema'
@@ -158,7 +158,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         onClick={handleUpdateButtonClick}
         disabled={table.getSelectedRowModel().rows.length !== 1}
       >
-        <PenIcon className="text-color-neutral-60 h-[13px]" />
+        <FaPen fontSize={13} color={'#8A8A8A'} />
       </Button>
       <Modal
         size="lg"

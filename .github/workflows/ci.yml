@@ -9,106 +9,138 @@ on:
     types: [checks_requested]
 
 jobs:
-  # ===========================================================================
-  # Detect Changes
-  # ===========================================================================
-
-  detect-changes:
-    name: Detect Changes
+  build-backend:
+    name: Build Backend
     runs-on: ubuntu-latest
-    outputs:
-      ci_workflow: ${{ steps.filter.outputs.ci_workflow }}
-      typecheck: ${{ steps.filter.outputs.typecheck }}
-      node_lint: ${{ steps.filter.outputs.node_lint }}
-      backend_client: ${{ steps.filter.outputs.backend_client }}
-      backend_admin: ${{ steps.filter.outputs.backend_admin }}
-      backend_test: ${{ steps.filter.outputs.backend_test }}
-      iris: ${{ steps.filter.outputs.iris }}
-      plag: ${{ steps.filter.outputs.plag }}
-      go_lint: ${{ steps.filter.outputs.go_lint }}
-      frontend: ${{ steps.filter.outputs.frontend }}
-      infra_ansible: ${{ steps.filter.outputs.infra_ansible }}
-      infra_ssh_keys: ${{ steps.filter.outputs.infra_ssh_keys }}
+
+    strategy:
+      matrix:
+        target: [client, admin]
+
     steps:
       - uses: actions/checkout@v6
 
-      - name: Detect changed paths
+      - name: Check if source code has changed
         uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            ci_workflow:
-              - &ci_workflow_path '.github/workflows/ci.yml'
-            typecheck:
-              - *ci_workflow_path
-              - 'apps/backend/**'
-              - 'apps/frontend/**'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-              - 'tsconfig*.json'
-            node_lint:
-              - *ci_workflow_path
-              - 'apps/backend/**'
-              - 'apps/frontend/**'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-              - 'tsconfig*.json'
-              - 'eslint.config.mjs'
-              - '.prettierrc'
-              - '.prettierignore'
-              - '.npmrc'
-              - 'scripts/**/*.ts'
-              - '.github/actions/setup-pnpm/**'
-            backend_shared: &backend_shared
-              - *ci_workflow_path
+            shared: &shared
               - 'apps/backend/libs/**'
               - 'apps/backend/prisma/**'
               - 'apps/backend/*.json'
               - 'pnpm-lock.yaml'
-            backend_client:
-              - *backend_shared
+            client:
+              - *shared
               - 'apps/backend/apps/client/**'
-            backend_admin:
-              - *backend_shared
+            admin:
+              - *shared
               - 'apps/backend/apps/admin/**'
-            backend_test:
-              - *ci_workflow_path
-              - 'apps/backend/**'
-              - 'pnpm-lock.yaml'
-            iris:
-              - *ci_workflow_path
-              - 'apps/iris/**'
-            plag:
-              - *ci_workflow_path
-              - 'apps/plag/**'
-            go_lint:
-              - *ci_workflow_path
-              - 'apps/iris/**'
-              - 'apps/plag/**'
+
+      - uses: ./.github/actions/setup-pnpm
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+
+      - name: Generate Prisma Client
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Build
+        if: ${{ steps.filter.outputs[matrix.target] == 'true' }}
+        run: pnpm --filter="@codedang/backend" build ${{ matrix.target }}
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: arc-runner
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check if frontend source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
             frontend:
-              - *ci_workflow_path
               - 'apps/frontend/**'
               - 'apps/backend/schema.gql'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
-            infra_ansible:
-              - *ci_workflow_path
-              - 'infra/ansible/**'
-            infra_ssh_keys:
-              - *ci_workflow_path
-              - 'infra/ansible/ssh_publickey/**'
 
-  # ===========================================================================
-  # Common
-  # ===========================================================================
+      - name: Setup Docker Buildx
+        if: steps.filter.outputs.frontend == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        if: steps.filter.outputs.frontend == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect PR number
+        id: pr
+        if: steps.filter.outputs.frontend == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let prNumber = '';
+
+            // pull_request
+            if (context.eventName === 'pull_request') {
+              prNumber = String(context.payload.pull_request.number);
+            }
+
+            // merge_group
+            if (!prNumber && context.eventName === 'merge_group' && context.ref?.includes('gh-readonly-queue')) {
+              const m = context.ref.match(/pr-(\d+)-/);
+              if (m) prNumber = m[1];
+            }
+
+            // push(main)
+            if (!prNumber) {
+              try {
+                const res = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner, repo, commit_sha: context.sha,
+                });
+                prNumber = res.data?.[0]?.number ? String(res.data[0].number) : '';
+              } catch (e) {}
+            }
+
+            // fallback
+            if (!prNumber) {
+              try {
+                const commit = await github.rest.repos.getCommit({ owner, repo, ref: context.sha });
+                const m = commit.data.commit.message.match(/#(\d+)/);
+                if (m) prNumber = m[1];
+              } catch (e) {}
+            }
+
+            core.setOutput('number', prNumber);
+
+      - name: Build and push image
+        if: steps.filter.outputs.frontend == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          file: ./apps/frontend/Dockerfile # build with root context
+          push: true
+          tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
+          cache-from: |
+            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || 'stage' }}
+            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-stage
+          cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || github.sha }},mode=max
+          build-args: |
+            BASEURL=https://stage.codedang.com/api
+            GQL_BASEURL=https://stage.codedang.com/graphql
 
   typecheck:
     name: Typecheck
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.typecheck == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -128,32 +160,8 @@ jobs:
       - name: Check types (frontend)
         run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
 
-  lint-pr-title:
-    name: Lint PR Title
-    needs: detect-changes
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-        if: ${{ github.event_name == 'pull_request' }}
-
-      - uses: ./.github/actions/setup-pnpm
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          install: 'no'
-
-      - name: Install root dependencies
-        if: ${{ github.event_name == 'pull_request' }}
-        run: pnpm install -w --filter codedang
-
-      - name: Lint pull request title
-        if: ${{ github.event_name == 'pull_request' }}
-        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
-
-  lint-node:
-    name: Lint Node.js
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.node_lint == 'true'
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -169,77 +177,33 @@ jobs:
       - name: Install root and frontend dependencies
         run: pnpm install -w --filter frontend
 
-      - name: Check style (Node.js)
-        run: git diff --name-only --diff-filter=ACMRUXB origin/main | xargs -r pnpm prettier -c --ignore-unknown --no-error-on-unmatched-pattern
-
-      - name: Lint (Node.js)
-        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | grep -v 'next.config.js$' | xargs -r pnpm eslint
-
-  # ===========================================================================
-  # Backend
-  # ===========================================================================
-
-  lint-go:
-    name: Lint Go
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.go_lint == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/iris/go.mod
           cache-dependency-path: apps/iris/go.sum
 
+      - name: Lint pull request title
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
+
+      - name: Check style (Node.js)
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | xargs -r pnpm prettier -c --ignore-unknown --no-error-on-unmatched-pattern
+
       - name: Check Style (Go)
         run: |
-          if [ -n "$(gofmt -l apps/iris apps/plag)" ]; then
+          if [ -n "$(gofmt -l .)" ]; then
             echo "Go files must be formatted with gofmt. Please run:"
             echo "  go fmt ./..."
             exit 1
           fi
+        working-directory: ./apps/iris
 
-  build-backend-client:
-    name: Build Backend (client)
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.backend_client == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: ./.github/actions/setup-pnpm
-
-      - name: Generate Prisma Client
-        run: pnpm --filter="@codedang/backend" exec prisma generate
-
-      - name: Build
-        run: pnpm --filter="@codedang/backend" build client
-
-  build-backend-admin:
-    name: Build Backend (admin)
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.backend_admin == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: ./.github/actions/setup-pnpm
-
-      - name: Generate Prisma Client
-        run: pnpm --filter="@codedang/backend" exec prisma generate
-
-      - name: Build
-        run: pnpm --filter="@codedang/backend" build admin
+      - name: Lint (Node.js)
+        run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | grep -v 'next.config.js$' | xargs -r pnpm eslint
 
   test-backend:
     name: Test Backend
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.backend_test == 'true'
     runs-on: ubuntu-latest
 
     env:
@@ -287,9 +251,20 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+              - 'pnpm-lock.yaml'
+
       - uses: ./.github/actions/setup-pnpm
+        if: steps.filter.outputs.backend == 'true'
 
       - name: Check Prisma Migration
+        if: steps.filter.outputs.backend == 'true'
         run: |
           pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
@@ -300,52 +275,71 @@ jobs:
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
 
       - name: Migrate Prisma
+        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Initialize MinIO
+        if: steps.filter.outputs.backend == 'true'
         run: pnpm run init:storage
         env:
           MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test
+        if: steps.filter.outputs.backend == 'true'
         run: pnpm --filter="@codedang/backend" test
 
   test-iris:
     name: Test Iris
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.iris == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            iris:
+              - 'apps/iris/**'
+
       - name: Set up Go
+        if: steps.filter.outputs.iris == 'true'
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/iris/go.mod
           cache-dependency-path: apps/iris/go.sum
 
       - name: Test (Go)
+        if: steps.filter.outputs.iris == 'true'
         run: go test ./...
         working-directory: ./apps/iris
 
   test-plag:
     name: Test Plag
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.plag == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check if source code has changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            plag:
+              - 'apps/plag/**'
+
       - name: Set up Go
+        if: steps.filter.outputs.plag == 'true'
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/plag/go.mod
           cache-dependency-path: apps/plag/go.sum
 
       - name: Test (Go)
+        if: steps.filter.outputs.plag == 'true'
         run: go test ./...
         working-directory: ./apps/plag
 
@@ -363,297 +357,3 @@ jobs:
   # echo "Server did not respond to health check."
   # exit 1
   # ```
-
-  # ===========================================================================
-  # Frontend
-  # ===========================================================================
-
-  build-frontend:
-    name: Build Frontend
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.frontend == 'true'
-    runs-on: arc-runner
-    permissions:
-      contents: read
-      packages: write
-      pull-requests: read
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Detect PR number
-        id: pr
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            let prNumber = '';
-
-            // pull_request
-            if (context.eventName === 'pull_request') {
-              prNumber = String(context.payload.pull_request.number);
-            }
-
-            // merge_group
-            if (!prNumber && context.eventName === 'merge_group' && context.ref?.includes('gh-readonly-queue')) {
-              const m = context.ref.match(/pr-(\d+)-/);
-              if (m) prNumber = m[1];
-            }
-
-            // push(main)
-            if (!prNumber) {
-              try {
-                const res = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  owner, repo, commit_sha: context.sha,
-                });
-                prNumber = res.data?.[0]?.number ? String(res.data[0].number) : '';
-              } catch (e) {}
-            }
-
-            // fallback
-            if (!prNumber) {
-              try {
-                const commit = await github.rest.repos.getCommit({ owner, repo, ref: context.sha });
-                const m = commit.data.commit.message.match(/#(\d+)/);
-                if (m) prNumber = m[1];
-              } catch (e) {}
-            }
-
-            core.setOutput('number', prNumber);
-
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          file: ./apps/frontend/Dockerfile # build with root context
-          push: true
-          tags: ghcr.io/skkuding/codedang-frontend:${{ github.event.pull_request.head.sha || github.sha }}
-          cache-from: |
-            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || 'stage' }}
-            type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-stage
-          cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-${{ steps.pr.outputs.number || github.sha }},mode=max
-          build-args: |
-            BASEURL=https://stage.codedang.com/api
-            GQL_BASEURL=https://stage.codedang.com/graphql
-
-  # ===========================================================================
-  # Infra
-  # ===========================================================================
-
-  ansible-lint:
-    name: Ansible Lint
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.infra_ansible == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Run Ansible Lint
-        uses: ansible/ansible-lint@v25
-        with:
-          working_directory: infra/ansible/
-
-  check-ssh-public-keys:
-    name: Check SSH Public Keys
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.infra_ssh_keys == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Check for SSH Public Keys
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-
-          files=(infra/ansible/ssh_publickey/*.pub)
-
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No public key files found"
-            exit 0
-          fi
-
-          for file in "${files[@]}"; do
-            lineno=0
-            while IFS= read -r line; do
-              lineno=$((lineno + 1))
-              [[ "$line" =~ ^[[:space:]]*$ || "$line" =~ ^[[:space:]]*# ]] && continue
-
-              read -r type key comment <<< "$line"
-
-              # Allowed key types: ed25519 and RSA(3072 or 4096 bits only)
-              case "$type" in
-                ssh-ed25519)
-                  tmp=$(mktemp)
-                  printf '%s\n' "$line" > "$tmp"
-                  if ! ssh-keygen -lf "$tmp" > /dev/null 2>&1; then
-                    rm -f "$tmp"
-                    echo "Invalid ed25519 key in ${file}:${lineno}"
-                    exit 1
-                  fi
-                  rm -f "$tmp"
-                  ;;
-                ssh-rsa)
-                  tmp=$(mktemp)
-                  printf '%s\n' "$line" > "$tmp"
-                  if ! bits=$(ssh-keygen -lf "$tmp" | awk '{print $1}'); then
-                    rm -f "$tmp"
-                    echo "Wrong type of pubkey at ${file}:${lineno}"
-                    exit 1
-                  fi
-                  rm -f "$tmp"
-
-                  if [[ "$bits" -ne 3072 && "$bits" -ne 4096 ]]; then
-                    echo "Invalid RSA key size (${bits} bits) in ${file}:${lineno}"
-                    exit 1
-                  fi
-                  ;;
-                *)
-                  echo "Unsupported key type (${type}) in ${file}:${lineno}"
-                  exit 1
-                  ;;
-              esac
-            done < "$file"
-          done
-
-          echo "All keys are valid"
-
-  validate-ci-workflow:
-    name: Validate CI Workflow
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.ci_workflow == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Validate CI gate wiring
-        shell: ruby {0}
-        run: |
-          require 'set'
-          require 'yaml'
-
-          workflow = YAML.load_file('.github/workflows/ci.yml')
-          jobs = workflow.fetch('jobs')
-          errors = []
-
-          detect_job = jobs.fetch('detect-changes')
-          detect_outputs = detect_job.fetch('outputs')
-          filter_step = detect_job.fetch('steps').find { |step| step['id'] == 'filter' }
-          filters = YAML.safe_load(filter_step.fetch('with').fetch('filters'), aliases: true)
-          ci_workflow_paths = filters.fetch('ci_workflow')
-
-          detect_outputs.each do |name, expression|
-            match = expression.match(/\A\$\{\{\s*steps\.filter\.outputs\.([A-Za-z0-9_]+)\s*\}\}\z/)
-            errors << "detect-changes output #{name} does not map to steps.filter.outputs.#{name}" if match.nil? || match[1] != name
-            errors << "detect-changes output #{name} has no paths-filter entry" unless filters.key?(name)
-
-            next if name == 'ci_workflow'
-
-            missing_paths = ci_workflow_paths - filters.fetch(name).flatten
-            unless missing_paths.empty?
-              errors << "paths-filter #{name} does not include ci_workflow paths: #{missing_paths.join(', ')}"
-            end
-          end
-
-          gate_job = jobs.fetch('ci-gate')
-          gate_needs = Array(gate_job.fetch('needs'))
-          gate_script = gate_job.fetch('steps').map { |step| step['run'] }.compact.join("\n")
-          gate_results = gate_script.scan(/"([^":]+):\$\{\{\s*needs/).flatten.to_set
-
-          gate_needs.each do |job_name|
-            errors << "ci-gate needs unknown job #{job_name}" unless jobs.key?(job_name)
-            errors << "ci-gate does not check result for #{job_name}" unless gate_results.include?(job_name)
-          end
-
-          gate_results.each do |job_name|
-            errors << "ci-gate checks result for job not listed in needs: #{job_name}" unless gate_needs.include?(job_name)
-          end
-
-          jobs.each do |job_name, job|
-            next if ['detect-changes', 'ci-gate'].include?(job_name)
-
-            errors << "#{job_name} is not listed in ci-gate needs" unless gate_needs.include?(job_name)
-
-            condition = job['if'].to_s
-            condition.scan(/needs\[['"]detect-changes['"]\]\.outputs\.([A-Za-z0-9_]+)/).flatten.each do |output|
-              errors << "#{job_name} references unknown detect-changes output #{output}" unless detect_outputs.key?(output)
-            end
-          end
-
-          if errors.empty?
-            puts 'CI workflow wiring is valid'
-          else
-            errors.each { |error| warn "ERROR: #{error}" }
-            exit 1
-          end
-
-  # ===========================================================================
-  # Gate
-  # ===========================================================================
-
-  ci-gate:
-    name: CI Gate
-    needs:
-      - detect-changes
-      - typecheck
-      - lint-pr-title
-      - lint-node
-      - lint-go
-      - build-backend-client
-      - build-backend-admin
-      - test-backend
-      - test-iris
-      - test-plag
-      - build-frontend
-      - ansible-lint
-      - check-ssh-public-keys
-      - validate-ci-workflow
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check CI results
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          results=(
-            "detect-changes:${{ needs['detect-changes'].result }}"
-            "typecheck:${{ needs.typecheck.result }}"
-            "lint-pr-title:${{ needs['lint-pr-title'].result }}"
-            "lint-node:${{ needs['lint-node'].result }}"
-            "lint-go:${{ needs['lint-go'].result }}"
-            "build-backend-client:${{ needs['build-backend-client'].result }}"
-            "build-backend-admin:${{ needs['build-backend-admin'].result }}"
-            "test-backend:${{ needs['test-backend'].result }}"
-            "test-iris:${{ needs['test-iris'].result }}"
-            "test-plag:${{ needs['test-plag'].result }}"
-            "build-frontend:${{ needs['build-frontend'].result }}"
-            "ansible-lint:${{ needs['ansible-lint'].result }}"
-            "check-ssh-public-keys:${{ needs['check-ssh-public-keys'].result }}"
-            "validate-ci-workflow:${{ needs['validate-ci-workflow'].result }}"
-          )
-
-          failed=0
-          for item in "${results[@]}"; do
-            name="${item%%:*}"
-            result="${item#*:}"
-            echo "${name}: ${result}"
-
-            if [[ "${result}" == "failure" || "${result}" == "cancelled" ]]; then
-              failed=1
-            fi
-          done
-
-          if [[ "${failed}" -ne 0 ]]; then
-            exit 1
-          fi

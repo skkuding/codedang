@@ -51,7 +51,7 @@ function SummarySection({ buttonName, maxChar }: SummarySectionProps) {
     >
       <label
         htmlFor={buttonName}
-        className="text-primary border-primary text-sub4_sb_14 pointer-events-none h-8 w-[100px] rounded-full border py-[6px] text-center"
+        className="text-primary border-primary pointer-events-none h-8 w-[100px] rounded-full border py-[6px] text-center text-sm font-semibold"
       >
         {`${buttonName.slice(0, 2)} ${buttonName.slice(2)}`}
       </label>

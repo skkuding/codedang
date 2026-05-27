@@ -11,29 +11,20 @@ resource "aws_iam_access_key" "sealed_secrets_backup" {
 
 data "aws_iam_policy_document" "sealed_secrets_backup" {
   statement {
-    sid = "S3BackupBucketList"
     actions = [
-      "s3:ListBucket",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
     ]
     resources = [
-      aws_s3_bucket.sealed_secrets_backup.arn,
-    ]
-  }
-
-  statement {
-    sid = "S3BackupObjectReadWrite"
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-    ]
-    resources = [
-      "${aws_s3_bucket.sealed_secrets_backup.arn}/*",
+      aws_secretsmanager_secret.sealed_secrets_prod.arn,
+      aws_secretsmanager_secret.sealed_secrets_stage.arn,
     ]
   }
 }
 
 resource "aws_iam_user_policy" "sealed_secrets_backup" {
-  name   = "sealed-secrets-backup"
+  name   = "sealed-secrets-backup-secretsmanager"
   user   = aws_iam_user.sealed_secrets_backup.name
   policy = data.aws_iam_policy_document.sealed_secrets_backup.json
 }

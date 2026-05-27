@@ -6,4 +6,3 @@ resources:
   - admin-user.yaml
   - aws-credentials.yaml
   - github-credentials.yaml
-  - alerting/discord-webhook.yaml

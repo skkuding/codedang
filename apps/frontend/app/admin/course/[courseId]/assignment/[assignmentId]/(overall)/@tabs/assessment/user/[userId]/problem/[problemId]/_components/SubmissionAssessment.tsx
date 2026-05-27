@@ -10,6 +10,7 @@ import {
 import { GET_ASSIGNMENT_SUBMISSION_SUMMARIES_OF_USER } from '@/graphql/assignment/queries'
 import CheckboxIcon from '@/public/icons/check-box.svg'
 import { useSuspenseQuery } from '@apollo/client'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { FinalScoreForm } from './FinalScoreForm'
@@ -64,7 +65,12 @@ export function SubmissionAssessment() {
                     className="flex h-8 w-[88px] items-center gap-1 rounded-[4px] border border-blue-500 py-[7px] pl-[10px] pr-3 text-sm font-normal"
                     type="submit"
                   >
-                    <CheckboxIcon className="h-4 w-4 text-white" />
+                    <Image
+                      src={CheckboxIcon}
+                      alt="submit"
+                      width={16}
+                      height={16}
+                    />
                     <span className="translate-y-[0.5px] leading-none">
                       Save
                     </span>

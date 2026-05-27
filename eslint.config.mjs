@@ -26,8 +26,7 @@ export default eslintTS.config(
       '**/codegen.ts',
       '**/*.config.{js,mjs,ts}',
       '**/worker/**/*.js',
-      'infra/**/*.{js,mjs}',
-      'tests/load/**/*.js'
+      'infra/**/*.{js,mjs}'
     ]
   },
 

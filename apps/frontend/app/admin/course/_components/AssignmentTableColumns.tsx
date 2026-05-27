@@ -11,11 +11,12 @@ import {
 } from '@/components/shadcn/tooltip'
 import { UPDATE_ASSIGNMENT_VISIBLE } from '@/graphql/assignment/mutations'
 import { cn, dateFormatter, formatDateRange } from '@/libs/utils'
-import InvisibleIcon from '@/public/icons/invisible.svg'
-import VisibleIcon from '@/public/icons/visible.svg'
+import invisibleIcon from '@/public/icons/invisible.svg'
+import visibleIcon from '@/public/icons/visible.svg'
 import { useMutation } from '@apollo/client'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ColumnDef, Row } from '@tanstack/react-table'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -86,7 +87,11 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
                   onClick={(e) => e.stopPropagation()}
                   className="h-6 w-6"
                 >
-                  {row.original.isVisible ? <VisibleIcon /> : <InvisibleIcon />}
+                  {row.original.isVisible ? (
+                    <Image src={visibleIcon} alt="Visible" />
+                  ) : (
+                    <Image src={invisibleIcon} alt="Invisible" />
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent

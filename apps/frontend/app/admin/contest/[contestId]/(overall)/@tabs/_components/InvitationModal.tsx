@@ -8,8 +8,9 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
-import BulletIcon from '@/public/icons/bullet.svg'
-import CopyWhiteIcon from '@/public/icons/copy_white.svg'
+import bulletIcon from '@/public/icons/bullet.svg'
+import copyWhiteIcon from '@/public/icons/copy_white.svg'
+import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -39,7 +40,7 @@ export function InvitationModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className={`border-primary text-primary text-body1_m_16 ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
+          className={`border-primary text-primary ml-5 h-[46px] w-[111px] border bg-white px-6 py-3 text-base font-medium leading-[22.4px] tracking-[-0.48px] hover:bg-white ${disabled ? 'pointer-events-none' : ''}`}
           type="button"
         >
           Invitation
@@ -59,7 +60,7 @@ export function InvitationModal({
         </div>
 
         <div className="mt-2 flex items-center justify-center text-center">
-          <BulletIcon width={20} />
+          <Image src={bulletIcon} alt="bullet" width={20} />
           <span className="text-primary text-sm font-medium leading-[19.6px] tracking-[-0.42px]">
             Contest Admin
           </span>
@@ -76,7 +77,7 @@ export function InvitationModal({
           className="bg-primary mt-[22px] flex h-[46px] w-[344px] items-center justify-center gap-[6px] rounded-[1000px] px-[22px] pb-[11px] pt-[10px]"
           type="button"
         >
-          <CopyWhiteIcon width={20} />
+          <Image src={copyWhiteIcon} alt="copyWhite" width={20} />
           <span className="text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-white">
             Copy
           </span>

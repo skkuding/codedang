@@ -2,9 +2,10 @@
 
 import { DurationDisplay } from '@/components/DurationDisplay'
 import { capitalizeFirstLetter, cn } from '@/libs/utils'
-import ClockIcon from '@/public/icons/clock.svg'
+import clockIcon from '@/public/icons/clock.svg'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useInterval } from 'react-use'
@@ -122,7 +123,7 @@ export function CountdownStatus({
         textStyle
       )}
     >
-      {showIcon && <ClockIcon className="text-flowkit-red h-[14px]" />}
+      {showIcon && <Image src={clockIcon} alt="calendar" width={14} />}
       {target && showTarget && capitalizeFirstLetter(target)}
       {target && showTarget ? ' submission ' : 'Submission '}
       {isFinished ? 'has ended' : 'ends in'}

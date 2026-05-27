@@ -17,7 +17,6 @@ import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
 import Tex from '@matejmazur/react-katex'
 import { DialogClose } from '@radix-ui/react-dialog'
-import { InputRule } from '@tiptap/core'
 import { mergeAttributes, Node } from '@tiptap/core'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
@@ -44,9 +43,7 @@ import { InsertDialog } from './InsertDialog'
 import { Button } from './shadcn/button'
 
 function MathPreview(props: NodeViewWrapperProps) {
-  const [content, setContent] = useState(
-    props.node.attrs.content.replace(/\$/g, '')
-  )
+  const [content, setContent] = useState(props.node.attrs.content)
   const [isOpen, setIsOpen] = useState(true)
   const handleContentChange = (event: { target: { value: unknown } }) => {
     setContent(event.target.value)
@@ -143,34 +140,13 @@ export const MathExtension = Node.create({
     ]
   },
   renderHTML({ HTMLAttributes }) {
-    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' })]
+    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
   },
   addNodeView() {
     return ReactNodeViewRenderer(MathPreview) // Update the type to NodeViewRenderer
   },
   addKeyboardShortcuts() {
     return {}
-  },
-
-  addInputRules() {
-    return [
-      new InputRule({
-        find: /\$([^$]+)\$\s$/,
-        handler: ({ range, match, chain }) => {
-          const content = match[1]
-
-          chain()
-            .deleteRange(range)
-            .insertContentAt(range.from, {
-              type: this.name,
-              attrs: {
-                content
-              }
-            })
-            .run()
-        }
-      })
-    ]
   }
 })
 

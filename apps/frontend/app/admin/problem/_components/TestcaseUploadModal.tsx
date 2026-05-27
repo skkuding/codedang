@@ -2,8 +2,8 @@
 
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
-import UploadIcon from '@/public/icons/upload.svg'
 import JSZip from 'jszip'
+import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 
@@ -155,7 +155,12 @@ export function TestcaseUploadModal({
           type="button"
           disabled={disabled}
         >
-          <UploadIcon width={20} height={20} />
+          <Image
+            src="/icons/upload.svg"
+            alt="upload Icon"
+            width={20}
+            height={20}
+          />
         </button>
       }
     >

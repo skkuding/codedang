@@ -273,7 +273,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                 </ul>
                 <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px] transition hover:border-gray-300 hover:bg-gray-50">
                   <IoCloudUpload size={20} className="text-gray-700" />
-                  <span className="text-body2_m_14 text-gray-700">
+                  <span className="text-sm font-medium text-gray-700">
                     Upload File (Excel)
                   </span>
                   <input

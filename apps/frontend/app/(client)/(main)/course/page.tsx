@@ -24,7 +24,7 @@ export default async function Course() {
   const session = await auth()
   if (!session) {
     return (
-      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[120px]">
+      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
         <div className="flex flex-col pb-12">
           <span className="text-head1_b_40">COURSE</span>
           <span className="text-color-neutral-40 text-sub2_m_18">
@@ -37,7 +37,7 @@ export default async function Course() {
             <p>나의 강좌를 살펴보려면</p>
             <p>코드당 로그인을 진행해주세요</p>
           </div>
-          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center rounded-lg" />
+          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center" />
         </div>
         <span className="text-head3_sb_28 mt-15 mb-6">나의 대시보드</span>
         <div className="border-line flex w-full flex-col items-center justify-center gap-4 rounded-[12px] border bg-white py-20">
@@ -45,7 +45,7 @@ export default async function Course() {
             <p>나의 대시보드를 살펴보려면</p>
             <p>코드당 로그인을 진행해주세요</p>
           </div>
-          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center rounded-lg" />
+          <LoginButton className="text-sub4_sb_14 flex h-10 w-[106px] items-center justify-center" />
         </div>
         <div className="py-5" />
         <div className="h-[100px]" />
@@ -55,25 +55,25 @@ export default async function Course() {
 
   return (
     <>
-      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[120px]">
+      <div className="flex w-full max-w-[1440px] flex-col px-5 pt-[32px] sm:px-[116px] md:pt-[100px]">
         <div className="flex flex-col pb-12">
-          <span className="text-head2_b_32 md:text-head1_b_40">COURSE</span>
-          <span className="text-color-neutral-40 text-body2_m_14 md:text-sub2_m_18">
+          <span className="text-head1_b_40">COURSE</span>
+          <span className="text-color-neutral-40 text-sub2_m_18">
             전반적인 교육과정을 연계하여 관리해보세요
           </span>
         </div>
-        <div className="gap-15 flex flex-col">
-          <ErrorBoundary fallback={FetchErrorFallback}>
-            <Suspense fallback={<CardListFallback />}>
-              <CourseCardList title="나의 강좌" />
-            </Suspense>
-          </ErrorBoundary>
-
-          <div className="w-full">
-            <Dashboard />
-          </div>
-        </div>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<CardListFallback />}>
+            <CourseCardList title="나의 강좌" />
+          </Suspense>
+        </ErrorBoundary>
       </div>
+
+      <div className="w-full px-5 md:px-[116px]">
+        <Dashboard />
+      </div>
+
+      <CourseSubBanner />
       <div className="h-[100px]" />
     </>
   )

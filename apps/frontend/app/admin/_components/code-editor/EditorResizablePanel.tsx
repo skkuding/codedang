@@ -19,21 +19,22 @@ import { GET_ASSIGNMENT_SCORE_SUMMARIES } from '@/graphql/assignment/queries'
 import { GET_PROBLEM_TESTCASE_WITHOUT_IO } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import ArrowBottomIcon from '@/public/icons/arrow-bottom.svg'
-import ArrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
-import ArrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
+import arrowBottomIcon from '@/public/icons/arrow-bottom.svg'
+import arrowLeftFullIcon from '@/public/icons/arrow-left-full.svg'
+import arrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
 import CheckboxIcon from '@/public/icons/check-box.svg'
-import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import PersonFillIcon from '@/public/icons/person-fill.svg'
-import TrashcanIcon from '@/public/icons/trashcan2-red.svg'
+import checkIcon from '@/public/icons/check-green.svg'
+import trashcanIcon from '@/public/icons/trashcan2-red.svg'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { Language } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
 import type { TestCaseResult } from '@generated/graphql'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import { BiSolidUser } from 'react-icons/bi'
 import { TestcasePanel } from './TestcasePanel'
 import { mapTestResults } from './libs/util'
 
@@ -184,13 +185,15 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
         <div className="grid-rows-editor bg-editor-background-2 grid h-full grid-cols-1">
           <div className="flex h-12 w-full items-center justify-between border-b border-slate-700 px-3">
             <div className="flex items-center gap-1">
-              <PersonFillIcon className="h-6 rounded-none text-gray-300" />
+              <BiSolidUser className="h-4 w-4 rounded-none text-gray-300" />
               <DropdownMenu onOpenChange={(open) => setIsDropdownOpen(open)}>
                 <DropdownMenuTrigger className="flex gap-1 text-lg text-white outline-none">
                   <p className="text-[14px]">
                     {currentMember?.realName}({currentMember?.studentId})
                   </p>
-                  <ArrowBottomIcon
+                  <Image
+                    src={arrowBottomIcon}
+                    alt="open dropdown"
                     width={16}
                     height={16}
                     className={cn(
@@ -221,7 +224,12 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                             score.finalScore !== null
                         ) && (
                           <div className="flex items-center justify-center pl-2">
-                            <CheckCircleIcon className="text-color-green-50 h-4 w-4" />
+                            <Image
+                              src={checkIcon}
+                              alt="check"
+                              width={16}
+                              height={16}
+                            />
                           </div>
                         )}
                       </DropdownMenuItem>
@@ -241,7 +249,12 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <ArrowLeftFullIcon width={16} height={16} />
+                <Image
+                  src={arrowLeftFullIcon}
+                  alt="Previous"
+                  width={16}
+                  height={16}
+                />
               </Link>
 
               <Link
@@ -254,7 +267,12 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <ArrowRightFullIcon width={16} height={16} />
+                <Image
+                  src={arrowRightFullIcon}
+                  alt="Next"
+                  width={16}
+                  height={16}
+                />
               </Link>
             </div>
           </div>
@@ -277,7 +295,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md bg-editor-fill-1 border-flowkit-red flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] font-normal hover:bg-[#232838]"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <TrashcanIcon width={16} height={16} />
+                <Image src={trashcanIcon} alt="reset" width={16} height={16} />
               </span>
               <span className="text-flowkit-red translate-y-[0.5px] leading-none">
                 Reset
@@ -293,7 +311,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md flex h-9 w-[76px] items-center gap-1 rounded-[4px] border border-blue-500 bg-blue-500 py-[7px] pl-3 pr-[14px] font-normal disabled:opacity-60"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <CheckboxIcon className="h-4 w-4 text-white" />
+                <Image src={CheckboxIcon} alt="test" width={16} height={16} />
               </span>
               <span className="translate-y-[0.5px] leading-none">
                 {isTesting ? 'Testing...' : 'Test'}

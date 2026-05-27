@@ -8,6 +8,7 @@ import { cn } from '@/libs/utils'
 import CheckIcon from '@/public/icons/check.svg'
 import MoreIcon from '@/public/icons/more.svg'
 import SettingsIcon from '@/public/icons/settings.svg'
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface NotificationOptionsMenuProps {
@@ -26,7 +27,7 @@ export function NotificationOptionsMenu({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger disabled={isLoading}>
-        <MoreIcon width={24} height={24} />
+        <Image src={MoreIcon} alt="filter" width={24} height={24} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -42,7 +43,7 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <CheckIcon className="text-color-neutral-80 h-4 w-4" />
+          <Image src={CheckIcon} alt="check" width={16} height={16} />
           Mark all as read
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -51,7 +52,7 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <SettingsIcon width={13} height={12} />
+          <Image src={SettingsIcon} alt="settings" width={13} height={12} />
           <Link onClick={() => setIsOpen(false)} href="/settings">
             Notification settings
           </Link>

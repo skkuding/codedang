@@ -1,7 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import {
-  ContestRole,
   Prisma,
   ResultStatus,
   type Submission,
@@ -553,19 +552,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       )
 
     if (!isAccepted) return
-
-    // Contest staff(Admin/Manager/Reviewer)의 제출은 ranking 대상이 아니므로 record 갱신을 스킵합니다.
-    const isStaff = await this.prisma.userContest.findFirst({
-      where: {
-        contestId,
-        userId,
-        role: {
-          in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
-        }
-      },
-      select: { id: true }
-    })
-    if (isStaff) return
 
     const [contest, contestProblem, contestRecord, previousSubmissions] =
       await Promise.all([

@@ -4,9 +4,10 @@ import { AlertModal } from '@/components/AlertModal'
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
-import PersonFillIcon from '@/public/icons/person-fill.svg'
+import personFillIcon from '@/public/icons/person-fill.svg'
 import type { Course } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
+import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -136,7 +137,12 @@ export function RegisterCourseButton() {
             {foundCourse?.courseInfo?.classNum}] {foundCourse?.groupName}
           </p>
           <div className="flex gap-2">
-            <PersonFillIcon className="text-primary h-4" />
+            <Image
+              src={personFillIcon}
+              alt="person-fill"
+              width={16}
+              height={16}
+            />
             <p className="text-sm font-medium text-[#8A8A8A]">
               Prof. {foundCourse?.courseInfo?.professor}
             </p>

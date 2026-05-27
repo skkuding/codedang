@@ -1,8 +1,9 @@
 'use client'
 
 import { Input } from '@/components/shadcn/input'
-import SearchIcon from '@/public/icons/search.svg'
+import searchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@tanstack/react-query'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -146,7 +147,9 @@ export default function ContestLeaderBoard() {
         )}
       </div>
       <div className="relative mb-[62px] mt-[30px]">
-        <SearchIcon
+        <Image
+          src={searchIcon}
+          alt="search"
           className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
           onClick={() => {
             handleSearch({ text: searchText, leaderboardUsers })

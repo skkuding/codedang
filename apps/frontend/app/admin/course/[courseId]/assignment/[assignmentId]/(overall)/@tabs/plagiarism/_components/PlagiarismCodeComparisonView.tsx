@@ -119,7 +119,7 @@ export function PlagiarismCodeComparisonView({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-lg bg-blue-50 p-3">
-          <div className="text-sub4_sb_14 text-blue-900">
+          <div className="text-sm font-semibold text-blue-900">
             Submission #{result.firstCheckSubmissionId}
           </div>
           {firstData && (
@@ -134,7 +134,7 @@ export function PlagiarismCodeComparisonView({
           )}
         </div>
         <div className="rounded-lg bg-green-50 p-3">
-          <div className="text-sub4_sb_14 text-green-900">
+          <div className="text-sm font-semibold text-green-900">
             Submission #{result.secondCheckSubmissionId}
           </div>
           {secondData && (

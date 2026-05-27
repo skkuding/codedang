@@ -1,12 +1,12 @@
-import BulletListIcon from '@/public/icons/texteditor-bulletlist.svg'
-import CodeBlockIcon from '@/public/icons/texteditor-codeblock.svg'
-import EquationIcon from '@/public/icons/texteditor-equation.svg'
-import FileIcon from '@/public/icons/texteditor-file.svg'
-import Heading1Icon from '@/public/icons/texteditor-h1.svg'
-import Heading2Icon from '@/public/icons/texteditor-h2.svg'
-import Heading3Icon from '@/public/icons/texteditor-h3.svg'
-import ImageIcon from '@/public/icons/texteditor-image.svg'
-import NumberedListIcon from '@/public/icons/texteditor-numberedlist.svg'
+import BulletList from '@/public/icons/texteditor-bulletlist.svg'
+import CodeBlock from '@/public/icons/texteditor-codeblock.svg'
+import SquareRadical from '@/public/icons/texteditor-equation.svg'
+import Paperclip from '@/public/icons/texteditor-file.svg'
+import Heading1 from '@/public/icons/texteditor-h1.svg'
+import Heading2 from '@/public/icons/texteditor-h2.svg'
+import Heading3 from '@/public/icons/texteditor-h3.svg'
+import ImagePlus from '@/public/icons/texteditor-image.svg'
+import NumberedList from '@/public/icons/texteditor-numberedlist.svg'
 import TableIcon from '@/public/icons/texteditor-table.svg'
 import type { Range } from '@tiptap/core'
 import type { Editor } from '@tiptap/react'
@@ -33,7 +33,7 @@ const getSuggestionItems = (
   return [
     {
       title: 'Heading1',
-      icon: Heading1Icon,
+      icon: Heading1,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor
           .chain()
@@ -45,7 +45,7 @@ const getSuggestionItems = (
     },
     {
       title: 'Heading2',
-      icon: Heading2Icon,
+      icon: Heading2,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor
           .chain()
@@ -57,7 +57,7 @@ const getSuggestionItems = (
     },
     {
       title: 'Heading3',
-      icon: Heading3Icon,
+      icon: Heading3,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor
           .chain()
@@ -69,7 +69,7 @@ const getSuggestionItems = (
     },
     {
       title: 'Equation',
-      icon: EquationIcon,
+      icon: SquareRadical,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
         editor
@@ -82,14 +82,14 @@ const getSuggestionItems = (
     },
     {
       title: 'CodeBlock',
-      icon: CodeBlockIcon,
+      icon: CodeBlock,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).setCodeBlock().run()
       }
     },
     {
       title: 'Image',
-      icon: ImageIcon,
+      icon: ImagePlus,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
         openImageDialog()
@@ -97,7 +97,7 @@ const getSuggestionItems = (
     },
     {
       title: 'File',
-      icon: FileIcon,
+      icon: Paperclip,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).run()
         openFileDialog()
@@ -105,14 +105,14 @@ const getSuggestionItems = (
     },
     {
       title: 'Bullet List',
-      icon: BulletListIcon,
+      icon: BulletList,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).toggleBulletList().run()
       }
     },
     {
       title: 'Ordered List',
-      icon: NumberedListIcon,
+      icon: NumberedList,
       command: ({ editor, range }: { editor: Editor; range: Range }) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run()
       }
