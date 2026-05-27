@@ -43,38 +43,38 @@ script:pre-request {
 
 docs {
   # 📘 Get Contests
-
+  
   **POST** `/graphql (query: getContests)`
-
+  
   Retrieves a paginated list of contests accessible to the user.
-
+  
   사용자가 접근할 수 있는 대회의 목록을 페이지네이션하여 조회합니다.
-
+  
   - **SuperAdmin**: 모든 대회
   - **Admin/Manager/Reviewer**: 자신이 역할(Admin, Manager, Reviewer)을 맡은 대회
   - **정렬 순서**: 진행 상태(진행 중 > 예정 > 종료), 시작 시간, 종료 시간, 생성 시간 순 정렬
-
+  
   ---
-
+  
   ### 🔒 Authentication
-
+  
   ✅ Required
-
+  
   ---
-
+  
   ### 📥 Request Variables
-
+  
   | Name | Type | Required | Description |
   |---|---|---|---|
   | `take` | Int | ❌ | 가져올 개수 (기본값: 10) |
   | `cursor` | Int | ❌ | 페이지네이션 커서 |
-
+  
   ---
-
+  
   ### 📤 Response Body
-
+  
   #### Content-Type: `application/json`
-
+  
   ```json
   {
     "data": {
@@ -94,7 +94,7 @@ docs {
     }
   }
   ```
-
+  
   | Field | Type | Description |
   |--------|------|------|
   | `id` | Int | 대회 ID |

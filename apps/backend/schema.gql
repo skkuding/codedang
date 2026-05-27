@@ -779,7 +779,7 @@ type Contest {
   createdById: Int
   description: String
 
-  """�� Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
   enableCopyPaste: Boolean!
   endTime: DateTime!
 
@@ -1426,7 +1426,7 @@ type ContestWithParticipants {
   createdById: Int
   description: String
 
-  """�� Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
   enableCopyPaste: Boolean!
   endTime: DateTime!
 
@@ -1476,7 +1476,7 @@ type ContestWithScores {
   createdById: Int
   description: String
 
-  """�� Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
   enableCopyPaste: Boolean!
   endTime: DateTime!
 
@@ -2068,11 +2068,13 @@ type FindGroup {
   createTime: DateTime!
   description: String
   groupName: String!
+  groupTag: [GroupTag!]
   groupType: GroupType!
   id: ID!
   invitation: String
   memberNum: Int!
   sharedProblems: [Problem!]
+  studyInfo: StudyInfo
   updateTime: DateTime!
   userGroup: [UserGroup!]
   workbook: [Workbook!]
@@ -2149,9 +2151,11 @@ type Group {
   createTime: DateTime!
   description: String
   groupName: String!
+  groupTag: [GroupTag!]
   groupType: GroupType!
   id: ID!
   sharedProblems: [Problem!]
+  studyInfo: StudyInfo
   updateTime: DateTime!
   userGroup: [UserGroup!]
   workbook: [Workbook!]
@@ -2166,6 +2170,7 @@ type GroupCount {
   GroupWhitelist: Int!
   assignment: Int!
   courseQnA: Int!
+  groupTag: Int!
   sharedProblems: Int!
   userGroup: Int!
   workbook: Int!
@@ -2213,6 +2218,45 @@ type GroupMinAggregate {
 
 type GroupSumAggregate {
   id: Int
+}
+
+type GroupTag {
+  group: Group!
+  groupId: Int!
+  id: ID!
+  tag: Tag!
+  tagId: Int!
+}
+
+type GroupTagAvgAggregate {
+  groupId: Float
+  id: Float
+  tagId: Float
+}
+
+type GroupTagCountAggregate {
+  _all: Int!
+  groupId: Int!
+  id: Int!
+  tagId: Int!
+}
+
+type GroupTagMaxAggregate {
+  groupId: Int
+  id: Int
+  tagId: Int
+}
+
+type GroupTagMinAggregate {
+  groupId: Int
+  id: Int
+  tagId: Int
+}
+
+type GroupTagSumAggregate {
+  groupId: Int
+  id: Int
+  tagId: Int
 }
 
 enum GroupType {
@@ -3621,6 +3665,46 @@ input Solution {
   language: Language!
 }
 
+type StudyInfo {
+  capacity: Int!
+  endTime: DateTime!
+  group: Group!
+  groupId: ID!
+  invitationCode: String
+}
+
+type StudyInfoAvgAggregate {
+  capacity: Float
+  groupId: Float
+}
+
+type StudyInfoCountAggregate {
+  _all: Int!
+  capacity: Int!
+  endTime: Int!
+  groupId: Int!
+  invitationCode: Int!
+}
+
+type StudyInfoMaxAggregate {
+  capacity: Int
+  endTime: DateTime
+  groupId: Int
+  invitationCode: String
+}
+
+type StudyInfoMinAggregate {
+  capacity: Int
+  endTime: DateTime
+  groupId: Int
+  invitationCode: String
+}
+
+type StudyInfoSumAggregate {
+  capacity: Int
+  groupId: Int
+}
+
 type Submission {
   FirstCheckResult: [CheckResult!]
   SecondCheckResult: [CheckResult!]
@@ -3897,6 +3981,7 @@ type SubmissionsWithTotal {
 type Tag {
   _count: TagCount!
   createTime: DateTime!
+  groupTag: [GroupTag!]
   id: ID!
   name: String!
   problemTag: [ProblemTag!]
@@ -3908,6 +3993,7 @@ type TagAvgAggregate {
 }
 
 type TagCount {
+  groupTag: Int!
   problemTag: Int!
 }
 
@@ -4332,7 +4418,7 @@ type User {
   userGroup: [UserGroup!]
   userProfile: UserProfile
   username: String!
-  useroauth: UserOAuth
+  useroauth: [UserOAuth!]
   workbook: [Workbook!]
 }
 
@@ -4462,6 +4548,7 @@ type UserCount {
   testSubmission: Int!
   userContest: Int!
   userGroup: Int!
+  useroauth: Int!
   workbook: Int!
 }
 

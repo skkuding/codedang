@@ -27,7 +27,7 @@ export class ContestService {
 
   /**
    * 대회 목록을 조회합니다.
-   * (SuperAdmin 제외) 자신이 'Admin', 'Manager', 'Reviewer'로 속한 대회만 조회합니다.
+   * (SuperAdmin 제외) 자신이 'Admin', 'Manager'로 속한 대회만 조회합니다.
    *
    * @param {number} userId 사용자 ID
    * @param {number} take 페이지당 가져올 대회 수
@@ -44,7 +44,7 @@ export class ContestService {
         where: {
           userId,
           role: {
-            in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
+            in: [ContestRole.Admin, ContestRole.Manager]
           }
         },
         select: { contestId: true }
@@ -71,11 +71,7 @@ export class ContestService {
                 some: {
                   userId,
                   role: {
-                    in: [
-                      ContestRole.Admin,
-                      ContestRole.Manager,
-                      ContestRole.Reviewer
-                    ]
+                    in: [ContestRole.Admin, ContestRole.Manager]
                   }
                 }
               }
