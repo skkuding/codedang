@@ -1066,9 +1066,10 @@ export class SubmissionService {
     } | null = null
     let isJudgeResultVisible: boolean | null = null
     let isHiddenTestcaseVisible: boolean | null = null
+    let isStaff = false
 
     if (contestId) {
-      const isStaff = await this.isContestStaff(contestId, userId)
+      isStaff = await this.isContestStaff(contestId, userId)
       if (isStaff) {
         const contestData = await this.prisma.contest.findUnique({
           where: { id: contestId },
@@ -1191,11 +1192,12 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
-    // 본인이나 관리자가 아닐 경우
+    // 본인이나 관리자, contest staff가 아닐 경우
     if (
       submission.userId !== userId &&
       userRole !== Role.Admin &&
-      userRole !== Role.SuperAdmin
+      userRole !== Role.SuperAdmin &&
+      !isStaff
     ) {
       if (
         contest &&
