@@ -34,9 +34,9 @@ export function InstagramCards() {
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-[1360px]">
+    <div className="mt-10 w-full max-w-[1360px] px-5 md:mt-0 md:px-10">
       <div className="mb-7 flex items-center justify-between">
-        <span className="text-head1_b_40">
+        <span className="text-sub3_sb_16 md:text-head1_b_40">
           우리의 최신 소식은 여기에 있어요
         </span>
         <div className="flex flex-col items-center justify-center">
@@ -46,7 +46,9 @@ export function InstagramCards() {
             rel="noopener noreferrer"
             className="text-color-neutral-30 hover:text-color-neutral-10 flex items-center justify-center gap-1"
           >
-            <span className="text-sub2_m_18">인스타그램 바로가기</span>
+            <span className="text-caption4_r_12 md:text-sub2_m_18">
+              인스타그램 바로가기
+            </span>
             <RightArrowIcon className="h-[18px]" />
           </Link>
         </div>
