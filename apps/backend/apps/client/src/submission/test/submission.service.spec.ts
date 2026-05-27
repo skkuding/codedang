@@ -610,8 +610,10 @@ describe('SubmissionService', () => {
       const adminUser: User = {
         id: 1,
         username: 'username',
+        nickname: 'username',
         password: '1234',
         role: 'Admin',
+        jobType: 'CollegeStudent',
         email: 'test@test.com',
         lastLogin: new Date(),
         createTime: new Date(),
@@ -671,8 +673,10 @@ describe('SubmissionService', () => {
       const adminUser: User = {
         id: 1,
         username: 'username',
+        nickname: 'username',
         password: '1234',
         role: 'Admin',
+        jobType: 'CollegeStudent',
         email: 'test@test.com',
         lastLogin: new Date(),
         createTime: new Date(),
