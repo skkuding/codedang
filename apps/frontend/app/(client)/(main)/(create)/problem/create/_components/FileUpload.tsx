@@ -11,6 +11,7 @@ interface FileUploadProps {
   primaryText: string
   secondaryText: string
   onFilesChange: (files: File[]) => void
+  multiple?: boolean
   className?: string
 }
 
@@ -28,6 +29,7 @@ export function FileUpload({
   primaryText,
   secondaryText,
   onFilesChange,
+  multiple,
   className
 }: FileUploadProps) {
   const [files, setFiles] = useState<File[]>([])
@@ -105,6 +107,7 @@ export function FileUpload({
           <input
             ref={inputRef}
             type="file"
+            multiple={multiple}
             className="hidden"
             onChange={(e) => handleFiles(e.target.files)}
           />
