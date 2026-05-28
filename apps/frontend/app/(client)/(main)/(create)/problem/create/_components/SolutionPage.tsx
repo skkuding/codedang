@@ -1,11 +1,10 @@
 import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import BlueCheckIcon from '@/public/icons/check-blue.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import CodingIcon from '@/public/icons/coding.svg'
 import InfoIconGray from '@/public/icons/info-icon-gray.svg'
 import TrashCanIconGray from '@/public/icons/trashcan2-gray.svg'
-import Image from 'next/image'
 import { useRef, useState } from 'react'
 
 const LANGUAGE_DISPLAY_MAP: Record<string, string> = {
@@ -120,12 +119,7 @@ export function SolutionPage() {
       <main className="grid gap-6">
         {solutionFiles.length === 0 ? (
           <div className="bg-color-neutral-99 flex flex-col items-center gap-[10px] rounded-xl py-20">
-            <Image
-              src={InfoIconGray}
-              alt="info icon gray"
-              height={24}
-              width={24}
-            />
+            <InfoIconGray height={24} width={24} />
             <p className="text-color-cool-neutral-50 text-body1_m_16 whitespace-pre-wrap text-center">
               {
                 '아직 솔루션이 업로드 되지 않았습니다.\n배포/Ready 상태 전환을 위해 솔루션 파일 업로드가 필수입니다.'
@@ -157,12 +151,7 @@ export function SolutionPage() {
               >
                 <div className="flex gap-4">
                   <div className="bg-color-neutral-99 border-line w-fit rounded-[6.4px] border-[0.8px] p-3">
-                    <Image
-                      src={CodingIcon}
-                      alt="coding icon"
-                      height={24}
-                      width={24}
-                    />
+                    <CodingIcon height={24} width={24} />
                   </div>
                   <div className="flex flex-1 items-center justify-between">
                     <div className="grid gap-[2px]">
@@ -182,12 +171,7 @@ export function SolutionPage() {
                       type="button"
                       className="border-color-neutral-90 hover:bg-color-neutral-95 border-1 bg-color-neutral-99 rounded-full px-4 py-[10px]"
                     >
-                      <Image
-                        src={TrashCanIconGray}
-                        alt="trashcan icon gray"
-                        height={16}
-                        width={16}
-                      />
+                      <TrashCanIconGray height={16} width={16} />
                     </Button>
                   </div>
                 </div>
@@ -218,12 +202,11 @@ export function SolutionPage() {
                   )}
                 >
                   <div className="flex items-start gap-2">
-                    <Image
-                      src={testPassed ? BlueCheckIcon : InfoIconGray}
-                      alt="test passed icon"
-                      height={20}
-                      width={20}
-                    />
+                    {testPassed ? (
+                      <CheckCircleIcon className="text-primary h-5 w-5" />
+                    ) : (
+                      <InfoIconGray height={20} width={20} />
+                    )}
                     <div className="grid gap-[2px]">
                       <p
                         className={cn(

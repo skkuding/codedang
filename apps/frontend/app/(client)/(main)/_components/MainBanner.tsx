@@ -1,70 +1,57 @@
-import { cn } from '@/libs/utils'
+import { Button } from '@/components/shadcn/button'
+import mobileMainBannerImg from '@/public/banners/mobile_main_banner.svg'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
-interface CarouselProps {
-  slides: {
-    type: string
-    topTitle: string
-    bottomTitle: string
-    sub: string
-    subMobile: string
-    img: string
-    imgMobile: string
-    imgAlt: string
-    href: string
-  }[]
-}
-
-export function MainBanner({ slides }: CarouselProps) {
-  const [facade, setFacade] = useState(0)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFacade((facade + 1) % slides.length)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [facade, slides])
-
+export function MainBanner() {
   return (
     <div className="relative my-1 w-full max-w-[1380px] overflow-hidden rounded-[8px] lg:rounded-[20px]">
       {/* Desktop View */}
-      <div className="hidden h-[640px] md:flex">
-        <span>여기 작업해주세요! 다른 곳도 코드 언제든 바꾸셔도 됩니다~</span>
+      <div className="hidden h-[440px] flex-col items-center justify-center bg-[url(/banners/main_banner.png)] bg-cover bg-center md:flex">
+        <div className="flex flex-col items-center">
+          <p className="text-head1_b_40 flex flex-col items-center text-black md:text-nowrap">
+            <span>코드당과 함께 오늘의 코드를</span>
+            <span>내일의 커리어로 만들어보세요</span>
+          </p>
+          <p className="text-title2_m_20 text-color-cool-neutral-40 mt-3 flex flex-col items-center whitespace-pre-line">
+            <span>
+              성균관대학교 소프트웨어학과의 공식 학습 플랫폼 코드당에서
+            </span>
+            <span>한 단계 더 스마트해진 코딩 라이프를 시작하세요.</span>
+          </p>
+          <Button className="mt-10 h-[46px] w-[145px] rounded-[1000px] bg-[#21273C] px-6 py-3 text-white">
+            <Link
+              href={`https://what-is-codedang.framer.website`}
+              className="flex items-center"
+            >
+              <span className="text-[16px] font-medium tracking-[-0.03em]">
+                코드당 시작하기
+              </span>
+            </Link>
+          </Button>
+        </div>
       </div>
+
       {/* Mobile View (render all slides and control visibility by facade) */}
       <div className="mt-[10px] px-[20px] md:hidden">
-        <div className="relative h-[164px] w-full">
-          {slides.map((slide, index) => (
-            <div
-              key={slide.href + slide.topTitle}
-              className={cn(
-                'absolute inset-0 transition-opacity duration-1000 ease-in-out',
-                facade !== index && 'z-0 opacity-0'
-              )}
-            >
-              <div className="relative h-[164px] w-full overflow-hidden rounded-[8px]">
-                <Image
-                  src={slide.imgMobile}
-                  alt={slide.imgAlt}
-                  fill
-                  className="z-0 object-cover"
-                  unoptimized
-                  priority
-                />
-                <div className="font-pretendard absolute left-[17px] top-[24px] z-10 inline-flex h-[73px] w-[222px] flex-col items-start gap-[4px] text-white">
-                  <p className="text-[20px] font-medium font-semibold leading-[130%] tracking-[-0.6px]">
-                    {slide.topTitle}
-                    <br />
-                    {slide.bottomTitle}
-                  </p>
-                  <p className="text-color-neutral-90 text-xs font-normal leading-[140%] tracking-[-0.36px]">
-                    {slide.subMobile}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="relative h-[164px] w-full overflow-hidden rounded-[8px]">
+          <Image
+            src={mobileMainBannerImg}
+            alt="Mobile Main Banner"
+            fill
+            className="object-cover"
+            unoptimized
+            priority
+          />
+          <div className="font-pretendard absolute left-[17px] top-[24px] z-10 inline-flex h-[73px] w-[222px] flex-col items-start gap-[4px] text-white">
+            <p className="text-[20px] font-medium leading-[130%] tracking-[-0.6px]">
+              Your Coding Journey <br />
+              Starts Here
+            </p>
+            <p className="text-color-neutral-90 text-xs font-normal leading-[140%] tracking-[-0.36px]">
+              Compete. Grow. SKKU Coding
+            </p>
+          </div>
         </div>
       </div>
     </div>

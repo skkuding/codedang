@@ -9,6 +9,7 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import PenIcon from '@/public/icons/pen.svg'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
@@ -27,7 +28,6 @@ import {
   FaAnglesRight,
   FaBell,
   FaBook,
-  FaPen,
   FaSquarePollHorizontal,
   FaTrophy,
   FaUser
@@ -39,39 +39,39 @@ interface NavItem {
   path: string
   icon: IconType | ComponentType<{ className: string }>
 }
-
-const getCourseNavItems = (courseId: string): NavItem[] => [
-  {
-    name: 'Home',
-    path: `/admin/course/${courseId}` as const,
-    icon: HomeIcon
-  },
-  // {
-  //   name: 'Notice',
-  //   path: `/admin/course/${courseId}/notice`,
-  //   icon: FaBell
-  // },
-  {
-    name: 'Member',
-    path: `/admin/course/${courseId}/user` as const,
-    icon: MemberIcon
-  },
-  {
-    name: 'Assignment',
-    path: `/admin/course/${courseId}/assignment` as const,
-    icon: AssignmentIcon
-  },
-  {
-    name: 'Exercise',
-    path: `/admin/course/${courseId}/exercise` as const,
-    icon: ExerciseIcon
-  },
-  {
-    name: 'Q&A',
-    path: `/admin/course/${courseId}/qna` as const,
-    icon: ExerciseIcon
-  }
-]
+// Pending : 2중 사이드바 구조 철회
+// const getCourseNavItems = (courseId: string): NavItem[] => [
+//   {
+//     name: 'Home',
+//     path: `/admin/course/${courseId}` as const,
+//     icon: HomeIcon
+//   },
+//   // {
+//   //   name: 'Notice',
+//   //   path: `/admin/course/${courseId}/notice`,
+//   //   icon: FaBell
+//   // },
+//   {
+//     name: 'Member',
+//     path: `/admin/course/${courseId}/user` as const,
+//     icon: MemberIcon
+//   },
+//   {
+//     name: 'Assignment',
+//     path: `/admin/course/${courseId}/assignment` as const,
+//     icon: AssignmentIcon
+//   },
+//   {
+//     name: 'Exercise',
+//     path: `/admin/course/${courseId}/exercise` as const,
+//     icon: ExerciseIcon
+//   },
+//   {
+//     name: 'Q&A',
+//     path: `/admin/course/${courseId}/qna` as const,
+//     icon: ExerciseIcon
+//   }
+// ]
 
 interface SidebarLinkProps {
   item: NavItem
@@ -91,15 +91,22 @@ function SidebarLink({
       href={item.path as Route}
       onClick={onClick}
       className={cn(
-        'flex items-center px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100',
+        'flex items-center px-4 py-3 transition',
+        isActive
+          ? 'bg-primary text-white'
+          : 'text-color-neutral-30 hover:bg-gray-100',
         isExpanded ? 'rounded-full' : 'rounded-xs'
       )}
     >
       <item.icon
-        className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
+        className={cn(
+          'h-4 w-4',
+          isActive
+            ? 'fill-white'
+            : 'fill-color-neutral-70 text-color-neutral-70'
+        )}
       />
-      {isExpanded && <span className="ml-3 text-sm">{item.name}</span>}
+      {isExpanded && <span className="text-sub3_sb_16 ml-3">{item.name}</span>}
     </Link>
   )
 }
@@ -112,7 +119,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
   const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
-  const [isCourseSidebarExpanded, setIsCourseSidebarExpanded] = useState(true)
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [userPermissions, setUserPermissions] = useState({
     canCreateCourse: false,
@@ -173,7 +179,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
         { name: 'Notice', path: '/admin/notice', icon: FaBell }
       )
     }
-    items.push({ name: 'Problem', path: '/admin/problem', icon: FaPen })
+    items.push({ name: 'Problem', path: '/admin/problem', icon: PenIcon })
 
     if (userPermissions.canCreateCourse || hasLeadCourses) {
       items.push({ name: 'Course', path: '/admin/course', icon: FaBook })
@@ -223,11 +229,10 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
       >
         <button
           onClick={() => setIsMainSidebarExpanded(!isMainSidebarExpanded)}
-          className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
+          className="absolute right-0 top-6 text-gray-500 hover:text-gray-700"
         >
           {isMainSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
         </button>
-
         <div
           className={cn(
             'mb-6 mt-20 px-4',
@@ -245,7 +250,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           )}
         </div>
         <Separator className="mb-4" />
-
         <div className="flex flex-col gap-2">
           {getFilteredMainNavItems().map((item) => (
             <div key={item.name}>
@@ -284,7 +288,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                 pathname.startsWith('/admin/course') && (
                   <div
                     className={cn(
-                      'mt-4 flex flex-col gap-3 pl-4',
+                      'mt-4 flex flex-col gap-3 pl-4 text-left',
                       isMainSidebarExpanded && isAnimationComplete
                         ? ''
                         : 'hidden'
@@ -311,42 +315,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
           ))}
         </div>
       </motion.div>
-
-      {/* Course Sidebar */}
-      {isCourseSidebarOpened && (
-        <motion.div
-          initial={{ width: 190 }}
-          animate={{ width: isCourseSidebarExpanded ? 190 : 48 }}
-          className="relative flex flex-col"
-        >
-          <button
-            onClick={() => setIsCourseSidebarExpanded(!isCourseSidebarExpanded)}
-            className="absolute right-2 top-4 text-gray-500 hover:text-gray-700"
-          >
-            {isCourseSidebarExpanded ? <FaAnglesLeft /> : <FaAnglesRight />}
-          </button>
-          <div className="h-[3.8rem]" />
-          {selectedCourse && isCourseSidebarExpanded && (
-            <div className="absolute mt-16 text-gray-500">
-              <div className="font-semibold text-gray-700">
-                [{selectedCourse.code}]
-              </div>
-              <div>{selectedCourse.name}</div>
-              <div className="mt-5 w-[190px]">
-                <Separator />
-              </div>
-            </div>
-          )}
-
-          <div className="mt-20 flex flex-col gap-2">
-            <SideBar
-              navItems={getCourseNavItems(selectedCourseId)}
-              isSidebarExpanded={isCourseSidebarExpanded}
-              defaultItem="Home"
-            />
-          </div>
-        </motion.div>
-      )}
     </div>
   )
 }

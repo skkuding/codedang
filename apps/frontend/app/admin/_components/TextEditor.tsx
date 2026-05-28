@@ -3,8 +3,9 @@
 import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import Shrink from '@/public/icons/texteditor-shrink.svg'
+import ShrinkIcon from '@/public/icons/texteditor-shrink.svg'
 import type { Range } from '@tiptap/core'
+import { InputRule } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -32,7 +33,6 @@ import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { common, createLowlight } from 'lowlight'
-import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { FileDownloadNode } from './tiptap/FileDownloadNode'
@@ -241,11 +241,7 @@ export function TextEditor({
                 className="h-9 w-9 p-1"
                 onClick={() => onShrink?.(editor?.getHTML())}
               >
-                <Image
-                  src={Shrink}
-                  alt="Shrink"
-                  className="h-[22px] w-[22px]"
-                />
+                <ShrinkIcon className="h-[22px] w-[22px]" />
               </Button>
             )}
           </div>
@@ -333,7 +329,7 @@ export const MathExtension = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
+    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' })]
   },
 
   addNodeView() {
@@ -349,11 +345,34 @@ export const MathExtension = Node.create({
         return false
       }
     }
+  },
+
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /\$([^$]+)\$\s$/,
+        handler: ({ range, match, chain }) => {
+          const content = match[1]
+
+          chain()
+            .deleteRange(range)
+            .insertContentAt(range.from, {
+              type: this.name,
+              attrs: {
+                content
+              }
+            })
+            .run()
+        }
+      })
+    ]
   }
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
-  const [content, setContent] = useState(props.node.attrs.content)
+  const [content, setContent] = useState(
+    props.node.attrs.content.replace(/\$/g, '')
+  )
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 

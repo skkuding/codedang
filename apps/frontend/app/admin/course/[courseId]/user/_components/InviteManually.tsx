@@ -13,12 +13,11 @@ import {
 import { INVITE_USER } from '@/graphql/user/mutation'
 import { ALLOWED_DOMAINS } from '@/libs/constants'
 import { fetcherWithAuth } from '@/libs/utils'
-import emailIcon from '@/public/icons/email-symbol.svg'
-import plusIcon from '@/public/icons/plus-line.svg'
+import EmailSymbolIcon from '@/public/icons/email-symbol.svg'
+import PlusLineIcon from '@/public/icons/plus-line.svg'
 import type { MemberRole } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { IoMdCloseCircle } from 'react-icons/io'
@@ -228,8 +227,8 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                   defaultValue="@skku.edu"
                 >
                   <SelectTrigger className="flex gap-[6px] border-none bg-transparent px-[14px] text-base focus-visible:ring-0 focus-visible:ring-offset-0">
-                    <div className="flex items-center gap-[6px]">
-                      <Image src={emailIcon} alt="emailIcon" />
+                    <div className="flex flex-1 items-center gap-[6px]">
+                      <EmailSymbolIcon />
 
                       {selectDomain !== 'Enter directly' ? (
                         <SelectValue placeholder={ALLOWED_DOMAINS[0]} />
@@ -248,7 +247,6 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                     ))}
                   </SelectContent>
                 </Select>
-
                 {isDirectInputMode && (
                   <div className="flex items-center rounded-lg text-base">
                     <Input
@@ -256,7 +254,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                       placeholder="Enter directly"
                       onChange={handleInputChange}
                       sizeVariant="md"
-                      className="w-35 absolute left-[20px] border-none bg-transparent text-base shadow-none focus-visible:ring-0"
+                      className="w-35 absolute left-[20px] top-1/2 -translate-y-1/2 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
                     />
                   </div>
                 )}
@@ -289,7 +287,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
               className="border-primary flex cursor-pointer items-center justify-center gap-1 rounded-full border bg-white px-[22px] py-[10px] duration-200 hover:bg-blue-50"
               onClick={() => findHandleSubmit(onFind)()}
             >
-              <Image src={plusIcon} alt="plusIcon" />
+              <PlusLineIcon />
               <span className="text-primary text-[14px] font-medium">Add</span>
             </div>
           </div>
