@@ -5,3 +5,4 @@ metadata:
   namespace: client-api
 data:
   MINIO_ENDPOINT_URL: 'https://minio.stage.codedang.com'
+  KAKAO_CALLBACK_URL: 'https://stage.codedang.com/api/auth/kakao-callback'

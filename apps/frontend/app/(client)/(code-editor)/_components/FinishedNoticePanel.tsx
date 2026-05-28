@@ -1,8 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { fetcher } from '@/libs/utils'
-import exitIcon from '@/public/icons/exit2.svg'
-import visitIcon from '@/public/icons/visit.svg'
-import Image from 'next/image'
+import Exit2Icon from '@/public/icons/exit2.svg'
+import VisitIcon from '@/public/icons/visit.svg'
 import Link from 'next/link'
 
 interface FinishedNoticePanelProps {
@@ -63,7 +62,7 @@ function VisitProblemButton({ problemId }: VisitProblemButtonProps) {
         type="button"
         className="h-10 w-48 shrink-0 gap-[5px] rounded-[4px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
       >
-        <Image src={visitIcon} alt="exit" width={20} height={20} />
+        <VisitIcon width={20} height={20} />
         Visit Public Problem
       </Button>
     </Link>
@@ -94,7 +93,7 @@ function ExitButton({
         type="button"
         className="ml-4 h-10 shrink-0 gap-[5px] bg-blue-500 font-sans hover:bg-blue-700"
       >
-        <Image src={exitIcon} alt="exit" width={20} height={20} />
+        <Exit2Icon width={20} height={20} />
         {target === 'contest' ? 'View Leaderboard' : 'Exit'}
       </Button>
     </Link>

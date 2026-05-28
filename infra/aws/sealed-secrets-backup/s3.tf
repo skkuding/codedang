@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "sealed_secrets_backup" {
   bucket = "codedang-sealed-secrets-backup"
   tags = {
-    Description = "Backup destination for K8s sealed-secrets keys (per-cluster prefix)"
+    Description = "Backup destination for K8s sealed-secrets keys - per-cluster prefix"
   }
 }
 

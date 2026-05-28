@@ -89,10 +89,10 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 		return "", fmt.Errorf("inner json unmarshal: %w", err)
 	}
 
-  // Empty Template
-  if len(innerString) == 0 {
-    return "", nil
-  }
+	// Empty Template
+	if len(innerString) == 0 {
+		return "", nil
+	}
 
 	var arrayData []TemplateItem
 	if err := json.Unmarshal([]byte(innerString[0]), &arrayData); err != nil {
