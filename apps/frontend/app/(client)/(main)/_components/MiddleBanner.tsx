@@ -1,5 +1,3 @@
-'use client'
-
 import { Button } from '@/components/shadcn/button'
 import Link from 'next/link'
 
