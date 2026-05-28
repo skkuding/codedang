@@ -2,7 +2,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import type { Provider, User, UserProfile } from '@prisma/client'
+import {
+  JobType,
+  type Provider,
+  type User,
+  type UserProfile
+} from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
@@ -97,7 +102,6 @@ export class UserService {
    *
    * @param {string} email 이메일 주소
    * @throws {DuplicateFoundException} 기존에 존재하는 이메일 주소면 예외 발생
-   * @throws {UnprocessableDataException} @skku.edu로 끝나지 않는 메일이면 예외 발생
    * @return {Promise<string>} pin번호 전송 성공 메시지
    */
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
@@ -105,11 +109,6 @@ export class UserService {
     if (duplicatedUser) {
       this.logger.debug('email duplicated')
       throw new DuplicateFoundException('Email')
-    }
-
-    if (!email.endsWith('@skku.edu')) {
-      this.logger.debug('invalid email domain', { email })
-      throw new UnprocessableDataException('Only @skku.edu emails are allowed')
     }
 
     return this.createPinAndSendEmail(email)
@@ -366,8 +365,11 @@ export class UserService {
    * @param {SignUpDto} signUpDto 회원가입 정보가 담긴 객체
    * @throws {UnprocessableDataException}
    * 1. 인증되지 않은 이메일로 가입을 시도하면 예외를 발생시킵니다.
-   * 2. 올바르지 않은 형식의 사용자 이름으로 가입을 시도하면 예외를 발생시킵니다.
-   * 3. 올바르지 않은 형식의 비밀번호로 가입을 시도하면 예외를 발생시킵니다.
+   * 2. 성균관대학교 학생이 가입시 학번과 학과가 없으면 예외를 발생시킵니다.
+   * 3. 성균관대학교 학생이 가입시 이메일이 '@skku.edu'가 아닌경우 예외를 발생시킵니다.
+   * 4. 일반 대학생이 가입시 대학교 이름 정보가 없으면 예외를 발생시킵니다.
+   * 5. 올바르지 않은 형식의 사용자 이름으로 가입을 시도하면 예외를 발생시킵니다.
+   * 6. 올바르지 않은 형식의 비밀번호로 가입을 시도하면 예외를 발생시킵니다.
    * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름으로 가입을 시도할 경우 예외를 발생시킵니다.
    * @returns 회원가입 성공 시 새로 가입된 user 객체를 반환합니다.
    */
@@ -382,6 +384,24 @@ export class UserService {
         'signUp - fail (unauthenticated email)'
       )
       throw new UnprocessableDataException('The email is not authenticated one')
+    }
+
+    if (
+      signUpDto.jobType === JobType.CollegeStudent &&
+      signUpDto.college?.includes('성균관대학교')
+    ) {
+      if (!signUpDto.studentId || !signUpDto.major) {
+        throw new UnprocessableDataException('SKKU without studentId and major')
+      }
+      if (!email.endsWith('@skku.edu')) {
+        throw new UnprocessableDataException('SKKU not using @skku.edu email')
+      }
+    } else if (signUpDto.jobType === JobType.CollegeStudent) {
+      if (!signUpDto.college) {
+        throw new UnprocessableDataException(
+          'College students without college name'
+        )
+      }
     }
 
     const duplicatedUser = await this.prisma.user.findUnique({
@@ -472,6 +492,8 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email,
+        nickname: signUpDto.nickname,
+        jobType: signUpDto.jobType,
         studentId: signUpDto.studentId,
         college: signUpDto.college,
         major: signUpDto.major
