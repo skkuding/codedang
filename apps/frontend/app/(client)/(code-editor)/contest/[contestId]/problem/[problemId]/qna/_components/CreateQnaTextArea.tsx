@@ -1,6 +1,7 @@
 'use client'
 
 //import { AlertModal } from '@/components/AlertModal'
+import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
 import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
@@ -23,6 +24,8 @@ export function CreateQnaTextArea({
     content: ''
   })
   const [loading, setLoading] = useState(false)
+  const triggerRefresh = useQnaCommentsSync((s) => s.triggerRefresh)
+
   //const [postModalOpen, setPostModalOpen] = useState(false)
 
   const handleInputChange = (
@@ -59,6 +62,7 @@ export function CreateQnaTextArea({
       console.log('Success:', result)
       toast.success('Question submitted successfully')
       setQnaFormData({ title: '', content: '' })
+      triggerRefresh()
     } catch (error) {
       console.error('Error submitting question:', error)
       toast.error('Failed to submit question')

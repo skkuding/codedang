@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
 import ShrinkIcon from '@/public/icons/texteditor-shrink.svg'
 import type { Range } from '@tiptap/core'
+import { InputRule } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -334,7 +335,7 @@ export const MathExtension = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
+    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' })]
   },
 
   addNodeView() {
@@ -350,11 +351,34 @@ export const MathExtension = Node.create({
         return false
       }
     }
+  },
+
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /\$([^$]+)\$\s$/,
+        handler: ({ range, match, chain }) => {
+          const content = match[1]
+
+          chain()
+            .deleteRange(range)
+            .insertContentAt(range.from, {
+              type: this.name,
+              attrs: {
+                content
+              }
+            })
+            .run()
+        }
+      })
+    ]
   }
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
-  const [content, setContent] = useState(props.node.attrs.content)
+  const [content, setContent] = useState(
+    props.node.attrs.content.replace(/\$/g, '')
+  )
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 

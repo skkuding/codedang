@@ -119,8 +119,8 @@ export function DataTable<TData extends Item, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = pathSegment
-              ? `${currentPath}/${pathSegment}/${row.original.id}`
-              : `${currentPath}/${row.original.id}`
+              ? `${currentPath.replace(/\/$/, '')}/${pathSegment}/${row.original.id}`
+              : `${currentPath.replace(/\/$/, '')}/${row.original.id}`
 
             return (
               <TableRow
