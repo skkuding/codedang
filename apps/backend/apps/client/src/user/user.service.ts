@@ -651,6 +651,8 @@ export class UserService {
         username: true,
         role: true,
         email: true,
+        nickname: true,
+        jobType: true,
         lastLogin: true,
         updateTime: true,
         studentId: true,
@@ -658,7 +660,8 @@ export class UserService {
         major: true,
         userProfile: {
           select: {
-            realName: true
+            realName: true,
+            profileImageUrl: true
           }
         },
         canCreateContest: true,
@@ -782,6 +785,7 @@ export class UserService {
 
     const updateData = {
       password: encryptedNewPassword,
+      nickname: updateUserDto.nickname,
       studentId: updateUserDto.studentId,
       college: updateUserDto.college,
       major: updateUserDto.major,
@@ -795,6 +799,7 @@ export class UserService {
       data: updateData,
       select: {
         // don't select password for security
+        nickname: true,
         studentId: true,
         college: true,
         major: true,
