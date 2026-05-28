@@ -16,6 +16,7 @@ export function MiddleBanner() {
           }
         </p>
         <Button
+          disabled
           asChild
           className="bg-color-common-100 hover:bg-color-neutral-99 hidden h-12 w-fit rounded-full px-6 py-3 md:flex"
         >
