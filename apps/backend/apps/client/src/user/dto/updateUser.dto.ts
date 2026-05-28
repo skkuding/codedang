@@ -15,6 +15,10 @@ export class UpdateUserDto {
   readonly realName?: string
 
   @IsOptional()
+  @IsString()
+  readonly nickname?: string
+
+  @IsOptional()
   @IsNumberString()
   readonly studentId?: string
 
