@@ -10,7 +10,7 @@ import type {
   AssignmentProblemRecord,
   AssignmentSubmission
 } from '@/types/type'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQueries } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { ResultBadge } from './ResultBadge'
@@ -24,18 +24,17 @@ export function AssignmentProblemListFetcher({
   assignment,
   isExercise
 }: AssignmentProblemListFetcherProps) {
-  const { data: problems } = useSuspenseQuery(
-    assignmentProblemQueries.list({
-      assignmentId: assignment.id,
-      groupId: Number(assignment.group.id)
+  const [{ data: problems }, { data: record }, { data: submission }] =
+    useSuspenseQueries({
+      queries: [
+        assignmentProblemQueries.list({
+          assignmentId: assignment.id,
+          groupId: Number(assignment.group.id)
+        }),
+        assignmentQueries.record({ assignmentId: assignment.id }),
+        assignmentSubmissionQueries.summary({ assignmentId: assignment.id })
+      ]
     })
-  )
-  const { data: record } = useSuspenseQuery(
-    assignmentQueries.record({ assignmentId: assignment.id })
-  )
-  const { data: submission } = useSuspenseQuery(
-    assignmentSubmissionQueries.summary({ assignmentId: assignment.id })
-  )
 
   return (
     <AssignmentProblemList
@@ -122,16 +121,14 @@ export function AssignmentProblemListSkeleton({
 interface AssignmentProblemListProps {
   problems: AssignmentProblem[]
   assignment: Assignment
-
   isExercise: boolean
-  record: AssignmentProblemRecord | undefined
-  submission: AssignmentSubmission[] | undefined
+  record: AssignmentProblemRecord
+  submission: AssignmentSubmission[]
 }
 
 function AssignmentProblemList({
   problems,
   assignment,
-
   isExercise,
   record,
   submission
