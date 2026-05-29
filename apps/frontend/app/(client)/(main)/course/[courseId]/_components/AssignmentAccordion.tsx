@@ -1,10 +1,10 @@
 'use client'
 
+import { EmptyStatePlaceholder } from '@/app/(client)/(main)/_components/EmptyStatePlaceholder'
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { AssignmentAccordionItem } from './AssignmentAccordionItem'
 
 interface AssignmentAccordionProps {
@@ -16,33 +16,18 @@ export function AssignmentAccordion({
   courseId,
   isExercise = false
 }: AssignmentAccordionProps) {
-  // eslint-disable-next-line object-shorthand
   const { data: assignments } = useSuspenseQuery(
-    assignmentQueries.muliple({ courseId, isExercise: isExercise })
+    assignmentQueries.muliple({ courseId, isExercise })
   )
-  // eslint-disable-next-line object-shorthand
-  const { data: grades } = useSuspenseQuery(
-    assignmentQueries.grades({ courseId, isExercise: isExercise })
-  )
-
-  const gradeMap = new Map(grades.map((grade) => [grade.id, grade]))
 
   if (assignments.length === 0) {
     return (
-      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
-        <Image
-          src={'/logos/welcomeNobg.png'}
-          alt="No context"
-          width={454}
-          height={262}
-        />
-        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
-          {`Contest Hasn't Started`}
-        </p>
-        <p className="mt-2 text-center text-base font-normal text-[#00000080]">
-          The problem list will be released after the start of the contest
-        </p>
-      </div>
+      <EmptyStatePlaceholder
+        title={`No ${isExercise ? 'exercise' : 'assignment'} has been released yet`}
+        description="Please check again later"
+        className="mt-4 py-10"
+        titleTopMargin="mt-4"
+      />
     )
   }
 
@@ -52,8 +37,6 @@ export function AssignmentAccordion({
         <AssignmentAccordionItem
           key={assignment.id}
           assignment={assignment}
-          grade={gradeMap.get(assignment.id)}
-          courseId={courseId}
           isExercise={isExercise}
         />
       ))}

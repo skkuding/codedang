@@ -1,5 +1,8 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
+import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
+import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
 import type {
   Assignment,
@@ -7,23 +10,128 @@ import type {
   AssignmentProblemRecord,
   AssignmentSubmission
 } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { ResultBadge } from './ResultBadge'
 
+interface AssignmentProblemListFetcherProps {
+  assignment: Assignment
+  isExercise: boolean
+}
+
+export function AssignmentProblemListFetcher({
+  assignment,
+  isExercise
+}: AssignmentProblemListFetcherProps) {
+  const { data: problems } = useSuspenseQuery(
+    assignmentProblemQueries.list({
+      assignmentId: assignment.id,
+      groupId: Number(assignment.group.id)
+    })
+  )
+  const { data: record } = useSuspenseQuery(
+    assignmentQueries.record({ assignmentId: assignment.id })
+  )
+  const { data: submission } = useSuspenseQuery(
+    assignmentSubmissionQueries.summary({ assignmentId: assignment.id })
+  )
+
+  return (
+    <AssignmentProblemList
+      problems={problems.data}
+      assignment={assignment}
+      isExercise={isExercise}
+      record={record}
+      submission={submission}
+    />
+  )
+}
+
+interface AssignmentProblemListSkeletonProps {
+  count: number
+  isExercise: boolean
+}
+
+export function AssignmentProblemListSkeleton({
+  count,
+  isExercise
+}: AssignmentProblemListSkeletonProps) {
+  return (
+    <div className="overflow-hidden rounded-2xl border">
+      <div className="h-6 bg-[#F3F3F3]" />
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className={cn(
+            'border-b last:border-none',
+            isExercise
+              ? 'bg-background-alternative border-line-neutral px-14 py-6'
+              : 'bg-[#F8F8F8] px-8 py-6'
+          )}
+        >
+          {/* Mobile */}
+          <div className="lg:hidden">
+            <div className="mb-2 flex items-center gap-3">
+              <div className="h-4 w-6 animate-pulse rounded bg-gray-200" />
+              <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
+            </div>
+          </div>
+
+          {/* Desktop */}
+          <div className="hidden w-full items-center lg:flex">
+            <div className="mr-4 w-[10%]">
+              <div className="h-5 w-8 animate-pulse rounded bg-gray-200" />
+            </div>
+            <div
+              className={cn(
+                'flex flex-col',
+                isExercise ? 'w-[45%]' : 'w-[30%]'
+              )}
+            >
+              <div className="h-4 w-48 animate-pulse rounded bg-gray-200" />
+            </div>
+            <div
+              className={cn(
+                'flex justify-center',
+                isExercise ? 'w-[25%]' : 'w-[30%]'
+              )}
+            >
+              <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
+            </div>
+            {!isExercise && (
+              <div className="flex w-[10%] justify-center">
+                <div className="h-4 w-12 animate-pulse rounded bg-gray-200" />
+              </div>
+            )}
+            <div
+              className={cn(
+                'flex justify-center',
+                isExercise ? 'w-[20%]' : 'w-[13%]'
+              )}
+            >
+              <div className="h-6 w-16 animate-pulse rounded-full bg-gray-200" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 interface AssignmentProblemListProps {
   problems: AssignmentProblem[]
   assignment: Assignment
-  courseId: number
+
   isExercise: boolean
   record: AssignmentProblemRecord | undefined
   submission: AssignmentSubmission[] | undefined
 }
 
-export function AssignmentProblemList({
+function AssignmentProblemList({
   problems,
   assignment,
-  courseId,
+
   isExercise,
   record,
   submission
@@ -50,7 +158,7 @@ export function AssignmentProblemList({
                   {convertToLetter(problem.order)}
                 </div>
                 <Link
-                  href={`/course/${courseId}/${routeType}/${assignment.id}/problem/${problem.id}`}
+                  href={`/course/${Number(assignment.group.id)}/${routeType}/${assignment.id}/problem/${problem.id}`}
                   className="flex-1"
                 >
                   <span className="line-clamp-2 text-sm font-medium text-[#171717]">
@@ -127,7 +235,7 @@ export function AssignmentProblemList({
                 )}
               >
                 <Link
-                  href={`/course/${courseId}/${routeType}/${assignment.id}/problem/${problem.id}`}
+                  href={`/course/${Number(assignment.group.id)}/${routeType}/${assignment.id}/problem/${problem.id}`}
                 >
                   <span className="line-clamp-1 text-base font-medium text-[#171717]">
                     {problem.title}

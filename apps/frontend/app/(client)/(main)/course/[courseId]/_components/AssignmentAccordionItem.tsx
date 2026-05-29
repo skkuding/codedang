@@ -1,55 +1,44 @@
 'use client'
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
-import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
-import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import {
   Accordion,
   AccordionContent,
   AccordionItem
 } from '@/components/shadcn/accordion'
-import type { Assignment, AssignmentSummary } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import type { Assignment } from '@/types/type'
+import { Suspense } from '@suspensive/react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { AssignmentAccordionTrigger } from './AssignmentAccordionTrigger'
-import { AssignmentProblemList } from './AssignmentProblemList'
+import {
+  AssignmentProblemListFetcher,
+  AssignmentProblemListSkeleton
+} from './AssignmentProblemList'
 
 interface AssignmentAccordionItemProps {
   assignment: Assignment
-  courseId: number
-  grade?: AssignmentSummary
   isExercise?: boolean
 }
 
 export function AssignmentAccordionItem({
   assignment,
-  courseId,
-  grade,
   isExercise = false
 }: AssignmentAccordionItemProps) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
 
-  const { data: record } = useQuery({
-    ...assignmentQueries.record({ assignmentId: assignment.id }),
-    enabled: isAccordionOpen
-  })
-
-  const { data: submission } = useQuery({
-    ...assignmentSubmissionQueries.summary({ assignmentId: assignment.id }),
-    enabled: isAccordionOpen
-  })
-
-  const { data: problems } = useQuery(
-    assignmentProblemQueries.list({
-      assignmentId: assignment.id,
-      groupId: courseId
+  const { data: grades } = useSuspenseQuery(
+    assignmentQueries.grades({
+      courseId: Number(assignment.group.id),
+      isExercise
     })
   )
+  const grade = grades.find((g) => g.id === assignment.id)
 
   const submittedCount = grade?.submittedCount ?? 0
-  const problemCount = grade?.problemCount ?? problems?.total ?? 0
+  const problemCount = grade?.problemCount ?? 0
 
   let scoreText = '- / -'
   let isDetailActivated = false
@@ -77,7 +66,6 @@ export function AssignmentAccordionItem({
       >
         <AssignmentAccordionTrigger
           assignment={assignment}
-          courseId={courseId}
           isExercise={isExercise}
           submittedCount={submittedCount}
           problemCount={problemCount}
@@ -87,15 +75,20 @@ export function AssignmentAccordionItem({
           onAssignmentDialogChange={setIsAssignmentDialogOpen}
         />
         <AccordionContent className="-mb-4 w-full">
-          {isAccordionOpen && problems && (
-            <AssignmentProblemList
-              problems={problems.data}
-              assignment={assignment}
-              courseId={courseId}
-              isExercise={isExercise}
-              record={record}
-              submission={submission}
-            />
+          {isAccordionOpen && (
+            <Suspense
+              fallback={
+                <AssignmentProblemListSkeleton
+                  count={problemCount}
+                  isExercise={isExercise}
+                />
+              }
+            >
+              <AssignmentProblemListFetcher
+                assignment={assignment}
+                isExercise={isExercise}
+              />
+            </Suspense>
           )}
         </AccordionContent>
       </AccordionItem>

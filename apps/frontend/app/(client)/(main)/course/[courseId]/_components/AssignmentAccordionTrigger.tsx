@@ -14,7 +14,6 @@ import { GradeStatisticsModal } from './GradeStatisticsModal'
 
 interface AssignmentAccordionTriggerProps {
   assignment: Assignment
-  courseId: number
   isExercise: boolean
   submittedCount: number
   problemCount: number
@@ -26,7 +25,6 @@ interface AssignmentAccordionTriggerProps {
 
 export function AssignmentAccordionTrigger({
   assignment,
-  courseId,
   isExercise,
   submittedCount,
   problemCount,
@@ -40,7 +38,7 @@ export function AssignmentAccordionTrigger({
       className={cn(
         'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-4 text-left text-sm shadow-md',
         isExercise ? 'lg:px-[60px] lg:py-6' : 'lg:px-8 lg:py-6',
-        'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
+        'data-[state=open]:-mb-6',
         'relative',
         'hover:no-underline'
       )}
@@ -59,7 +57,7 @@ export function AssignmentAccordionTrigger({
             <div className="flex flex-col">
               <AssignmentLink
                 assignment={assignment}
-                courseId={courseId}
+                courseId={Number(assignment.group.id)}
                 isExercise={isExercise}
               />
             </div>
@@ -97,7 +95,7 @@ export function AssignmentAccordionTrigger({
               <DetailButton isActivated={isDetailActivated} />
               {isAssignmentDialogOpen && (
                 <GradeStatisticsModal
-                  courseId={courseId}
+                  courseId={Number(assignment.group.id)}
                   assignment={assignment}
                 />
               )}
@@ -122,7 +120,7 @@ export function AssignmentAccordionTrigger({
         >
           <AssignmentLink
             assignment={assignment}
-            courseId={courseId}
+            courseId={Number(assignment.group.id)}
             isExercise={isExercise}
           />
           {(assignment.dueTime ?? hasDueDate(assignment.endTime)) && (
@@ -177,7 +175,7 @@ export function AssignmentAccordionTrigger({
               <DetailButton isActivated={isDetailActivated} />
               {isAssignmentDialogOpen && (
                 <GradeStatisticsModal
-                  courseId={courseId}
+                  courseId={Number(assignment.group.id)}
                   assignment={assignment}
                 />
               )}
