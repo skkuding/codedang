@@ -30,15 +30,23 @@ import { DetailButton } from './DetailButton'
 import { GradeStatisticsModal } from './GradeStatisticsModal'
 import { ResultBadge } from './ResultBadge'
 
-interface AssignmentAccordianProps {
+interface AssignmentAccordionProps {
   courseId: number
+  isExercise?: boolean
 }
 
-export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
+export function AssignmentAccordion({
+  courseId,
+  isExercise = false
+}: AssignmentAccordionProps) {
   const { data: assignments } = useQuery(
-    assignmentQueries.muliple({ courseId, isExercise: false })
+    // shorthand 사용 시, 항상 isExercise: true로 설정됨
+    assignmentQueries.muliple({ courseId, isExercise })
   )
-  const { data: grades } = useQuery(assignmentQueries.grades({ courseId }))
+  const { data: grades } = useQuery(
+    // eslint-disable-next-line object-shorthand
+    assignmentQueries.grades({ courseId, isExercise: isExercise })
+  )
 
   const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
 
@@ -47,7 +55,9 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
       <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
           <p className="text-color-neutral-60 text-base">
-            No assignments registered
+            {isExercise
+              ? 'No exercises registered'
+              : 'No assignments registered'}
           </p>
         </div>
       </div>
@@ -62,6 +72,7 @@ export function AssignmentAccordion({ courseId }: AssignmentAccordianProps) {
           assignment={assignment}
           grade={gradeMap.get(assignment.id)}
           courseId={courseId}
+          isExercise={isExercise}
         />
       ))}
     </div>
@@ -72,12 +83,14 @@ interface AssignmentAccordionItemProps {
   assignment: Assignment
   courseId: number
   grade?: AssignmentSummary
+  isExercise?: boolean
 }
 
 function AssignmentAccordionItem({
   assignment,
   courseId,
-  grade
+  grade,
+  isExercise = false
 }: AssignmentAccordionItemProps) {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false)
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
@@ -111,7 +124,7 @@ function AssignmentAccordionItem({
   let scoreText = '- / -'
   let isDetailActivated = false
 
-  if (grade) {
+  if (!isExercise && grade) {
     const userScore = grade.userAssignmentFinalScore ?? '-'
     const perfectScore = grade.assignmentPerfectScore
     scoreText = `${userScore} / ${perfectScore}`
@@ -120,6 +133,8 @@ function AssignmentAccordionItem({
       grade.userAssignmentFinalScore !== null &&
       dayjs().isAfter(dayjs(assignment.endTime))
   }
+
+  const routeType = isExercise ? 'exercise' : 'assignment'
 
   return (
     <Accordion
@@ -134,7 +149,8 @@ function AssignmentAccordionItem({
       >
         <AccordionTrigger
           className={cn(
-            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-4 text-left text-sm shadow-md lg:px-8 lg:py-6',
+            'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-4 text-left text-sm shadow-md',
+            isExercise ? 'lg:px-[60px] lg:py-6' : 'lg:px-8 lg:py-6',
             'data-[state=open]:-mb-6 data-[state=open]:mt-[24px]',
             'relative',
             'hover:no-underline'
@@ -156,6 +172,7 @@ function AssignmentAccordionItem({
                     key={assignment.id}
                     assignment={assignment}
                     courseId={courseId}
+                    isExercise={isExercise}
                   />
                 </div>
               </div>
@@ -182,22 +199,23 @@ function AssignmentAccordionItem({
                 problemCount={problemCount}
                 className="h-8 w-24 text-xs"
               />
-              {dayjs().isAfter(assignment.startTime) && (
+              {!isExercise && dayjs().isAfter(assignment.startTime) && (
                 <p className="text-sm font-medium">Score: {scoreText}</p>
               )}
-
-              <Dialog
-                open={isAssignmentDialogOpen}
-                onOpenChange={setIsAssignmentDialogOpen}
-              >
-                <DetailButton isActivated={isDetailActivated} />
-                {isAssignmentDialogOpen && (
-                  <GradeStatisticsModal
-                    courseId={courseId}
-                    assignment={assignment}
-                  />
-                )}
-              </Dialog>
+              {!isExercise && (
+                <Dialog
+                  open={isAssignmentDialogOpen}
+                  onOpenChange={setIsAssignmentDialogOpen}
+                >
+                  <DetailButton isActivated={isDetailActivated} />
+                  {isAssignmentDialogOpen && (
+                    <GradeStatisticsModal
+                      courseId={courseId}
+                      assignment={assignment}
+                    />
+                  )}
+                </Dialog>
+              )}
             </div>
           </div>
 
@@ -212,11 +230,17 @@ function AssignmentAccordionItem({
               </Badge>
             </div>
 
-            <div className="flex w-[30%] flex-col">
+            <div
+              className={cn(
+                'flex flex-col',
+                isExercise ? 'w-[45%]' : 'w-[30%]'
+              )}
+            >
               <AssignmentLink
                 key={assignment.id}
                 assignment={assignment}
                 courseId={courseId}
+                isExercise={isExercise}
               />
               {assignment &&
                 (assignment.dueTime ?? hasDueDate(assignment.endTime)) && (
@@ -229,7 +253,12 @@ function AssignmentAccordionItem({
             </div>
 
             {assignment && (
-              <div className="flex w-[30%] justify-center">
+              <div
+                className={cn(
+                  'flex justify-center',
+                  isExercise ? 'w-[25%]' : 'w-[30%]'
+                )}
+              >
                 <p className="text-color-neutral-60 truncate text-center text-base font-normal">
                   {formatDateRange(
                     assignment.startTime,
@@ -240,33 +269,43 @@ function AssignmentAccordionItem({
               </div>
             )}
 
-            <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
-              {dayjs().isAfter(assignment.startTime) && <p>{scoreText}</p>}
-            </div>
+            {!isExercise && (
+              <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
+                {dayjs().isAfter(assignment.startTime) && <p>{scoreText}</p>}
+              </div>
+            )}
 
-            <div className="flex w-[13%] justify-center">
+            <div
+              className={cn(
+                'flex justify-center',
+                isExercise ? 'w-[20%]' : 'w-[13%]'
+              )}
+            >
               <SubmissionBadge
                 submittedCount={submittedCount}
                 problemCount={problemCount}
+                isExercise={isExercise}
               />
             </div>
 
-            <div className="flex w-[5%] justify-center">
-              <Dialog
-                open={isAssignmentDialogOpen}
-                onOpenChange={setIsAssignmentDialogOpen}
-              >
-                <DetailButton isActivated={isDetailActivated} />
-                {isAssignmentDialogOpen && (
-                  <GradeStatisticsModal
-                    courseId={courseId}
-                    assignment={assignment}
-                  />
-                )}
-              </Dialog>
-            </div>
+            {!isExercise && (
+              <div className="flex w-[5%] justify-center">
+                <Dialog
+                  open={isAssignmentDialogOpen}
+                  onOpenChange={setIsAssignmentDialogOpen}
+                >
+                  <DetailButton isActivated={isDetailActivated} />
+                  {isAssignmentDialogOpen && (
+                    <GradeStatisticsModal
+                      courseId={courseId}
+                      assignment={assignment}
+                    />
+                  )}
+                </Dialog>
+              </div>
+            )}
 
-            <div className="w-[1%]" />
+            {!isExercise && <div className="w-[1%]" />}
           </div>
         </AccordionTrigger>
         <AccordionContent className="-mb-4 w-full">
@@ -276,58 +315,71 @@ function AssignmentAccordionItem({
 
               {/* Mobile Problem List */}
               <div className="lg:hidden">
-                {problems.data.map((problem, index) => (
-                  <div
-                    key={problem.id}
-                    className="border-b bg-[#F8F8F8] px-4 py-4 last:border-none"
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="text-color-violet-60 text-sm font-semibold">
-                          {convertToLetter(problem.order)}
+                {problems.data.map((problem, index) => {
+                  const problemSubmission = submission?.find(
+                    (sub) => sub.problemId === problem.id
+                  )
+                  return (
+                    <div
+                      key={problem.id}
+                      className="border-b bg-[#F8F8F8] px-4 py-4 last:border-none"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="text-color-violet-60 text-sm font-semibold">
+                            {convertToLetter(problem.order)}
+                          </div>
+                          <Link
+                            href={`/course/${courseId}/${routeType}/${assignment.id}/problem/${problem.id}`}
+                            className="flex-1"
+                          >
+                            <span className="line-clamp-2 text-sm font-medium text-[#171717]">
+                              {problem.title}
+                            </span>
+                          </Link>
                         </div>
-                        <Link
-                          href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
-                          className="flex-1"
-                        >
-                          <span className="line-clamp-2 text-sm font-medium text-[#171717]">
-                            {problem.title}
-                          </span>
-                        </Link>
                       </div>
-                    </div>
-                    {record && submission && (
-                      <div className="flex items-center justify-between text-xs text-gray-600">
-                        <div className="flex flex-col gap-1">
-                          {(() => {
-                            const problemSubmission = submission.find(
-                              (sub) => sub.problemId === problem.id
-                            )
-                            const submissionTime =
-                              problemSubmission?.submission?.submissionTime
-
-                            return submissionTime ? (
+                      {record && submission && (
+                        <div className="flex items-center justify-between text-xs text-gray-600">
+                          <div className="flex flex-col gap-1">
+                            {(() => {
+                              const submissionTime =
+                                problemSubmission?.submission?.submissionTime
+                              return submissionTime ? (
+                                <span>
+                                  Last Submission :{' '}
+                                  {dateFormatter(
+                                    submissionTime,
+                                    'MMM D, HH:mm'
+                                  )}
+                                </span>
+                              ) : null
+                            })()}
+                            {!isExercise && (
                               <span>
-                                Last Submission :{' '}
-                                {dateFormatter(submissionTime, 'MMM D, HH:mm')}
+                                Score:{' '}
+                                {dayjs().isAfter(
+                                  dayjs(
+                                    assignment.dueTime ?? assignment.endTime
+                                  )
+                                )
+                                  ? (record.problems[index].problemRecord
+                                      ?.finalScore ?? '-')
+                                  : '-'}{' '}
+                                / {problem.maxScore}
                               </span>
-                            ) : null
-                          })()}
-                          <span>
-                            Score:{' '}
-                            {dayjs().isAfter(
-                              dayjs(assignment.dueTime ?? assignment.endTime)
-                            )
-                              ? (record.problems[index].problemRecord
-                                  ?.finalScore ?? '-')
-                              : '-'}{' '}
-                            / {problem.maxScore}
-                          </span>
+                            )}
+                          </div>
+                          {isExercise && problemSubmission && (
+                            <ResultBadge
+                              assignmentSubmission={problemSubmission}
+                            />
+                          )}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Desktop Problem List */}
@@ -342,17 +394,32 @@ function AssignmentAccordionItem({
                   return (
                     <div
                       key={problem.id}
-                      className="hidden w-full items-center border-b bg-[#F8F8F8] px-8 py-6 last:border-none lg:flex"
+                      className={cn(
+                        'hidden w-full items-center border-b last:border-none lg:flex',
+                        isExercise
+                          ? 'bg-background-alternative border-line-neutral px-14 py-6'
+                          : 'bg-[#F8F8F8] px-8 py-6'
+                      )}
                     >
-                      <div className="mr-4 w-[10%]">
+                      <div
+                        className={cn(
+                          'mr-4',
+                          isExercise ? 'flex w-[10%]' : 'w-[10%]'
+                        )}
+                      >
                         <div className="text-color-violet-60 w-[76px] text-center text-base font-semibold">
                           {convertToLetter(problem.order)}
                         </div>
                       </div>
 
-                      <div className="flex w-[30%] flex-col">
+                      <div
+                        className={cn(
+                          'flex flex-col',
+                          isExercise ? 'w-[45%]' : 'w-[30%]'
+                        )}
+                      >
                         <Link
-                          href={`/course/${courseId}/assignment/${assignment.id}/problem/${problem.id}`}
+                          href={`/course/${courseId}/${routeType}/${assignment.id}/problem/${problem.id}`}
                         >
                           <span className="line-clamp-1 text-base font-medium text-[#171717]">
                             {problem.title}
@@ -360,26 +427,43 @@ function AssignmentAccordionItem({
                         </Link>
                       </div>
 
-                      <div className="flex w-[30%] justify-center">
+                      <div
+                        className={cn(
+                          'flex justify-center',
+                          isExercise ? 'w-[25%]' : 'w-[30%]'
+                        )}
+                      >
                         {submissionTime && (
-                          <div className="text-primary flex w-full justify-center text-sm font-normal">
+                          <div
+                            className={cn(
+                              'text-primary flex w-full justify-center text-sm font-normal',
+                              isExercise && 'truncate'
+                            )}
+                          >
                             Last Submission :{' '}
                             {dateFormatter(submissionTime, 'MMM D, HH:mm:ss')}
                           </div>
                         )}
                       </div>
 
-                      <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
-                        {dayjs().isAfter(
-                          dayjs(assignment.dueTime ?? assignment.endTime)
-                        ) && record
-                          ? (record.problems[index].problemRecord?.finalScore ??
-                            '-')
-                          : '-'}{' '}
-                        / {problem.maxScore}
-                      </div>
+                      {!isExercise && (
+                        <div className="flex w-[10%] justify-center gap-1 text-base font-medium">
+                          {dayjs().isAfter(
+                            dayjs(assignment.dueTime ?? assignment.endTime)
+                          ) && record
+                            ? (record.problems[index].problemRecord
+                                ?.finalScore ?? '-')
+                            : '-'}{' '}
+                          / {problem.maxScore}
+                        </div>
+                      )}
 
-                      <div className="flex w-[13%] justify-center">
+                      <div
+                        className={cn(
+                          'flex justify-center',
+                          isExercise ? 'w-[20%]' : 'w-[13%]'
+                        )}
+                      >
                         {problemSubmission && (
                           <ResultBadge
                             assignmentSubmission={problemSubmission}
@@ -387,7 +471,7 @@ function AssignmentAccordionItem({
                         )}
                       </div>
 
-                      <div className="w-[6%]" />
+                      {!isExercise && <div className="w-[6%]" />}
                     </div>
                   )
                 })}
@@ -404,12 +488,14 @@ interface SubmissionBadgeProps {
   className?: string
   submittedCount: number
   problemCount: number
+  isExercise?: boolean
 }
 
 function SubmissionBadge({
   className,
   submittedCount,
-  problemCount
+  problemCount,
+  isExercise = false
 }: SubmissionBadgeProps) {
   const badgeStyle =
     problemCount > 0 && submittedCount === problemCount
@@ -419,15 +505,24 @@ function SubmissionBadge({
   return (
     <div
       className={cn(
-        'flex h-[36px] w-[120px] items-center justify-center rounded-full border',
+        'flex items-center justify-center rounded-full border',
+        isExercise ? 'h-[38px] w-[140px]' : 'h-[36px] w-[120px]',
         badgeStyle,
         className
       )}
     >
-      <div className="flex gap-2 text-base font-medium">
-        <p>{submittedCount}</p>
-        <p>/</p>
-        <p>{problemCount}</p>
+      <div className={cn('text-base font-medium', !isExercise && 'flex gap-2')}>
+        {isExercise ? (
+          <p>
+            {submittedCount} / {problemCount}
+          </p>
+        ) : (
+          <>
+            <p>{submittedCount}</p>
+            <p>/</p>
+            <p>{problemCount}</p>
+          </>
+        )}
       </div>
     </div>
   )
