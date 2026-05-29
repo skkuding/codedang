@@ -21,7 +21,7 @@ import {
   hasDueDate
 } from '@/libs/utils'
 import type { Assignment, AssignmentSummary } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -39,18 +39,19 @@ export function AssignmentAccordion({
   courseId,
   isExercise = false
 }: AssignmentAccordionProps) {
-  const { data: assignments } = useQuery(
-    // shorthand 사용 시, 항상 isExercise: true로 설정됨
-    assignmentQueries.muliple({ courseId, isExercise })
+  const { data: assignments } = useSuspenseQuery(
+    // eslint-disable-next-line object-shorthand
+    assignmentQueries.muliple({ courseId, isExercise: isExercise })
   )
-  const { data: grades } = useQuery(
+
+  const { data: grades } = useSuspenseQuery(
     // eslint-disable-next-line object-shorthand
     assignmentQueries.grades({ courseId, isExercise: isExercise })
   )
 
-  const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
+  const gradeMap = new Map(grades.map((grade) => [grade.id, grade]))
 
-  if (!assignments || assignments.length === 0) {
+  if (assignments.length === 0) {
     return (
       <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">
@@ -524,6 +525,82 @@ function SubmissionBadge({
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+interface AssignmentAccordionSkeletonProps {
+  isExercise?: boolean
+}
+
+export function AssignmentAccordionSkeleton({
+  isExercise = false
+}: AssignmentAccordionSkeletonProps) {
+  return (
+    <div className="mt-4 flex flex-col lg:mt-8">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div
+          key={i}
+          className="mt-[14px] w-full rounded-2xl bg-white px-3 py-4 shadow-md lg:px-8 lg:py-6"
+        >
+          {/* Mobile */}
+          <div className="flex w-full flex-col gap-2 lg:hidden">
+            <div className="mr-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-[76px] animate-pulse rounded-full bg-gray-200" />
+                <div className="h-4 w-36 animate-pulse rounded bg-gray-200" />
+              </div>
+              <div className="h-4 w-14 animate-pulse rounded bg-gray-200" />
+            </div>
+            <Separator className="my-2" />
+            <div className="flex justify-end">
+              <div className="h-8 w-24 animate-pulse rounded-full bg-gray-200" />
+            </div>
+          </div>
+
+          {/* Desktop */}
+          <div className="hidden w-full items-center lg:flex">
+            <div className="mr-4 w-[10%]">
+              <div className="h-7 w-[76px] animate-pulse rounded-full bg-gray-200" />
+            </div>
+            <div
+              className={cn(
+                'flex flex-col gap-1',
+                isExercise ? 'w-[45%]' : 'w-[30%]'
+              )}
+            >
+              <div className="h-5 w-48 animate-pulse rounded bg-gray-200" />
+            </div>
+            <div
+              className={cn(
+                'flex justify-center',
+                isExercise ? 'w-[25%]' : 'w-[30%]'
+              )}
+            >
+              <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
+            </div>
+            {!isExercise && (
+              <div className="flex w-[10%] justify-center">
+                <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
+              </div>
+            )}
+            <div
+              className={cn(
+                'flex justify-center',
+                isExercise ? 'w-[20%]' : 'w-[13%]'
+              )}
+            >
+              <div
+                className={cn(
+                  'animate-pulse rounded-full bg-gray-200',
+                  isExercise ? 'h-[38px] w-[140px]' : 'h-[36px] w-[120px]'
+                )}
+              />
+            </div>
+            {!isExercise && <div className="w-[6%]" />}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
