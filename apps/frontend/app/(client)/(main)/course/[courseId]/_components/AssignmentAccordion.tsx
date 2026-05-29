@@ -21,7 +21,7 @@ import {
   hasDueDate
 } from '@/libs/utils'
 import type { Assignment, AssignmentSummary } from '@/types/type'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -39,19 +39,22 @@ export function AssignmentAccordion({
   courseId,
   isExercise = false
 }: AssignmentAccordionProps) {
-  const { data: assignments } = useSuspenseQuery(
+  const { data: assignments, isPending: assignmentsPending } = useQuery(
     // eslint-disable-next-line object-shorthand
     assignmentQueries.muliple({ courseId, isExercise: isExercise })
   )
-
-  const { data: grades } = useSuspenseQuery(
+  const { data: grades, isPending: gradesPending } = useQuery(
     // eslint-disable-next-line object-shorthand
     assignmentQueries.grades({ courseId, isExercise: isExercise })
   )
 
-  const gradeMap = new Map(grades.map((grade) => [grade.id, grade]))
+  if (assignmentsPending || gradesPending) {
+    return <AssignmentAccordionSkeleton isExercise={isExercise} />
+  }
 
-  if (assignments.length === 0) {
+  const gradeMap = new Map(grades?.map((grade) => [grade.id, grade]) ?? [])
+
+  if (!assignments || assignments.length === 0) {
     return (
       <div className="mt-13 lg:mt-8">
         <div className="flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white py-20">

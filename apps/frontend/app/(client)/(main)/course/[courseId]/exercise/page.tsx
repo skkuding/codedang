@@ -1,10 +1,6 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
-import { Suspense } from 'react'
-import {
-  AssignmentAccordion,
-  AssignmentAccordionSkeleton
-} from '../_components/AssignmentAccordion'
+import { AssignmentAccordion } from '../_components/AssignmentAccordion'
 
 interface ExerciseProps {
   params: Promise<{ courseId: string }>
@@ -18,9 +14,7 @@ export default async function Exercise(props: ExerciseProps) {
       <p className="hidden text-2xl font-semibold lg:flex">Exercise</p>
 
       <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<AssignmentAccordionSkeleton isExercise />}>
-          <AssignmentAccordion courseId={Number(courseId)} isExercise />
-        </Suspense>
+        <AssignmentAccordion courseId={Number(courseId)} isExercise />
       </ErrorBoundary>
     </div>
   )
