@@ -103,24 +103,99 @@ export function LogInPage() {
           </div>
         </div>
 
-        <div className="flex w-full flex-col gap-3">
+        <div className="flex w-full flex-col gap-[10px]">
           <button
-            className="bg-primary text-sub3_sb_16 flex w-full items-center justify-center gap-[6px] rounded-xl px-5 py-[15px] text-white"
+            className="bg-primary text-sub3_sb_16 flex w-full items-center justify-center gap-[6px] rounded-xl px-5 py-[15px] text-white disabled:opacity-50"
             type="submit"
             disabled={isSignInDisabled}
           >
             로그인
           </button>
+
           <Link href={'/signup' as Route} className="w-full">
             <button
               type="button"
               className="border-primary text-sub3_sb_16 text-primary flex w-full items-center justify-center gap-[6px] rounded-xl border bg-white px-5 py-[15px]"
             >
-              회원가입
+              회원가입하기
             </button>
           </Link>
         </div>
       </form>
+      <div className="flex w-full flex-col items-center gap-5">
+        {/* 아직 페이지 없음 */}
+        {/* <Link
+          href={'/find-password' as Route}
+          className="text-caption2_m_12 text-[#787E80]"
+        >
+          비밀번호를 잊으셨나요?
+        </Link> */}
+        <span className="text-caption2_m_12 text-[#787E80]">
+          비밀번호를 잊으셨나요?
+        </span>
+      </div>
+
+      <div className="border-line-normal w-full border-t" />
+
+      <div className="flex w-full flex-col items-center gap-6">
+        <p className="text-body1_m_16 text-center">
+          SNS 계정으로 간편하게 시작하기
+        </p>
+
+        <div className="flex items-center justify-center gap-6">
+          {/* Google */}
+          <button type="button" className="flex flex-col items-center gap-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#DCE3E5] bg-white">
+              <Image
+                src="/icons/google-symbol.svg"
+                alt=""
+                width={48}
+                height={48}
+              />
+            </div>
+            <span className="text-caption2_m_12 text-[#737373]">Google</span>
+          </button>
+
+          {/* Kakao */}
+          <button type="button" className="flex flex-col items-center gap-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FEE500]">
+              <Image
+                src="/icons/kakaotalk-symbol.svg"
+                alt=""
+                width={48}
+                height={48}
+              />
+            </div>
+            <span className="text-caption2_m_12 text-[#737373]">카카오톡</span>
+          </button>
+
+          {/* GitHub */}
+          <button type="button" className="flex flex-col items-center gap-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black">
+              <Image
+                src="/icons/github-symbol.svg"
+                alt=""
+                width={48}
+                height={48}
+              />
+            </div>
+            <span className="text-caption2_m_12 text-[#737373]">GitHub</span>
+          </button>
+
+          {/* Naver */}
+          <button type="button" className="flex flex-col items-center gap-2">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#03C75A]">
+              <Image
+                src="/icons/naver-symbol.svg"
+                alt=""
+                width={48}
+                height={48}
+              />
+            </div>
+            <span className="text-caption2_m_12 text-[#737373]">Naver</span>
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
