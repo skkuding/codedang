@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 export function LogInPage() {
   return (
-    <div className="flex w-[500px] flex-col items-start gap-8 rounded-2xl border border-[#DCE3E5] bg-white px-6 pb-9 pt-12">
+    <div className="flex w-full max-w-[500px] flex-col items-start gap-8 rounded-2xl border border-[#DCE3E5] bg-white px-6 pb-9 pt-12">
       <div className="flex w-full flex-col items-center gap-5">
         <Image
           src={codedangLogo}
