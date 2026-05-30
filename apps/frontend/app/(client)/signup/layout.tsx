@@ -18,8 +18,8 @@ export default function SignUpLayout({
             style={{ backgroundImage: "url('/signup/background.png')" }}
           />
           <div className="relative z-10 flex w-full flex-1">
-            <section className="relative hidden flex-1 lg:block">
-              <div className="fixed left-[254px] top-[414px] flex w-[260px] flex-col items-center gap-[15px]">
+            <section className="relative z-0 hidden flex-1 xl:block">
+              <div className="absolute left-[254px] top-[414px] flex w-[260px] flex-col items-center gap-[15px]">
                 <Image
                   src={codedangLogoWhite}
                   alt="Codedang"
@@ -34,7 +34,7 @@ export default function SignUpLayout({
               </div>
             </section>
 
-            <section className="flex flex-1 items-start justify-end pb-10 pr-[117px] pt-10">
+            <section className="relative z-20 flex flex-1 items-start justify-end pb-10 pr-[117px] pt-10">
               {children}
             </section>
           </div>
