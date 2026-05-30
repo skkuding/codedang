@@ -71,6 +71,7 @@ export function LogInPage() {
       <form
         className="flex w-full flex-col items-start gap-6"
         onSubmit={handleSubmit(onSubmit)}
+        autoComplete="off"
         aria-label="Login In"
       >
         <div className="flex w-full flex-col gap-[6px]">
