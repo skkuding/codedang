@@ -34,7 +34,7 @@ export default function LogInLayout({
               </div>
             </section>
 
-            <section className="flex flex-1 items-start justify-end pb-10 pr-[117px] pt-10">
+            <section className="flex flex-1 items-start justify-center pb-10 px-4 lg:justify-end lg:px-0 lg:pr-[117px] pt-10">
               {children}
             </section>
           </div>
