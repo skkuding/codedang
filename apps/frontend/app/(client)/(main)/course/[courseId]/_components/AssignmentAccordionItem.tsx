@@ -1,21 +1,11 @@
 'use client'
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem
-} from '@/components/shadcn/accordion'
+import { Accordion, AccordionItem } from '@/components/shadcn/accordion'
 import type { Assignment } from '@/types/type'
-import { ErrorBoundary, Suspense } from '@suspensive/react'
-import dayjs from 'dayjs'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { AssignmentAccordionContent } from './AssignmentAccordionContent'
 import { AssignmentAccordionProvider } from './AssignmentAccordionContext'
 import { AssignmentAccordionTrigger } from './AssignmentAccordionTrigger'
-import {
-  AssignmentProblemList,
-  AssignmentProblemListSkeleton
-} from './AssignmentProblemList'
 
 interface AssignmentAccordionItemProps {
   assignment: Assignment
@@ -46,29 +36,7 @@ export function AssignmentAccordionItem({
           className="group border-b-0"
         >
           <AssignmentAccordionTrigger />
-          <AccordionContent className="-mb-4 w-full">
-            {isAccordionOpen && (
-              <ErrorBoundary
-                fallback={null}
-                onError={() => {
-                  if (dayjs().isBefore(dayjs(assignment.startTime))) {
-                    const noun = isExercise ? 'exercise' : 'assignment'
-                    toast.error(`This ${noun} has not started yet!`)
-                  }
-                }}
-              >
-                <Suspense
-                  fallback={
-                    <AssignmentProblemListSkeleton
-                      count={assignment.problemCount}
-                    />
-                  }
-                >
-                  <AssignmentProblemList />
-                </Suspense>
-              </ErrorBoundary>
-            )}
-          </AccordionContent>
+          <AssignmentAccordionContent isOpen={isAccordionOpen} />
         </AccordionItem>
       </Accordion>
     </AssignmentAccordionProvider>
