@@ -13,7 +13,7 @@ import dayjs from 'dayjs'
 import { useState } from 'react'
 import { AssignmentAccordionTrigger } from './AssignmentAccordionTrigger'
 import {
-  AssignmentProblemListFetcher,
+  AssignmentProblemList,
   AssignmentProblemListSkeleton
 } from './AssignmentProblemList'
 
@@ -38,7 +38,7 @@ export function AssignmentAccordionItem({
   const grade = grades.find((g) => g.id === assignment.id)
 
   const submittedCount = grade?.submittedCount ?? 0
-  const problemCount = grade?.problemCount ?? 0
+  const problemCount = grade?.problemCount ?? assignment.problemCount
 
   let scoreText = '- / -'
   let isDetailActivated = false
@@ -67,6 +67,7 @@ export function AssignmentAccordionItem({
         <AssignmentAccordionTrigger
           assignment={assignment}
           isExercise={isExercise}
+          hasGrade={assignment.problemCount > 0}
           submittedCount={submittedCount}
           problemCount={problemCount}
           scoreText={scoreText}
@@ -84,7 +85,7 @@ export function AssignmentAccordionItem({
                 />
               }
             >
-              <AssignmentProblemListFetcher
+              <AssignmentProblemList
                 assignment={assignment}
                 isExercise={isExercise}
               />
