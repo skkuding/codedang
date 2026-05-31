@@ -3,7 +3,6 @@
 import type { Assignment } from '@/types/type'
 import dayjs from 'dayjs'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface AssignmentLinkProps {
@@ -17,19 +16,14 @@ export function AssignmentLink({
   courseId,
   isExercise = false
 }: AssignmentLinkProps) {
-  const router = useRouter()
   const type = isExercise ? 'exercise' : 'assignment'
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-
     if (dayjs().isBefore(assignment.startTime)) {
+      e.preventDefault()
       const noun = isExercise ? 'exercise' : 'assignment'
       toast.error(`This ${noun} has not started yet!`)
-      return
     }
-
-    router.push(`/course/${courseId}/${type}/${assignment.id}`)
   }
 
   return (
