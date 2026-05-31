@@ -7,10 +7,12 @@ import {
   AccordionItem
 } from '@/components/shadcn/accordion'
 import type { Assignment } from '@/types/type'
-import { Suspense } from '@suspensive/react'
+import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { toast } from 'sonner'
+import { AssignmentAccordionProvider } from './AssignmentAccordionContext'
 import { AssignmentAccordionTrigger } from './AssignmentAccordionTrigger'
 import {
   AssignmentProblemList,
@@ -52,47 +54,54 @@ export function AssignmentAccordionItem({
   }
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      className="w-full"
-      onValueChange={(value) =>
-        setIsAccordionOpen(value === assignment.id.toString())
-      }
+    <AssignmentAccordionProvider
+      assignment={assignment}
+      isExercise={isExercise}
     >
-      <AccordionItem
-        value={assignment.id.toString()}
-        className="group border-b-0"
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        onValueChange={(value) =>
+          setIsAccordionOpen(value === assignment.id.toString())
+        }
       >
-        <AssignmentAccordionTrigger
-          assignment={assignment}
-          isExercise={isExercise}
-          hasGrade={assignment.problemCount > 0}
-          submittedCount={submittedCount}
-          problemCount={problemCount}
-          scoreText={scoreText}
-          isDetailActivated={isDetailActivated}
-          isAssignmentDialogOpen={isAssignmentDialogOpen}
-          onAssignmentDialogChange={setIsAssignmentDialogOpen}
-        />
-        <AccordionContent className="-mb-4 w-full">
-          {isAccordionOpen && (
-            <Suspense
-              fallback={
-                <AssignmentProblemListSkeleton
-                  count={problemCount}
-                  isExercise={isExercise}
-                />
-              }
-            >
-              <AssignmentProblemList
-                assignment={assignment}
-                isExercise={isExercise}
-              />
-            </Suspense>
-          )}
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        <AccordionItem
+          value={assignment.id.toString()}
+          className="group border-b-0"
+        >
+          <AssignmentAccordionTrigger
+            hasStarted={grade !== undefined}
+            submittedCount={submittedCount}
+            problemCount={problemCount}
+            scoreText={scoreText}
+            isDetailActivated={isDetailActivated}
+            isAssignmentDialogOpen={isAssignmentDialogOpen}
+            onAssignmentDialogChange={setIsAssignmentDialogOpen}
+          />
+          <AccordionContent className="-mb-4 w-full">
+            {isAccordionOpen && (
+              <ErrorBoundary
+                fallback={null}
+                onError={() => {
+                  if (dayjs().isBefore(dayjs(assignment.startTime))) {
+                    const noun = isExercise ? 'exercise' : 'assignment'
+                    toast.error(`This ${noun} has not started yet!`)
+                  }
+                }}
+              >
+                <Suspense
+                  fallback={
+                    <AssignmentProblemListSkeleton count={problemCount} />
+                  }
+                >
+                  <AssignmentProblemList />
+                </Suspense>
+              </ErrorBoundary>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </AssignmentAccordionProvider>
   )
 }

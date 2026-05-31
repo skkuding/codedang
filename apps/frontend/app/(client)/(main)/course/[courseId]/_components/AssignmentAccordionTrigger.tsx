@@ -6,15 +6,14 @@ import { Badge } from '@/components/shadcn/badge'
 import { Dialog } from '@/components/shadcn/dialog'
 import { Separator } from '@/components/shadcn/separator'
 import { cn, formatDateRange, hasDueDate } from '@/libs/utils'
-import type { Assignment } from '@/types/type'
 import dayjs from 'dayjs'
+import { useAssignmentAccordion } from './AssignmentAccordionContext'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeStatisticsModal } from './GradeStatisticsModal'
 
 interface AssignmentAccordionTriggerProps {
-  assignment: Assignment
-  isExercise: boolean
+  hasStarted: boolean
   submittedCount: number
   problemCount: number
   scoreText: string
@@ -24,8 +23,7 @@ interface AssignmentAccordionTriggerProps {
 }
 
 export function AssignmentAccordionTrigger({
-  assignment,
-  isExercise,
+  hasStarted,
   submittedCount,
   problemCount,
   scoreText,
@@ -33,8 +31,10 @@ export function AssignmentAccordionTrigger({
   isAssignmentDialogOpen,
   onAssignmentDialogChange
 }: AssignmentAccordionTriggerProps) {
+  const { assignment, isExercise } = useAssignmentAccordion()
   return (
     <AccordionTrigger
+      disabled={!hasStarted}
       className={cn(
         'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-4 text-left text-sm shadow-md',
         isExercise ? 'lg:px-[60px] lg:py-6' : 'lg:px-8 lg:py-6',
@@ -42,7 +42,10 @@ export function AssignmentAccordionTrigger({
         'relative',
         'hover:no-underline'
       )}
-      iconStyle="w-5 h-5 absolute right-3 top-[15%] lg:right-[3%] lg:top-auto"
+      iconStyle={cn(
+        'w-5 h-5 absolute right-3 top-[15%] lg:right-[3%] lg:top-auto',
+        !hasStarted && 'invisible'
+      )}
     >
       {/* Mobile Layout */}
       <div className="flex w-full flex-col gap-2 lg:hidden">
@@ -79,11 +82,13 @@ export function AssignmentAccordionTrigger({
               : 'justify-end'
           )}
         >
-          <SubmissionBadge
-            submittedCount={submittedCount}
-            problemCount={problemCount}
-            className="h-8 w-24 text-xs"
-          />
+          <span className={cn(!hasStarted && 'invisible')}>
+            <SubmissionBadge
+              submittedCount={submittedCount}
+              problemCount={problemCount}
+              className="h-8 w-24 text-xs"
+            />
+          </span>
           {!isExercise && dayjs().isAfter(assignment.startTime) && (
             <p className="text-sm font-medium">Score: {scoreText}</p>
           )}
@@ -92,7 +97,9 @@ export function AssignmentAccordionTrigger({
               open={isAssignmentDialogOpen}
               onOpenChange={onAssignmentDialogChange}
             >
-              <DetailButton isActivated={isDetailActivated} />
+              <span className={cn(!hasStarted && 'invisible')}>
+                <DetailButton isActivated={isDetailActivated} />
+              </span>
               {isAssignmentDialogOpen && (
                 <GradeStatisticsModal
                   courseId={Number(assignment.group.id)}
@@ -156,7 +163,8 @@ export function AssignmentAccordionTrigger({
         <div
           className={cn(
             'flex justify-center',
-            isExercise ? 'w-[20%]' : 'w-[13%]'
+            isExercise ? 'w-[20%]' : 'w-[13%]',
+            !hasStarted && 'invisible'
           )}
         >
           <SubmissionBadge
@@ -167,7 +175,12 @@ export function AssignmentAccordionTrigger({
         </div>
 
         {!isExercise && (
-          <div className="flex w-[5%] justify-center">
+          <div
+            className={cn(
+              'flex w-[5%] justify-center',
+              !hasStarted && 'invisible'
+            )}
+          >
             <Dialog
               open={isAssignmentDialogOpen}
               onOpenChange={onAssignmentDialogChange}

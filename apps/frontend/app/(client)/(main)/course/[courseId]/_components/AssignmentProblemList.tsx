@@ -4,21 +4,14 @@ import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
-import type { Assignment } from '@/types/type'
 import { useSuspenseQueries } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Link from 'next/link'
+import { useAssignmentAccordion } from './AssignmentAccordionContext'
 import { ResultBadge } from './ResultBadge'
 
-interface AssignmentProblemListProps {
-  assignment: Assignment
-  isExercise: boolean
-}
-
-export function AssignmentProblemList({
-  assignment,
-  isExercise
-}: AssignmentProblemListProps) {
+export function AssignmentProblemList() {
+  const { assignment, isExercise } = useAssignmentAccordion()
   const [{ data: problems }, { data: record }, { data: submission }] =
     useSuspenseQueries({
       queries: [
@@ -190,13 +183,12 @@ export function AssignmentProblemList({
 
 interface AssignmentProblemListSkeletonProps {
   count: number
-  isExercise: boolean
 }
 
 export function AssignmentProblemListSkeleton({
-  count,
-  isExercise
+  count
 }: AssignmentProblemListSkeletonProps) {
+  const { isExercise } = useAssignmentAccordion()
   return (
     <div className="overflow-hidden rounded-2xl border">
       <div className="h-6 bg-[#F3F3F3]" />
