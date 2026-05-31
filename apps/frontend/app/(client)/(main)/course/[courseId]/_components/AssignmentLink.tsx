@@ -1,7 +1,6 @@
 'use client'
 
 import type { Assignment } from '@/types/type'
-import dayjs from 'dayjs'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -19,7 +18,7 @@ export function AssignmentLink({
   const type = isExercise ? 'exercise' : 'assignment'
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (dayjs().isBefore(assignment.startTime)) {
+    if (new Date() < new Date(assignment.startTime)) {
       e.preventDefault()
       const noun = isExercise ? 'exercise' : 'assignment'
       toast.error(`This ${noun} has not started yet!`)
