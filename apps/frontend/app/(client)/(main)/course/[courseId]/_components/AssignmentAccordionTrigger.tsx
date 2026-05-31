@@ -1,37 +1,47 @@
 'use client'
 
+import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { CountdownStatus } from '@/components/CountdownStatus'
 import { AccordionTrigger } from '@/components/shadcn/accordion'
 import { Badge } from '@/components/shadcn/badge'
 import { Dialog } from '@/components/shadcn/dialog'
 import { Separator } from '@/components/shadcn/separator'
 import { cn, formatDateRange, hasDueDate } from '@/libs/utils'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { useState } from 'react'
 import { useAssignmentAccordion } from './AssignmentAccordionContext'
 import { AssignmentLink } from './AssignmentLink'
 import { DetailButton } from './DetailButton'
 import { GradeStatisticsModal } from './GradeStatisticsModal'
 
-interface AssignmentAccordionTriggerProps {
-  hasStarted: boolean
-  submittedCount: number
-  problemCount: number
-  scoreText: string
-  isDetailActivated: boolean
-  isAssignmentDialogOpen: boolean
-  onAssignmentDialogChange: (open: boolean) => void
-}
-
-export function AssignmentAccordionTrigger({
-  hasStarted,
-  submittedCount,
-  problemCount,
-  scoreText,
-  isDetailActivated,
-  isAssignmentDialogOpen,
-  onAssignmentDialogChange
-}: AssignmentAccordionTriggerProps) {
+export function AssignmentAccordionTrigger() {
   const { assignment, isExercise } = useAssignmentAccordion()
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false)
+
+  const { data: grades } = useSuspenseQuery(
+    assignmentQueries.grades({
+      courseId: Number(assignment.group.id),
+      isExercise
+    })
+  )
+  const grade = grades.find((g) => g.id === assignment.id)
+
+  const hasStarted = grade !== undefined
+  const submittedCount = grade?.submittedCount ?? 0
+  const problemCount = grade?.problemCount ?? assignment.problemCount
+
+  let scoreText = '- / -'
+  let isDetailActivated = false
+
+  if (!isExercise && grade) {
+    const userScore = grade.userAssignmentFinalScore ?? '-'
+    scoreText = `${userScore} / ${grade.assignmentPerfectScore}`
+    isDetailActivated =
+      grade.userAssignmentFinalScore !== null &&
+      dayjs().isAfter(dayjs(assignment.endTime))
+  }
+
   return (
     <AccordionTrigger
       disabled={!hasStarted}
@@ -95,7 +105,7 @@ export function AssignmentAccordionTrigger({
           {!isExercise && (
             <Dialog
               open={isAssignmentDialogOpen}
-              onOpenChange={onAssignmentDialogChange}
+              onOpenChange={setIsAssignmentDialogOpen}
             >
               <span className={cn(!hasStarted && 'invisible')}>
                 <DetailButton isActivated={isDetailActivated} />
@@ -183,7 +193,7 @@ export function AssignmentAccordionTrigger({
           >
             <Dialog
               open={isAssignmentDialogOpen}
-              onOpenChange={onAssignmentDialogChange}
+              onOpenChange={setIsAssignmentDialogOpen}
             >
               <DetailButton isActivated={isDetailActivated} />
               {isAssignmentDialogOpen && (
