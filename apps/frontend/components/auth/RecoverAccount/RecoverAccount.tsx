@@ -9,14 +9,19 @@ import { FindUserId } from './FindUserId'
 import { ResetPassword } from './ResetPassword'
 import { ResetPasswordEmailVerify } from './ResetPasswordEmailVerify'
 
-export function RecoverAccount() {
+interface RecoverAccountProps {
+  onBackToSignIn: () => void
+}
+
+export function RecoverAccount({ onBackToSignIn }: RecoverAccountProps) {
   const { showSignIn } = useAuthModalStore((state) => state)
   const { modalPage, backModal } = useRecoverAccountModalStore((state) => state)
 
   return (
-    <div className="flex h-full flex-col items-center justify-center">
+    <div className="mt-8 flex h-full flex-col items-center justify-center">
       <button
-        onClick={modalPage === 0 ? showSignIn : backModal}
+        type="button"
+        onClick={modalPage === 0 ? onBackToSignIn : backModal}
         className="rounded-xs focus:outline-hidden absolute left-4 top-4 h-4 w-4 opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400"
       >
         <IoMdArrowBack />
