@@ -95,7 +95,7 @@ export function FindUserId() {
         className="flex w-full flex-col gap-6 px-2"
       >
         <div className="flex flex-col gap-1">
-          <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+          <p className="text-primary mb-8 text-left font-mono text-xl font-bold">
             Find User ID
           </p>
           <Input
@@ -158,7 +158,7 @@ export function FindUserId() {
           </Button>
         </div>
       </form>
-      <div className="absolute bottom-6 flex items-center justify-center">
+      {/* <div className="absolute bottom-6 flex items-center justify-center">
         <Button
           onClick={() => showSignUp()}
           variant={'link'}
@@ -166,7 +166,7 @@ export function FindUserId() {
         >
           Sign up now
         </Button>
-      </div>
+      </div> */}
     </>
   )
 }
