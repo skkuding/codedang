@@ -12,6 +12,7 @@ import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useAssignmentAccordion } from './AssignmentAccordionContext'
 import { AssignmentLink } from './AssignmentLink'
+import { AssignmentSubmissionBadge } from './AssignmentSubmissionBadge'
 import { DetailButton } from './DetailButton'
 import { GradeStatisticsModal } from './GradeStatisticsModal'
 
@@ -93,10 +94,10 @@ export function AssignmentAccordionTrigger() {
           )}
         >
           <span className={cn(!hasStarted && 'invisible')}>
-            <SubmissionBadge
+            <AssignmentSubmissionBadge
               submittedCount={submittedCount}
               problemCount={problemCount}
-              className="h-8 w-24 text-xs"
+              size="sm"
             />
           </span>
           {!isExercise && dayjs().isAfter(assignment.startTime) && (
@@ -177,10 +178,10 @@ export function AssignmentAccordionTrigger() {
             !hasStarted && 'invisible'
           )}
         >
-          <SubmissionBadge
+          <AssignmentSubmissionBadge
             submittedCount={submittedCount}
             problemCount={problemCount}
-            isExercise={isExercise}
+            size={isExercise ? 'lg' : 'md'}
           />
         </div>
 
@@ -209,49 +210,5 @@ export function AssignmentAccordionTrigger() {
         {!isExercise && <div className="w-[1%]" />}
       </div>
     </AccordionTrigger>
-  )
-}
-
-interface SubmissionBadgeProps {
-  className?: string
-  submittedCount: number
-  problemCount: number
-  isExercise?: boolean
-}
-
-function SubmissionBadge({
-  className,
-  submittedCount,
-  problemCount,
-  isExercise = false
-}: SubmissionBadgeProps) {
-  const badgeStyle =
-    problemCount > 0 && submittedCount === problemCount
-      ? 'border-transparent bg-primary text-white'
-      : 'border-primary text-primary'
-
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-center rounded-full border',
-        isExercise ? 'h-[38px] w-[140px]' : 'h-[36px] w-[120px]',
-        badgeStyle,
-        className
-      )}
-    >
-      <div className={cn('text-base font-medium', !isExercise && 'flex gap-2')}>
-        {isExercise ? (
-          <p>
-            {submittedCount} / {problemCount}
-          </p>
-        ) : (
-          <>
-            <p>{submittedCount}</p>
-            <p>/</p>
-            <p>{problemCount}</p>
-          </>
-        )}
-      </div>
-    </div>
   )
 }
