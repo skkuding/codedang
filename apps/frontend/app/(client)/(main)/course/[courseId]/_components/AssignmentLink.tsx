@@ -1,7 +1,6 @@
 'use client'
 
 import type { Assignment } from '@/types/type'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -19,25 +18,26 @@ export function AssignmentLink({
   const router = useRouter()
   const type = isExercise ? 'exercise' : 'assignment'
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation()
     if (new Date() < new Date(assignment.startTime)) {
       const noun = isExercise ? 'exercise' : 'assignment'
       toast.error(`This ${noun} has not started yet!`)
-      return
+    } else {
+      router.push(`/course/${courseId}/${type}/${assignment.id}`)
     }
-    router.push(`/course/${courseId}/${type}/${assignment.id}`)
   }
 
   return (
-    <Link
-      href={`/course/${courseId}/${type}/${assignment.id}`}
+    <div
       onClick={handleClick}
-      className="w-fit"
+      className="pointer-events-auto w-fit cursor-pointer"
+      role="button"
+      tabIndex={0}
     >
       <p className="line-clamp-1 truncate text-sm font-normal lg:text-base">
         {assignment.title}
       </p>
-    </Link>
+    </div>
   )
 }

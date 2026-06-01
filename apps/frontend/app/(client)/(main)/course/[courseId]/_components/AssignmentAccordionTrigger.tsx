@@ -45,13 +45,18 @@ export function AssignmentAccordionTrigger() {
 
   return (
     <AccordionTrigger
-      disabled={!hasStarted}
+      onClick={(e) => {
+        if (!hasStarted) {
+          e.preventDefault()
+        }
+      }}
       className={cn(
         'mt-[14px] flex w-full items-center rounded-2xl bg-white px-3 py-4 text-left text-sm shadow-md',
         isExercise ? 'lg:px-[60px] lg:py-6' : 'lg:px-8 lg:py-6',
         'data-[state=open]:-mb-6',
         'relative',
-        'hover:no-underline'
+        'hover:no-underline',
+        !hasStarted && 'cursor-default'
       )}
       iconStyle={cn(
         'w-5 h-5 absolute right-3 top-[15%] lg:right-[3%] lg:top-auto',
