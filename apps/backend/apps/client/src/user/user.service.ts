@@ -744,12 +744,12 @@ export class UserService {
    * 사용자의 정보를 업데이트합니다.
    *
    * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
-   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, studentId, college, major, realName)
+   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, profileImageUrl, studentId, college, major, realName)
    * @throws {UnprocessableDataException} 현재 비밀번호를 입력하지 않으면 (빈 필드이면) 예외를 발생시킵니다.
    * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
    * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
    * @throws {UnprocessableDataException} 새로운 비밀번호가 잘못된 형식일 경우 예외를 발생시킵니다.
-   * @returns 업데이트 된 user 객체를 반환합니다. (studentId, college, major, realName 필드만)
+   * @returns 업데이트 된 user 객체를 반환합니다. (studentId, profileImageUrl, college, major, realName 필드만)
    */
   async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
     let encryptedNewPassword: string | undefined = undefined
@@ -790,7 +790,10 @@ export class UserService {
       college: updateUserDto.college,
       major: updateUserDto.major,
       userProfile: {
-        update: { realName: updateUserDto.realName }
+        update: {
+          realName: updateUserDto.realName,
+          profileImageUrl: updateUserDto.profileImageUrl
+        }
       }
     }
 
@@ -805,7 +808,8 @@ export class UserService {
         major: true,
         userProfile: {
           select: {
-            realName: true
+            realName: true,
+            profileImageUrl: true
           }
         }
       }
