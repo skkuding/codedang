@@ -427,7 +427,8 @@ export class UserService {
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
       userId: user.id,
-      realName: signUpDto.realName
+      realName: signUpDto.realName,
+      username: signUpDto.username
     }
     await this.createUserProfile(CreateUserProfileData)
 
@@ -535,6 +536,7 @@ export class UserService {
     const userProfile = await this.prisma.userProfile.create({
       data: {
         realName: createUserProfileData.realName,
+        profileImageUrl: `https://api.dicebear.com/9.x/notionists/svg?seed=${createUserProfileData.username}`,
         user: {
           connect: { id: createUserProfileData.userId }
         }
