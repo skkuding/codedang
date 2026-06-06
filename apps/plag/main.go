@@ -100,7 +100,7 @@ func main() {
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
 	var uri string
-	if utils.Getenv("RABBITMQ_SSL", "") != "" {
+	if utils.Getenv("RABBITMQ_SSL", "") == "true" {
 		uri = "amqps://"
 	} else {
 		uri = "amqp://"
