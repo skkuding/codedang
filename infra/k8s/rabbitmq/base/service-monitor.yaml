@@ -14,5 +14,12 @@ spec:
       app.kubernetes.io/component: rabbitmq
       app.kubernetes.io/name: rabbitmq
   endpoints:
-    - port: prometheus
+    - port: prometheus-tls
       interval: 15s
+      scheme: https
+      tlsConfig:
+        ca:
+          secret:
+            name: rabbitmq-server-certs
+            key: ca.crt
+        serverName: rabbitmq.rabbitmq.svc
