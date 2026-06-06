@@ -30,6 +30,7 @@ spec:
           targetRevision: '10.5.13'
           helm:
             releaseName: grafana
+            ignoreMissingValueFiles: true
             valueFiles:
               - '$codedang/infra/k8s/monitoring/grafana/overlays/{{.env}}/values.yaml'
               - '$codedang/infra/k8s/monitoring/grafana/base/alerting/values.yaml'

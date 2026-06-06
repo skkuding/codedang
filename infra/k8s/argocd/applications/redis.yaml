@@ -37,7 +37,7 @@ spec:
           targetRevision: '{{.branch}}'
           ref: codedang
         - repoURL: https://github.com/skkuding/codedang
-          targetRevision: '{{.branch}}'
+          targetRevision: main
           path: infra/k8s/redis/overlays/{{.env}}
       destination:
         namespace: redis
