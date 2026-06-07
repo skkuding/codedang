@@ -4,10 +4,9 @@ import { Badge } from '@/components/shadcn/badge'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { dateFormatter, getResultColor } from '@/libs/utils'
-import infoIcon from '@/public/icons/info.svg'
+import InfoIcon from '@/public/icons/info.svg'
 import type { Level } from '@/types/type'
 import { useSuspenseQuery } from '@apollo/client'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
 
 interface SummaryItemProps {
@@ -35,7 +34,7 @@ function SubmissionSummaryItem({
 export function SubmissionSummaryError() {
   return (
     <div className="flex flex-col items-center gap-4 py-4 text-center">
-      <Image src={infoIcon} alt="No Submission" width={50} height={50} />
+      <InfoIcon width={50} height={50} />
       <p className="text-xl font-medium">No Submission</p>
       <div className="text-sm font-normal">
         <p>No code has been submitted by this student.</p>

@@ -10,6 +10,7 @@ import {
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
 import { useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
+import { InviteUserButton } from '../_components/InviteUserButton'
 import { createColumns } from './Columns'
 import { DeleteUserButton } from './DeleteUserButton'
 
@@ -34,20 +35,24 @@ export function GroupTable() {
 
   return (
     <div>
-      <div className="flex gap-2 text-base font-bold">
-        <span className="text-primary">{members.length}</span>
-        <span>Members</span>
-      </div>
-      <h1 className="mb-5 text-lg font-normal text-gray-500">
-        Here&apos;s a list of the instructors and students of the course
-      </h1>
       <DataTableRoot data={members} columns={createColumns(groupId)}>
-        <div className="flex justify-between">
-          <DataTableSearchBar columndId="name" className="rounded-full" />
-          <DeleteUserButton />
+        <div className="flex items-center justify-between gap-[10px]">
+          <div className="min-w-0 flex-1">
+            <DataTableSearchBar columndId="name" className="rounded-full" />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-[10px]">
+            <DeleteUserButton />
+            <InviteUserButton />
+          </div>
         </div>
-        <DataTable />
-        <DataTablePagination showSelection />
+
+        <div className="mt-[28px]">
+          <DataTable />
+        </div>
+        <div className="mt-[40px]">
+          <DataTablePagination showSelection />
+        </div>
       </DataTableRoot>
     </div>
   )

@@ -9,15 +9,14 @@ import {
   SelectTrigger
 } from '@/components/shadcn/select'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import arrowLeftIcon from '@/public/icons/arrow-left-black.svg'
+import ArrowLeftBlackIcon from '@/public/icons/arrow-left-black.svg'
+import PenIcon from '@/public/icons/pen.svg'
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { FormProvider } from 'react-hook-form'
-import { IoPencil } from 'react-icons/io5'
 import { toast } from 'sonner'
 
 interface CreateQnaInput {
@@ -137,11 +136,7 @@ export default function Page() {
     <div className="mx-[116px] mt-20 flex flex-col gap-6">
       <div className="flex items-center gap-[10px]">
         <Link href={`/course/${courseId}/qna` as const}>
-          <Image
-            src={arrowLeftIcon}
-            alt="arrow left icon"
-            className="h-6 w-6"
-          />
+          <ArrowLeftBlackIcon className="h-6 w-6" />
         </Link>
         <span className="text-2xl font-medium leading-[28.8px] tracking-[-0.72px]">
           Post New Question
@@ -285,10 +280,10 @@ export default function Page() {
               'mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 font-semibold text-white transition-all',
               isSubmitting
                 ? 'bg-gray-300'
-                : 'bg-primary shadow-lg shadow-blue-100 hover:bg-[#4A6EEF]'
+                : 'bg-primary hover:bg-primary-strong shadow-lg shadow-blue-100'
             )}
           >
-            <IoPencil className="text-lg" />
+            <PenIcon className="w-[18px] text-white" />
             <span>Post</span>
           </button>
         </FormProvider>
