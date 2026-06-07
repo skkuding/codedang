@@ -204,6 +204,19 @@ export class ContestResolver {
   ) {
     return await this.contestService.getContestParticipants(contestId)
   }
+
+  @Mutation(() => UserContest)
+  async toggleParticipantBlocking(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('userId', { type: () => Int }) targetUserId: number,
+    @Args('contestId', { type: () => Int }) contestId: number
+  ) {
+    return await this.contestService.toggleParticipantBlocking(
+      req.user,
+      targetUserId,
+      contestId
+    )
+  }
 }
 
 @Resolver(() => ContestProblem)
