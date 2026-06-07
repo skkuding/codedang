@@ -6,3 +6,9 @@ resources:
   - ../../base
   - aws-credentials.yaml
   - database-credentials.yaml
+
+patches:
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris

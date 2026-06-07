@@ -7,14 +7,14 @@ import {
   SheetTrigger,
   SheetClose
 } from '@/components/shadcn/sheet'
-import courseIcon from '@/public/icons/course-sidebar.svg'
-import detailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
-import loginMobileIcon from '@/public/icons/login-mobile.svg'
-import logoutMobileIcon from '@/public/icons/logout-mobile.svg'
-import noticeIcon from '@/public/icons/notice.svg'
-import prizeIcon from '@/public/icons/prize.svg'
-import problemIcon from '@/public/icons/problem-sidebar.svg'
-import settingsIcon from '@/public/icons/settings.svg'
+import CourseSidebarIcon from '@/public/icons/course-sidebar.svg'
+import DetailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
+import LoginMobileIcon from '@/public/icons/login-mobile.svg'
+import LogoutMobileIcon from '@/public/icons/logout-mobile.svg'
+import NotificationIcon from '@/public/icons/notification.svg'
+import PrizeIcon from '@/public/icons/prize.svg'
+import ProblemIcon from '@/public/icons/problem-sidebar.svg'
+import SettingsIcon from '@/public/icons/settings.svg'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Session } from 'next-auth'
@@ -29,10 +29,10 @@ export function MobileMenu({ session }: { session: Session | null }) {
   const { showSignIn, showSignUp } = useAuthModalStore((state) => state)
 
   const navItems = [
-    { href: '/notice', label: 'Notice', icon: noticeIcon },
-    { href: '/problem', label: 'Problem', icon: problemIcon },
-    { href: '/course', label: 'Course', icon: courseIcon },
-    { href: '/contest', label: 'Contest', icon: prizeIcon }
+    { href: '/notice', label: 'Notice', icon: NotificationIcon },
+    { href: '/problem', label: 'Problem', icon: ProblemIcon },
+    { href: '/course', label: 'Course', icon: CourseSidebarIcon },
+    { href: '/contest', label: 'Contest', icon: PrizeIcon }
   ]
 
   return (
@@ -43,12 +43,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
           aria-label="Open navigation menu"
           className="flex h-6 w-6 items-center justify-center"
         >
-          <Image
-            src={detailOnMobileIcon}
-            alt="Open menu"
-            width={24}
-            height={24}
-          />
+          <DetailOnMobileIcon className="h-6 w-6 text-neutral-400" />
         </button>
       </SheetTrigger>
 
@@ -95,12 +90,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 className="flex items-center gap-[10px] rounded-full px-4 py-3 hover:bg-gray-100"
               >
                 <span className="flex h-[18px] w-[18px] items-center justify-center text-neutral-300">
-                  <Image
-                    src={item.icon}
-                    alt={`${item.label} icon`}
-                    width={18}
-                    height={18}
-                  />
+                  <item.icon width={18} height={18} />
                 </span>
                 <span className="text-neutral-700">{item.label}</span>
               </Link>
@@ -121,13 +111,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   className="block rounded-full px-4 py-3 text-[18px] hover:bg-gray-100"
                 >
                   <span className="flex items-center gap-[10px]">
-                    <Image
-                      src={settingsIcon}
-                      alt=""
-                      width={15}
-                      height={15}
-                      aria-hidden
-                    />
+                    <SettingsIcon width={15} height={15} aria-hidden />
                     <span>Setting</span>
                   </span>
                 </Link>
@@ -142,13 +126,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   }}
                 >
                   <span className="flex items-center gap-[10px]">
-                    <Image
-                      src={logoutMobileIcon}
-                      alt=""
-                      width={20}
-                      height={20}
-                      aria-hidden
-                    />
+                    <LogoutMobileIcon width={20} height={20} aria-hidden />
                     <span>Log Out</span>
                   </span>
                 </button>
@@ -175,13 +153,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   onClick={() => showSignIn()}
                 >
                   <span className="flex items-center gap-[10px]">
-                    <Image
-                      src={loginMobileIcon}
-                      alt=""
-                      width={20}
-                      height={20}
-                      aria-hidden
-                    />
+                    <LoginMobileIcon width={20} height={20} aria-hidden />
                     <span>Log In</span>
                   </span>
                 </button>

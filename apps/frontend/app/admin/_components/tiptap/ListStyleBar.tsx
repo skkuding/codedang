@@ -6,12 +6,11 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Toggle } from '@/components/shadcn/toggle'
-import BulletList from '@/public/icons/texteditor-bulletlist.svg'
+import BulletListIcon from '@/public/icons/texteditor-bulletlist.svg'
 import LinkIcon from '@/public/icons/texteditor-link.svg'
-import NumberedList from '@/public/icons/texteditor-numberedlist.svg'
+import NumberedListIcon from '@/public/icons/texteditor-numberedlist.svg'
 import type { Editor } from '@tiptap/core'
 import { Save as SaveIcon, Trash as TrashIcon } from 'lucide-react'
-import Image from 'next/image'
 import { useCallback, useState } from 'react'
 
 interface ListStyleBarProps {
@@ -58,7 +57,7 @@ export function ListStyleBar({ editor }: ListStyleBarProps) {
         }}
         className="h-9 w-9 p-2"
       >
-        <Image src={BulletList} alt="Bullet List" className="h-5 w-5" />
+        <BulletListIcon className="h-5 w-5" />
       </Toggle>
       <Toggle
         pressed={editor.isActive('orderedList')}
@@ -68,7 +67,7 @@ export function ListStyleBar({ editor }: ListStyleBarProps) {
         }}
         className="h-9 w-9 p-2"
       >
-        <Image src={NumberedList} alt="Numbered List" className="h-5 w-5" />
+        <NumberedListIcon className="h-5 w-5" />
       </Toggle>
 
       <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
@@ -81,7 +80,7 @@ export function ListStyleBar({ editor }: ListStyleBarProps) {
             aria-haspopup="dialog"
             aria-expanded={isLinkPopoverOpen}
           >
-            <Image src={LinkIcon} alt="Link" className="h-4 w-4" />
+            <LinkIcon className="h-4 w-4" />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">

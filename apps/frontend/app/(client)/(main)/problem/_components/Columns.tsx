@@ -1,22 +1,22 @@
 'use client'
 
 import { Badge } from '@/components/shadcn/badge'
+import { cn } from '@/libs/utils'
 import type { Problem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import { SortButton } from './SortButton'
 
 export const columns: ColumnDef<Problem>[] = [
   {
-    header: 'Title',
+    header: '질문',
     accessorKey: 'title',
     cell: ({ row }) => {
       return (
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base">{`${row.original.id}. ${row.original.title}`}</p>
+        <p className="text-body1_m_16 overflow-hidden text-ellipsis whitespace-nowrap text-left">{`${row.original.id}. ${row.original.title}`}</p>
       )
     }
   },
   {
-    header: () => <SortButton order="level">Level</SortButton>,
+    header: '난이도',
     accessorKey: 'difficulty',
     cell: ({ row }) => (
       <Badge variant={row.original.difficulty}>
@@ -25,13 +25,34 @@ export const columns: ColumnDef<Problem>[] = [
     )
   },
   {
-    header: () => <SortButton order="submit">Submission</SortButton>,
+    header: '제출',
     accessorKey: 'submissionCount',
-    cell: ({ row }) => row.original.submissionCount
+    cell: ({ row }) => {
+      return (
+        <span className="text-body3_r_16 text-color-cool-neutral-30">
+          {row.original.submissionCount}
+        </span>
+      )
+    }
   },
   {
-    header: () => <SortButton order="acrate">Success Rate</SortButton>,
+    header: '성공 비율',
     accessorKey: 'acceptedRate',
-    cell: ({ row }) => `${(row.original.acceptedRate * 100).toFixed(2)}%`
+    cell: ({ row }) => {
+      const acceptedRate = row.original.acceptedRate * 100
+      let textColor = 'text-color-cool-neutral-30'
+
+      if (acceptedRate === 100) {
+        textColor = 'text-primary'
+      } else if (acceptedRate === 0) {
+        textColor = 'text-color-neutral-80'
+      }
+
+      return (
+        <span
+          className={cn('text-body3_r_16', textColor)}
+        >{`${acceptedRate.toFixed(2)}%`}</span>
+      )
+    }
   }
 ]

@@ -70,6 +70,9 @@ const db = {
     findUnique: stub(),
     update: stub()
   },
+  userContest: {
+    findFirst: stub()
+  },
   assignmentRecord: {
     findUnique: stub(),
     update: stub()
@@ -241,6 +244,7 @@ describe('SubmissionService', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.contest.findFirst.resolves(mockContest)
+      db.userContest.findFirst.resolves(null)
       db.contestRecord.findUnique.resolves({
         contest: {
           groupId: 1,

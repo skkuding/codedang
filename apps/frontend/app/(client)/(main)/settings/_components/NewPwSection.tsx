@@ -1,8 +1,7 @@
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import invisibleIcon from '@/public/icons/invisible.svg'
-import visibleIcon from '@/public/icons/visible.svg'
-import Image from 'next/image'
+import InvisibleIcon from '@/public/icons/invisible.svg'
+import VisibleIcon from '@/public/icons/visible.svg'
 import React from 'react'
 import { useSettingsContext } from './context'
 
@@ -43,13 +42,10 @@ export function NewPwSection({
             )}
           />
           <span
-            className="absolute right-0 top-0 flex h-full items-center p-3"
+            className="absolute right-0 top-0 flex h-full cursor-pointer items-center p-3"
             onClick={() => setNewPasswordShow(!newPasswordShow)}
           >
-            <Image
-              src={newPasswordShow ? visibleIcon : invisibleIcon}
-              alt={newPasswordShow ? 'visible' : 'invisible'}
-            />
+            {newPasswordShow ? <VisibleIcon /> : <InvisibleIcon />}
           </span>
         </div>
       </div>
