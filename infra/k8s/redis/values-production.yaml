@@ -1,0 +1,2 @@
+# Compatibility placeholder for main-sourced ApplicationSet valueFiles.
+# Keep production Redis behavior identical to release until Redis auth is released.
