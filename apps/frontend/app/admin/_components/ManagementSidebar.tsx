@@ -39,6 +39,7 @@ interface NavItem {
   path: string
   icon: IconType | ComponentType<{ className: string }>
 }
+
 // Pending : 2중 사이드바 구조 철회
 // const getCourseNavItems = (courseId: string): NavItem[] => [
 //   {

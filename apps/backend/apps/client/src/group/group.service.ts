@@ -1235,9 +1235,7 @@ export class GroupService {
         ) {
           comment = {
             ...comment,
-            content: '',
-            createdBy: null,
-            createdById: null
+            content: ''
           }
         }
         if (!comment.replyOnId) {
