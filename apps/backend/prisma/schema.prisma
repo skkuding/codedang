@@ -1049,7 +1049,7 @@ enum TestFileType {
 enum CollaboratorRole {
   Owner
   Editor
-  Viewer
+  Reviewer
 }
 
 enum CollaboratorStatus {
