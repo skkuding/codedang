@@ -8,7 +8,7 @@ export function MainBanner() {
     <div className="relative my-1 w-full max-w-[1380px] overflow-hidden rounded-[8px] px-10 lg:rounded-[20px]">
       {/* Desktop View */}
       <div className="hidden h-[440px] flex-col items-center justify-center md:flex">
-        <div className="absolute inset-0 bg-[url(/banners/main_banner.png)] bg-cover bg-center blur-[6px]" />
+        <div className="absolute inset-0 bg-[url(/banners/main_banner.png)] bg-cover bg-center blur-[6px] scale-105" />
 
         <div className="relative z-10 flex flex-col items-center">
           <p className="text-head1_b_40 flex flex-col items-center text-black md:text-nowrap">
