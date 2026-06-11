@@ -2,7 +2,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { InstagramCards } from './_components/InstagramCards'
 import { MainBanner } from './_components/MainBanner'
-import { MiddleBanner } from './_components/MiddleBanner'
+// import { MiddleBanner } from './_components/MiddleBanner'
 import { NavigationButtons } from './_components/NavigationButtons'
 import { NewProblemCards } from './_components/NewProblemCards'
 import { ServiceCards } from './_components/ServiceCards'
@@ -23,9 +23,10 @@ export default function Home() {
         <ErrorBoundary fallback={FetchErrorFallback}>
           <NewProblemCards />
         </ErrorBoundary>
-        <ErrorBoundary fallback={FetchErrorFallback}>
+        {/* TODO: problem/create 페이지 작업 완료 시 복구 */}
+        {/* <ErrorBoundary fallback={FetchErrorFallback}>
           <MiddleBanner />
-        </ErrorBoundary>
+        </ErrorBoundary> */}
         <ErrorBoundary fallback={FetchErrorFallback}>
           <InstagramCards />
         </ErrorBoundary>
