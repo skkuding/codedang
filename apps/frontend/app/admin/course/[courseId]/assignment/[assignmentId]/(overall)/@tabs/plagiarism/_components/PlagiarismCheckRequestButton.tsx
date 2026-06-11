@@ -66,9 +66,6 @@ export function PlagiarismCheckRequestButton({
   const [enableMerging, setEnableMerging] = useState(false)
   const [useJplagClustering, setUseJplagClustering] = useState(true)
   const [isPolling, setIsPolling] = useState(false)
-  // id of the check request created by this re-request. While polling, only this
-  // request's status is tracked, so a previously Completed request can't end
-  // polling immediately (race condition guard).
   const [currentCheckId, setCurrentCheckId] = useState<number | null>(null)
   const pollingStartedAt = useRef<number | null>(null)
 
@@ -118,9 +115,6 @@ export function PlagiarismCheckRequestButton({
   })
 
   const checkRequests = checkRequestsData?.getCheckRequests ?? []
-  // Track only the request created by this re-request, by id. Until it appears in
-  // the polled list, trackedStatus stays undefined so polling keeps running
-  // instead of reading a previously Completed request.
   const trackedRequest = currentCheckId
     ? checkRequests.find((req) => Number(req.id) === currentCheckId)
     : undefined
