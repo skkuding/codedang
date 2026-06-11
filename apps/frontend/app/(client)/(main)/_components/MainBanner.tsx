@@ -5,10 +5,12 @@ import Link from 'next/link'
 
 export function MainBanner() {
   return (
-    <div className="relative my-1 w-full max-w-[1380px] overflow-hidden rounded-[8px] lg:rounded-[20px]">
+    <div className="relative my-1 w-full max-w-[1380px] overflow-hidden rounded-[8px] px-10 lg:rounded-[20px]">
       {/* Desktop View */}
-      <div className="hidden h-[440px] flex-col items-center justify-center bg-[url(/banners/main_banner.png)] bg-cover bg-center md:flex">
-        <div className="flex flex-col items-center">
+      <div className="hidden h-[440px] flex-col items-center justify-center md:flex">
+        <div className="absolute inset-0 bg-[url(/banners/desktop_main_banner.png)] bg-cover bg-center blur-[6px]" />
+
+        <div className="relative z-10 flex flex-col items-center">
           <p className="text-head1_b_40 flex flex-col items-center text-black md:text-nowrap">
             <span>코드당과 함께 오늘의 코드를</span>
             <span>내일의 커리어로 만들어보세요</span>
@@ -22,7 +24,7 @@ export function MainBanner() {
           <Button className="mt-10 h-[46px] w-[145px] rounded-[1000px] bg-[#21273C] px-6 py-3 text-white">
             <Link
               href={`https://what-is-codedang.framer.website`}
-              className="flex items-center"
+              className="flex cursor-pointer items-center"
             >
               <span className="text-[16px] font-medium tracking-[-0.03em]">
                 코드당 시작하기
