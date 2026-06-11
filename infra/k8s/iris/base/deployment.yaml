@@ -34,9 +34,6 @@ spec:
             - name: cgroup
               mountPath: /sys/fs/cgroup
               readOnly: false
-            - name: rabbitmq-ca-cert
-              mountPath: /etc/ssl/rabbitmq
-              readOnly: true
           securityContext:
             privileged: true
           envFrom:
@@ -62,9 +59,3 @@ spec:
           hostPath:
             path: /sys/fs/cgroup
             type: Directory
-        - name: rabbitmq-ca-cert
-          secret:
-            secretName: rabbitmq-ca-cert
-            items:
-              - key: ca.crt
-                path: ca.crt
