@@ -21,7 +21,7 @@ export async function NewProblemCards() {
     problems.length > 0 && (
       <div className="relative w-full">
         {/* Desktop View */}
-        <div className="hidden max-w-[1440px] flex-col items-start gap-7 px-10 md:flex">
+        <div className="hidden max-w-[1440px] flex-col items-start gap-7 md:flex">
           <Carousel className="flex w-full flex-col">
             <div className="flex w-full justify-between">
               <p className="text-head1_b_40">최신 코딩 문제를 연습해보세요</p>

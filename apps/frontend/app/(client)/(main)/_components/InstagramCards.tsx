@@ -34,7 +34,7 @@ export function InstagramCards() {
   }, [])
 
   return (
-    <div className="mt-10 w-full max-w-[1360px] px-10 md:mt-0">
+    <div className="mt-10 w-full max-w-[1360px] md:mt-0">
       <div className="mb-7 flex items-center justify-between">
         <span className="text-sub3_sb_16 md:text-head1_b_40">
           우리의 최신 소식은 여기에 있어요
