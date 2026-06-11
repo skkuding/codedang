@@ -1,5 +1,6 @@
 import { Button } from '@/components/shadcn/button'
-import Link from 'next/link'
+
+// import Link from 'next/link'
 
 export function MiddleBanner() {
   return (
@@ -13,7 +14,8 @@ export function MiddleBanner() {
             '학습 목적에 맞게 문제를 설계하고 협업자를 초대하여 피드백을 받아\n효과적인 코딩 문제를 구성해보세요.'
           }
         </p>
-        <Button
+        {/* TODO: problem/create 페이지 작업 완료 시 아래 버튼으로 복구 */}
+        {/* <Button
           disabled
           asChild
           className="bg-color-common-100 hover:bg-color-neutral-99 hidden h-12 w-fit rounded-full px-6 py-3 md:flex"
@@ -23,6 +25,14 @@ export function MiddleBanner() {
               문제 생성 바로가기
             </span>
           </Link>
+        </Button> */}
+        <Button
+          disabled
+          className="bg-color-common-100 hover:bg-color-neutral-99 hidden h-12 w-fit rounded-full px-6 py-3 md:flex"
+        >
+          <span className="text-sub3_sb_16 text-color-neutral-40">
+            문제 생성 바로가기
+          </span>
         </Button>
       </div>
     </div>
