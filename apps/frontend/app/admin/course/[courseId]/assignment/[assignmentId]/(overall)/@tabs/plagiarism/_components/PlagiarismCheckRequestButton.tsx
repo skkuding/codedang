@@ -75,7 +75,10 @@ export function PlagiarismCheckRequestButton({
   const [checkAssignmentSubmissions, { loading: mutationLoading }] =
     useMutation(CHECK_ASSIGNMENT_SUBMISSIONS, {
       onCompleted: (data) => {
-        setCurrentCheckId(data?.checkAssignmentSubmissions?.id ?? null)
+        const newId = data?.checkAssignmentSubmissions?.id
+        setCurrentCheckId(
+          newId !== null && newId !== undefined ? Number(newId) : null
+        )
         setIsPolling(true)
       },
       onError: (error) => {
@@ -119,7 +122,7 @@ export function PlagiarismCheckRequestButton({
   // the polled list, trackedStatus stays undefined so polling keeps running
   // instead of reading a previously Completed request.
   const trackedRequest = currentCheckId
-    ? checkRequests.find((req) => req.id === currentCheckId)
+    ? checkRequests.find((req) => Number(req.id) === currentCheckId)
     : undefined
   const trackedStatus = trackedRequest?.result as CheckResultStatus | undefined
   const hasExistingResults = checkRequests.length > 0
