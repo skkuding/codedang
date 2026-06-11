@@ -69,7 +69,7 @@ export function PlagiarismCheckRequestButton({
   // id of the check request created by this re-request. While polling, only this
   // request's status is tracked, so a previously Completed request can't end
   // polling immediately (race condition guard).
-  const [currentCheckId, setCurrentCheckId] = useState<string | null>(null)
+  const [currentCheckId, setCurrentCheckId] = useState<number | null>(null)
   const pollingStartedAt = useRef<number | null>(null)
 
   const [checkAssignmentSubmissions, { loading: mutationLoading }] =
