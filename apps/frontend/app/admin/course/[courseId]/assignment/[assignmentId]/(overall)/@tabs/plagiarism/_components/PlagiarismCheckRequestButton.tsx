@@ -66,11 +66,16 @@ export function PlagiarismCheckRequestButton({
   const [enableMerging, setEnableMerging] = useState(false)
   const [useJplagClustering, setUseJplagClustering] = useState(true)
   const [isPolling, setIsPolling] = useState(false)
+  // id of the check request created by this re-request. While polling, only this
+  // request's status is tracked, so a previously Completed request can't end
+  // polling immediately (race condition guard).
+  const [currentCheckId, setCurrentCheckId] = useState<string | null>(null)
   const pollingStartedAt = useRef<number | null>(null)
 
   const [checkAssignmentSubmissions, { loading: mutationLoading }] =
     useMutation(CHECK_ASSIGNMENT_SUBMISSIONS, {
-      onCompleted: () => {
+      onCompleted: (data) => {
+        setCurrentCheckId(data?.checkAssignmentSubmissions?.id ?? null)
         setIsPolling(true)
       },
       onError: (error) => {
@@ -110,8 +115,13 @@ export function PlagiarismCheckRequestButton({
   })
 
   const checkRequests = checkRequestsData?.getCheckRequests ?? []
-  const latestRequest = checkRequests[0]
-  const latestStatus = latestRequest?.result as CheckResultStatus | undefined
+  // Track only the request created by this re-request, by id. Until it appears in
+  // the polled list, trackedStatus stays undefined so polling keeps running
+  // instead of reading a previously Completed request.
+  const trackedRequest = currentCheckId
+    ? checkRequests.find((req) => req.id === currentCheckId)
+    : undefined
+  const trackedStatus = trackedRequest?.result as CheckResultStatus | undefined
   const hasExistingResults = checkRequests.length > 0
 
   const { data: submissionCountsData, loading: submissionCountsLoading } =
@@ -182,6 +192,7 @@ export function PlagiarismCheckRequestButton({
         : 0
       if (elapsed > MAX_POLL_ATTEMPTS * POLL_INTERVAL_MS) {
         setIsPolling(false)
+        setCurrentCheckId(null)
         pollingStartedAt.current = null
         toast.error(
           'Plagiarism check timed out. Please check the result later.'
@@ -193,25 +204,27 @@ export function PlagiarismCheckRequestButton({
   }, [isPolling])
 
   useEffect(() => {
-    if (!isPolling || !latestStatus) {
+    if (!isPolling || !trackedStatus) {
       return
     }
-    if (latestStatus === 'Completed') {
+    if (trackedStatus === 'Completed') {
       setIsPolling(false)
+      setCurrentCheckId(null)
       pollingStartedAt.current = null
       toast.success('Plagiarism check completed.')
       onRequestComplete()
       setOpen(false)
     } else if (
-      latestStatus === 'JplagError' ||
-      latestStatus === 'TokenError' ||
-      latestStatus === 'ServerError'
+      trackedStatus === 'JplagError' ||
+      trackedStatus === 'TokenError' ||
+      trackedStatus === 'ServerError'
     ) {
       setIsPolling(false)
+      setCurrentCheckId(null)
       pollingStartedAt.current = null
-      toast.error(`Plagiarism check failed: ${latestStatus}`)
+      toast.error(`Plagiarism check failed: ${trackedStatus}`)
     }
-  }, [isPolling, latestStatus, onRequestComplete])
+  }, [isPolling, trackedStatus, onRequestComplete])
 
   const handleSubmit = useCallback(() => {
     checkAssignmentSubmissions({
@@ -229,6 +242,7 @@ export function PlagiarismCheckRequestButton({
     })
   }, [
     assignmentId,
+    courseId,
     problemId,
     language,
     minTokens,
