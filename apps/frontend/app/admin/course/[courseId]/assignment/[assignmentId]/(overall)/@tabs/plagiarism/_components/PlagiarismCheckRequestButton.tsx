@@ -110,7 +110,7 @@ export function PlagiarismCheckRequestButton({
   })
 
   const checkRequests = checkRequestsData?.getCheckRequests ?? []
-  const latestRequest = checkRequests[checkRequests.length - 1]
+  const latestRequest = checkRequests[0]
   const latestStatus = latestRequest?.result as CheckResultStatus | undefined
   const hasExistingResults = checkRequests.length > 0
 
