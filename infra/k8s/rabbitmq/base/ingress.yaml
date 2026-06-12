@@ -22,4 +22,4 @@ spec:
               service:
                 name: rabbitmq
                 port:
-                  number: 15672 # RabbitMQ management console
+                  number: 15671 # RabbitMQ TLS management console
