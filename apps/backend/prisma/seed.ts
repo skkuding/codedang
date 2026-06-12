@@ -182,7 +182,7 @@ const createUsers = async () => {
     data: {
       userId: superAdminUser.id,
       realName: 'Yuljeon Kim',
-      profileImageUrl: 'dicebear:super.com'
+      profileImageUrl: 'https://api.dicebear.com/9.x/notionists/svg?seed=super'
     }
   })
 
@@ -190,7 +190,7 @@ const createUsers = async () => {
     data: {
       userId: adminUser.id,
       realName: 'Admin Kim',
-      profileImageUrl: 'dicebear:user02.com'
+      profileImageUrl: 'https://api.dicebear.com/9.x/notionists/svg?seed=admin'
     }
   })
 
@@ -199,7 +199,7 @@ const createUsers = async () => {
     data: {
       userId: users[0].id,
       realName: 'Myeongryun Lee',
-      profileImageUrl: 'dicebear:user01'
+      profileImageUrl: 'https://api.dicebear.com/9.x/notionists/svg?seed=user01'
     }
   })
 }
