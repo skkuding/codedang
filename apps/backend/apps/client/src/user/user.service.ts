@@ -2,7 +2,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
-import type { Provider, User, UserProfile } from '@prisma/client'
+import {
+  JobType,
+  type Provider,
+  type User,
+  type UserProfile
+} from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
@@ -97,7 +102,6 @@ export class UserService {
    *
    * @param {string} email 이메일 주소
    * @throws {DuplicateFoundException} 기존에 존재하는 이메일 주소면 예외 발생
-   * @throws {UnprocessableDataException} @skku.edu로 끝나지 않는 메일이면 예외 발생
    * @return {Promise<string>} pin번호 전송 성공 메시지
    */
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
@@ -105,11 +109,6 @@ export class UserService {
     if (duplicatedUser) {
       this.logger.debug('email duplicated')
       throw new DuplicateFoundException('Email')
-    }
-
-    if (!email.endsWith('@skku.edu')) {
-      this.logger.debug('invalid email domain', { email })
-      throw new UnprocessableDataException('Only @skku.edu emails are allowed')
     }
 
     return this.createPinAndSendEmail(email)
@@ -366,8 +365,11 @@ export class UserService {
    * @param {SignUpDto} signUpDto 회원가입 정보가 담긴 객체
    * @throws {UnprocessableDataException}
    * 1. 인증되지 않은 이메일로 가입을 시도하면 예외를 발생시킵니다.
-   * 2. 올바르지 않은 형식의 사용자 이름으로 가입을 시도하면 예외를 발생시킵니다.
-   * 3. 올바르지 않은 형식의 비밀번호로 가입을 시도하면 예외를 발생시킵니다.
+   * 2. 성균관대학교 학생이 가입시 학번과 학과가 없으면 예외를 발생시킵니다.
+   * 3. 성균관대학교 학생이 가입시 이메일이 '@skku.edu'가 아닌경우 예외를 발생시킵니다.
+   * 4. 일반 대학생이 가입시 대학교 이름 정보가 없으면 예외를 발생시킵니다.
+   * 5. 올바르지 않은 형식의 사용자 이름으로 가입을 시도하면 예외를 발생시킵니다.
+   * 6. 올바르지 않은 형식의 비밀번호로 가입을 시도하면 예외를 발생시킵니다.
    * @throws {DuplicateFoundException} 이미 존재하는 사용자 이름으로 가입을 시도할 경우 예외를 발생시킵니다.
    * @returns 회원가입 성공 시 새로 가입된 user 객체를 반환합니다.
    */
@@ -382,6 +384,24 @@ export class UserService {
         'signUp - fail (unauthenticated email)'
       )
       throw new UnprocessableDataException('The email is not authenticated one')
+    }
+
+    if (
+      signUpDto.jobType === JobType.CollegeStudent &&
+      signUpDto.college?.includes('성균관대학교')
+    ) {
+      if (!signUpDto.studentId || !signUpDto.major) {
+        throw new UnprocessableDataException('SKKU without studentId and major')
+      }
+      if (!email.endsWith('@skku.edu')) {
+        throw new UnprocessableDataException('SKKU not using @skku.edu email')
+      }
+    } else if (signUpDto.jobType === JobType.CollegeStudent) {
+      if (!signUpDto.college) {
+        throw new UnprocessableDataException(
+          'College students without college name'
+        )
+      }
     }
 
     const duplicatedUser = await this.prisma.user.findUnique({
@@ -407,7 +427,8 @@ export class UserService {
     const user: User = await this.createUser(signUpDto)
     const CreateUserProfileData: CreateUserProfileData = {
       userId: user.id,
-      realName: signUpDto.realName
+      realName: signUpDto.realName,
+      username: signUpDto.username
     }
     await this.createUserProfile(CreateUserProfileData)
 
@@ -472,6 +493,8 @@ export class UserService {
         username: signUpDto.username,
         password: encryptedPassword,
         email: signUpDto.email,
+        nickname: signUpDto.nickname,
+        jobType: signUpDto.jobType,
         studentId: signUpDto.studentId,
         college: signUpDto.college,
         major: signUpDto.major
@@ -513,6 +536,7 @@ export class UserService {
     const userProfile = await this.prisma.userProfile.create({
       data: {
         realName: createUserProfileData.realName,
+        profileImageUrl: `https://api.dicebear.com/9.x/notionists/svg?seed=${createUserProfileData.username}`,
         user: {
           connect: { id: createUserProfileData.userId }
         }
@@ -629,6 +653,8 @@ export class UserService {
         username: true,
         role: true,
         email: true,
+        nickname: true,
+        jobType: true,
         lastLogin: true,
         updateTime: true,
         studentId: true,
@@ -636,7 +662,8 @@ export class UserService {
         major: true,
         userProfile: {
           select: {
-            realName: true
+            realName: true,
+            profileImageUrl: true
           }
         },
         canCreateContest: true,
@@ -719,12 +746,12 @@ export class UserService {
    * 사용자의 정보를 업데이트합니다.
    *
    * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
-   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, studentId, college, major, realName)
+   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, profileImageUrl, studentId, college, major, realName)
    * @throws {UnprocessableDataException} 현재 비밀번호를 입력하지 않으면 (빈 필드이면) 예외를 발생시킵니다.
    * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
    * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
    * @throws {UnprocessableDataException} 새로운 비밀번호가 잘못된 형식일 경우 예외를 발생시킵니다.
-   * @returns 업데이트 된 user 객체를 반환합니다. (studentId, college, major, realName 필드만)
+   * @returns 업데이트 된 user 객체를 반환합니다. (studentId, profileImageUrl, college, major, realName 필드만)
    */
   async updateUser(req: AuthenticatedRequest, updateUserDto: UpdateUserDto) {
     let encryptedNewPassword: string | undefined = undefined
@@ -760,11 +787,15 @@ export class UserService {
 
     const updateData = {
       password: encryptedNewPassword,
+      nickname: updateUserDto.nickname,
       studentId: updateUserDto.studentId,
       college: updateUserDto.college,
       major: updateUserDto.major,
       userProfile: {
-        update: { realName: updateUserDto.realName }
+        update: {
+          realName: updateUserDto.realName,
+          profileImageUrl: updateUserDto.profileImageUrl
+        }
       }
     }
 
@@ -773,12 +804,14 @@ export class UserService {
       data: updateData,
       select: {
         // don't select password for security
+        nickname: true,
         studentId: true,
         college: true,
         major: true,
         userProfile: {
           select: {
-            realName: true
+            realName: true,
+            profileImageUrl: true
           }
         }
       }

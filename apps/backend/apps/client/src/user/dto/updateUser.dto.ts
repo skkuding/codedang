@@ -1,4 +1,10 @@
-import { IsOptional, IsString, IsNumberString, Matches } from 'class-validator'
+import {
+  IsOptional,
+  IsString,
+  IsNumberString,
+  Matches,
+  IsUrl
+} from 'class-validator'
 
 export class UpdateUserDto {
   @IsOptional()
@@ -13,6 +19,14 @@ export class UpdateUserDto {
   @Matches(/^[가-힣a-zA-Z \s]+$/)
   @IsString()
   readonly realName?: string
+
+  @IsOptional()
+  @IsString()
+  readonly nickname?: string
+
+  @IsOptional()
+  @IsUrl()
+  readonly profileImageUrl?: string
 
   @IsOptional()
   @IsNumberString()

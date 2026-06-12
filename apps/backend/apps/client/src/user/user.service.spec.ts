@@ -182,18 +182,6 @@ describe('UserService', () => {
       ).to.be.rejectedWith(DuplicateFoundException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
-
-    it('should not create pin and send email if email not ends with @skku.edu', async () => {
-      db.user.findUnique.resolves(null)
-
-      const wrongEmailAuthJwtPayload = {
-        email: 'example@example.com'
-      }
-      await expect(
-        service.sendPinForRegisterNewEmail(wrongEmailAuthJwtPayload)
-      ).to.be.rejectedWith(UnprocessableDataException)
-      expect(createPinAndSendEmailSpy.called).to.be.false
-    })
   })
 
   describe('sendPinForPasswordReset', () => {
@@ -398,7 +386,10 @@ describe('UserService', () => {
       username: user.username,
       password: user.password,
       email: user.email,
-      realName: profile.realName
+      realName: profile.realName,
+      nickname: user.nickname,
+      jobType: user.jobType,
+      college: 'test'
     }
 
     let createUserSpy: SinonSpy

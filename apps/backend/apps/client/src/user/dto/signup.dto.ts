@@ -1,6 +1,8 @@
+import { JobType } from '@prisma/client'
 import {
   IsAlphanumeric,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
@@ -24,6 +26,14 @@ export class SignUpDto {
   @Matches(/^[가-힣a-zA-Z \s]+$/)
   @IsNotEmpty()
   readonly realName: string
+
+  @IsString()
+  @IsNotEmpty()
+  readonly nickname: string
+
+  @IsEnum(JobType)
+  @IsNotEmpty()
+  readonly jobType: JobType
 
   @IsOptional()
   @IsNumberString()
