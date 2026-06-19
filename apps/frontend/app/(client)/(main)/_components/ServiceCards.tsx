@@ -63,9 +63,9 @@ export function ServiceCards() {
 
   return (
     <section className="font-pretendard flex w-full flex-col items-center px-5 md:px-0">
-      <div className="flex w-full max-w-[1440px] flex-col gap-7 px-10 md:gap-6">
+      <div className="flex w-full max-w-[1440px] flex-col gap-7 md:gap-6">
         <div className="flex w-full flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <p className="text-head2_b_32 md:text-head1_b_40">
+          <p className="text-title2_m_20 md:text-head1_b_40">
             코드당에는 어떤 기능이 있나요?
           </p>
 
@@ -75,7 +75,7 @@ export function ServiceCards() {
               {SERVICE_TABS.filter((tab) => FEATURE_LIST[tab].length > 0).map(
                 (tab) => (
                   <button
-                    key={tab}
+                    key= {tab}
                     type="button"
                     className={cn(
                       'text-body1_m_16 w-30 flex h-[46px] items-center justify-center rounded-full px-4 py-2.5 transition-colors',
@@ -106,7 +106,7 @@ export function ServiceCards() {
               <p className="text-sub2_m_18 mb-4 line-clamp-2 break-keep text-[#5F6566]">
                 {feature.desc}
               </p>
-              {feature.icon}
+              <p className="flex w-full justify-end">{feature.icon}</p>
             </div>
           ))}
         </div>
