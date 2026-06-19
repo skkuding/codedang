@@ -889,58 +889,52 @@ export class TestcaseService {
    * @returns 조건에 부합하는 테스트케이스들의 배열
    */
   async getProblemTestcases(problemId: number) {
-    return await this.prisma.$transaction(async (tx) => {
-      const problem = await tx.problem.findUnique({
-        where: { id: problemId },
-        select: { isHiddenUploadedByZip: true, isSampleUploadedByZip: true }
-      })
-      if (!problem) {
-        throw new EntityNotExistException('Problem')
-      }
-
-      const hiddenTestcases = await tx.problemTestcase.findMany({
-        where: {
-          problemId,
-          isOutdated: false,
-          isHidden: true
-        },
-        select: {
-          id: true,
-          order: true,
-          isHidden: true,
-          scoreWeightDenominator: true,
-          scoreWeightNumerator: true,
-          ...(problem.isHiddenUploadedByZip
-            ? {}
-            : { input: true, output: true })
-        },
-        orderBy: {
-          order: 'asc'
-        }
-      })
-
-      const sampleTestcases = await tx.problemTestcase.findMany({
-        where: {
-          problemId,
-          isOutdated: false,
-          isHidden: false
-        },
-        select: {
-          id: true,
-          order: true,
-          isHidden: true,
-          scoreWeightDenominator: true,
-          scoreWeightNumerator: true,
-          ...(problem.isSampleUploadedByZip
-            ? {}
-            : { input: true, output: true })
-        },
-        orderBy: {
-          order: 'asc'
-        }
-      })
-
-      return sampleTestcases.concat(hiddenTestcases)
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
+      select: { isHiddenUploadedByZip: true, isSampleUploadedByZip: true }
     })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
+
+    const hiddenTestcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId,
+        isOutdated: false,
+        isHidden: true
+      },
+      select: {
+        id: true,
+        order: true,
+        isHidden: true,
+        scoreWeightDenominator: true,
+        scoreWeightNumerator: true,
+        ...(problem.isHiddenUploadedByZip ? {} : { input: true, output: true })
+      },
+      orderBy: {
+        order: 'asc'
+      }
+    })
+
+    const sampleTestcases = await this.prisma.problemTestcase.findMany({
+      where: {
+        problemId,
+        isOutdated: false,
+        isHidden: false
+      },
+      select: {
+        id: true,
+        order: true,
+        isHidden: true,
+        scoreWeightDenominator: true,
+        scoreWeightNumerator: true,
+        ...(problem.isSampleUploadedByZip ? {} : { input: true, output: true })
+      },
+      orderBy: {
+        order: 'asc'
+      }
+    })
+
+    return sampleTestcases.concat(hiddenTestcases)
   }
 }
