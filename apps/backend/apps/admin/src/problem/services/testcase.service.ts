@@ -897,43 +897,48 @@ export class TestcaseService {
       throw new EntityNotExistException('Problem')
     }
 
-    const hiddenTestcases = await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId,
-        isOutdated: false,
-        isHidden: true
-      },
-      select: {
-        id: true,
-        order: true,
-        isHidden: true,
-        scoreWeightDenominator: true,
-        scoreWeightNumerator: true,
-        ...(problem.isHiddenUploadedByZip ? {} : { input: true, output: true })
-      },
-      orderBy: {
-        order: 'asc'
-      }
-    })
-
-    const sampleTestcases = await this.prisma.problemTestcase.findMany({
-      where: {
-        problemId,
-        isOutdated: false,
-        isHidden: false
-      },
-      select: {
-        id: true,
-        order: true,
-        isHidden: true,
-        scoreWeightDenominator: true,
-        scoreWeightNumerator: true,
-        ...(problem.isSampleUploadedByZip ? {} : { input: true, output: true })
-      },
-      orderBy: {
-        order: 'asc'
-      }
-    })
+    const [hiddenTestcases, sampleTestcases] = await Promise.all([
+      this.prisma.problemTestcase.findMany({
+        where: {
+          problemId,
+          isOutdated: false,
+          isHidden: true
+        },
+        select: {
+          id: true,
+          order: true,
+          isHidden: true,
+          scoreWeightDenominator: true,
+          scoreWeightNumerator: true,
+          ...(problem.isHiddenUploadedByZip
+            ? {}
+            : { input: true, output: true })
+        },
+        orderBy: {
+          order: 'asc'
+        }
+      }),
+      this.prisma.problemTestcase.findMany({
+        where: {
+          problemId,
+          isOutdated: false,
+          isHidden: false
+        },
+        select: {
+          id: true,
+          order: true,
+          isHidden: true,
+          scoreWeightDenominator: true,
+          scoreWeightNumerator: true,
+          ...(problem.isSampleUploadedByZip
+            ? {}
+            : { input: true, output: true })
+        },
+        orderBy: {
+          order: 'asc'
+        }
+      })
+    ])
 
     return sampleTestcases.concat(hiddenTestcases)
   }
