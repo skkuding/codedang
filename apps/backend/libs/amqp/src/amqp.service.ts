@@ -44,8 +44,8 @@ export class JudgeAMQPService {
       try {
         // 메시지 타입에 따라 적절한 핸들러로 라우팅
         if (
-          raw.properties.type === RUN_MESSAGE_TYPE ||
-          raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
+          raw.properties?.type === RUN_MESSAGE_TYPE ||
+          raw.properties?.type === USER_TESTCASE_MESSAGE_TYPE
         ) {
           if (this.messageHandlers?.onRunMessage) {
             await this.messageHandlers.onRunMessage(
@@ -60,7 +60,7 @@ export class JudgeAMQPService {
           await this.messageHandlers.onJudgeMessage(msg)
         }
       } catch {
-        return new Nack(false)
+        return new Nack()
       }
     }
 
@@ -175,7 +175,7 @@ export class CheckAMQPService {
           await this.messageHandlers.onCheckMessage(msg)
         }
       } catch {
-        return new Nack(false)
+        return new Nack()
       }
     }
 
