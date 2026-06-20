@@ -59,7 +59,8 @@ export class JudgeAMQPService {
         if (this.messageHandlers?.onJudgeMessage) {
           await this.messageHandlers.onJudgeMessage(msg)
         }
-      } catch {
+      } catch (error) {
+        this.logger.error(error, 'Unexpected error in message handler')
         return new Nack(false)
       }
     }
@@ -174,7 +175,8 @@ export class CheckAMQPService {
         if (this.messageHandlers?.onCheckMessage) {
           await this.messageHandlers.onCheckMessage(msg)
         }
-      } catch {
+      } catch (error) {
+        this.logger.error(error, 'Unexpected error in handling check message')
         return new Nack(false)
       }
     }
