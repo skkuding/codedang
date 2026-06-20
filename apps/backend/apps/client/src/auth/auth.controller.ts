@@ -11,6 +11,7 @@ import {
   Param,
   ParseEnumPipe
 } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { AuthGuard } from '@nestjs/passport'
 import { Provider } from '@prisma/client'
 import { Request, Response } from 'express'
@@ -27,7 +28,10 @@ import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService
+  ) {}
 
   setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
     res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
@@ -158,15 +162,18 @@ export class AuthController {
   @AuthNotNeededIfPublic()
   @Get('kakao-callback')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoLogin(
-    @Res({ passthrough: true }) res: Response,
-    @Req() req: Request
-  ) {
+  async kakaoLogin(@Res() res: Response, @Req() req: Request) {
     const kakaoUser = req.user as KakaoUser
     const result = await this.authService.kakaoLogin(kakaoUser)
+    const frontendUrl = this.configService.getOrThrow('FRONTEND_URL')
 
-    if ('oauthToken' in result) return result
+    if ('oauthToken' in result) {
+      return res.redirect(
+        `${frontendUrl}/login?modal=social-unlinked&oauthToken=${result.oauthToken}`
+      )
+    }
 
     this.setJwtResponse(res, result.jwtTokens)
+    return res.redirect(`${frontendUrl}/`)
   }
 }
