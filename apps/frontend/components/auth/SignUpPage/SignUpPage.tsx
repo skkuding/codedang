@@ -8,6 +8,8 @@ import { searchUniversities } from 'korea-universities'
 // @ts-expect-error: no type declarations for this package
 import randomNameGenerator from 'korean-random-names-generator'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaChevronDown, FaChevronUp, FaEye, FaEyeSlash } from 'react-icons/fa6'
@@ -73,6 +75,7 @@ function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
 }
 
 export function SignUpPage() {
+  const router = useRouter()
   const [agreements, setAgreements] = useState({
     terms: false,
     privacy: false,
@@ -387,6 +390,13 @@ export function SignUpPage() {
     return 'focus:border-primary border-line'
   }
 
+  const JOB_TYPE_MAP: Record<string, string> = {
+    대학생: 'CollegeStudent',
+    고등학생: 'HighSchoolStudent',
+    직장인: 'Employee',
+    기타: 'Other'
+  }
+
   const onSubmit = async (data: SignUpFormValues) => {
     if (!canSubmit) {
       return
@@ -407,11 +417,15 @@ export function SignUpPage() {
           password: data.password,
           email: data.email,
           realName: data.name,
+          nickname: data.nickname || randomNameGenerator(),
+          jobType: JOB_TYPE_MAP[data.job],
           college: data.university || undefined,
           major: data.major || undefined,
           studentId: data.studentId || undefined
         }
       })
+      toast.success('회원가입이 완료됐습니다!')
+      router.push('/login')
     } catch {
       toast.error('회원가입에 실패했습니다. 다시 시도해주세요')
     }
@@ -420,11 +434,17 @@ export function SignUpPage() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="border-color-cool-neutral-90 flex w-[500px] flex-col items-start rounded-[20px] border bg-white px-6 py-7 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+      className="border-color-cool-neutral-90 flex w-[500px] flex-col items-start rounded-[16px] border bg-white px-6 py-7"
     >
       <div className="flex w-full flex-col gap-[48px]">
         <div className="flex w-full flex-col gap-5">
-          <p className="text-head5_sb_24">회원가입</p>
+          <div className="flex w-full items-center justify-between">
+            <p className="text-head5_sb_24">회원가입</p>
+            <Link href="/login" className="text-sub2_m_18 whitespace-nowrap">
+              <span className="text-primary">기존 회원</span>
+              <span className="text-black">이신가요?</span>
+            </Link>
+          </div>
 
           <div className="flex w-full flex-col gap-6">
             <div className="flex w-full flex-col gap-1">
@@ -495,7 +515,7 @@ export function SignUpPage() {
                 <div className="relative">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder="대문자, 소문자, 숫자 중 2종류 이상 포함 8-20자"
+                    placeholder="영문자, 숫자 포함 8-20자"
                     className={cn(
                       'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                       errors.password
@@ -804,7 +824,7 @@ export function SignUpPage() {
                     <input
                       type="text"
                       inputMode="numeric"
-                      placeholder="학번 입력"
+                      placeholder="학번 10자리를 입력해주세요"
                       className={cn(
                         'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
                         errors.studentId
@@ -866,7 +886,7 @@ export function SignUpPage() {
                 >
                   {emailSent && !codeExpired && !emailVerified
                     ? '재발송'
-                    : '인증하기'}
+                    : '인증 하기'}
                 </button>
               </div>
               {errors.email?.message && (
@@ -887,7 +907,7 @@ export function SignUpPage() {
                       type="text"
                       inputMode="numeric"
                       maxLength={6}
-                      placeholder="인증 코드 6자리"
+                      placeholder="메일로 도착한 인증 번호를 입력해주세요"
                       value={verificationCode}
                       onChange={(e) => {
                         const val = e.target.value
@@ -936,14 +956,14 @@ export function SignUpPage() {
 
         <div className="flex w-full flex-col gap-12">
           <div className="flex w-full flex-col gap-[10px]">
-            <AgreementCheckbox
-              checked={isAllChecked}
-              onChange={handleAllAgreementChange}
-            >
-              전체동의
-            </AgreementCheckbox>
-
-            <div className="border-line border-b" />
+            <div className="border-line border-b pb-[10px]">
+              <AgreementCheckbox
+                checked={isAllChecked}
+                onChange={handleAllAgreementChange}
+              >
+                전체동의
+              </AgreementCheckbox>
+            </div>
 
             <AgreementCheckbox
               checked={agreements.terms}
