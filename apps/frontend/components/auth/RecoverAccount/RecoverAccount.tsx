@@ -1,7 +1,6 @@
 'use client'
 
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
-import { useAuthModalStore } from '@/stores/authModal'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import Image from 'next/image'
 import { IoMdArrowBack } from 'react-icons/io'
@@ -14,7 +13,6 @@ interface RecoverAccountProps {
 }
 
 export function RecoverAccount({ onBackToSignIn }: RecoverAccountProps) {
-  const { showSignIn } = useAuthModalStore((state) => state)
   const { modalPage, backModal } = useRecoverAccountModalStore((state) => state)
 
   return (

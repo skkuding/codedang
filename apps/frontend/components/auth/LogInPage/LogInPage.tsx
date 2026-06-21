@@ -6,6 +6,7 @@ import {
   dismissSocialLoginPromoForToday,
   isSocialLoginPromoDismissedToday
 } from '@/libs/auth/socialLoginPromoDismissal'
+import { baseUrl } from '@/libs/constants'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSocialAuthStore } from '@/stores/socialAuth'
@@ -50,7 +51,11 @@ export function LogInPage() {
   }, [searchParams, setOauthToken])
 
   const handleKakaoLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BASEURL}/auth/kakao`
+    window.location.href = `${baseUrl}/auth/kakao`
+  }
+
+  const handleComingSoonLogin = () => {
+    toast.info('준비 중인 기능입니다')
   }
 
   const handleSocialPromoLater = () => {
@@ -204,6 +209,7 @@ export function LogInPage() {
                 {/* Google */}
                 <button
                   type="button"
+                  onClick={handleComingSoonLogin}
                   className="flex flex-col items-center gap-2"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#DCE3E5] bg-white">
@@ -241,6 +247,7 @@ export function LogInPage() {
                 {/* GitHub */}
                 <button
                   type="button"
+                  onClick={handleComingSoonLogin}
                   className="flex flex-col items-center gap-2"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-black">
@@ -259,6 +266,7 @@ export function LogInPage() {
                 {/* Naver */}
                 <button
                   type="button"
+                  onClick={handleComingSoonLogin}
                   className="flex flex-col items-center gap-2"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#03C75A]">
