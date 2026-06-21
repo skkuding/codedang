@@ -9,7 +9,6 @@ import {
   DialogTitle
 } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import infoIcon from '@/public/icons/icon-info-blue.svg'
 import Image from 'next/image'
 
 interface InfoModalButton {
@@ -48,7 +47,12 @@ export function InfoModal({
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <DialogHeader className="flex flex-col items-start gap-2 space-y-0">
-          <Image src={infoIcon} alt="info" width={42} height={42} />
+          <Image
+            src="/icons/icon-info-blue.svg"
+            alt="info"
+            width={42}
+            height={42}
+          />
 
           <div className="flex flex-col gap-2">
             <DialogTitle className="text-head5_sb_24 whitespace-pre-wrap text-left">
