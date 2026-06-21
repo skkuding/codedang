@@ -2,6 +2,7 @@ import type { NextAuthOptions, Session, User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { authorize } from './authorize'
+import { authorizeSocial } from './authorizeSocial'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,6 +13,17 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'password', type: 'password' }
       },
       authorize
+    }),
+    CredentialsProvider({
+      id: 'social',
+      name: 'Social',
+      credentials: {
+        username: { label: 'username', type: 'text' },
+        role: { label: 'role', type: 'text' },
+        accessToken: { label: 'accessToken', type: 'text' },
+        accessTokenExpires: { label: 'accessTokenExpires', type: 'text' }
+      },
+      authorize: authorizeSocial
     })
   ],
   session: {
