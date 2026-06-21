@@ -1,7 +1,6 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { SearchBar } from '@/components/SearchBar'
 import { Skeleton } from '@/components/shadcn/skeleton'
-import type { Notice } from '@/types/type'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { NoticeTable } from './_components/NoticeTable'
@@ -16,8 +15,11 @@ export default async function Notice(props: NoticeProps) {
 
   return (
     <>
-      <div className="flex w-full justify-end">
-        <SearchBar />
+      <div className="flex flex-col items-start justify-start gap-1">
+        <p className="text-head1_b_40 justify-start self-stretch">NOTICE</p>
+        <p className="text-color-cool-neutral-40 text-sub2_m_18 justify-start">
+          업데이트된 코드당의 소식을 접해보세요!
+        </p>
       </div>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense
