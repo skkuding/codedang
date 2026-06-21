@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
+import { Checkbox } from '@/components/shadcn/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -10,6 +11,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
 import Image from 'next/image'
+import { useState } from 'react'
 
 interface InfoModalButton {
   text: string
@@ -24,6 +26,8 @@ interface InfoModalProps {
   primaryButton: InfoModalButton
   secondaryButton?: InfoModalButton
   className?: string
+  dismissForTodayLabel?: string
+  onDismissForToday?: () => void
 }
 
 export function InfoModal({
@@ -33,8 +37,18 @@ export function InfoModal({
   description,
   primaryButton,
   secondaryButton,
-  className
+  className,
+  dismissForTodayLabel,
+  onDismissForToday
 }: InfoModalProps) {
+  const [hideToday, setHideToday] = useState(false)
+
+  const withDismissCheck = (onClick: () => void) => () => {
+    if (hideToday) {
+      onDismissForToday?.()
+    }
+    onClick()
+  }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -67,24 +81,38 @@ export function InfoModal({
           </div>
         </DialogHeader>
 
-        <DialogFooter className="flex w-full flex-row gap-3 sm:justify-start">
-          {secondaryButton && (
+        <DialogFooter className="flex w-full flex-col gap-3 sm:flex-col">
+          <div className="flex w-full flex-row gap-3">
+            {secondaryButton && (
+              <Button
+                type="button"
+                onClick={withDismissCheck(secondaryButton.onClick)}
+                className="border-primary text-sub3_sb_16 text-primary h-[50px] flex-1 rounded-xl border bg-white hover:bg-blue-50"
+              >
+                {secondaryButton.text}
+              </Button>
+            )}
+
             <Button
               type="button"
-              onClick={secondaryButton.onClick}
-              className="border-primary text-sub3_sb_16 text-primary h-[50px] flex-1 rounded-xl border bg-white hover:bg-blue-50"
+              onClick={withDismissCheck(primaryButton.onClick)}
+              className="bg-primary text-sub3_sb_16 h-[50px] flex-1 rounded-xl"
             >
-              {secondaryButton.text}
+              {primaryButton.text}
             </Button>
-          )}
+          </div>
 
-          <Button
-            type="button"
-            onClick={primaryButton.onClick}
-            className="bg-primary text-sub3_sb_16 h-[50px] flex-1 rounded-xl"
-          >
-            {primaryButton.text}
-          </Button>
+          {dismissForTodayLabel && onDismissForToday && (
+            <label className="flex items-center gap-2">
+              <Checkbox
+                checked={hideToday}
+                onCheckedChange={(checked) => setHideToday(checked === true)}
+              />
+              <span className="text-caption2_m_12 text-[#474747]">
+                {dismissForTodayLabel}
+              </span>
+            </label>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

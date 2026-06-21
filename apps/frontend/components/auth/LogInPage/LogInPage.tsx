@@ -2,6 +2,11 @@
 
 import { InfoModal } from '@/components/auth/LogInPage/InfoModal'
 import { Input } from '@/components/shadcn/input'
+import {
+  dismissSocialLoginPromoForToday,
+  isSocialLoginPromoDismissedToday
+} from '@/libs/auth/socialLoginPromoDismissal'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
 import { useSocialAuthStore } from '@/stores/socialAuth'
 import type { Route } from 'next'
@@ -26,12 +31,15 @@ export function LogInPage() {
   const [authView, setAuthView] = useState<'login' | 'recover'>('login')
   const [isSignInDisabled, setIsSignInDisabled] = useState(false)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [isSocialPromoModalOpen, setIsSocialPromoModalOpen] = useState(false)
   const router = useRouter()
   const posthog = usePostHog()
   const searchParams = useSearchParams()
   const isSocialUnlinkedModalOpen =
     searchParams.get('modal') === 'social-unlinked'
-  const setOauthToken = useSocialAuthStore((state) => state.setOauthToken)
+  const { oauthToken, setOauthToken, clearOauthToken } = useSocialAuthStore(
+    (state) => state
+  )
   const { register, handleSubmit } = useForm<SignInInput>()
 
   useEffect(() => {
@@ -45,24 +53,54 @@ export function LogInPage() {
     window.location.href = `${process.env.NEXT_PUBLIC_BASEURL}/auth/kakao`
   }
 
+  const handleSocialPromoLater = () => {
+    setIsSocialPromoModalOpen(false)
+    router.push('/')
+    router.refresh()
+  }
+
+  const handleSocialPromoGoToSettings = () => {
+    setIsSocialPromoModalOpen(false)
+    router.push('/settings' as Route) // 추후 변경
+    router.refresh()
+  }
+
   const onSubmit: SubmitHandler<SignInInput> = async (data) => {
     setIsSignInDisabled(true)
     try {
       const res = await signIn('credentials', {
-        nickname: data.nickname,
+        username: data.nickname,
         password: data.password,
         redirect: false
       })
       if (!res?.error) {
         posthog.identify(data.nickname)
-        router.push('/')
-        router.refresh()
+
+        let justLinkedSocial = false
+        if (oauthToken) {
+          try {
+            await safeFetcherWithAuth.post('auth/social-link', {
+              json: { oauthToken }
+            })
+            clearOauthToken()
+            justLinkedSocial = true
+          } catch (error) {
+            console.error('Failed to link social account:', error)
+          }
+        }
 
         toast.success(`Welcome back, ${data.nickname}!`, {
           style: {
             transform: 'translateY(30px)'
           }
         })
+
+        if (!justLinkedSocial && !isSocialLoginPromoDismissedToday()) {
+          setIsSocialPromoModalOpen(true)
+        } else {
+          router.push('/')
+          router.refresh()
+        }
       } else {
         toast.error('Failed to log in')
       }
@@ -261,6 +299,26 @@ export function LogInPage() {
           text: '회원가입 이어서하기',
           onClick: () => router.replace('/signup' as Route)
         }}
+      />
+      <InfoModal
+        open={isSocialPromoModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleSocialPromoLater()
+          }
+        }}
+        title="소셜 로그인이 도입되었어요!"
+        description="설정에서 SNS를 연동해서 편하게 로그인 할 수 있어요"
+        secondaryButton={{
+          text: '나중에 하기',
+          onClick: handleSocialPromoLater
+        }}
+        primaryButton={{
+          text: '로그인하러 가기',
+          onClick: handleSocialPromoGoToSettings
+        }}
+        dismissForTodayLabel="오늘 하루 동안 안보기"
+        onDismissForToday={dismissSocialLoginPromoForToday}
       />
     </>
   )
