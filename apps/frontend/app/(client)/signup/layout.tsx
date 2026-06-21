@@ -19,7 +19,7 @@ export default function SignUpLayout({
           />
           <div className="relative z-10 flex w-full flex-1">
             <section className="relative z-0 hidden flex-1 xl:block">
-              <div className="absolute left-[254px] top-[414px] flex w-[260px] flex-col items-center gap-[15px]">
+              <div className="absolute left-[254px] top-[50dvh] flex w-[260px] -translate-y-1/2 flex-col items-center gap-[15px]">
                 <Image
                   src={codedangLogoWhite}
                   alt="Codedang"
