@@ -3,13 +3,14 @@
 import { InfoModal } from '@/components/auth/LogInPage/InfoModal'
 import { Input } from '@/components/shadcn/input'
 import codedangLogo from '@/public/logos/codedang-editor.svg'
+import { useSocialAuthStore } from '@/stores/socialAuth'
 import type { Route } from 'next'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { usePostHog } from 'posthog-js/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import type { SubmitHandler } from 'react-hook-form'
 import { FaEyeSlash } from 'react-icons/fa'
@@ -30,7 +31,15 @@ export function LogInPage() {
   const searchParams = useSearchParams()
   const isSocialUnlinkedModalOpen =
     searchParams.get('modal') === 'social-unlinked'
+  const setOauthToken = useSocialAuthStore((state) => state.setOauthToken)
   const { register, handleSubmit } = useForm<SignInInput>()
+
+  useEffect(() => {
+    const oauthToken = searchParams.get('oauthToken')
+    if (oauthToken) {
+      setOauthToken(oauthToken)
+    }
+  }, [searchParams, setOauthToken])
 
   const handleKakaoLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BASEURL}/auth/kakao`
