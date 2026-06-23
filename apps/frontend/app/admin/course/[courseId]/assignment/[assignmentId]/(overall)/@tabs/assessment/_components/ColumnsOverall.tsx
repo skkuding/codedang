@@ -2,11 +2,23 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import type { ProblemData } from '@/app/admin/contest/_libs/schemas'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList
+} from '@/components/shadcn/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/shadcn/popover'
 import { UPDATE_ASSIGNMENT_PROBLEM_RECORD } from '@/graphql/assignment/mutations'
 import { cn } from '@/libs/utils'
 import { useMutation } from '@apollo/client'
-import type { ColumnDef, Row } from '@tanstack/react-table'
-import { SquareArrowOutUpRight } from 'lucide-react'
+import type { Column, ColumnDef, Row } from '@tanstack/react-table'
+import { Check, SquareArrowOutUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -25,6 +37,9 @@ interface DataTableScoreSummary {
     problemId: number
     score: number
     maxScore: number
+    finalScore?: number | null
+    acceptedTestcaseCount: number
+    totalTestcaseCount: number
   }[]
 }
 
@@ -165,6 +180,144 @@ function ScoreEditableCell({
   )
 }
 
+interface ColumnHeaderSelectorProps {
+  label: string
+  isTestcaseMode: boolean
+  onToggle: (isTestcaseMode: boolean) => void
+}
+
+function ColumnHeaderSelector({
+  label,
+  isTestcaseMode,
+  onToggle
+}: ColumnHeaderSelectorProps) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="w-full">{label}</button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-40 p-0">
+        <Command>
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                key="testcases"
+                onSelect={() => {
+                  onToggle(true)
+                  setOpen(false)
+                }}
+              >
+                <Check
+                  className={cn(
+                    'mr-2 h-4 w-4',
+                    isTestcaseMode ? 'opacity-100' : 'opacity-0'
+                  )}
+                />
+                Testcases
+              </CommandItem>
+              <CommandItem
+                key="score"
+                onSelect={() => {
+                  onToggle(false)
+                  setOpen(false)
+                }}
+              >
+                <Check
+                  className={cn(
+                    'mr-2 h-4 w-4',
+                    !isTestcaseMode ? 'opacity-100' : 'opacity-0'
+                  )}
+                />
+                Score
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function createProblemColumn(
+  problem: ProblemData,
+  index: number,
+  courseId: number,
+  assignmentId: number,
+  isAssignmentFinished: boolean,
+  currentView: 'final' | 'auto',
+  refetch: () => void
+): ColumnDef<DataTableScoreSummary> {
+  const label = String.fromCharCode(Number(65 + index))
+  return {
+    accessorKey: label,
+    meta: { isTestcaseMode: false } as { isTestcaseMode: boolean },
+    header: ({
+      column
+    }: {
+      column: Column<DataTableScoreSummary, unknown>
+    }) => {
+      if (currentView !== 'auto') {
+        return <div className="w-full">{label}</div>
+      }
+      const meta = column.columnDef.meta as { isTestcaseMode: boolean }
+      const isTestcaseMode = Boolean(meta?.isTestcaseMode)
+      const handleToggle = (newValue: boolean) => {
+        meta.isTestcaseMode = newValue
+        column.toggleVisibility(false)
+        column.toggleVisibility(true)
+      }
+      return (
+        <ColumnHeaderSelector
+          label={label}
+          isTestcaseMode={isTestcaseMode}
+          onToggle={handleToggle}
+        />
+      )
+    },
+    cell: ({
+      row,
+      column
+    }: {
+      row: Row<DataTableScoreSummary>
+      column: Column<DataTableScoreSummary, unknown>
+    }) => {
+      const problemScore = row.original.scoreSummaryByProblem.find(
+        (ps) => ps.problemId === problem.problemId
+      )
+      const isTestcaseMode = Boolean(
+        (column.columnDef.meta as { isTestcaseMode?: boolean })?.isTestcaseMode
+      )
+      if (currentView === 'auto') {
+        if (isTestcaseMode) {
+          return (
+            <div className="text-xs">
+              {problemScore?.acceptedTestcaseCount} /{' '}
+              {problemScore?.totalTestcaseCount ?? 0}
+            </div>
+          )
+        }
+        return (
+          <div className="text-xs">
+            {problemScore?.score} / {problemScore?.maxScore ?? 0}
+          </div>
+        )
+      }
+      return (
+        <ScoreEditableCell
+          problemScore={problemScore}
+          groupId={courseId}
+          assignmentId={assignmentId}
+          userId={row.original.id}
+          refetch={refetch}
+          isAssignmentFinished={isAssignmentFinished}
+        />
+      )
+    }
+  }
+}
+
 export const createColumns = (
   problemData: ProblemData[],
   courseId: number,
@@ -189,34 +342,17 @@ export const createColumns = (
       cell: ({ row }) => row.getValue('realName'),
       filterFn: 'includesString'
     },
-    ...problemData.map((problem, i) => ({
-      accessorKey: `${String.fromCharCode(Number(65 + i))}`,
-      header: () => {
-        return String.fromCharCode(Number(65 + i))
-      },
-      cell: ({ row }: { row: Row<DataTableScoreSummary> }) => {
-        const problemScore = row.original.scoreSummaryByProblem.find(
-          (ps) => ps.problemId === problem.problemId
-        )
-        if (currentView === 'auto') {
-          return (
-            <div className="text-xs">
-              {problemScore?.score ?? '-'} / {problemScore?.maxScore ?? 0}
-            </div>
-          )
-        }
-        return (
-          <ScoreEditableCell
-            problemScore={problemScore}
-            groupId={courseId}
-            assignmentId={assignmentId}
-            userId={row.original.id}
-            refetch={refetch}
-            isAssignmentFinished={isAssignmentFinished}
-          />
-        )
-      }
-    })),
+    ...problemData.map((problem, index) =>
+      createProblemColumn(
+        problem,
+        index,
+        courseId,
+        assignmentId,
+        isAssignmentFinished,
+        currentView,
+        refetch
+      )
+    ),
     {
       accessorKey: 'userAssignmentFinalScore',
       header: ({ column }) => (
