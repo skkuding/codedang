@@ -1,6 +1,7 @@
 'use client'
 
 import { SearchBar } from '@/components/SearchBar'
+import { Button } from '@/components/shadcn/button'
 import {
   Table,
   TableBody,
@@ -18,7 +19,8 @@ import {
 } from '@tanstack/react-table'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { IoFilter } from 'react-icons/io5'
 
 interface Item {
   id: number
@@ -28,8 +30,6 @@ interface ProblemDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   total: number
-  itemsPerPage: number
-  currentPage: number
   headerStyle: {
     [key: string]: string
   }
@@ -42,8 +42,6 @@ export function ProblemDataTable<TData extends Item, TValue>({
   columns,
   data,
   total,
-  itemsPerPage,
-  currentPage,
   headerStyle,
   search,
   linked = false,
@@ -54,13 +52,9 @@ export function ProblemDataTable<TData extends Item, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel()
   })
-  const router = useRouter()
   const currentPath = usePathname()
 
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedItems = table
-    .getRowModel()
-    .rows.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedItems = table.getRowModel().rows
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -70,7 +64,14 @@ export function ProblemDataTable<TData extends Item, TValue>({
           <p className="text-head3_sb_28 text-primary">{total}</p>
         </div>
         <div className="flex items-center justify-start gap-2">
-          <SearchBar className="w-60" />
+          <Button
+            variant="outline"
+            className="border-line text-body1_m_16 h-[46px] min-w-28 justify-center rounded-full border px-5 py-[11px] text-black"
+          >
+            <IoFilter className="text-color-cool-neutral-30 mr-2 h-5 w-5" />
+            State
+          </Button>
+          <SearchBar className="w-60" sizeVariant="lg" />
         </div>
       </div>
       <div className="bg-background border-line mb-10 mt-5 w-full overflow-hidden rounded-[20px] border">
@@ -105,13 +106,11 @@ export function ProblemDataTable<TData extends Item, TValue>({
                 const href =
                   `${currentPath}/${row.original.id}${search ? `?search=${search}` : ''}` as Route
 
-                const handleClick = linked
-                  ? () => {
-                      router.push(href)
-                    }
-                  : (e: React.MouseEvent<HTMLTableRowElement>) => {
+                const handleClick = !linked
+                  ? (e: React.MouseEvent<HTMLTableRowElement>) => {
                       e.currentTarget.classList.toggle('expanded')
                     }
+                  : undefined
 
                 return (
                   <TableRow
