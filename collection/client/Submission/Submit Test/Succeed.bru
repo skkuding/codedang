@@ -30,3 +30,58 @@ body:json {
 script:pre-request {
   await require("./login").loginAdmin(req);
 }
+
+docs {
+  # 📘 Submit Test
+  
+  **POST** `/submission/test?problemId:`
+  
+  Requests a test execution using open testcases, and stores the judging results in the cache.
+  
+  Open Testcase에 대해 채점하는 Test를 요청합니다.
+  
+  채점 결과는 Cache에 저장됩니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |   ✅    | Id of problem |
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "Cpp"
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | int | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `language` | string | ✅       |  제출 코드의 언어 |
+}
