@@ -1,6 +1,5 @@
 import { safeFetcher } from '@/libs/utils'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
 interface UseCheckPasswordResult {
   isPasswordCorrect: boolean
@@ -23,7 +22,6 @@ export const useCheckPassword = (
   const [isCheckButtonClicked, setIsCheckButtonClicked] = useState(false)
 
   const checkPassword = async () => {
-    setIsCheckButtonClicked(true)
     try {
       await safeFetcher.post('auth/login', {
         json: {
@@ -35,8 +33,9 @@ export const useCheckPassword = (
       setIsPasswordCorrect(true)
       setNewPasswordAble(true)
     } catch {
-      toast.error('Failed to check password')
-      console.error('Failed to check password')
+      setIsPasswordCorrect(false)
+    } finally {
+      setIsCheckButtonClicked(true)
     }
   }
 

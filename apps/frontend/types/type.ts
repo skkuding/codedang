@@ -385,6 +385,7 @@ export interface SettingsFormat {
   realName: string
   studentId: string
   email: string
+  nickname: string
 }
 
 export interface CourseInfo {
