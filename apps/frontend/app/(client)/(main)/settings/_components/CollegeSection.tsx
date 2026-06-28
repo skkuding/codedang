@@ -1,0 +1,159 @@
+'use client'
+
+import { cn } from '@/libs/utils'
+// @ts-expect-error: no type declarations for this package
+import { searchUniversities } from 'korea-universities'
+import { useState } from 'react'
+import { IoSearchOutline } from 'react-icons/io5'
+import { useSettingsContext } from './context'
+
+type University = ReturnType<typeof searchUniversities>[number]
+
+const CAMPUS_OVERRIDES: Record<string, Record<string, string>> = {
+  성균관대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '수원캠퍼스' },
+  연세대학교: { 제1캠퍼스: '신촌캠퍼스', 제2캠퍼스: '국제캠퍼스' },
+  경희대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '국제캠퍼스' },
+  중앙대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '안성캠퍼스' },
+  한국외국어대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '글로벌캠퍼스' },
+  단국대학교: { 제1캠퍼스: '죽전캠퍼스', 제2캠퍼스: '천안캠퍼스' },
+  부산대학교: { 제1캠퍼스: '부산캠퍼스', 제2캠퍼스: '양산캠퍼스' }
+}
+
+const REGION_SHORT: Record<string, string> = {
+  서울특별시: '서울',
+  부산광역시: '부산',
+  대구광역시: '대구',
+  인천광역시: '인천',
+  광주광역시: '광주',
+  대전광역시: '대전',
+  울산광역시: '울산',
+  세종특별자치시: '세종',
+  경기도: '경기',
+  강원도: '강원',
+  충청북도: '충북',
+  충청남도: '충남',
+  전라북도: '전북',
+  전라남도: '전남',
+  경상북도: '경북',
+  경상남도: '경남',
+  제주특별자치도: '제주'
+}
+
+export function CollegeSection() {
+  const {
+    isLoading,
+    defaultProfileValues,
+    collegeState: { collegeValue, setCollegeValue },
+    majorState: { setMajorValue }
+  } = useSettingsContext()
+
+  const getInitialDisplay = () => {
+    if (collegeValue && collegeValue !== 'none') {
+      return collegeValue
+    }
+    if (
+      defaultProfileValues.college &&
+      defaultProfileValues.college !== 'none'
+    ) {
+      return defaultProfileValues.college
+    }
+    return ''
+  }
+  const initialDisplay = getInitialDisplay()
+
+  const [query, setQuery] = useState(initialDisplay)
+  const [open, setOpen] = useState(false)
+
+  const filteredUniversities: University[] =
+    query.length > 0 ? searchUniversities(query) : []
+
+  const getDisplayName = (uni: University): string => {
+    const hasDuplicate =
+      filteredUniversities.filter((u: University) => u.nameKr === uni.nameKr)
+        .length > 1
+    if (!hasDuplicate) {
+      return uni.nameKr
+    }
+    const override = CAMPUS_OVERRIDES[uni.nameKr]?.[uni.campus ?? '']
+    if (override) {
+      return `${uni.nameKr} ${override}`
+    }
+    const sameRegion =
+      filteredUniversities.filter(
+        (u: University) => u.nameKr === uni.nameKr && u.region === uni.region
+      ).length > 1
+    if (sameRegion) {
+      return `${uni.nameKr} ${uni.campus}`
+    }
+    const short = REGION_SHORT[uni.region] ?? uni.region
+    return `${uni.nameKr} ${short}캠퍼스`
+  }
+
+  return (
+    <div
+      className="relative flex flex-col gap-1"
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setOpen(false)
+        }
+      }}
+      tabIndex={-1}
+    >
+      <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
+        대학교
+      </label>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder={isLoading ? 'Loading...' : '대학교 검색'}
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setOpen(true)
+            if (collegeValue) {
+              setCollegeValue('')
+            }
+          }}
+          onFocus={() => setOpen(true)}
+          className="focus:border-primary h-[46px] w-full rounded-xl border border-[#d8d8d8] bg-white px-5 py-[11px] pr-11 text-base font-medium tracking-[-0.48px] text-[#474747] outline-none placeholder:text-[#c4c4c4]"
+        />
+        <IoSearchOutline
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#474747]"
+          size={18}
+        />
+      </div>
+      {open && query.length > 0 && (
+        <ul className="absolute top-[74px] z-10 max-h-[200px] w-full overflow-y-auto rounded-xl border border-[#d8d8d8] bg-white shadow-md">
+          {filteredUniversities.length > 0 ? (
+            filteredUniversities.map((uni: University) => {
+              const displayName = getDisplayName(uni)
+              return (
+                <li
+                  key={uni.id}
+                  tabIndex={0}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setCollegeValue(displayName)
+                    setMajorValue('')
+                    setQuery(displayName)
+                    setOpen(false)
+                  }}
+                  className={cn(
+                    'cursor-pointer px-5 py-[13px] text-base font-medium tracking-[-0.48px] hover:bg-gray-50',
+                    collegeValue === displayName && 'bg-gray-50'
+                  )}
+                >
+                  {displayName}
+                </li>
+              )
+            })
+          ) : (
+            <li className="px-5 py-[13px] text-base text-[#9b9b9b]">
+              검색 결과가 없습니다
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  )
+}
