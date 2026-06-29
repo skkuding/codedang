@@ -89,7 +89,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 href={item.href}
                 className="flex items-center gap-[10px] rounded-full px-4 py-3 hover:bg-gray-100"
               >
-                <span className="flex h-[18px] w-[18px] items-center justify-center text-neutral-300">
+                <span className="flex h-[18px] w-[18px] items-center justify-center text-neutral-400">
                   <item.icon width={18} height={18} />
                 </span>
                 <span className="text-neutral-700">{item.label}</span>
