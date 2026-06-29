@@ -1,5 +1,4 @@
 import { Button } from '@/components/shadcn/button'
-import Link from 'next/link'
 
 export function MiddleBanner() {
   return (
@@ -18,17 +17,15 @@ export function MiddleBanner() {
           disabled
           className="bg-color-common-100 hover:bg-color-neutral-99 flex h-10 w-fit rounded-full px-4 py-1 md:hidden"
         >
-          <Link href="/problem/create">
-            <span className="text-sub4_sb_14 text-color-neutral-40">
-              문제 생성 바로가기
-            </span>
-          </Link>
+          <span className="text-sub4_sb_14 text-color-neutral-40">
+            문제 생성 바로가기
+          </span>
         </Button>
         <Button
           disabled
-          className="bg-color-common-100 hover:bg-color-neutral-99 hidden h-12 w-fit rounded-full px-6 py-3 md:flex"
+          className="bg-color-common-100 hover:bg-color-neutral-99 flex h-10 w-fit rounded-full px-4 py-1 md:hidden"
         >
-          <span className="text-sub3_sb_16 text-color-neutral-40">
+          <span className="text-sub4_sb_14 text-color-neutral-40">
             문제 생성 바로가기
           </span>
         </Button>
