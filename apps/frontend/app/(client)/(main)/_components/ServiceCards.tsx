@@ -64,8 +64,8 @@ export function ServiceCards() {
   return (
     <section className="font-pretendard flex w-full flex-col items-center px-5 md:px-0">
       <div className="flex w-full max-w-[1440px] flex-col gap-7 md:gap-6">
-        <div className="flex w-full flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <p className="text-title2_m_20 md:text-head1_b_40">
+        <div className="flex w-full flex-col gap-4 pb-5 pt-7 md:flex-row md:items-end md:justify-between">
+          <p className="text-head1_b_40 md:text-head1_b_40">
             코드당에는 어떤 기능이 있나요?
           </p>
 
