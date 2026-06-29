@@ -12,7 +12,6 @@ export function MiddleBanner() {
             '학습 목적에 맞게 문제를 설계하고 협업자를 초대하여 피드백을 받아\n효과적인 코딩 문제를 구성해보세요.'
           }
         </p>
-        {/* TODO: problem/create 페이지 작업 완료 시 아래 버튼으로 복구 */}
         <Button
           disabled
           className="bg-color-common-100 hover:bg-color-neutral-99 flex h-10 w-fit rounded-full px-4 py-1 md:hidden"
