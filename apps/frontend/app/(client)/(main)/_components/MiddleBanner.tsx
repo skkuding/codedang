@@ -22,7 +22,7 @@ export function MiddleBanner() {
         </Button>
         <Button
           disabled
-          className="bg-color-common-100 hover:bg-color-neutral-99 hidden h-10 w-fit rounded-full px-6 py-3 md:flex"
+          className="bg-color-common-100 hover:bg-color-neutral-99 flex h-10 w-fit rounded-full px-4 py-1 md:hidden"
         >
           <span className="text-sub4_sb_14 text-color-neutral-40">
             문제 생성 바로가기
