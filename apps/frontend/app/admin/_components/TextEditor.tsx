@@ -55,6 +55,8 @@ interface TextEditorProps {
   isDarkMode?: boolean
   isExpanded?: boolean
   onShrink?: (richText: string) => void
+  showToolbar?: boolean
+  showInsertNodeBar?: boolean
 }
 
 export function TextEditor({
@@ -63,7 +65,9 @@ export function TextEditor({
   defaultValue,
   isDarkMode = false,
   isExpanded = false,
-  onShrink
+  onShrink,
+  showToolbar = true,
+  showInsertNodeBar = true
 }: TextEditorProps) {
   const lowlight = createLowlight(common)
 
@@ -218,7 +222,7 @@ export function TextEditor({
         isDarkMode ? 'border-editor-line-1 border bg-transparent' : 'border'
       )}
     >
-      {editor && (
+      {showToolbar && editor && (
         <div
           className={cn(
             'flex flex-wrap items-center border-b px-1 py-2',
@@ -230,7 +234,9 @@ export function TextEditor({
           <TextStyleBar editor={editor} />
           <HeadingStyleBar editor={editor} />
           <ListStyleBar editor={editor} />
-          <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          {showInsertNodeBar && (
+            <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          )}
 
           <div className="ml-auto flex items-center">
             <UndoRedoBar editor={editor} />
