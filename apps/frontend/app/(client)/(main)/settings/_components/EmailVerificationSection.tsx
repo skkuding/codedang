@@ -24,9 +24,16 @@ export function EmailVerificationSection() {
     email.endsWith(`@${domain}`)
   )
 
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
   const handleSendVerification = async () => {
     if (!newEmail) {
       toast.error('새 이메일을 입력해주세요.')
+      return
+    }
+    if (!isValidEmail(newEmail)) {
+      toast.error('올바른 이메일 형식으로 입력해주세요.')
       return
     }
     setIsSending(true)
@@ -89,7 +96,6 @@ export function EmailVerificationSection() {
 
   return (
     <div className="flex gap-6">
-      {/* Current email + new email input */}
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
@@ -129,7 +135,6 @@ export function EmailVerificationSection() {
         </div>
       </div>
 
-      {/* PIN input + confirm button */}
       <div className="flex min-w-0 flex-1 items-end gap-1.5">
         <input
           type="text"

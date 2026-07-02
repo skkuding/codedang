@@ -247,14 +247,12 @@ export default function Page() {
           onSubmit={handleSubmit(onSubmit)}
           className="flex w-full max-w-[1440px] flex-col gap-10 px-[226px] py-7"
         >
-          {/* 프로필 정보 */}
           <section className="flex flex-col gap-6">
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
               프로필 정보
             </h2>
             <ProfilePhotoSection />
             <div className="flex flex-col gap-6">
-              {/* 이름 + 아이디 */}
               <div className="flex gap-6">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <label className={labelBase}>이름</label>
@@ -284,7 +282,6 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* 닉네임 + 직업 */}
               <div className="flex gap-6">
                 <NicknameSection register={register} errors={errors} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -304,7 +301,6 @@ export default function Page() {
 
               {isSKKU ? (
                 <>
-                  {/* 성대생: 학교/학과/학번 회색 고정 */}
                   <div className="w-1/2 pr-3">
                     <div className="flex flex-col gap-1">
                       <label className={labelBase}>대학교</label>
@@ -350,7 +346,6 @@ export default function Page() {
                   </div>
                 </>
               ) : (
-                /* 비성대생: 학교만 편집 가능 */
                 <div className="w-1/2 pr-3">
                   <CollegeSection />
                 </div>
@@ -358,7 +353,6 @@ export default function Page() {
             </div>
           </section>
 
-          {/* 이메일 인증 */}
           <section className="flex flex-col gap-5">
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
               이메일 인증
@@ -366,7 +360,6 @@ export default function Page() {
             <EmailVerificationSection />
           </section>
 
-          {/* 이메일 알림 */}
           <section className="flex flex-col gap-5">
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
               이메일 알림
@@ -374,13 +367,11 @@ export default function Page() {
             <EmailNotificationSection />
           </section>
 
-          {/* 비밀번호 변경 */}
           <section className="flex flex-col gap-5">
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
               비밀번호 변경
             </h2>
             <div className="flex flex-col gap-6">
-              {/* 현재 비밀번호 */}
               <div className="flex flex-col gap-1">
                 <label className={labelBase}>현재 비밀번호</label>
                 <div className="flex items-center gap-1.5">
@@ -435,7 +426,6 @@ export default function Page() {
                 )}
               </div>
 
-              {/* 새 비밀번호 */}
               <div className="flex flex-col gap-1">
                 <label className={labelBase}>새 비밀번호</label>
                 <div className="relative">
@@ -475,7 +465,6 @@ export default function Page() {
                 )}
               </div>
 
-              {/* 새 비밀번호 확인 */}
               <div className="flex flex-col gap-1">
                 <label className={labelBase}>새 비밀번호 확인</label>
                 <div className="relative">
@@ -521,7 +510,6 @@ export default function Page() {
             </div>
           </section>
 
-          {/* 계정 연동 */}
           <section className="flex flex-col gap-5">
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
               계정 연동
@@ -529,7 +517,6 @@ export default function Page() {
             <AccountLinkingSection />
           </section>
 
-          {/* 버튼 */}
           <div className="flex flex-col gap-3">
             <button
               type="submit"
