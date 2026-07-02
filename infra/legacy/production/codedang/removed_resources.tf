@@ -141,3 +141,51 @@ removed {
     destroy = false
   }
 }
+
+removed {
+  from = module.admin_api_loadbalancer.aws_security_group.this
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.client_api_loadbalancer.aws_security_group.this
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.codedang_api.aws_security_group.this
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.codedang_api.aws_subnet.this
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.codedang_iris.aws_security_group.this
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.codedang_iris.aws_subnet.this
+
+  lifecycle {
+    destroy = false
+  }
+}
