@@ -27,11 +27,20 @@ provider "aws" {
 # TODO: dependency problem might be happened.
 # 초기 terraform init 시 aws_mq_broker가 존재하지 않아 provider 설정이 되지 않는 오류가 있습니다.
 # solution. rabbitmq 프로젝트를 따로 분리해야 합니다요. endpoint는 variable로 전달.
+# TAS-2763: Legacy Amazon MQ-backed RabbitMQ resources are no longer used.
+provider "rabbitmq" {
+  endpoint = var.rabbitmq_api_url
+  username = var.rabbitmq_username
+  password = var.rabbitmq_password
+}
+
+/*
 provider "rabbitmq" {
   endpoint = aws_mq_broker.judge_queue.instances.0.console_url
   username = var.rabbitmq_username
   password = random_password.rabbitmq_password.result
 }
+*/
 
 data "terraform_remote_state" "storage" {
   backend = "s3"
