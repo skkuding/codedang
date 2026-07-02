@@ -85,3 +85,59 @@ removed {
     destroy = false
   }
 }
+
+removed {
+  from = rabbitmq_binding.result_binding
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = rabbitmq_binding.submission_binding
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = rabbitmq_exchange.exchange
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = rabbitmq_permissions.vh_perm
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = rabbitmq_queue.result_queue
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = rabbitmq_queue.submission_queue
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = rabbitmq_vhost.vh
+
+  lifecycle {
+    destroy = false
+  }
+}
