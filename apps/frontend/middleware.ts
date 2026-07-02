@@ -16,8 +16,9 @@ export const middleware = async (req: NextRequest) => {
   const { pathname } = req.nextUrl
 
   const isCourseDetailPath = /^\/course\/.+/.test(pathname)
+  const isSettingsPath = pathname === '/settings'
 
-  if (isCourseDetailPath && !token) {
+  if ((isCourseDetailPath || isSettingsPath) && !token) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('redirectUrl', pathname)
     return NextResponse.redirect(loginUrl)
