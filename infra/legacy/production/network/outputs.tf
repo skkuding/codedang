@@ -4,10 +4,6 @@ output "mq_subnet_id" {
 }
 */
 
-output "mq_subnet_id" {
-  value = null
-}
-
 output "db_subnet_ids" {
   value = [
     aws_subnet.public_db1.id,
