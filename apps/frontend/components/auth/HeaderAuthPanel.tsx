@@ -36,6 +36,8 @@ interface HeaderAuthUser {
   role: string
   studentId: string
   major: string
+  jobType: string
+  college: string
   canCreateCourse: boolean
   canCreateContest: boolean
 }
@@ -68,8 +70,12 @@ export function HeaderAuthPanel({
           .get('user')
           .json()
 
+        const isSKKUStudent =
+          user.jobType === 'CollegeStudent' &&
+          user.college?.includes('성균관대학교')
         const isUserInfoIncomplete =
           user.role === 'User' &&
+          isSKKUStudent &&
           (user.studentId === '0000000000' || user.major === 'none')
 
         setIsUserInfoIncomplete(isUserInfoIncomplete)
