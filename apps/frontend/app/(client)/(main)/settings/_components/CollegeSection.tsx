@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-// @ts-expect-error: no type declarations for this package
 import { searchUniversities } from 'korea-universities'
 import { useState } from 'react'
 import { IoSearchOutline } from 'react-icons/io5'
