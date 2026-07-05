@@ -176,4 +176,28 @@ export class AuthController {
     this.setJwtResponse(res, result.jwtTokens)
     return res.redirect(`${frontendUrl}/`)
   }
+
+  /** 소셜 계정 연동을 위해 Kakao Login page로 이동 */
+  @AuthNotNeededIfPublic()
+  @Get('kakao/link')
+  @UseGuards(AuthGuard('kakao-link'))
+  async moveToKakaoLink() {
+    /* 자동으로 kakao login page로 redirection */
+  }
+
+  /** 소셜 계정 연동을 위한 Kakao callback */
+  @AuthNotNeededIfPublic()
+  @Get('kakao-link-callback')
+  @UseGuards(AuthGuard('kakao-link'))
+  async kakaoLinkCallback(@Res() res: Response, @Req() req: Request) {
+    const kakaoUser = req.user as KakaoUser
+    const frontendUrl = this.configService.getOrThrow('FRONTEND_URL')
+
+    try {
+      const { oauthToken } = await this.authService.kakaoLink(kakaoUser)
+      return res.redirect(`${frontendUrl}/settings?oauthToken=${oauthToken}`)
+    } catch {
+      return res.redirect(`${frontendUrl}/settings?error=already-linked`)
+    }
+  }
 }
