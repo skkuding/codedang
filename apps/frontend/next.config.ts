@@ -21,6 +21,9 @@ const BUCKET_NAME = process.env.MEDIA_BUCKET_NAME
 
 const nextConfig = {
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',
@@ -33,6 +36,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.cdninstagram.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com'
       }
     ]
   },
