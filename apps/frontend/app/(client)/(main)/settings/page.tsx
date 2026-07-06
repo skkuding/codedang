@@ -159,7 +159,8 @@ export default function Page() {
       isPasswordCorrect &&
       newPasswordAble &&
       isPasswordsMatch) ||
-    Boolean(realName) ||
+    (Boolean(realName) &&
+      realName !== (defaultProfileValues.userProfile?.realName ?? '')) ||
     majorValue !== defaultProfileValues.major ||
     collegeValue !== defaultProfileValues.college ||
     Boolean(nickname && nickname !== defaultProfileValues.nickname)

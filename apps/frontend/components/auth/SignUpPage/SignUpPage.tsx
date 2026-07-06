@@ -168,7 +168,12 @@ export function SignUpPage() {
   }, [watchUserId])
 
   useEffect(() => {
-    const fullEmail = isSKKU ? `${emailLocal}@skku.edu` : emailLocal
+    let fullEmail = emailLocal
+    if (!emailLocal) {
+      fullEmail = ''
+    } else if (isSKKU) {
+      fullEmail = `${emailLocal}@skku.edu`
+    }
     setValue('email', fullEmail, { shouldValidate: emailLocal.length > 0 })
   }, [emailLocal, isSKKU, setValue])
 
@@ -407,6 +412,10 @@ export function SignUpPage() {
     }
     if (isSKKU && !data.major) {
       setError('major', { message: '소속 학과를 선택해주세요' })
+      return
+    }
+    if (isSKKU && !data.studentId) {
+      setError('studentId', { message: '학번을 입력해주세요' })
       return
     }
     try {
@@ -648,7 +657,10 @@ export function SignUpPage() {
                           if (option !== '대학생') {
                             setValue('university', '')
                             setValue('major', '')
+                            setValue('studentId', '')
                             setUniversityQuery('')
+                            setMajorQuery('')
+                            clearErrors(['university', 'major', 'studentId'])
                           }
                           setJobOpen(false)
                         }}

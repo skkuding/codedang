@@ -2,7 +2,7 @@
 
 import { cn } from '@/libs/utils'
 import { searchUniversities } from 'korea-universities'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IoSearchOutline } from 'react-icons/io5'
 import { useSettingsContext } from './context'
 
@@ -62,6 +62,18 @@ export function CollegeSection() {
 
   const [query, setQuery] = useState(initialDisplay)
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !query &&
+      defaultProfileValues.college &&
+      defaultProfileValues.college !== 'none'
+    ) {
+      setQuery(defaultProfileValues.college)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading])
 
   const filteredUniversities: University[] =
     query.length > 0 ? searchUniversities(query) : []

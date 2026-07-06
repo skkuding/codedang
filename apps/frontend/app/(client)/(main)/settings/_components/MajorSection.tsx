@@ -2,7 +2,7 @@
 
 import { allMajors } from '@/libs/constants'
 import { cn } from '@/libs/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IoSearchOutline } from 'react-icons/io5'
 import { useSettingsContext } from './context'
 
@@ -39,6 +39,18 @@ export function MajorSection() {
 
   const [query, setQuery] = useState(initialDisplay)
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      !query &&
+      defaultProfileValues.major &&
+      defaultProfileValues.major !== 'none'
+    ) {
+      setQuery(getKoreanMajorName(defaultProfileValues.major))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading])
 
   const filteredMajors =
     query.length > 0
