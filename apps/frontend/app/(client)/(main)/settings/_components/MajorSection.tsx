@@ -76,7 +76,6 @@ export function MajorSection() {
       <label className="text-caption2_m_12 text-color-neutral-15">학과</label>
       <div className="relative">
         <input
-          type="text"
           placeholder={isLoading ? 'Loading...' : '학과 검색'}
           value={query}
           onChange={(e) => {

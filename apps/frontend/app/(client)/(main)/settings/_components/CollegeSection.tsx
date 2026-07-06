@@ -113,7 +113,6 @@ export function CollegeSection() {
       <label className="text-caption2_m_12 text-color-neutral-15">대학교</label>
       <div className="relative">
         <input
-          type="text"
           placeholder={isLoading ? 'Loading...' : '대학교 검색'}
           value={query}
           onChange={(e) => {

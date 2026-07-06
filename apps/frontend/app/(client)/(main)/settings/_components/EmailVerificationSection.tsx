@@ -137,7 +137,6 @@ export function EmailVerificationSection() {
 
       <div className="flex min-w-0 flex-1 items-end gap-1.5">
         <input
-          type="text"
           value={verificationCode}
           onChange={(e) => setVerificationCode(e.target.value)}
           placeholder="메일로 도착한 인증 번호를 입력해주세요"

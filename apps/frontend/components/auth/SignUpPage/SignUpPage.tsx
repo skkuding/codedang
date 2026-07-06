@@ -481,7 +481,6 @@ export function SignUpPage() {
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">이름</label>
               <input
-                type="text"
                 placeholder="이름"
                 className={cn(
                   'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
@@ -502,7 +501,6 @@ export function SignUpPage() {
               <label className="text-caption2_m_12">아이디</label>
               <div className="flex gap-[6px]">
                 <input
-                  type="text"
                   placeholder="아이디"
                   className={cn(
                     'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
@@ -600,7 +598,6 @@ export function SignUpPage() {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <input
-                    type="text"
                     placeholder="희망찬 올빼미"
                     className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-[52px] outline-none"
                     {...register('nickname')}
@@ -680,7 +677,6 @@ export function SignUpPage() {
                   <div ref={universityRef} className="relative">
                     <div className="relative">
                       <input
-                        type="text"
                         placeholder="대학교 검색"
                         value={universityQuery}
                         onChange={(e) => {
@@ -743,7 +739,6 @@ export function SignUpPage() {
                     <div ref={majorRef} className="relative">
                       <div className="relative">
                         <input
-                          type="text"
                           placeholder="학과 검색"
                           value={majorQuery}
                           onChange={(e) => {
@@ -803,7 +798,6 @@ export function SignUpPage() {
                   <div className="flex w-full flex-col gap-1">
                     <label className="text-caption2_m_12">학번</label>
                     <input
-                      type="text"
                       inputMode="numeric"
                       placeholder="학번 10자리를 입력해주세요"
                       className={cn(
@@ -835,7 +829,6 @@ export function SignUpPage() {
                     )}
                   >
                     <input
-                      type="text"
                       placeholder="codedang"
                       value={emailLocal}
                       onChange={(e) => setEmailLocal(e.target.value)}
@@ -848,7 +841,6 @@ export function SignUpPage() {
                   </div>
                 ) : (
                   <input
-                    type="text"
                     placeholder="이메일을 입력해주세요"
                     value={emailLocal}
                     onChange={(e) => setEmailLocal(e.target.value)}
@@ -885,7 +877,6 @@ export function SignUpPage() {
                 <div className="mt-1 flex gap-[6px]">
                   <div className="relative flex-1">
                     <input
-                      type="text"
                       inputMode="numeric"
                       maxLength={6}
                       placeholder="메일로 도착한 인증 번호를 입력해주세요"
