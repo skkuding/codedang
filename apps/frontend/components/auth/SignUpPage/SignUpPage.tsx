@@ -1,5 +1,12 @@
 'use client'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/shadcn/select'
 import { allMajors } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import resetGray from '@/public/icons/reset-gray.svg'
@@ -10,15 +17,57 @@ import randomNameGenerator from 'korean-random-names-generator'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaChevronDown, FaChevronUp, FaEye, FaEyeSlash } from 'react-icons/fa6'
+import { FaEye, FaEyeSlash } from 'react-icons/fa6'
 import { IoSearchOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
 
 const JOB_OPTIONS = ['고등학생', '대학생', '직장인', '기타'] as const
+
+const JOB_TYPE_MAP: Record<string, string> = {
+  대학생: 'CollegeStudent',
+  고등학생: 'HighSchoolStudent',
+  직장인: 'Employee',
+  기타: 'Other'
+}
+
+const CAMPUS_OVERRIDES: Record<string, Record<string, string>> = {
+  성균관대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '수원캠퍼스' },
+  연세대학교: { 제1캠퍼스: '신촌캠퍼스', 제2캠퍼스: '국제캠퍼스' },
+  경희대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '국제캠퍼스' },
+  중앙대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '안성캠퍼스' },
+  한국외국어대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '글로벌캠퍼스' },
+  단국대학교: { 제1캠퍼스: '죽전캠퍼스', 제2캠퍼스: '천안캠퍼스' },
+  부산대학교: {
+    제1캠퍼스: '부산캠퍼스',
+    제2캠퍼스: '밀양캠퍼스',
+    제3캠퍼스: '양산캠퍼스'
+  },
+  강원대학교: { 제1캠퍼스: '춘천캠퍼스', 제2캠퍼스: '삼척캠퍼스' }
+}
+
+const REGION_SHORT: Record<string, string> = {
+  서울특별시: '서울',
+  경기도: '경기',
+  인천광역시: '인천',
+  부산광역시: '부산',
+  대구광역시: '대구',
+  광주광역시: '광주',
+  대전광역시: '대전',
+  울산광역시: '울산',
+  세종특별자치시: '세종',
+  강원특별자치도: '강원',
+  충청북도: '충북',
+  충청남도: '충남',
+  전라남도: '전남',
+  전북특별자치도: '전북',
+  경상북도: '경북',
+  경상남도: '경남',
+  제주특별자치도: '제주'
+}
 
 const PIN_EXPIRE_SECONDS = 300
 
@@ -123,11 +172,13 @@ export function SignUpPage() {
   const [codeExpired, setCodeExpired] = useState(false)
   const [remaining, setRemaining] = useState(PIN_EXPIRE_SECONDS)
   const [endTime, setEndTime] = useState(0)
-  const [jobOpen, setJobOpen] = useState(false)
   const [universityQuery, setUniversityQuery] = useState('')
   const [universityOpen, setUniversityOpen] = useState(false)
   const [majorQuery, setMajorQuery] = useState('')
   const [majorOpen, setMajorOpen] = useState(false)
+
+  const universityRef = useRef<HTMLDivElement>(null)
+  const majorRef = useRef<HTMLDivElement>(null)
 
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
@@ -196,6 +247,19 @@ export function SignUpPage() {
     setMajorQuery('')
     setValue('studentId', '')
   }, [isSKKU, setValue])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!universityRef.current?.contains(e.target as Node)) {
+        setUniversityOpen(false)
+      }
+      if (!majorRef.current?.contains(e.target as Node)) {
+        setMajorOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const formatTimer = () => {
     const min = Math.floor(remaining / 60)
@@ -310,41 +374,6 @@ export function SignUpPage() {
       .at(-1)
       ?.trim() ?? major
 
-  const CAMPUS_OVERRIDES: Record<string, Record<string, string>> = {
-    성균관대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '수원캠퍼스' },
-    연세대학교: { 제1캠퍼스: '신촌캠퍼스', 제2캠퍼스: '국제캠퍼스' },
-    경희대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '국제캠퍼스' },
-    중앙대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '안성캠퍼스' },
-    한국외국어대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '글로벌캠퍼스' },
-    단국대학교: { 제1캠퍼스: '죽전캠퍼스', 제2캠퍼스: '천안캠퍼스' },
-    부산대학교: {
-      제1캠퍼스: '부산캠퍼스',
-      제2캠퍼스: '밀양캠퍼스',
-      제3캠퍼스: '양산캠퍼스'
-    },
-    강원대학교: { 제1캠퍼스: '춘천캠퍼스', 제2캠퍼스: '삼척캠퍼스' }
-  }
-
-  const REGION_SHORT: Record<string, string> = {
-    서울특별시: '서울',
-    경기도: '경기',
-    인천광역시: '인천',
-    부산광역시: '부산',
-    대구광역시: '대구',
-    광주광역시: '광주',
-    대전광역시: '대전',
-    울산광역시: '울산',
-    세종특별자치시: '세종',
-    강원특별자치도: '강원',
-    충청북도: '충북',
-    충청남도: '충남',
-    전라남도: '전남',
-    전북특별자치도: '전북',
-    경상북도: '경북',
-    경상남도: '경남',
-    제주특별자치도: '제주'
-  }
-
   const getUniversityDisplayName = (
     uni: (typeof filteredUniversities)[number]
   ) => {
@@ -393,13 +422,6 @@ export function SignUpPage() {
       return 'border-primary focus:border-primary'
     }
     return 'focus:border-primary border-line'
-  }
-
-  const JOB_TYPE_MAP: Record<string, string> = {
-    대학생: 'CollegeStudent',
-    고등학생: 'HighSchoolStudent',
-    직장인: 'Employee',
-    기타: 'Other'
   }
 
   const onSubmit = async (data: SignUpFormValues) => {
@@ -607,74 +629,43 @@ export function SignUpPage() {
 
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">직업</label>
-              <div
-                className="relative"
-                onBlur={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                    setJobOpen(false)
+              <Select
+                value={watchJob}
+                onValueChange={(value) => {
+                  setValue('job', value, { shouldValidate: true })
+                  if (value !== '대학생') {
+                    setValue('university', '')
+                    setValue('major', '')
+                    setValue('studentId', '')
+                    setUniversityQuery('')
+                    setMajorQuery('')
+                    clearErrors(['university', 'major', 'studentId'])
                   }
                 }}
-                tabIndex={-1}
               >
-                <button
-                  type="button"
-                  onClick={() => setJobOpen((prev) => !prev)}
+                <SelectTrigger
                   className={cn(
-                    'placeholder:text-body1_m_16 flex h-[46px] w-full items-center justify-between rounded-[12px] border bg-white py-[11px] pl-5 pr-4 outline-none',
+                    'h-[46px] rounded-[12px] border bg-white px-5',
                     errors.job
                       ? 'border-error'
-                      : 'focus:border-primary border-line'
+                      : 'border-line focus:border-primary'
                   )}
                 >
-                  <span
-                    className={
-                      watchJob ? 'text-black' : 'text-color-neutral-90'
-                    }
-                  >
-                    {watchJob || '직업'}
-                  </span>
-                  {jobOpen ? (
-                    <FaChevronUp
-                      className="text-color-cool-neutral-60"
-                      size={14}
-                    />
-                  ) : (
-                    <FaChevronDown
-                      className="text-color-cool-neutral-60"
-                      size={14}
-                    />
-                  )}
-                </button>
-                {jobOpen && (
-                  <ul className="border-line absolute z-10 mt-1 w-full overflow-hidden rounded-[12px] border bg-white shadow-md">
-                    {JOB_OPTIONS.map((option) => (
-                      <li
-                        key={option}
-                        tabIndex={0}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                          setValue('job', option, { shouldValidate: true })
-                          if (option !== '대학생') {
-                            setValue('university', '')
-                            setValue('major', '')
-                            setValue('studentId', '')
-                            setUniversityQuery('')
-                            setMajorQuery('')
-                            clearErrors(['university', 'major', 'studentId'])
-                          }
-                          setJobOpen(false)
-                        }}
-                        className={cn(
-                          'text-body1_m_16 hover:bg-color-neutral-99 cursor-pointer px-5 py-[13px]',
-                          watchJob === option && 'bg-fill'
-                        )}
-                      >
-                        {option}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+                  <SelectValue placeholder="직업" />
+                </SelectTrigger>
+                <SelectContent>
+                  {JOB_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option}
+                      value={option}
+                      showSelectIcon={false}
+                      className="cursor-pointer px-5 py-[13px]"
+                    >
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.job?.message && (
                 <p className="text-caption3_r_13 text-color-red-50">
                   {errors.job.message}
@@ -686,15 +677,7 @@ export function SignUpPage() {
               <div className="flex w-full flex-col gap-3">
                 <div className="flex w-full flex-col gap-1">
                   <label className="text-caption2_m_12">대학교</label>
-                  <div
-                    className="relative"
-                    onBlur={(e) => {
-                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                        setUniversityOpen(false)
-                      }
-                    }}
-                    tabIndex={-1}
-                  >
+                  <div ref={universityRef} className="relative">
                     <div className="relative">
                       <input
                         type="text"
@@ -723,8 +706,6 @@ export function SignUpPage() {
                             return (
                               <li
                                 key={uni.id}
-                                tabIndex={0}
-                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => {
                                   setValue('university', displayName, {
                                     shouldValidate: true
@@ -759,17 +740,7 @@ export function SignUpPage() {
                 {isSKKU && (
                   <div className="flex w-full flex-col gap-1">
                     <label className="text-caption2_m_12">학과</label>
-                    <div
-                      className="relative"
-                      onBlur={(e) => {
-                        if (
-                          !e.currentTarget.contains(e.relatedTarget as Node)
-                        ) {
-                          setMajorOpen(false)
-                        }
-                      }}
-                      tabIndex={-1}
-                    >
+                    <div ref={majorRef} className="relative">
                       <div className="relative">
                         <input
                           type="text"
@@ -796,8 +767,6 @@ export function SignUpPage() {
                               return (
                                 <li
                                   key={major}
-                                  tabIndex={0}
-                                  onMouseDown={(e) => e.preventDefault()}
                                   onClick={() => {
                                     setValue('major', displayName, {
                                       shouldValidate: true
