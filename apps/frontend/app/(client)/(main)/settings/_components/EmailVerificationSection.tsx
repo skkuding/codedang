@@ -79,14 +79,14 @@ export function EmailVerificationSection() {
   if (isSkkuStudent) {
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
+        <label className="text-caption2_m_12 text-color-neutral-15">
           이메일
         </label>
-        <div className="flex h-[46px] items-center justify-between rounded-xl border border-[#d8d8d8] bg-[#e5e5e5] px-5 py-[11px]">
-          <span className="text-base font-medium tracking-[-0.48px] text-[#9b9b9b]">
+        <div className="border-line bg-fill-neutral flex h-[46px] items-center justify-between rounded-xl border px-5 py-[11px]">
+          <span className="text-body1_m_16 text-color-neutral-70">
             {isLoading ? 'Loading...' : emailUser}
           </span>
-          <span className="text-base font-medium tracking-[-0.48px] text-[#9b9b9b]">
+          <span className="text-body1_m_16 text-color-neutral-70">
             {isLoading ? '' : emailDomain}
           </span>
         </div>
@@ -98,14 +98,14 @@ export function EmailVerificationSection() {
     <div className="flex gap-6">
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
+          <label className="text-caption2_m_12 text-color-neutral-15">
             현재 이메일
           </label>
-          <div className="flex h-[46px] items-center justify-between rounded-xl border border-[#d8d8d8] bg-[#e5e5e5] px-5 py-[11px]">
-            <span className="text-base font-medium tracking-[-0.48px] text-[#9b9b9b]">
+          <div className="border-line bg-fill-neutral flex h-[46px] items-center justify-between rounded-xl border px-5 py-[11px]">
+            <span className="text-body1_m_16 text-color-neutral-70">
               {isLoading ? 'Loading...' : emailUser}
             </span>
-            <span className="text-base font-medium tracking-[-0.48px] text-[#9b9b9b]">
+            <span className="text-body1_m_16 text-color-neutral-70">
               {isLoading ? '' : emailDomain}
             </span>
           </div>
@@ -113,7 +113,7 @@ export function EmailVerificationSection() {
 
         <div className="flex items-end gap-1.5">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
+            <label className="text-caption2_m_12 text-color-neutral-15">
               새 이메일
             </label>
             <input
@@ -121,14 +121,14 @@ export function EmailVerificationSection() {
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="변경할 이메일을 입력해주세요"
-              className="focus:border-primary h-[46px] w-full rounded-xl border border-[#d8d8d8] bg-white px-5 py-[11px] text-base font-medium tracking-[-0.48px] text-[#474747] outline-none placeholder:text-[#c4c4c4]"
+              className="focus:border-primary border-line text-body1_m_16 text-color-neutral-30 placeholder:text-color-neutral-90 h-[46px] w-full rounded-xl border bg-white px-5 py-[11px] outline-none"
             />
           </div>
           <button
             type="button"
             onClick={handleSendVerification}
             disabled={isSending || isLoading || !newEmail}
-            className="text-primary h-[46px] shrink-0 rounded-xl border border-[#619cfb] bg-white px-5 py-[13px] text-base font-semibold tracking-[-0.64px] disabled:opacity-50"
+            className="text-primary border-primary-light text-sub3_sb_16 h-[46px] shrink-0 rounded-xl border bg-white px-5 py-[13px] disabled:opacity-50"
           >
             인증하기
           </button>
@@ -142,13 +142,13 @@ export function EmailVerificationSection() {
           onChange={(e) => setVerificationCode(e.target.value)}
           placeholder="메일로 도착한 인증 번호를 입력해주세요"
           disabled={!pinSent}
-          className="focus:border-primary h-[46px] min-w-0 flex-1 rounded-xl border border-[#d8d8d8] bg-white px-5 py-[11px] text-base font-medium tracking-[-0.48px] text-[#474747] outline-none placeholder:text-[#c4c4c4] disabled:bg-[#e5e5e5] disabled:text-[#9b9b9b]"
+          className="focus:border-primary border-line text-body1_m_16 text-color-neutral-30 placeholder:text-color-neutral-90 disabled:bg-fill-neutral disabled:text-color-neutral-70 h-[46px] min-w-0 flex-1 rounded-xl border bg-white px-5 py-[11px] outline-none"
         />
         <button
           type="button"
           onClick={handleVerify}
           disabled={isVerifying || !pinSent || !verificationCode}
-          className="bg-primary h-[46px] shrink-0 rounded-xl px-5 py-[13px] text-base font-semibold tracking-[-0.64px] text-white disabled:opacity-50"
+          className="bg-primary text-sub3_sb_16 h-[46px] shrink-0 rounded-xl px-5 py-[13px] text-white disabled:opacity-50"
         >
           인증확인
         </button>

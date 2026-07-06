@@ -15,9 +15,7 @@ export function NicknameSection({ register, errors }: NicknameSectionProps) {
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
-        닉네임
-      </label>
+      <label className="text-caption2_m_12 text-color-neutral-15">닉네임</label>
       <input
         placeholder={
           isLoading
@@ -26,12 +24,14 @@ export function NicknameSection({ register, errors }: NicknameSectionProps) {
         }
         {...register('nickname')}
         className={cn(
-          'focus:border-primary h-[46px] w-full rounded-xl border border-[#d8d8d8] bg-white px-5 py-[11px] text-base font-medium tracking-[-0.48px] text-[#474747] outline-none placeholder:text-[#c4c4c4]',
-          errors.nickname && 'border-red-500'
+          'focus:border-primary border-line text-body1_m_16 text-color-neutral-30 placeholder:text-color-neutral-90 h-[46px] w-full rounded-xl border bg-white px-5 py-[11px] outline-none',
+          errors.nickname && 'border-error'
         )}
       />
       {errors.nickname && (
-        <p className="text-xs text-red-500">{errors.nickname.message}</p>
+        <p className="text-caption4_r_12 text-error">
+          {errors.nickname.message}
+        </p>
       )}
     </div>
   )

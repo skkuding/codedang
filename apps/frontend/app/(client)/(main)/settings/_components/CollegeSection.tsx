@@ -98,9 +98,7 @@ export function CollegeSection() {
       }}
       tabIndex={-1}
     >
-      <label className="text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]">
-        대학교
-      </label>
+      <label className="text-caption2_m_12 text-color-neutral-15">대학교</label>
       <div className="relative">
         <input
           type="text"
@@ -114,15 +112,15 @@ export function CollegeSection() {
             }
           }}
           onFocus={() => setOpen(true)}
-          className="focus:border-primary h-[46px] w-full rounded-xl border border-[#d8d8d8] bg-white px-5 py-[11px] pr-11 text-base font-medium tracking-[-0.48px] text-[#474747] outline-none placeholder:text-[#c4c4c4]"
+          className="focus:border-primary border-line text-body1_m_16 text-color-neutral-30 placeholder:text-color-neutral-90 h-[46px] w-full rounded-xl border bg-white px-5 py-[11px] pr-11 outline-none"
         />
         <IoSearchOutline
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#474747]"
+          className="text-color-neutral-30 absolute right-4 top-1/2 -translate-y-1/2"
           size={18}
         />
       </div>
       {open && query.length > 0 && (
-        <ul className="absolute top-[74px] z-10 max-h-[200px] w-full overflow-y-auto rounded-xl border border-[#d8d8d8] bg-white shadow-md">
+        <ul className="border-line absolute top-[74px] z-10 max-h-[200px] w-full overflow-y-auto rounded-xl border bg-white shadow-md">
           {filteredUniversities.length > 0 ? (
             filteredUniversities.map((uni: University) => {
               const displayName = getDisplayName(uni)
@@ -138,7 +136,7 @@ export function CollegeSection() {
                     setOpen(false)
                   }}
                   className={cn(
-                    'cursor-pointer px-5 py-[13px] text-base font-medium tracking-[-0.48px] hover:bg-gray-50',
+                    'text-body1_m_16 cursor-pointer px-5 py-[13px] hover:bg-gray-50',
                     collegeValue === displayName && 'bg-gray-50'
                   )}
                 >
@@ -147,7 +145,7 @@ export function CollegeSection() {
               )
             })
           ) : (
-            <li className="px-5 py-[13px] text-base text-[#9b9b9b]">
+            <li className="text-body1_m_16 text-color-neutral-70 px-5 py-[13px]">
               검색 결과가 없습니다
             </li>
           )}

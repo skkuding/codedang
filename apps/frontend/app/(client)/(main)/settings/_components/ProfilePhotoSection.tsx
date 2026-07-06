@@ -13,7 +13,7 @@ export function ProfilePhotoSection() {
 
   return (
     <div className="relative size-[160px]">
-      <div className="size-full overflow-hidden rounded-full bg-[#e5e5e5]">
+      <div className="bg-fill-neutral size-full overflow-hidden rounded-full">
         {!isLoading && profileImageUrl ? (
           <Image
             src={profileImageUrl}
@@ -43,7 +43,7 @@ export function ProfilePhotoSection() {
       <button
         type="button"
         onClick={() => fileInputRef.current?.click()}
-        className="absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-full bg-[#474747] text-white shadow-md hover:bg-[#2a2a2a]"
+        className="bg-color-neutral-30 hover:bg-color-neutral-20 absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-full text-white shadow-md"
       >
         <Camera size={16} />
       </button>

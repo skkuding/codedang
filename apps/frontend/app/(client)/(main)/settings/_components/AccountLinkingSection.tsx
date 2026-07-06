@@ -10,7 +10,7 @@ const PROVIDERS = [
     name: 'Google',
     icon: '/icons/google.svg',
     iconSize: 32,
-    bgColor: 'bg-white border border-[#d8d8d8]'
+    bgColor: 'bg-white border border-line'
   },
   {
     id: 'kakao',
@@ -51,7 +51,7 @@ export function AccountLinkingSection() {
   }
 
   return (
-    <div className="flex flex-col gap-7 rounded-2xl border border-[#dce3e5] bg-white px-6 py-7">
+    <div className="border-color-cool-neutral-90 flex flex-col gap-7 rounded-2xl border bg-white px-6 py-7">
       {PROVIDERS.map((provider) => {
         const isConnected = connectedProviders.has(provider.id)
         return (
@@ -68,20 +68,20 @@ export function AccountLinkingSection() {
                   />
                 </div>
               </div>
-              <span className="text-base font-medium tracking-[-0.48px] text-black">
+              <span className="text-body1_m_16 text-black">
                 {provider.name}
               </span>
             </div>
 
             {isConnected ? (
               <div className="flex items-center gap-5">
-                <span className="text-base font-normal tracking-[-0.48px] text-[#9b9b9b]">
+                <span className="text-body3_r_16 text-color-neutral-70">
                   연결됨
                 </span>
                 <button
                   type="button"
                   onClick={() => handleDisconnect(provider.id)}
-                  className="text-primary h-[46px] rounded-xl border-[1.4px] border-[#619cfb] bg-white px-5 py-[13px] text-base font-semibold tracking-[-0.64px]"
+                  className="text-primary border-primary-light text-sub3_sb_16 h-[46px] rounded-xl border-[1.4px] bg-white px-5 py-[13px]"
                 >
                   연결해제
                 </button>
@@ -90,7 +90,7 @@ export function AccountLinkingSection() {
               <button
                 type="button"
                 onClick={() => handleConnect(provider.id)}
-                className="bg-primary h-[46px] rounded-xl px-5 py-[13px] text-base font-semibold tracking-[-0.64px] text-white"
+                className="bg-primary text-sub3_sb_16 h-[46px] rounded-xl px-5 py-[13px] text-white"
               >
                 연결하기
               </button>

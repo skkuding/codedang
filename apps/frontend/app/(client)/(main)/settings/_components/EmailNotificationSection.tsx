@@ -5,9 +5,9 @@ import { toast } from 'sonner'
 
 export function EmailNotificationSection() {
   return (
-    <div className="rounded-2xl border border-[#dce3e5] bg-white px-5 py-7">
+    <div className="border-color-cool-neutral-90 rounded-2xl border bg-white px-5 py-7">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium leading-[1.5] tracking-[-0.42px] text-[#5f6566]">
+        <p className="text-body2_m_14 text-color-cool-neutral-40">
           내 질문에 답변이 등록 되면 이메일로 알림을 받겠습니다.
         </p>
         <Switch
