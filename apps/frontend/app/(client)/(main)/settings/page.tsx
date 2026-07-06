@@ -16,6 +16,7 @@ import { profileQueries } from '../../_libs/queries/profile'
 import { AccountLinkingSection } from './_components/AccountLinkingSection'
 import { CollegeSection } from './_components/CollegeSection'
 import { ConfirmModal } from './_components/ConfirmModal'
+import { DeleteAccountSection } from './_components/DeleteAccountSection'
 import { EmailNotificationSection } from './_components/EmailNotificationSection'
 import { EmailVerificationSection } from './_components/EmailVerificationSection'
 import { NicknameSection } from './_components/NicknameSection'
@@ -532,13 +533,7 @@ export default function Page() {
             >
               변경사항 저장하기
             </button>
-            <button
-              type="button"
-              onClick={() => toast.info('탈퇴 기능은 준비 중입니다.')}
-              className="w-full rounded-xl bg-[#e5e5e5] px-5 py-[15px] text-base font-medium tracking-[-0.48px] text-[#474747]"
-            >
-              코드당 탈퇴하기
-            </button>
+            <DeleteAccountSection />
           </div>
         </form>
       </SettingsProvider>
