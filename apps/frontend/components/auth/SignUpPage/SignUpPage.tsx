@@ -1,6 +1,13 @@
 'use client'
 
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList
+} from '@/components/shadcn/command'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -91,7 +98,7 @@ function AgreementCheckbox({
         className="border-color-neutral-90 checked:bg-primary h-[20px] w-[20px] shrink-0 appearance-none rounded-[3px] border bg-white bg-center bg-no-repeat checked:border-transparent"
         style={{
           backgroundImage: checked
-            ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'><path d='M5.5 10L8.14645 12.6464C8.34171 12.8417 8.65829 12.8417 8.85355 12.6464L14.5 7' stroke='white' stroke-width='2' stroke-linecap='round'/></svg>")`
+            ? "url('/icons/checkmark-white.svg')"
             : 'none'
         }}
       />
@@ -244,6 +251,9 @@ export function SignUpPage() {
   }, [isSKKU, setValue])
 
   useEffect(() => {
+    if (!universityOpen && !majorOpen) {
+      return
+    }
     const handler = (e: MouseEvent) => {
       if (!universityRef.current?.contains(e.target as Node)) {
         setUniversityOpen(false)
@@ -254,7 +264,7 @@ export function SignUpPage() {
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [])
+  }, [universityOpen, majorOpen])
 
   const formatTimer = () => {
     const min = Math.floor(remaining / 60)
@@ -354,7 +364,18 @@ export function SignUpPage() {
   }
 
   const filteredUniversities =
-    universityQuery.length > 0 ? searchUniversities(universityQuery) : []
+    universityQuery.length > 0
+      ? searchUniversities(universityQuery).filter((uni, idx, arr) => {
+          if (CAMPUS_OVERRIDES[uni.nameKr]) {
+            return true
+          }
+          return (
+            arr.findIndex(
+              (u) => u.nameKr === uni.nameKr && u.region === uni.region
+            ) === idx
+          )
+        })
+      : []
 
   const filteredMajors =
     majorQuery.length > 0
@@ -395,19 +416,7 @@ export function SignUpPage() {
     return `${uni.nameKr} ${short}캠퍼스`
   }
 
-  const canSubmit =
-    isUserIdAvailable &&
-    emailVerified &&
-    agreements.terms &&
-    agreements.privacy &&
-    agreements.minorPrivacy
-
-  const getUserIdBorderClass = () => {
-    if (errors.userId) {
-      return 'border-error focus:border-error'
-    }
-    return 'focus:border-primary border-line'
-  }
+  const canSubmit = isUserIdAvailable && emailVerified && isAllChecked
 
   const getEmailBorderClass = () => {
     if (errors.email) {
@@ -472,7 +481,6 @@ export function SignUpPage() {
             <div className="flex w-full flex-col gap-1">
               <label className="text-caption2_m_12">이름</label>
               <input
-                type="text"
                 placeholder="이름"
                 className={cn(
                   'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
@@ -493,11 +501,12 @@ export function SignUpPage() {
               <label className="text-caption2_m_12">아이디</label>
               <div className="flex gap-[6px]">
                 <input
-                  type="text"
                   placeholder="아이디"
                   className={cn(
                     'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                    getUserIdBorderClass()
+                    errors.userId
+                      ? 'border-error focus:border-error'
+                      : 'focus:border-primary border-line'
                   )}
                   {...register('userId')}
                 />
@@ -591,7 +600,6 @@ export function SignUpPage() {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <input
-                    type="text"
                     placeholder="희망찬 올빼미"
                     className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-[52px] outline-none"
                     {...register('nickname')}
@@ -647,7 +655,7 @@ export function SignUpPage() {
                       key={option}
                       value={option}
                       showSelectIcon={false}
-                      className="cursor-pointer px-5 py-[13px]"
+                      className="cursor-pointer px-5 py-[13px] hover:bg-gray-100/80"
                     >
                       {option}
                     </SelectItem>
@@ -668,7 +676,6 @@ export function SignUpPage() {
                   <div ref={universityRef} className="relative">
                     <div className="relative">
                       <input
-                        type="text"
                         placeholder="대학교 검색"
                         value={universityQuery}
                         onChange={(e) => {
@@ -687,35 +694,45 @@ export function SignUpPage() {
                       />
                     </div>
                     {universityOpen && universityQuery.length > 0 && (
-                      <ul className="border-line absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border bg-white shadow-md">
-                        {filteredUniversities.length > 0 ? (
-                          filteredUniversities.map((uni) => {
-                            const displayName = getUniversityDisplayName(uni)
-                            return (
-                              <li
-                                key={uni.id}
-                                onClick={() => {
-                                  setValue('university', displayName, {
-                                    shouldValidate: true
-                                  })
-                                  setUniversityQuery(displayName)
-                                  setUniversityOpen(false)
-                                }}
-                                className={cn(
-                                  'text-body1_m_16 hover:bg-color-neutral-99 cursor-pointer px-5 py-[13px]',
-                                  watchUniversity === displayName && 'bg-fill'
-                                )}
-                              >
-                                {displayName}
-                              </li>
-                            )
-                          })
-                        ) : (
-                          <li className="text-body1_m_16 text-color-cool-neutral-60 px-5 py-[13px]">
-                            검색 결과가 없습니다
-                          </li>
-                        )}
-                      </ul>
+                      <Command
+                        shouldFilter={false}
+                        className="border-line absolute z-10 mt-1 w-full rounded-[12px] border bg-white shadow-md"
+                      >
+                        <CommandList className="max-h-[200px]">
+                          {filteredUniversities.length > 0 ? (
+                            <CommandGroup>
+                              {filteredUniversities.map((uni) => {
+                                const displayName =
+                                  getUniversityDisplayName(uni)
+                                return (
+                                  <CommandItem
+                                    key={uni.id}
+                                    value={displayName}
+                                    onSelect={() => {
+                                      setValue('university', displayName, {
+                                        shouldValidate: true
+                                      })
+                                      setUniversityQuery(displayName)
+                                      setUniversityOpen(false)
+                                    }}
+                                    className={cn(
+                                      'text-body1_m_16 cursor-pointer px-5 py-[13px] aria-selected:bg-gray-100/80',
+                                      watchUniversity === displayName &&
+                                        'bg-fill'
+                                    )}
+                                  >
+                                    {displayName}
+                                  </CommandItem>
+                                )
+                              })}
+                            </CommandGroup>
+                          ) : (
+                            <CommandEmpty className="text-body1_m_16 text-color-cool-neutral-60 py-[13px] text-left">
+                              검색 결과가 없습니다
+                            </CommandEmpty>
+                          )}
+                        </CommandList>
+                      </Command>
                     )}
                   </div>
                   {errors.university?.message && (
@@ -731,7 +748,6 @@ export function SignUpPage() {
                     <div ref={majorRef} className="relative">
                       <div className="relative">
                         <input
-                          type="text"
                           placeholder="학과 검색"
                           value={majorQuery}
                           onChange={(e) => {
@@ -748,35 +764,43 @@ export function SignUpPage() {
                         />
                       </div>
                       {majorOpen && majorQuery.length > 0 && (
-                        <ul className="border-line absolute z-10 mt-1 max-h-[200px] w-full overflow-y-auto rounded-[12px] border bg-white shadow-md">
-                          {filteredMajors.length > 0 ? (
-                            filteredMajors.map((major) => {
-                              const displayName = getKoreanMajorName(major)
-                              return (
-                                <li
-                                  key={major}
-                                  onClick={() => {
-                                    setValue('major', displayName, {
-                                      shouldValidate: true
-                                    })
-                                    setMajorQuery(displayName)
-                                    setMajorOpen(false)
-                                  }}
-                                  className={cn(
-                                    'text-body1_m_16 hover:bg-color-neutral-99 cursor-pointer px-5 py-[13px]',
-                                    majorQuery === displayName && 'bg-fill'
-                                  )}
-                                >
-                                  {displayName}
-                                </li>
-                              )
-                            })
-                          ) : (
-                            <li className="text-body1_m_16 text-color-cool-neutral-60 px-5 py-[13px]">
-                              검색 결과가 없습니다
-                            </li>
-                          )}
-                        </ul>
+                        <Command
+                          shouldFilter={false}
+                          className="border-line absolute z-10 mt-1 w-full rounded-[12px] border bg-white shadow-md"
+                        >
+                          <CommandList className="max-h-[200px]">
+                            {filteredMajors.length > 0 ? (
+                              <CommandGroup>
+                                {filteredMajors.map((major) => {
+                                  const displayName = getKoreanMajorName(major)
+                                  return (
+                                    <CommandItem
+                                      key={major}
+                                      value={displayName}
+                                      onSelect={() => {
+                                        setValue('major', displayName, {
+                                          shouldValidate: true
+                                        })
+                                        setMajorQuery(displayName)
+                                        setMajorOpen(false)
+                                      }}
+                                      className={cn(
+                                        'text-body1_m_16 cursor-pointer px-5 py-[13px] aria-selected:bg-gray-100/80',
+                                        majorQuery === displayName && 'bg-fill'
+                                      )}
+                                    >
+                                      {displayName}
+                                    </CommandItem>
+                                  )
+                                })}
+                              </CommandGroup>
+                            ) : (
+                              <CommandEmpty className="text-body1_m_16 text-color-cool-neutral-60 py-[13px] text-left">
+                                검색 결과가 없습니다
+                              </CommandEmpty>
+                            )}
+                          </CommandList>
+                        </Command>
                       )}
                     </div>
                     {errors.major?.message && (
@@ -791,7 +815,6 @@ export function SignUpPage() {
                   <div className="flex w-full flex-col gap-1">
                     <label className="text-caption2_m_12">학번</label>
                     <input
-                      type="text"
                       inputMode="numeric"
                       placeholder="학번 10자리를 입력해주세요"
                       className={cn(
@@ -823,7 +846,6 @@ export function SignUpPage() {
                     )}
                   >
                     <input
-                      type="text"
                       placeholder="codedang"
                       value={emailLocal}
                       onChange={(e) => setEmailLocal(e.target.value)}
@@ -836,7 +858,6 @@ export function SignUpPage() {
                   </div>
                 ) : (
                   <input
-                    type="text"
                     placeholder="이메일을 입력해주세요"
                     value={emailLocal}
                     onChange={(e) => setEmailLocal(e.target.value)}
@@ -873,7 +894,6 @@ export function SignUpPage() {
                 <div className="mt-1 flex gap-[6px]">
                   <div className="relative flex-1">
                     <input
-                      type="text"
                       inputMode="numeric"
                       maxLength={6}
                       placeholder="메일로 도착한 인증 번호를 입력해주세요"
