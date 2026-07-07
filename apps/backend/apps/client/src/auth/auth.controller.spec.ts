@@ -1,6 +1,6 @@
+import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { expect } from 'chai'
-import { UserService } from '@client/user/user.service'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 
@@ -12,7 +12,7 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         { provide: AuthService, useValue: {} },
-        { provide: UserService, useValue: {} }
+        { provide: ConfigService, useValue: {} }
       ]
     }).compile()
     controller = module.get<AuthController>(AuthController)
