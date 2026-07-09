@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import { Prisma, type User, type UserProfile } from '@prisma/client'
+import { Prisma, type User, type UserProfile, Provider } from '@prisma/client'
 import { expect } from 'chai'
 import type { Request } from 'express'
 import { Exception } from 'handlebars'
@@ -72,7 +72,8 @@ const userProfile = {
   updateTime: user.updateTime,
   userProfile: {
     realName: profile.realName
-  }
+  },
+  useroauth: [{ provider: Provider.kakao }]
 }
 
 const usernameDto = {
@@ -533,7 +534,11 @@ describe('UserService', () => {
     it('get user profile', async () => {
       db.user.findUnique.resolves(userProfile)
       const ret = await service.getUserProfile(user.username)
-      expect(ret).to.equal(userProfile)
+      const { useroauth, ...rest } = userProfile
+      expect(ret).to.deep.equal({
+        ...rest,
+        linkedProviders: useroauth.map(({ provider }) => provider)
+      })
     })
 
     it('should not get user profile', async () => {
