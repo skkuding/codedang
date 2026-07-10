@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import {
   AssignmentTable,
   AssignmentTableFallback
-} from '../../_components/AssignmentTable'
+} from '../../../_components/AssignmentTable'
 
 export const dynamic = 'force-dynamic'
 

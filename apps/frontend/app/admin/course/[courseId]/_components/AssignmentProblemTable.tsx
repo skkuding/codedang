@@ -1,7 +1,7 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
 import { useMemo, type Dispatch, type SetStateAction } from 'react'
+import { createAssignmentColumns } from '../../[courseId]/(home)/assignment/_components/AssignmentProblemColumns'
 import type { AssignmentProblem } from '../_libs/type'
-import { createAssignmentColumns } from '../assignment/_components/AssignmentProblemColumns'
 
 interface AssignmentProblemTableProps {
   problems: AssignmentProblem[]

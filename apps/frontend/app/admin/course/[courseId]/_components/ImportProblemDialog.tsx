@@ -7,11 +7,11 @@ import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
-import type { AssignmentProblem } from '../_libs/type'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
-} from '../assignment/_components/ImportProblemTable'
+} from '../(home)/assignment/_components/ImportProblemTable'
+import type { AssignmentProblem } from '../_libs/type'
 
 interface ImportProblemDialogProps {
   problems: AssignmentProblem[]
