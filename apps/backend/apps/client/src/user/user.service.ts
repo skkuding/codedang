@@ -667,14 +667,25 @@ export class UserService {
           }
         },
         canCreateContest: true,
-        canCreateCourse: true
+        canCreateCourse: true,
+        useroauth: {
+          select: {
+            provider: true
+          }
+        }
       }
     })
     if (!userWithProfile) {
       throw new EntityNotExistException('User')
     }
-    this.logger.debug(userWithProfile, 'getUserProfile')
-    return userWithProfile
+    const { useroauth, ...profile } = userWithProfile
+    const userProfileWithLinkedProviders = {
+      ...profile,
+      linkedProviders: useroauth.map(({ provider }) => provider)
+    }
+
+    this.logger.debug(userProfileWithLinkedProviders, 'getUserProfile')
+    return userProfileWithLinkedProviders
   }
 
   /**
