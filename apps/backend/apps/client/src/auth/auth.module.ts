@@ -3,7 +3,12 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
-import { JwtAuthModule, GithubStrategy, KakaoStrategy } from '@libs/auth'
+import {
+  JwtAuthModule,
+  GithubStrategy,
+  KakaoStrategy,
+  KakaoLinkStrategy
+} from '@libs/auth'
 import { UserModule } from '@client/user/user.module'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
@@ -27,12 +32,12 @@ import { AuthService } from './auth.service'
     JwtAuthModule,
     UserModule,
     PassportModule.register({
-      strategies: [GithubStrategy, KakaoStrategy]
+      strategies: [GithubStrategy, KakaoStrategy, KakaoLinkStrategy]
     }),
     HttpModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, GithubStrategy, KakaoStrategy],
+  providers: [AuthService, GithubStrategy, KakaoStrategy, KakaoLinkStrategy],
   exports: [AuthService]
 })
 export class AuthModule {}

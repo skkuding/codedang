@@ -11,6 +11,7 @@ import {
   Param,
   ParseEnumPipe
 } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { AuthGuard } from '@nestjs/passport'
 import { Provider } from '@prisma/client'
 import { Request, Response } from 'express'
@@ -27,7 +28,10 @@ import type { GithubUser, KakaoUser } from './interface/social-user.interface'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService
+  ) {}
 
   setJwtResponse = (res: Response, jwtTokens: JwtTokens) => {
     res.setHeader('authorization', `Bearer ${jwtTokens.accessToken}`)
@@ -158,15 +162,42 @@ export class AuthController {
   @AuthNotNeededIfPublic()
   @Get('kakao-callback')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoLogin(
-    @Res({ passthrough: true }) res: Response,
-    @Req() req: Request
-  ) {
+  async kakaoLogin(@Res() res: Response, @Req() req: Request) {
     const kakaoUser = req.user as KakaoUser
     const result = await this.authService.kakaoLogin(kakaoUser)
+    const frontendUrl = this.configService.getOrThrow('FRONTEND_URL')
 
-    if ('oauthToken' in result) return result
+    if ('oauthToken' in result) {
+      return res.redirect(
+        `${frontendUrl}/login?modal=social-unlinked&oauthToken=${result.oauthToken}`
+      )
+    }
 
     this.setJwtResponse(res, result.jwtTokens)
+    return res.redirect(`${frontendUrl}/`)
+  }
+
+  /** 소셜 계정 연동을 위해 Kakao Login page로 이동 */
+  @AuthNotNeededIfPublic()
+  @Get('kakao/link')
+  @UseGuards(AuthGuard('kakao-link'))
+  async moveToKakaoLink() {
+    /* 자동으로 kakao login page로 redirection */
+  }
+
+  /** 소셜 계정 연동을 위한 Kakao callback */
+  @AuthNotNeededIfPublic()
+  @Get('kakao-link-callback')
+  @UseGuards(AuthGuard('kakao-link'))
+  async kakaoLinkCallback(@Res() res: Response, @Req() req: Request) {
+    const kakaoUser = req.user as KakaoUser
+    const frontendUrl = this.configService.getOrThrow('FRONTEND_URL')
+
+    try {
+      const { oauthToken } = await this.authService.kakaoLink(kakaoUser)
+      return res.redirect(`${frontendUrl}/settings?oauthToken=${oauthToken}`)
+    } catch {
+      return res.redirect(`${frontendUrl}/settings?error=already-linked`)
+    }
   }
 }

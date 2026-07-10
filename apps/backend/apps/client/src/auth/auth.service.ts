@@ -304,6 +304,30 @@ export class AuthService {
     return { jwtTokens }
   }
 
+  async kakaoLink(kakaoUser: KakaoUser) {
+    const { kakaoId } = kakaoUser
+
+    const userOAuth = await this.prisma.userOAuth.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        id_provider: {
+          id: kakaoId,
+          provider: 'kakao'
+        }
+      }
+    })
+
+    if (userOAuth) {
+      throw new DuplicateFoundException('kakao OAuth account')
+    }
+
+    const oauthToken = await this.jwtService.signAsync(
+      { oauthId: kakaoId, provider: 'kakao' } satisfies OAuthTokenPayload,
+      { expiresIn: OAUTH_TOKEN_EXPIRE_TIME }
+    )
+    return { oauthToken }
+  }
+
   private async verifyOAuthToken(token: string) {
     try {
       return await this.jwtService.verifyAsync<OAuthTokenPayload>(token, {
