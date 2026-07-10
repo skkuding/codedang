@@ -9,6 +9,7 @@ data "aws_iam_policy_document" "task_assume_role" {
   }
 }
 
+/* TAS-2763: Legacy ECS task role resources are no longer used.
 resource "aws_iam_role" "task_role" {
   count = var.task_role != null ? 1 : 0
 
@@ -30,3 +31,4 @@ resource "aws_iam_role_policy_attachment" "task_role" {
   role       = aws_iam_role.task_role[0].name
   policy_arn = aws_iam_policy.task_role[0].arn
 }
+*/

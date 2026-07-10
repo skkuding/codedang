@@ -12,6 +12,7 @@ provider "aws" {
   region = "ap-northeast-2"
 }
 
+/* TAS-2763: Legacy ECS service autoscaling target is no longer used.
 resource "aws_appautoscaling_target" "this" {
   min_capacity       = var.appautoscaling_target.min_capacity
   max_capacity       = var.appautoscaling_target.max_capacity
@@ -19,3 +20,4 @@ resource "aws_appautoscaling_target" "this" {
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
+*/
