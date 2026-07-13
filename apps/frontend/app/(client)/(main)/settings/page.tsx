@@ -8,7 +8,7 @@ import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { updateUserProfile } from '../../_libs/apis/profile'
@@ -520,7 +520,9 @@ export default function Page() {
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
               계정 연동
             </h2>
-            <AccountLinkingSection />
+            <Suspense>
+              <AccountLinkingSection />
+            </Suspense>
           </section>
 
           <div className="flex flex-col gap-3">

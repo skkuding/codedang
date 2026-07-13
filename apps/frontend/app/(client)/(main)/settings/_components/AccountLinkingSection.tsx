@@ -73,9 +73,9 @@ export function AccountLinkingSection() {
           })
           toast.success('카카오 계정이 연결되었습니다')
           setLocallyLinked((prev) => new Set([...prev, 'kakao']))
-          router.replace('/settings')
         } catch {
           toast.error('계정 연결에 실패했습니다. 다시 시도해주세요')
+        } finally {
           router.replace('/settings')
         }
       }
