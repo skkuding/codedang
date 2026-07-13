@@ -121,23 +121,25 @@ export default function Page() {
   const initialized = useRef(false)
 
   useEffect(() => {
-    if (isLoading || initialized.current) {
+    if (isLoading) {
       return
     }
-    initialized.current = true
-    reset({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-      realName: defaultProfileValues.userProfile?.realName ?? '',
-      studentId: defaultProfileValues.studentId ?? '',
-      nickname: defaultProfileValues.nickname ?? ''
-    })
-    if (defaultProfileValues.major) {
-      setMajorValue(defaultProfileValues.major)
+    if (!initialized.current) {
+      initialized.current = true
+      reset({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        realName: defaultProfileValues.userProfile?.realName ?? '',
+        studentId: defaultProfileValues.studentId ?? '',
+        nickname: defaultProfileValues.nickname ?? ''
+      })
     }
     if (defaultProfileValues.college) {
       setCollegeValue(defaultProfileValues.college)
+    }
+    if (defaultProfileValues.major) {
+      setMajorValue(defaultProfileValues.major)
     }
   }, [isLoading, reset, defaultProfileValues])
 
@@ -231,9 +233,8 @@ export default function Page() {
   }
 
   const inputBase =
-    'h-[46px] w-full rounded-xl border border-[#d8d8d8] px-5 py-[11px] text-base font-medium tracking-[-0.48px] outline-none'
-  const labelBase =
-    'text-xs font-medium leading-[1.4] tracking-[-0.36px] text-[#1c1c1c]'
+    'h-[46px] w-full rounded-xl border border-line px-5 py-[11px] text-body1_m_16 outline-none'
+  const labelBase = 'text-caption2_m_12 text-color-neutral-15'
 
   return (
     <div className="mt-[60px] flex w-full justify-center bg-white">
@@ -245,272 +246,275 @@ export default function Page() {
           collegeState: { collegeValue, setCollegeValue }
         }}
       >
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex w-full max-w-[1440px] flex-col gap-10 px-[226px] py-7"
-        >
-          <section className="flex flex-col gap-6">
-            <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
-              프로필 정보
-            </h2>
-            <ProfilePhotoSection />
-            <div className="flex flex-col gap-6">
-              <div className="flex gap-6">
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <label className={labelBase}>이름</label>
-                  <div
-                    className={cn(
-                      inputBase,
-                      'flex items-center bg-[#e5e5e5] text-[#9b9b9b]'
-                    )}
-                  >
-                    {isLoading
-                      ? 'Loading...'
-                      : defaultProfileValues.userProfile?.realName || '이름'}
-                  </div>
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <label className={labelBase}>아이디</label>
-                  <div
-                    className={cn(
-                      inputBase,
-                      'flex items-center bg-[#e5e5e5] text-[#9b9b9b]'
-                    )}
-                  >
-                    {isLoading
-                      ? 'Loading...'
-                      : defaultProfileValues.username || '아이디'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-6">
-                <NicknameSection register={register} errors={errors} />
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <label className={labelBase}>직업</label>
-                  <div
-                    className={cn(
-                      inputBase,
-                      'flex items-center bg-[#e5e5e5] text-[#9b9b9b]'
-                    )}
-                  >
-                    {isLoading
-                      ? 'Loading...'
-                      : getJobLabel(defaultProfileValues.jobType)}
-                  </div>
-                </div>
-              </div>
-
-              {isSKKU ? (
-                <>
-                  <div className="w-1/2 pr-3">
-                    <div className="flex flex-col gap-1">
-                      <label className={labelBase}>대학교</label>
-                      <div
-                        className={cn(
-                          inputBase,
-                          'flex items-center bg-[#e5e5e5] text-[#9b9b9b]'
-                        )}
-                      >
-                        {isLoading ? 'Loading...' : '성균관대학교'}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <label className={labelBase}>학과</label>
-                      <div
-                        className={cn(
-                          inputBase,
-                          'flex items-center bg-[#e5e5e5] text-[#9b9b9b]'
-                        )}
-                      >
-                        {isLoading
-                          ? 'Loading...'
-                          : findMajorKoreanName(
-                              majorValue || defaultProfileValues.major
-                            ) || '학과'}
-                      </div>
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <label className={labelBase}>학번</label>
-                      <div
-                        className={cn(
-                          inputBase,
-                          'flex items-center bg-[#e5e5e5] text-[#9b9b9b]'
-                        )}
-                      >
-                        {isLoading
-                          ? 'Loading...'
-                          : defaultProfileValues.studentId || '학번'}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="w-1/2 pr-3">
-                  <CollegeSection />
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="flex flex-col gap-5">
-            <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
-              이메일 인증
-            </h2>
-            <EmailVerificationSection />
-          </section>
-
-          <section className="flex flex-col gap-5">
-            <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
-              이메일 알림
-            </h2>
-            <EmailNotificationSection />
-          </section>
-
-          <section className="flex flex-col gap-5">
-            <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
-              비밀번호 변경
-            </h2>
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <label className={labelBase}>현재 비밀번호</label>
-                <div className="flex items-center gap-1.5">
-                  <div className="relative min-w-0 flex-1">
-                    <input
-                      type={passwordShow ? 'text' : 'password'}
-                      placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
-                      {...register('currentPassword')}
+        <div className="flex w-full max-w-[1440px] flex-col gap-10 px-5 py-7 sm:px-6 md:px-[116px] xl:px-[226px]">
+          <form
+            id="settings-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-10"
+          >
+            <section className="flex flex-col gap-6">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                프로필 정보
+              </h2>
+              <ProfilePhotoSection />
+              <div className="flex flex-col gap-6">
+                <div className="flex gap-6">
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <label className={labelBase}>이름</label>
+                    <div
                       className={cn(
                         inputBase,
-                        'focus:border-primary w-full bg-white pr-12 text-[#474747] placeholder:text-[#c4c4c4]',
-                        errors.currentPassword && 'border-red-500',
-                        isCheckButtonClicked &&
-                          (isPasswordCorrect
-                            ? 'border-primary'
-                            : 'border-red-500')
+                        'bg-fill-neutral text-color-neutral-70 flex items-center'
+                      )}
+                    >
+                      {isLoading
+                        ? 'Loading...'
+                        : defaultProfileValues.userProfile?.realName || '이름'}
+                    </div>
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <label className={labelBase}>아이디</label>
+                    <div
+                      className={cn(
+                        inputBase,
+                        'bg-fill-neutral text-color-neutral-70 flex items-center'
+                      )}
+                    >
+                      {isLoading
+                        ? 'Loading...'
+                        : defaultProfileValues.username || '아이디'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-6">
+                  <NicknameSection register={register} errors={errors} />
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <label className={labelBase}>직업</label>
+                    <div
+                      className={cn(
+                        inputBase,
+                        'bg-fill-neutral text-color-neutral-70 flex items-center'
+                      )}
+                    >
+                      {isLoading
+                        ? 'Loading...'
+                        : getJobLabel(defaultProfileValues.jobType)}
+                    </div>
+                  </div>
+                </div>
+
+                {isSKKU ? (
+                  <>
+                    <div className="w-1/2 pr-3">
+                      <div className="flex flex-col gap-1">
+                        <label className={labelBase}>대학교</label>
+                        <div
+                          className={cn(
+                            inputBase,
+                            'bg-fill-neutral text-color-neutral-70 flex items-center'
+                          )}
+                        >
+                          {isLoading ? 'Loading...' : '성균관대학교'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-6">
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <label className={labelBase}>학과</label>
+                        <div
+                          className={cn(
+                            inputBase,
+                            'bg-fill-neutral text-color-neutral-70 flex items-center'
+                          )}
+                        >
+                          {isLoading
+                            ? 'Loading...'
+                            : findMajorKoreanName(
+                                majorValue || defaultProfileValues.major
+                              ) || '학과'}
+                        </div>
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <label className={labelBase}>학번</label>
+                        <div
+                          className={cn(
+                            inputBase,
+                            'bg-fill-neutral text-color-neutral-70 flex items-center'
+                          )}
+                        >
+                          {isLoading
+                            ? 'Loading...'
+                            : defaultProfileValues.studentId || '학번'}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-1/2 pr-3">
+                    <CollegeSection />
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-5">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                이메일 인증
+              </h2>
+              <EmailVerificationSection />
+            </section>
+
+            <section className="flex flex-col gap-5">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                이메일 알림
+              </h2>
+              <EmailNotificationSection />
+            </section>
+
+            <section className="flex flex-col gap-5">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                비밀번호 변경
+              </h2>
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-1">
+                  <label className={labelBase}>현재 비밀번호</label>
+                  <div className="flex items-center gap-1.5">
+                    <div className="relative min-w-0 flex-1">
+                      <input
+                        type={passwordShow ? 'text' : 'password'}
+                        placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
+                        {...register('currentPassword')}
+                        className={cn(
+                          inputBase,
+                          'focus:border-primary text-color-neutral-30 placeholder:text-color-neutral-90 w-full bg-white pr-12',
+                          errors.currentPassword && 'border-red-500',
+                          isCheckButtonClicked &&
+                            (isPasswordCorrect
+                              ? 'border-primary'
+                              : 'border-red-500')
+                        )}
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                        onClick={() => setPasswordShow((v) => !v)}
+                      >
+                        <Image
+                          src={passwordShow ? visibleIcon : invisibleIcon}
+                          alt=""
+                          width={20}
+                          height={20}
+                        />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={checkPassword}
+                      disabled={!currentPassword}
+                      className="text-primary border-primary-light h-[46px] shrink-0 rounded-xl border bg-white px-5 py-[13px] text-base font-semibold tracking-[-0.64px] disabled:opacity-50"
+                    >
+                      확인
+                    </button>
+                  </div>
+                  {!errors.currentPassword && isCheckButtonClicked && (
+                    <p
+                      className={cn(
+                        'text-xs',
+                        isPasswordCorrect ? 'text-primary' : 'text-red-500'
+                      )}
+                    >
+                      {isPasswordCorrect
+                        ? '비밀번호가 일치합니다.'
+                        : '비밀번호가 일치하지 않습니다.'}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={labelBase}>새 비밀번호</label>
+                  <div className="relative">
+                    <input
+                      type={newPasswordShow ? 'text' : 'password'}
+                      placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
+                      disabled={!newPasswordAble}
+                      {...register('newPassword')}
+                      className={cn(
+                        inputBase,
+                        'focus:border-primary disabled:bg-fill-neutral text-color-neutral-30 placeholder:text-color-neutral-90 bg-white pr-12',
+                        isPasswordsMatch
+                          ? 'border-primary'
+                          : ((errors.newPassword && newPassword) ||
+                              confirmPassword) &&
+                              'border-red-500'
                       )}
                     />
                     <button
                       type="button"
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                      onClick={() => setPasswordShow((v) => !v)}
+                      onClick={() => setNewPasswordShow((v) => !v)}
                     >
                       <Image
-                        src={passwordShow ? visibleIcon : invisibleIcon}
+                        src={newPasswordShow ? visibleIcon : invisibleIcon}
                         alt=""
                         width={20}
                         height={20}
                       />
                     </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={checkPassword}
-                    disabled={!currentPassword}
-                    className="text-primary h-[46px] shrink-0 rounded-xl border border-[#619cfb] bg-white px-5 py-[13px] text-base font-semibold tracking-[-0.64px] disabled:opacity-50"
-                  >
-                    확인
-                  </button>
+                  {errors.newPassword && newPasswordAble && newPassword && (
+                    <ul className="text-xs text-red-500">
+                      <li>8-20자리 이하</li>
+                      <li>영문 대/소문자, 숫자 중 2가지 이상 포함</li>
+                    </ul>
+                  )}
                 </div>
-                {!errors.currentPassword && isCheckButtonClicked && (
-                  <p
-                    className={cn(
-                      'text-xs',
-                      isPasswordCorrect ? 'text-primary' : 'text-red-500'
-                    )}
-                  >
-                    {isPasswordCorrect
-                      ? '비밀번호가 일치합니다.'
-                      : '비밀번호가 일치하지 않습니다.'}
-                  </p>
-                )}
-              </div>
 
-              <div className="flex flex-col gap-1">
-                <label className={labelBase}>새 비밀번호</label>
-                <div className="relative">
-                  <input
-                    type={newPasswordShow ? 'text' : 'password'}
-                    placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
-                    disabled={!newPasswordAble}
-                    {...register('newPassword')}
-                    className={cn(
-                      inputBase,
-                      'focus:border-primary bg-white pr-12 text-[#474747] placeholder:text-[#c4c4c4] disabled:bg-[#e5e5e5]',
-                      isPasswordsMatch
-                        ? 'border-primary'
-                        : ((errors.newPassword && newPassword) ||
-                            confirmPassword) &&
-                            'border-red-500'
-                    )}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                    onClick={() => setNewPasswordShow((v) => !v)}
-                  >
-                    <Image
-                      src={newPasswordShow ? visibleIcon : invisibleIcon}
-                      alt=""
-                      width={20}
-                      height={20}
+                <div className="flex flex-col gap-1">
+                  <label className={labelBase}>새 비밀번호 확인</label>
+                  <div className="relative">
+                    <input
+                      type={confirmPasswordShow ? 'text' : 'password'}
+                      placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
+                      disabled={!newPasswordAble}
+                      {...register('confirmPassword')}
+                      className={cn(
+                        inputBase,
+                        'focus:border-primary disabled:bg-fill-neutral text-color-neutral-30 placeholder:text-color-neutral-90 bg-white pr-12',
+                        isPasswordsMatch
+                          ? 'border-primary'
+                          : confirmPassword && 'border-red-500'
+                      )}
                     />
-                  </button>
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      onClick={() => setConfirmPasswordShow((v) => !v)}
+                    >
+                      <Image
+                        src={confirmPasswordShow ? visibleIcon : invisibleIcon}
+                        alt=""
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </div>
+                  {getValues('confirmPassword') && (
+                    <p
+                      className={cn(
+                        'text-xs',
+                        isPasswordsMatch ? 'text-primary' : 'text-red-500'
+                      )}
+                    >
+                      {isPasswordsMatch
+                        ? '비밀번호가 일치합니다.'
+                        : '비밀번호가 일치하지 않습니다.'}
+                    </p>
+                  )}
                 </div>
-                {errors.newPassword && newPasswordAble && newPassword && (
-                  <ul className="text-xs text-red-500">
-                    <li>8-20자리 이하</li>
-                    <li>영문 대/소문자, 숫자 중 2가지 이상 포함</li>
-                  </ul>
-                )}
               </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={labelBase}>새 비밀번호 확인</label>
-                <div className="relative">
-                  <input
-                    type={confirmPasswordShow ? 'text' : 'password'}
-                    placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
-                    disabled={!newPasswordAble}
-                    {...register('confirmPassword')}
-                    className={cn(
-                      inputBase,
-                      'focus:border-primary bg-white pr-12 text-[#474747] placeholder:text-[#c4c4c4] disabled:bg-[#e5e5e5]',
-                      isPasswordsMatch
-                        ? 'border-primary'
-                        : confirmPassword && 'border-red-500'
-                    )}
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                    onClick={() => setConfirmPasswordShow((v) => !v)}
-                  >
-                    <Image
-                      src={confirmPasswordShow ? visibleIcon : invisibleIcon}
-                      alt=""
-                      width={20}
-                      height={20}
-                    />
-                  </button>
-                </div>
-                {getValues('confirmPassword') && (
-                  <p
-                    className={cn(
-                      'text-xs',
-                      isPasswordsMatch ? 'text-primary' : 'text-red-500'
-                    )}
-                  >
-                    {isPasswordsMatch
-                      ? '비밀번호가 일치합니다.'
-                      : '비밀번호가 일치하지 않습니다.'}
-                  </p>
-                )}
-              </div>
-            </div>
-          </section>
+            </section>
+          </form>
 
           <section className="flex flex-col gap-5">
             <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
@@ -522,20 +526,22 @@ export default function Page() {
           <div className="flex flex-col gap-3">
             <button
               type="submit"
+              form="settings-form"
               disabled={!saveAble}
               onClick={onSubmitClick}
               className={cn(
                 'w-full rounded-xl px-5 py-[15px] text-base font-semibold tracking-[-0.64px] text-white',
                 saveAble
                   ? 'bg-primary'
-                  : 'cursor-not-allowed bg-[#e5e5e5] text-[#474747]'
+                  : 'bg-fill-neutral text-color-neutral-30 cursor-not-allowed'
               )}
             >
               변경사항 저장하기
             </button>
-            <DeleteAccountSection />
           </div>
-        </form>
+
+          <DeleteAccountSection />
+        </div>
       </SettingsProvider>
 
       <ConfirmModal

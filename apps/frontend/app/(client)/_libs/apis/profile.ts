@@ -12,7 +12,7 @@ export interface Profile {
   college: string
   major: string
   email: string
-  userOauth?: { provider: string }[]
+  linkedProviders?: string[]
 }
 
 export const fetchUserProfile = async (): Promise<Profile> => {

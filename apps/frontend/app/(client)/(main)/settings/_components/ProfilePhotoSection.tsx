@@ -9,7 +9,10 @@ export function ProfilePhotoSection() {
   const { defaultProfileValues, isLoading } = useSettingsContext()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const profileImageUrl = defaultProfileValues.userProfile?.profileImageUrl
+  const rawUrl = defaultProfileValues.userProfile?.profileImageUrl
+  const profileImageUrl = rawUrl?.startsWith('dicebear:')
+    ? `https://api.dicebear.com/9.x/notionists/svg?seed=${rawUrl.slice('dicebear:'.length)}`
+    : rawUrl
 
   return (
     <div className="relative size-[160px]">

@@ -12,7 +12,7 @@ export interface Profile {
   studentId: string
   college: string
   major: string
-  userOauth?: { provider: string }[]
+  linkedProviders?: string[]
 }
 
 interface CollegeState {

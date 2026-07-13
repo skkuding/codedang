@@ -64,16 +64,10 @@ export function CollegeSection() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    if (
-      !isLoading &&
-      !query &&
-      defaultProfileValues.college &&
-      defaultProfileValues.college !== 'none'
-    ) {
-      setQuery(defaultProfileValues.college)
+    if (!query && collegeValue && collegeValue !== 'none') {
+      setQuery(collegeValue)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading])
+  }, [collegeValue])
 
   const filteredUniversities: University[] =
     query.length > 0 ? searchUniversities(query) : []
