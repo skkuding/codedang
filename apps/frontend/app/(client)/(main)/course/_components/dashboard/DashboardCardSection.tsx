@@ -26,15 +26,17 @@ export function DashboardCardSection({
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
           {groups.map((group, index) => {
-            const fallback = <DashboardCourseGroupView group={group} />
+            const groupWithoutSummary = (
+              <DashboardCourseGroupView group={group} />
+            )
 
             return (
               <div key={group.courseId} className="w-full">
                 <ErrorBoundary
-                  fallback={fallback}
+                  fallback={groupWithoutSummary}
                   resetKeys={[group.courseId, isExercise]}
                 >
-                  <Suspense fallback={fallback}>
+                  <Suspense fallback={groupWithoutSummary}>
                     <DashboardCourseGroup
                       group={group}
                       isExercise={isExercise}
