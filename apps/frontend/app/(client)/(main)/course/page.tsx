@@ -5,8 +5,8 @@ import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
 import { CourseSubBanner } from './_components/CourseSubBanner'
-import { Dashboard } from './_components/Dashboard'
 import { LoginButton } from './_components/LoginButton'
+import { Dashboard } from './_components/dashboard/Dashboard'
 
 function CardListFallback() {
   return (

@@ -1,7 +1,7 @@
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { Assignment } from '@/types/type'
-import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
-import { formatDueMd, isDueToday } from './dashboardUtils'
+import { AssignmentLink } from '../../[courseId]/_components/AssignmentLink'
+import { formatDueMd, isDueToday } from './utils'
 
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
 

@@ -21,7 +21,7 @@ import {
   isSameDay,
   startOfDay,
   todayAtMidnight
-} from './dashboardUtils'
+} from './utils'
 
 const toGroupInfo = (group: Assignment['group'] | undefined) => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
