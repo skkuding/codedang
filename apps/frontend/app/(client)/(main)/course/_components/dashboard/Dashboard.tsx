@@ -25,16 +25,11 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
         <div className="order-2 flex max-h-[460px] flex-col md:order-1">
-          <DashboardCardSection
-            title="Assignment"
-            isExercise={false}
-            courseSections={assignmentCourseSections}
-          />
+          <DashboardCardSection courseSections={assignmentCourseSections} />
         </div>
 
         <div className="order-3 flex max-h-[460px] flex-col md:order-2">
           <DashboardCardSection
-            title="Exercise"
             isExercise
             courseSections={exerciseCourseSections}
           />

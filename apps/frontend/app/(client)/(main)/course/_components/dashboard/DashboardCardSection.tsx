@@ -7,16 +7,16 @@ import {
 import type { DashboardCourseSection as DashboardCourseSectionData } from './types'
 
 interface DashboardCardSectionProps {
-  title: string
   courseSections: DashboardCourseSectionData[]
-  isExercise: boolean
+  isExercise?: boolean
 }
 
 export function DashboardCardSection({
-  title,
   courseSections,
-  isExercise
+  isExercise = false
 }: DashboardCardSectionProps) {
+  const title = isExercise ? 'Exercise' : 'Assignment'
+
   return (
     <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
       <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
