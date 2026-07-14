@@ -1,3 +1,18 @@
+'use client'
+
+import { Suspense } from '@suspensive/react'
+import { useParams } from 'next/navigation'
+import { CourseNoticeTable } from '../_components/CourseNoticeTable'
+
 export default function Notice() {
-  return <div className="rounded-xs mt-6 w-full bg-gray-100 p-4">Notice</div>
+  const params = useParams()
+  const courseId = Number(params.courseId)
+
+  return (
+    <div className="mb-12 mt-20 w-full px-10 lg:mt-20">
+      <Suspense>
+        <CourseNoticeTable courseId={courseId} />
+      </Suspense>
+    </div>
+  )
 }
