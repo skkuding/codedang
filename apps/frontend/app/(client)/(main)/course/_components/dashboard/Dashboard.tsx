@@ -3,11 +3,7 @@
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
-import {
-  useQueries,
-  useQuery,
-  type UseQueryOptions
-} from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { DashboardCalendar } from './DashboardCalendar'
 import {
@@ -27,26 +23,6 @@ const toGroupInfo = (group: Assignment['group'] | undefined) => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
   groupName: group?.groupName ?? 'Unknown'
 })
-
-const makeAssignmentQueries = (
-  courseIds: number[]
-): UseQueryOptions<Assignment[], Error>[] =>
-  courseIds.map((courseId) => {
-    const base = assignmentQueries.muliple({ courseId })
-    const queryFn: UseQueryOptions<Assignment[], Error>['queryFn'] = async (
-      ctx
-    ) => {
-      type Ctx = { queryKey: readonly unknown[]; signal?: AbortSignal }
-      const fn = base.queryFn as unknown as (c?: Ctx) => Promise<unknown>
-      return (await fn(ctx as Ctx)) as Assignment[]
-    }
-    return {
-      queryKey: base.queryKey,
-      queryFn,
-      refetchOnWindowFocus: false,
-      staleTime: 30_000
-    }
-  })
 
 export function Dashboard() {
   const { data: courses = [] } = useQuery({
@@ -87,14 +63,16 @@ export function Dashboard() {
   }
 
   const assignmentQueriesResult = useQueries({
-    queries: makeAssignmentQueries(validCourseIds)
+    queries: validCourseIds.map((courseId) => ({
+      ...assignmentQueries.multiple({ courseId }),
+      staleTime: 30_000
+    }))
   })
 
   const summaryQueriesResult = useQueries({
     queries: validCourseIds.flatMap((courseId) =>
       [false, true].map((isExercise) => ({
         ...assignmentQueries.grades({ courseId, isExercise }),
-        refetchOnWindowFocus: false,
         staleTime: 30_000
       }))
     )

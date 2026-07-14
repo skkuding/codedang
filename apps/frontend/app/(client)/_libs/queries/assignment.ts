@@ -16,7 +16,7 @@ export const assignmentQueries = {
       queryKey: ['assignment', assignmentId],
       queryFn: () => getAssignment({ assignmentId })
     }),
-  muliple: ({ courseId, isExercise }: GetAssignmentsRequest) =>
+  multiple: ({ courseId, isExercise }: GetAssignmentsRequest) =>
     queryOptions({
       queryKey: ['assignments', courseId, isExercise],
       queryFn: () => getAssignments({ courseId, isExercise })

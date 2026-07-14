@@ -17,7 +17,7 @@ export function AssignmentAccordion({
   isExercise = false
 }: AssignmentAccordionProps) {
   const { data: assignments } = useSuspenseQuery(
-    assignmentQueries.muliple({ courseId, isExercise })
+    assignmentQueries.multiple({ courseId, isExercise })
   )
 
   if (assignments.length === 0) {
