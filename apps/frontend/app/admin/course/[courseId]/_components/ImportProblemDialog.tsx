@@ -10,7 +10,7 @@ import { HiMiniPlusCircle } from 'react-icons/hi2'
 import {
   ImportProblemTable,
   ImportProblemTableFallback
-} from '../(home)/assignment/_components/ImportProblemTable'
+} from '../(overview)/assignment/_components/ImportProblemTable'
 import type { AssignmentProblem } from '../_libs/type'
 
 interface ImportProblemDialogProps {
