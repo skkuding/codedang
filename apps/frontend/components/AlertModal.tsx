@@ -32,6 +32,7 @@ interface AlertModalProps {
   type: 'confirm' | 'warning'
   showIcon?: boolean
   showCancelButton?: boolean
+  cancelText?: string
   title: string
   description?: string
   primaryButton: ButtonProps
@@ -53,6 +54,7 @@ export function AlertModal({
   type,
   showIcon = true,
   showCancelButton = true,
+  cancelText = 'Cancel',
   title,
   description,
   primaryButton,
@@ -107,7 +109,7 @@ export function AlertModal({
         <AlertDialogFooter className="flex w-full flex-row gap-[4px]">
           {showCancelButton && (
             <AlertDialogCancel className="h-[46px] w-full">
-              Cancel
+              {cancelText}
             </AlertDialogCancel>
           )}
           <AlertDialogAction asChild>

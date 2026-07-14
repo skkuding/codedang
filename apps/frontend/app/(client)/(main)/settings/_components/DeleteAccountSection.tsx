@@ -1,12 +1,7 @@
 'use client'
 
-import { BaseModal } from '@/components/BaseModal'
-import {
-  AlertDialogCancel,
-  AlertDialogFooter
-} from '@/components/shadcn/alert-dialog'
-import { buttonVariants } from '@/components/shadcn/button'
-import { cn, isHttpError, safeFetcherWithAuth } from '@/libs/utils'
+import { AlertModal } from '@/components/AlertModal'
+import { isHttpError, safeFetcherWithAuth } from '@/libs/utils'
 import { signOut } from 'next-auth/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -74,14 +69,20 @@ export function DeleteAccountSection() {
         코드당 탈퇴하기
       </button>
 
-      <BaseModal
+      <AlertModal
         open={modalOpen}
-        handleClose={handleClose}
+        onOpenChange={(open) => !open && handleClose()}
+        type="warning"
         title="정말 탈퇴하시겠어요?"
         description="탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다."
-        modalstyle="rounded-[24px] border-0 shadow-[5px_5px_40px_0px_rgba(0,0,0,0.1)] p-7"
+        cancelText="취소"
+        primaryButton={{
+          text: isLoading ? '처리 중...' : '탈퇴하기',
+          onClick: handleWithdraw
+        }}
+        onClose={handleClose}
       >
-        <div className="flex flex-col gap-1">
+        <div className="flex w-full flex-col gap-1">
           <input
             placeholder="비밀번호를 입력해주세요"
             type="password"
@@ -100,23 +101,7 @@ export function DeleteAccountSection() {
           />
           {error && <p className="text-caption4_r_12 text-error">{error}</p>}
         </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleClose} disabled={isLoading}>
-            취소
-          </AlertDialogCancel>
-          <button
-            type="button"
-            onClick={handleWithdraw}
-            disabled={isLoading || !password}
-            className={cn(
-              buttonVariants(),
-              'bg-error hover:bg-error/90 border-none text-white disabled:opacity-50'
-            )}
-          >
-            {isLoading ? '처리 중...' : '탈퇴하기'}
-          </button>
-        </AlertDialogFooter>
-      </BaseModal>
+      </AlertModal>
     </>
   )
 }

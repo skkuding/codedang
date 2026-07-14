@@ -14,6 +14,7 @@ export function EmailVerificationSection() {
   const [isSending, setIsSending] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [pinSent, setPinSent] = useState(false)
+  const [emailReadOnly, setEmailReadOnly] = useState(true)
 
   const email = defaultProfileValues.email ?? ''
   const atIndex = email.indexOf('@')
@@ -95,7 +96,7 @@ export function EmailVerificationSection() {
   }
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col gap-4 md:flex-row md:gap-6">
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-caption2_m_12 text-color-neutral-15">
@@ -117,8 +118,10 @@ export function EmailVerificationSection() {
               새 이메일
             </label>
             <input
-              type="email"
+              type="text"
               value={newEmail}
+              readOnly={emailReadOnly}
+              onFocus={() => setEmailReadOnly(false)}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="변경할 이메일을 입력해주세요"
               className="focus:border-primary border-line text-body1_m_16 text-color-neutral-30 placeholder:text-color-neutral-90 h-[46px] w-full rounded-xl border bg-white px-5 py-[11px] outline-none"

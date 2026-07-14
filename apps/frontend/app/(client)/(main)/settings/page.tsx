@@ -17,7 +17,6 @@ import { AccountLinkingSection } from './_components/AccountLinkingSection'
 import { CollegeSection } from './_components/CollegeSection'
 import { ConfirmModal } from './_components/ConfirmModal'
 import { DeleteAccountSection } from './_components/DeleteAccountSection'
-import { EmailNotificationSection } from './_components/EmailNotificationSection'
 import { EmailVerificationSection } from './_components/EmailVerificationSection'
 import { NicknameSection } from './_components/NicknameSection'
 import { ProfilePhotoSection } from './_components/ProfilePhotoSection'
@@ -121,7 +120,7 @@ export default function Page() {
   const initialized = useRef(false)
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading || !defaultProfileValues.username) {
       return
     }
     if (!initialized.current) {
@@ -206,7 +205,10 @@ export default function Page() {
     if (data.newPassword !== 'tmppassword1') {
       updatePayload.newPassword = data.newPassword
     }
-    if (data.nickname && data.nickname !== defaultProfileValues.nickname) {
+    if (
+      data.nickname !== undefined &&
+      data.nickname !== defaultProfileValues.nickname
+    ) {
       updatePayload.nickname = data.nickname
     }
     mutate(updatePayload)
@@ -365,12 +367,12 @@ export default function Page() {
               <EmailVerificationSection />
             </section>
 
-            <section className="flex flex-col gap-5">
+            {/* <section className="flex flex-col gap-5">
               <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
                 이메일 알림
               </h2>
               <EmailNotificationSection />
-            </section>
+            </section> */}
 
             <section className="flex flex-col gap-5">
               <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
@@ -532,7 +534,7 @@ export default function Page() {
               disabled={!saveAble}
               onClick={onSubmitClick}
               className={cn(
-                'w-full rounded-xl px-5 py-[15px] text-base font-semibold tracking-[-0.64px] text-white',
+                'text-sub3_sb_16 w-full rounded-xl px-5 py-[15px] text-white',
                 saveAble
                   ? 'bg-primary'
                   : 'bg-fill-neutral text-color-neutral-30 cursor-not-allowed'
@@ -540,9 +542,8 @@ export default function Page() {
             >
               변경사항 저장하기
             </button>
+            <DeleteAccountSection />
           </div>
-
-          <DeleteAccountSection />
         </div>
       </SettingsProvider>
 

@@ -23,10 +23,6 @@ export const getSchema = () =>
     ),
     studentId: v.optional(v.string()),
     nickname: v.optional(
-      v.pipe(
-        v.string(),
-        v.minLength(1, '닉네임을 입력해주세요'),
-        v.maxLength(20, '닉네임은 20자 이하로 입력해주세요')
-      )
+      v.pipe(v.string(), v.maxLength(20, '닉네임은 20자 이하로 입력해주세요'))
     )
   })

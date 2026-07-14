@@ -67,10 +67,18 @@ export function CollegeSection() {
     if (!query && collegeValue && collegeValue !== 'none') {
       setQuery(collegeValue)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collegeValue])
 
-  const filteredUniversities: University[] =
+  const rawUniversities: University[] =
     query.length > 0 ? searchUniversities(query) : []
+
+  const filteredUniversities = rawUniversities.filter((uni, idx, arr) => {
+    if (CAMPUS_OVERRIDES[uni.nameKr]) {
+      return true
+    }
+    return arr.findIndex((u) => u.nameKr === uni.nameKr) === idx
+  })
 
   const getDisplayName = (uni: University): string => {
     const hasDuplicate =
