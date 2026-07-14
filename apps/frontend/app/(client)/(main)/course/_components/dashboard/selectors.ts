@@ -1,5 +1,5 @@
 import type { Assignment } from '@/types/type'
-import type { DashboardCourseSection } from './types'
+import type { CourseAssignmentList } from './types'
 import { isActiveOnDate, isDueToday, isNotExpired, startOfDay } from './utils'
 
 interface CreateDashboardViewModelParams {
@@ -40,29 +40,29 @@ const toDashboardAssignment = (
   }
 }
 
-const createCourseSections = (
+const createCourseAssignmentLists = (
   courseAssignments: CourseAssignment[],
   selectedDate?: Date
-): DashboardCourseSection[] => {
-  const sectionsByCourseId = new Map<
+): CourseAssignmentList[] => {
+  const assignmentListsByCourseId = new Map<
     number,
     { courseTitle: string; assignments: Assignment[] }
   >()
 
   for (const { courseId, courseTitle, assignment } of courseAssignments) {
-    const courseSection = sectionsByCourseId.get(courseId) ?? {
+    const courseAssignmentList = assignmentListsByCourseId.get(courseId) ?? {
       courseTitle,
       assignments: []
     }
-    courseSection.assignments.push(assignment)
-    sectionsByCourseId.set(courseId, courseSection)
+    courseAssignmentList.assignments.push(assignment)
+    assignmentListsByCourseId.set(courseId, courseAssignmentList)
   }
 
-  return [...sectionsByCourseId]
-    .map(([courseId, courseSection]) => ({
+  return [...assignmentListsByCourseId]
+    .map(([courseId, courseAssignmentList]) => ({
       courseId,
-      courseTitle: courseSection.courseTitle,
-      assignments: courseSection.assignments.sort((a, b) => {
+      courseTitle: courseAssignmentList.courseTitle,
+      assignments: courseAssignmentList.assignments.sort((a, b) => {
         const dueRank =
           Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
           Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
@@ -118,11 +118,11 @@ const createDashboardViewModel = ({
   )
 
   return {
-    assignmentCourseSections: createCourseSections(
+    assignmentListsByCourse: createCourseAssignmentLists(
       visibleAssignments.filter(({ assignment }) => !assignment.isExercise),
       selectedDate
     ),
-    exerciseCourseSections: createCourseSections(
+    exerciseListsByCourse: createCourseAssignmentLists(
       visibleAssignments.filter(({ assignment }) => assignment.isExercise),
       selectedDate
     ),

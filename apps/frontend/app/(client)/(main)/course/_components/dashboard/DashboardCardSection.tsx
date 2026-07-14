@@ -1,18 +1,18 @@
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import {
-  DashboardCourseSection,
-  DashboardCourseSectionView
-} from './DashboardCourseSection'
-import type { DashboardCourseSection as DashboardCourseSectionData } from './types'
+  DashboardCourseAssignmentList,
+  DashboardCourseAssignmentListView
+} from './DashboardCourseAssignmentList'
+import type { CourseAssignmentList } from './types'
 
 interface DashboardCardSectionProps {
-  courseSections: DashboardCourseSectionData[]
+  courseAssignmentLists: CourseAssignmentList[]
   isExercise?: boolean
 }
 
 export function DashboardCardSection({
-  courseSections,
+  courseAssignmentLists,
   isExercise = false
 }: DashboardCardSectionProps) {
   const title = isExercise ? 'Exercise' : 'Assignment'
@@ -25,26 +25,28 @@ export function DashboardCardSection({
         </span>
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
-          {courseSections.map((courseSection, index) => {
-            const courseSectionWithoutSummary = (
-              <DashboardCourseSectionView courseSection={courseSection} />
+          {courseAssignmentLists.map((courseAssignmentList, index) => {
+            const assignmentListWithoutSummary = (
+              <DashboardCourseAssignmentListView
+                courseAssignmentList={courseAssignmentList}
+              />
             )
 
             return (
-              <div key={courseSection.courseId} className="w-full">
+              <div key={courseAssignmentList.courseId} className="w-full">
                 <ErrorBoundary
-                  fallback={courseSectionWithoutSummary}
-                  resetKeys={[courseSection.courseId, isExercise]}
+                  fallback={assignmentListWithoutSummary}
+                  resetKeys={[courseAssignmentList.courseId, isExercise]}
                 >
-                  <Suspense fallback={courseSectionWithoutSummary}>
-                    <DashboardCourseSection
-                      courseSection={courseSection}
+                  <Suspense fallback={assignmentListWithoutSummary}>
+                    <DashboardCourseAssignmentList
+                      courseAssignmentList={courseAssignmentList}
                       isExercise={isExercise}
                     />
                   </Suspense>
                 </ErrorBoundary>
 
-                {index < courseSections.length - 1 && (
+                {index < courseAssignmentLists.length - 1 && (
                   <hr className="my-6 border-t-[0.5px] border-neutral-100" />
                 )}
               </div>

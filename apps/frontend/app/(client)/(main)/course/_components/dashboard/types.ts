@@ -1,9 +1,9 @@
 import type { Assignment } from '@/types/type'
 
-interface DashboardCourseSection {
+interface CourseAssignmentList {
   courseId: number
   courseTitle: string
   assignments: Assignment[]
 }
 
-export type { DashboardCourseSection }
+export type { CourseAssignmentList }
