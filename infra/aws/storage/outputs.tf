@@ -4,7 +4,7 @@ output "testcase_bucket" {
 }
 
 output "database_url" {
-  value     = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public"
+  value     = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public&sslmode=require"
   sensitive = true
 }
 
