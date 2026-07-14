@@ -4,7 +4,6 @@ import { auth } from '@/libs/auth'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CourseCardList } from './_components/CourseCardList'
-import { CourseSubBanner } from './_components/CourseSubBanner'
 import { LoginButton } from './_components/LoginButton'
 import { Dashboard } from './_components/dashboard/Dashboard'
 
@@ -15,6 +14,19 @@ function CardListFallback() {
       <div className="flex gap-8">
         <Skeleton className="h-[120px] w-[375px] rounded-xl" />
         <Skeleton className="h-[120px] w-[375px] rounded-xl" />
+      </div>
+    </div>
+  )
+}
+
+function DashboardFallback() {
+  return (
+    <div>
+      <Skeleton className="mb-8 h-8 w-40" />
+      <div className="grid grid-cols-1 gap-[14px] md:grid-cols-2 lg:grid-cols-3">
+        <Skeleton className="h-[400px] rounded-xl" />
+        <Skeleton className="h-[400px] rounded-xl" />
+        <Skeleton className="h-[400px] rounded-xl" />
       </div>
     </div>
   )
@@ -70,7 +82,11 @@ export default async function Course() {
           </ErrorBoundary>
 
           <div className="w-full">
-            <Dashboard />
+            <ErrorBoundary fallback={FetchErrorFallback}>
+              <Suspense fallback={<DashboardFallback />}>
+                <Dashboard />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </div>
       </div>
