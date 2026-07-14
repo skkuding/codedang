@@ -1,14 +1,19 @@
-import type { Assignment, JoinedCourse } from '@/types/type'
+import type { Assignment } from '@/types/type'
 import type { GroupedRows, WorkItem } from './types'
 import { isActiveOnDate, isDueToday, isNotExpired, startOfDay } from './utils'
 
 interface CreateDashboardViewModelParams {
   assignments: Assignment[]
-  courses: JoinedCourse[]
   selectedDate?: Date
 }
 
-const toWorkItem = (assignment: Assignment): WorkItem | null => {
+interface CourseWorkItem {
+  courseId: number
+  courseTitle: string
+  workItem: WorkItem
+}
+
+const toWorkItem = (assignment: Assignment): CourseWorkItem | null => {
   const startTime = new Date(assignment.startTime)
   const endTime = new Date(assignment.endTime)
   const dueTime = new Date(assignment.dueTime ?? assignment.endTime)
@@ -20,65 +25,61 @@ const toWorkItem = (assignment: Assignment): WorkItem | null => {
   }
 
   return {
-    id: assignment.id,
-    title: assignment.title,
-    isExercise: assignment.isExercise,
-    startTime,
-    endTime,
-    dueTime,
-    group: {
-      id: Number.isFinite(Number(assignment.group?.id))
-        ? Number(assignment.group.id)
-        : 0,
-      groupName: assignment.group?.groupName ?? 'Unknown'
-    },
-    problemCount: assignment.problemCount ?? 0,
-    week: assignment.week,
-    status: assignment.status,
-    raw: assignment
+    courseId: Number.isFinite(Number(assignment.group?.id))
+      ? Number(assignment.group.id)
+      : 0,
+    courseTitle: assignment.group?.groupName ?? 'Unknown',
+    workItem: {
+      id: assignment.id,
+      title: assignment.title,
+      isExercise: assignment.isExercise,
+      startTime,
+      endTime,
+      dueTime,
+      problemCount: assignment.problemCount ?? 0,
+      week: assignment.week,
+      status: assignment.status,
+      raw: assignment
+    }
   }
 }
 
 const groupRowsByCourse = (
-  rows: WorkItem[],
-  courses: JoinedCourse[],
+  rows: CourseWorkItem[],
   selectedDate?: Date
 ): GroupedRows[] => {
-  const rowsByCourse = new Map<number, WorkItem[]>()
+  const groupsByCourse = new Map<
+    number,
+    { courseTitle: string; rows: WorkItem[] }
+  >()
 
-  for (const row of rows) {
-    const courseRows = rowsByCourse.get(row.group.id) ?? []
-    courseRows.push(row)
-    rowsByCourse.set(row.group.id, courseRows)
+  for (const { courseId, courseTitle, workItem } of rows) {
+    const group = groupsByCourse.get(courseId) ?? { courseTitle, rows: [] }
+    group.rows.push(workItem)
+    groupsByCourse.set(courseId, group)
   }
 
-  return [...rowsByCourse]
-    .map(([courseId, courseRows]) => {
-      const course = courses.find(({ id }) => id === courseId)
+  return [...groupsByCourse]
+    .map(([courseId, group]) => ({
+      courseId,
+      courseTitle: group.courseTitle,
+      rows: group.rows.sort((a, b) => {
+        const dueRank =
+          Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
+          Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
+        if (dueRank !== 0) {
+          return dueRank
+        }
 
-      return {
-        courseId,
-        courseNum: course?.courseInfo.courseNum,
-        classNum: course?.courseInfo.classNum,
-        courseTitle: courseRows[0].group.groupName || 'Unknown',
-        rows: courseRows.sort((a, b) => {
-          const dueRank =
-            Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
-            Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
-          if (dueRank !== 0) {
-            return dueRank
-          }
+        const dueA = a.dueTime?.getTime() ?? a.endTime.getTime()
+        const dueB = b.dueTime?.getTime() ?? b.endTime.getTime()
+        if (dueA !== dueB) {
+          return dueA - dueB
+        }
 
-          const dueA = a.dueTime?.getTime() ?? a.endTime.getTime()
-          const dueB = b.dueTime?.getTime() ?? b.endTime.getTime()
-          if (dueA !== dueB) {
-            return dueA - dueB
-          }
-
-          return a.title.localeCompare(b.title)
-        })
-      }
-    })
+        return a.title.localeCompare(b.title)
+      })
+    }))
     .sort((a, b) => {
       const dueRank =
         Number(
@@ -98,7 +99,6 @@ const groupRowsByCourse = (
 
 const createDashboardViewModel = ({
   assignments,
-  courses,
   selectedDate
 }: CreateDashboardViewModelParams) => {
   const allRows = assignments.flatMap((assignment) => {
@@ -106,24 +106,25 @@ const createDashboardViewModel = ({
     return workItem ? [workItem] : []
   })
   const visibleRows = allRows.filter(
-    (workItem) =>
+    ({ workItem }) =>
       isNotExpired(workItem) && isActiveOnDate(selectedDate, workItem)
   )
   const deadlineTimestamps = new Set(
     allRows
+      .map(({ workItem }) => workItem)
       .filter(isNotExpired)
-      .map((row) => startOfDay(new Date(row.dueTime ?? row.endTime)).getTime())
+      .map((workItem) =>
+        startOfDay(new Date(workItem.dueTime ?? workItem.endTime)).getTime()
+      )
   )
 
   return {
     assignmentGroups: groupRowsByCourse(
-      visibleRows.filter((row) => !row.isExercise),
-      courses,
+      visibleRows.filter(({ workItem }) => !workItem.isExercise),
       selectedDate
     ),
     exerciseGroups: groupRowsByCourse(
-      visibleRows.filter((row) => row.isExercise),
-      courses,
+      visibleRows.filter(({ workItem }) => workItem.isExercise),
       selectedDate
     ),
     deadlineDateList: [...deadlineTimestamps].map(

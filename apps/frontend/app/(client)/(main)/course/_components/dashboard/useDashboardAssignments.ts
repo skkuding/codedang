@@ -28,7 +28,7 @@ const useDashboardAssignments = () => {
     [assignmentQueriesResult]
   )
 
-  return { assignments, courses }
+  return assignments
 }
 
 export { useDashboardAssignments }

@@ -8,12 +8,12 @@ import { useDashboardAssignments } from './useDashboardAssignments'
 import { useDashboardCalendar } from './useDashboardCalendar'
 
 export function Dashboard() {
-  const { assignments, courses } = useDashboardAssignments()
+  const assignments = useDashboardAssignments()
   const { onSelectDate, selectedDate, setViewMonth, viewMonth } =
     useDashboardCalendar()
   const { assignmentGroups, deadlineDateList, exerciseGroups } = useMemo(
-    () => createDashboardViewModel({ assignments, courses, selectedDate }),
-    [assignments, courses, selectedDate]
+    () => createDashboardViewModel({ assignments, selectedDate }),
+    [assignments, selectedDate]
   )
 
   return (
