@@ -2,15 +2,12 @@
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import { fetcherWithAuth } from '@/libs/utils'
-import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
+import type { Assignment, JoinedCourse } from '@/types/type'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { DashboardCalendar } from './DashboardCalendar'
-import {
-  DashboardCardSection,
-  type GroupedRows,
-  type WorkItem
-} from './DashboardCardSection'
+import { DashboardCardSection } from './DashboardCardSection'
+import type { GroupedRows, WorkItem } from './types'
 import {
   isActiveOnDate,
   isNotExpired,
@@ -23,9 +20,6 @@ const toGroupInfo = (group: Assignment['group'] | undefined) => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
   groupName: group?.groupName ?? 'Unknown'
 })
-
-const getSummaryKey = (courseId: number, isExercise: boolean) =>
-  `${courseId}:${isExercise}`
 
 export function Dashboard() {
   const { data: courses = [] } = useQuery({
@@ -72,32 +66,6 @@ export function Dashboard() {
     }))
   })
 
-  const summaryQueryParams = useMemo(
-    () =>
-      validCourseIds.flatMap((courseId) =>
-        [false, true].map((isExercise) => ({ courseId, isExercise }))
-      ),
-    [validCourseIds]
-  )
-
-  const summaryQueriesResult = useQueries({
-    queries: summaryQueryParams.map(({ courseId, isExercise }) => ({
-      ...assignmentQueries.grades({ courseId, isExercise }),
-      staleTime: 30_000
-    }))
-  })
-
-  const summaryStatusByCourse = useMemo(
-    () =>
-      new Map(
-        summaryQueryParams.map(({ courseId, isExercise }, index) => [
-          getSummaryKey(courseId, isExercise),
-          summaryQueriesResult[index]?.status
-        ])
-      ),
-    [summaryQueriesResult, summaryQueryParams]
-  )
-
   const allAssignments = useMemo<Assignment[]>(
     () => assignmentQueriesResult.flatMap((q) => q.data ?? []),
     [assignmentQueriesResult]
@@ -113,22 +81,6 @@ export function Dashboard() {
     [allAssignments]
   )
 
-  const summaryByAssignmentId = useMemo(() => {
-    const map = new Map<
-      number,
-      { problemCount: number; submittedCount: number }
-    >()
-    for (const q of summaryQueriesResult) {
-      for (const s of (q.data as AssignmentSummary[] | undefined) ?? []) {
-        map.set(s.id, {
-          problemCount: s.problemCount,
-          submittedCount: s.submittedCount
-        })
-      }
-    }
-    return map
-  }, [summaryQueriesResult])
-
   const allRows = useMemo<WorkItem[]>(() => {
     const toRows = (list: Assignment[] | undefined, isExercise: boolean) =>
       (list ?? []).flatMap((a) => {
@@ -140,10 +92,6 @@ export function Dashboard() {
         ) {
           return []
         }
-        const summary = summaryByAssignmentId.get(a.id)
-        const summaryStatus = summaryStatusByCourse.get(
-          getSummaryKey(Number(a.group.id), isExercise)
-        )
         return [
           {
             id: a.id,
@@ -153,10 +101,7 @@ export function Dashboard() {
             endTime,
             dueTime,
             group: toGroupInfo(a.group),
-            problemCount: summary?.problemCount ?? a.problemCount ?? 0,
-            submittedCount:
-              summary?.submittedCount ??
-              (summaryStatus === 'success' ? 0 : undefined),
+            problemCount: a.problemCount ?? 0,
             week: a.week,
             status: a.status,
             raw: a
@@ -164,7 +109,7 @@ export function Dashboard() {
         ]
       })
     return [...toRows(assignments, false), ...toRows(exercises, true)]
-  }, [assignments, exercises, summaryByAssignmentId, summaryStatusByCourse])
+  }, [assignments, exercises])
 
   const visibleRows = useMemo(
     () =>
@@ -209,8 +154,6 @@ export function Dashboard() {
     }
     return [...uniq].map((t) => new Date(t))
   }, [allRows])
-  const courseIdResolver = (row: WorkItem) => row.group.id
-
   return (
     <section className="mx-auto max-w-[1208px]">
       <div className="pb-4 sm:pb-[30px]">
@@ -221,24 +164,24 @@ export function Dashboard() {
         <div className="order-2 flex max-h-[460px] flex-col md:order-1">
           <DashboardCardSection
             title="Assignment"
+            isExercise={false}
             groups={groupedByCourse.map((group) => ({
               ...group,
               rows: group.rows.filter((r) => !r.isExercise)
             }))}
             selectedDate={selectedDate}
-            courseIdResolver={courseIdResolver}
           />
         </div>
 
         <div className="order-3 flex max-h-[460px] flex-col md:order-2">
           <DashboardCardSection
             title="Exercise"
+            isExercise
             groups={groupedByCourse.map((group) => ({
               ...group,
               rows: group.rows.filter((r) => r.isExercise)
             }))}
             selectedDate={selectedDate}
-            courseIdResolver={courseIdResolver}
           />
         </div>
         <div className="order-1 flex flex-col md:order-3">

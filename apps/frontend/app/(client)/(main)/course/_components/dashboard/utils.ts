@@ -1,4 +1,4 @@
-import type { WorkItem } from './DashboardCardSection'
+import type { WorkItem } from './types'
 
 const startOfDay = (date: Date) => {
   const start = new Date(date)
