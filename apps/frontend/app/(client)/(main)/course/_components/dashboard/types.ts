@@ -1,21 +1,9 @@
-type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
-
-interface WorkItem {
-  id: number
-  title: string
-  isExercise: boolean
-  startTime: Date
-  endTime: Date
-  dueTime?: Date
-  problemCount: number
-  week?: number
-  status?: WorkStatus
-}
+import type { Assignment } from '@/types/type'
 
 interface GroupedRows {
   courseId: number
   courseTitle: string
-  rows: WorkItem[]
+  rows: Assignment[]
 }
 
-export type { GroupedRows, WorkItem }
+export type { GroupedRows }

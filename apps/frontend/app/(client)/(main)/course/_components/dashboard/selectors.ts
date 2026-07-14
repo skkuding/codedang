@@ -1,5 +1,5 @@
 import type { Assignment } from '@/types/type'
-import type { GroupedRows, WorkItem } from './types'
+import type { GroupedRows } from './types'
 import { isActiveOnDate, isDueToday, isNotExpired, startOfDay } from './utils'
 
 interface CreateDashboardViewModelParams {
@@ -7,13 +7,15 @@ interface CreateDashboardViewModelParams {
   selectedDate?: Date
 }
 
-interface CourseWorkItem {
+interface CourseAssignment {
   courseId: number
   courseTitle: string
-  workItem: WorkItem
+  assignment: Assignment
 }
 
-const toWorkItem = (assignment: Assignment): CourseWorkItem | null => {
+const toDashboardAssignment = (
+  assignment: Assignment
+): CourseAssignment | null => {
   const startTime = new Date(assignment.startTime)
   const endTime = new Date(assignment.endTime)
   const dueTime = new Date(assignment.dueTime ?? assignment.endTime)
@@ -29,32 +31,27 @@ const toWorkItem = (assignment: Assignment): CourseWorkItem | null => {
       ? Number(assignment.group.id)
       : 0,
     courseTitle: assignment.group?.groupName ?? 'Unknown',
-    workItem: {
-      id: assignment.id,
-      title: assignment.title,
-      isExercise: assignment.isExercise,
+    assignment: {
+      ...assignment,
       startTime,
       endTime,
-      dueTime,
-      problemCount: assignment.problemCount ?? 0,
-      week: assignment.week,
-      status: assignment.status
+      dueTime
     }
   }
 }
 
 const groupRowsByCourse = (
-  rows: CourseWorkItem[],
+  rows: CourseAssignment[],
   selectedDate?: Date
 ): GroupedRows[] => {
   const groupsByCourse = new Map<
     number,
-    { courseTitle: string; rows: WorkItem[] }
+    { courseTitle: string; rows: Assignment[] }
   >()
 
-  for (const { courseId, courseTitle, workItem } of rows) {
+  for (const { courseId, courseTitle, assignment } of rows) {
     const group = groupsByCourse.get(courseId) ?? { courseTitle, rows: [] }
-    group.rows.push(workItem)
+    group.rows.push(assignment)
     groupsByCourse.set(courseId, group)
   }
 
@@ -101,29 +98,29 @@ const createDashboardViewModel = ({
   selectedDate
 }: CreateDashboardViewModelParams) => {
   const allRows = assignments.flatMap((assignment) => {
-    const workItem = toWorkItem(assignment)
-    return workItem ? [workItem] : []
+    const dashboardAssignment = toDashboardAssignment(assignment)
+    return dashboardAssignment ? [dashboardAssignment] : []
   })
   const visibleRows = allRows.filter(
-    ({ workItem }) =>
-      isNotExpired(workItem) && isActiveOnDate(selectedDate, workItem)
+    ({ assignment }) =>
+      isNotExpired(assignment) && isActiveOnDate(selectedDate, assignment)
   )
   const deadlineTimestamps = new Set(
     allRows
-      .map(({ workItem }) => workItem)
+      .map(({ assignment }) => assignment)
       .filter(isNotExpired)
-      .map((workItem) =>
-        startOfDay(new Date(workItem.dueTime ?? workItem.endTime)).getTime()
+      .map((assignment) =>
+        startOfDay(new Date(assignment.dueTime ?? assignment.endTime)).getTime()
       )
   )
 
   return {
     assignmentGroups: groupRowsByCourse(
-      visibleRows.filter(({ workItem }) => !workItem.isExercise),
+      visibleRows.filter(({ assignment }) => !assignment.isExercise),
       selectedDate
     ),
     exerciseGroups: groupRowsByCourse(
-      visibleRows.filter(({ workItem }) => workItem.isExercise),
+      visibleRows.filter(({ assignment }) => assignment.isExercise),
       selectedDate
     ),
     deadlineDateList: [...deadlineTimestamps].map(

@@ -1,4 +1,4 @@
-import type { WorkItem } from './types'
+import type { Assignment } from '@/types/type'
 
 const startOfDay = (date: Date) => {
   const start = new Date(date)
@@ -13,19 +13,22 @@ const isSameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate()
 
-const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
+const isActiveOnDate = (
+  selectedDate: Date | undefined,
+  assignment: Assignment
+) => {
   if (!selectedDate) {
     return true
   }
   const selectedStart = startOfDay(selectedDate).getTime()
   const selectedEnd = selectedStart + 86_400_000 - 1
-  const startTime = workItem.startTime.getTime()
-  const dueTime = workItem.dueTime?.getTime() ?? workItem.endTime.getTime()
+  const startTime = assignment.startTime.getTime()
+  const dueTime = assignment.dueTime?.getTime() ?? assignment.endTime.getTime()
   return !(dueTime < selectedStart || startTime > selectedEnd)
 }
 
-const isNotExpired = (workItem: WorkItem) => {
-  const dueTime = (workItem.dueTime ?? workItem.endTime).getTime()
+const isNotExpired = (assignment: Assignment) => {
+  const dueTime = (assignment.dueTime ?? assignment.endTime).getTime()
   return dueTime >= Date.now()
 }
 
