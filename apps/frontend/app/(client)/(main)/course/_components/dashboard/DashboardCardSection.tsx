@@ -1,20 +1,20 @@
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import {
-  DashboardCourseGroup,
-  DashboardCourseGroupView
-} from './DashboardCourseGroup'
-import type { GroupedRows } from './types'
+  DashboardCourseSection,
+  DashboardCourseSectionView
+} from './DashboardCourseSection'
+import type { DashboardCourseSection as DashboardCourseSectionData } from './types'
 
 interface DashboardCardSectionProps {
   title: string
-  groups: GroupedRows[]
+  courseSections: DashboardCourseSectionData[]
   isExercise: boolean
 }
 
 export function DashboardCardSection({
   title,
-  groups,
+  courseSections,
   isExercise
 }: DashboardCardSectionProps) {
   return (
@@ -25,26 +25,26 @@ export function DashboardCardSection({
         </span>
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
-          {groups.map((group, index) => {
-            const groupWithoutSummary = (
-              <DashboardCourseGroupView group={group} />
+          {courseSections.map((courseSection, index) => {
+            const courseSectionWithoutSummary = (
+              <DashboardCourseSectionView courseSection={courseSection} />
             )
 
             return (
-              <div key={group.courseId} className="w-full">
+              <div key={courseSection.courseId} className="w-full">
                 <ErrorBoundary
-                  fallback={groupWithoutSummary}
-                  resetKeys={[group.courseId, isExercise]}
+                  fallback={courseSectionWithoutSummary}
+                  resetKeys={[courseSection.courseId, isExercise]}
                 >
-                  <Suspense fallback={groupWithoutSummary}>
-                    <DashboardCourseGroup
-                      group={group}
+                  <Suspense fallback={courseSectionWithoutSummary}>
+                    <DashboardCourseSection
+                      courseSection={courseSection}
                       isExercise={isExercise}
                     />
                   </Suspense>
                 </ErrorBoundary>
 
-                {index < groups.length - 1 && (
+                {index < courseSections.length - 1 && (
                   <hr className="my-6 border-t-[0.5px] border-neutral-100" />
                 )}
               </div>

@@ -1,5 +1,5 @@
 import type { Assignment } from '@/types/type'
-import type { GroupedRows } from './types'
+import type { DashboardCourseSection } from './types'
 import { isActiveOnDate, isDueToday, isNotExpired, startOfDay } from './utils'
 
 interface CreateDashboardViewModelParams {
@@ -40,26 +40,29 @@ const toDashboardAssignment = (
   }
 }
 
-const groupRowsByCourse = (
-  rows: CourseAssignment[],
+const createCourseSections = (
+  courseAssignments: CourseAssignment[],
   selectedDate?: Date
-): GroupedRows[] => {
-  const groupsByCourse = new Map<
+): DashboardCourseSection[] => {
+  const sectionsByCourseId = new Map<
     number,
-    { courseTitle: string; rows: Assignment[] }
+    { courseTitle: string; assignments: Assignment[] }
   >()
 
-  for (const { courseId, courseTitle, assignment } of rows) {
-    const group = groupsByCourse.get(courseId) ?? { courseTitle, rows: [] }
-    group.rows.push(assignment)
-    groupsByCourse.set(courseId, group)
+  for (const { courseId, courseTitle, assignment } of courseAssignments) {
+    const courseSection = sectionsByCourseId.get(courseId) ?? {
+      courseTitle,
+      assignments: []
+    }
+    courseSection.assignments.push(assignment)
+    sectionsByCourseId.set(courseId, courseSection)
   }
 
-  return [...groupsByCourse]
-    .map(([courseId, group]) => ({
+  return [...sectionsByCourseId]
+    .map(([courseId, courseSection]) => ({
       courseId,
-      courseTitle: group.courseTitle,
-      rows: group.rows.sort((a, b) => {
+      courseTitle: courseSection.courseTitle,
+      assignments: courseSection.assignments.sort((a, b) => {
         const dueRank =
           Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
           Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
@@ -79,13 +82,13 @@ const groupRowsByCourse = (
     .sort((a, b) => {
       const dueRank =
         Number(
-          b.rows.some((row) =>
-            isDueToday(selectedDate, row.dueTime ?? row.endTime)
+          b.assignments.some((assignment) =>
+            isDueToday(selectedDate, assignment.dueTime ?? assignment.endTime)
           )
         ) -
         Number(
-          a.rows.some((row) =>
-            isDueToday(selectedDate, row.dueTime ?? row.endTime)
+          a.assignments.some((assignment) =>
+            isDueToday(selectedDate, assignment.dueTime ?? assignment.endTime)
           )
         )
 
@@ -97,16 +100,16 @@ const createDashboardViewModel = ({
   assignments,
   selectedDate
 }: CreateDashboardViewModelParams) => {
-  const allRows = assignments.flatMap((assignment) => {
+  const courseAssignments = assignments.flatMap((assignment) => {
     const dashboardAssignment = toDashboardAssignment(assignment)
     return dashboardAssignment ? [dashboardAssignment] : []
   })
-  const visibleRows = allRows.filter(
+  const visibleAssignments = courseAssignments.filter(
     ({ assignment }) =>
       isNotExpired(assignment) && isActiveOnDate(selectedDate, assignment)
   )
   const deadlineTimestamps = new Set(
-    allRows
+    courseAssignments
       .map(({ assignment }) => assignment)
       .filter(isNotExpired)
       .map((assignment) =>
@@ -115,12 +118,12 @@ const createDashboardViewModel = ({
   )
 
   return {
-    assignmentGroups: groupRowsByCourse(
-      visibleRows.filter(({ assignment }) => !assignment.isExercise),
+    assignmentCourseSections: createCourseSections(
+      visibleAssignments.filter(({ assignment }) => !assignment.isExercise),
       selectedDate
     ),
-    exerciseGroups: groupRowsByCourse(
-      visibleRows.filter(({ assignment }) => assignment.isExercise),
+    exerciseCourseSections: createCourseSections(
+      visibleAssignments.filter(({ assignment }) => assignment.isExercise),
       selectedDate
     ),
     deadlineDateList: [...deadlineTimestamps].map(

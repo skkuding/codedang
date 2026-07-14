@@ -1,9 +1,9 @@
 import type { Assignment } from '@/types/type'
 
-interface GroupedRows {
+interface DashboardCourseSection {
   courseId: number
   courseTitle: string
-  rows: Assignment[]
+  assignments: Assignment[]
 }
 
-export type { GroupedRows }
+export type { DashboardCourseSection }

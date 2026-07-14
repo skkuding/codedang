@@ -11,10 +11,11 @@ export function Dashboard() {
   const assignments = useDashboardAssignments()
   const { onSelectDate, selectedDate, setViewMonth, viewMonth } =
     useDashboardCalendar()
-  const { assignmentGroups, deadlineDateList, exerciseGroups } = useMemo(
-    () => createDashboardViewModel({ assignments, selectedDate }),
-    [assignments, selectedDate]
-  )
+  const { assignmentCourseSections, deadlineDateList, exerciseCourseSections } =
+    useMemo(
+      () => createDashboardViewModel({ assignments, selectedDate }),
+      [assignments, selectedDate]
+    )
 
   return (
     <section className="mx-auto max-w-[1208px]">
@@ -27,7 +28,7 @@ export function Dashboard() {
           <DashboardCardSection
             title="Assignment"
             isExercise={false}
-            groups={assignmentGroups}
+            courseSections={assignmentCourseSections}
           />
         </div>
 
@@ -35,7 +36,7 @@ export function Dashboard() {
           <DashboardCardSection
             title="Exercise"
             isExercise
-            groups={exerciseGroups}
+            courseSections={exerciseCourseSections}
           />
         </div>
         <div className="order-1 flex flex-col md:order-3">
