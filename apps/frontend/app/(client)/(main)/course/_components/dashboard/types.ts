@@ -1,5 +1,3 @@
-import type { Assignment } from '@/types/type'
-
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
 
 interface WorkItem {
@@ -12,7 +10,6 @@ interface WorkItem {
   problemCount: number
   week?: number
   status?: WorkStatus
-  raw: Assignment
 }
 
 interface GroupedRows {

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface AssignmentLinkProps {
-  assignment: Assignment
+  assignment: Pick<Assignment, 'id' | 'startTime' | 'title'>
   courseId: number
   isExercise?: boolean
 }

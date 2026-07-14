@@ -61,7 +61,7 @@ function DashboardCourseGroupView({
 
                   <div className="min-w-0">
                     <AssignmentLink
-                      assignment={row.raw}
+                      assignment={row}
                       courseId={group.courseId}
                       isExercise={row.isExercise}
                     />

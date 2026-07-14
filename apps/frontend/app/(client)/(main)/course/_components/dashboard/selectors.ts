@@ -38,8 +38,7 @@ const toWorkItem = (assignment: Assignment): CourseWorkItem | null => {
       dueTime,
       problemCount: assignment.problemCount ?? 0,
       week: assignment.week,
-      status: assignment.status,
-      raw: assignment
+      status: assignment.status
     }
   }
 }
