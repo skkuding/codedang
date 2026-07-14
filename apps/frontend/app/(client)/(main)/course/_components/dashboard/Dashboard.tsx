@@ -29,11 +29,10 @@ const toGroupInfo = (group: Assignment['group'] | undefined) => ({
 })
 
 const makeAssignmentQueries = (
-  courseIds: number[],
-  isExercise: boolean
+  courseIds: number[]
 ): UseQueryOptions<Assignment[], Error>[] =>
   courseIds.map((courseId) => {
-    const base = assignmentQueries.muliple({ courseId, isExercise })
+    const base = assignmentQueries.muliple({ courseId })
     const queryFn: UseQueryOptions<Assignment[], Error>['queryFn'] = async (
       ctx
     ) => {
@@ -42,10 +41,7 @@ const makeAssignmentQueries = (
       return (await fn(ctx as Ctx)) as Assignment[]
     }
     return {
-      queryKey: [
-        ...(base.queryKey as readonly unknown[]),
-        isExercise ? 'exercise' : 'assignment'
-      ] as const,
+      queryKey: base.queryKey,
       queryFn,
       refetchOnWindowFocus: false,
       staleTime: 30_000
@@ -91,10 +87,7 @@ export function Dashboard() {
   }
 
   const assignmentQueriesResult = useQueries({
-    queries: makeAssignmentQueries(validCourseIds, false)
-  })
-  const exerciseQueriesResult = useQueries({
-    queries: makeAssignmentQueries(validCourseIds, true)
+    queries: makeAssignmentQueries(validCourseIds)
   })
 
   const summaryQueriesResult = useQueries({
@@ -105,14 +98,19 @@ export function Dashboard() {
     }))
   })
 
-  const assignments = useMemo<Assignment[]>(
+  const allAssignments = useMemo<Assignment[]>(
     () => assignmentQueriesResult.flatMap((q) => q.data ?? []),
     [assignmentQueriesResult]
   )
 
+  const assignments = useMemo(
+    () => allAssignments.filter((assignment) => !assignment.isExercise),
+    [allAssignments]
+  )
+
   const exercises = useMemo<Assignment[]>(
-    () => exerciseQueriesResult.flatMap((q) => q.data ?? []),
-    [exerciseQueriesResult]
+    () => allAssignments.filter((assignment) => assignment.isExercise),
+    [allAssignments]
   )
 
   const summaryByAssignmentId = useMemo(() => {
