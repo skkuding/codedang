@@ -24,6 +24,9 @@ const toGroupInfo = (group: Assignment['group'] | undefined) => ({
   groupName: group?.groupName ?? 'Unknown'
 })
 
+const getSummaryKey = (courseId: number, isExercise: boolean) =>
+  `${courseId}:${isExercise}`
+
 export function Dashboard() {
   const { data: courses = [] } = useQuery({
     queryKey: ['joinedCourses'],
@@ -69,14 +72,31 @@ export function Dashboard() {
     }))
   })
 
+  const summaryQueryParams = useMemo(
+    () =>
+      validCourseIds.flatMap((courseId) =>
+        [false, true].map((isExercise) => ({ courseId, isExercise }))
+      ),
+    [validCourseIds]
+  )
+
   const summaryQueriesResult = useQueries({
-    queries: validCourseIds.flatMap((courseId) =>
-      [false, true].map((isExercise) => ({
-        ...assignmentQueries.grades({ courseId, isExercise }),
-        staleTime: 30_000
-      }))
-    )
+    queries: summaryQueryParams.map(({ courseId, isExercise }) => ({
+      ...assignmentQueries.grades({ courseId, isExercise }),
+      staleTime: 30_000
+    }))
   })
+
+  const summaryStatusByCourse = useMemo(
+    () =>
+      new Map(
+        summaryQueryParams.map(({ courseId, isExercise }, index) => [
+          getSummaryKey(courseId, isExercise),
+          summaryQueriesResult[index]?.status
+        ])
+      ),
+    [summaryQueriesResult, summaryQueryParams]
+  )
 
   const allAssignments = useMemo<Assignment[]>(
     () => assignmentQueriesResult.flatMap((q) => q.data ?? []),
@@ -121,6 +141,9 @@ export function Dashboard() {
           return []
         }
         const summary = summaryByAssignmentId.get(a.id)
+        const summaryStatus = summaryStatusByCourse.get(
+          getSummaryKey(Number(a.group.id), isExercise)
+        )
         return [
           {
             id: a.id,
@@ -131,7 +154,9 @@ export function Dashboard() {
             dueTime,
             group: toGroupInfo(a.group),
             problemCount: summary?.problemCount ?? a.problemCount ?? 0,
-            submittedCount: summary?.submittedCount ?? 0,
+            submittedCount:
+              summary?.submittedCount ??
+              (summaryStatus === 'success' ? 0 : undefined),
             week: a.week,
             status: a.status,
             raw: a
@@ -139,7 +164,7 @@ export function Dashboard() {
         ]
       })
     return [...toRows(assignments, false), ...toRows(exercises, true)]
-  }, [assignments, exercises, summaryByAssignmentId])
+  }, [assignments, exercises, summaryByAssignmentId, summaryStatusByCourse])
 
   const visibleRows = useMemo(
     () =>

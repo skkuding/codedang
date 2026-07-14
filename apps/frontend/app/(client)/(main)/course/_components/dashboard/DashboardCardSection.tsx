@@ -19,7 +19,7 @@ export interface WorkItem {
   dueTime?: Date
   group: GroupInfo
   problemCount: number
-  submittedCount: number
+  submittedCount?: number
   week?: number
   status?: WorkStatus
   raw: Assignment
@@ -120,7 +120,7 @@ export function DashboardCardSection({
                             </div>
 
                             <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
-                              {row.submittedCount}/{row.problemCount}
+                              {row.submittedCount ?? '-'}/{row.problemCount}
                             </span>
                           </div>
                         </div>
