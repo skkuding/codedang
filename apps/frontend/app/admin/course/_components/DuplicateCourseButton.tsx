@@ -4,7 +4,7 @@ import { OptionSelect } from '@/app/admin/_components/OptionSelect'
 import { AlertModal } from '@/components/AlertModal'
 import { ModalSection } from '@/components/ModalSection'
 import { Button } from '@/components/shadcn/button'
-import { DUPLICATE_COURSE } from '@/graphql/course/mutation'
+import { CREATE_WHITE_LIST, DUPLICATE_COURSE } from '@/graphql/course/mutation'
 import type { SemesterSeason } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
@@ -13,6 +13,8 @@ import { GoAlertFill } from 'react-icons/go'
 import { IoCopy } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
+import type { RosterRow } from './StudentRosterModal'
+import { StudentRosterModal } from './StudentRosterModal'
 
 interface DuplicateCourseButtonProps {
   onSuccess: () => void
@@ -30,6 +32,7 @@ export function DuplicateCourseButton({
 }: DuplicateCourseButtonProps) {
   const { table } = useDataTable<CourseRow>()
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
   const selectedCount = table.getSelectedRowModel().rows.length
   const canDuplicate = selectedCount === 1
 
@@ -37,6 +40,8 @@ export function DuplicateCourseButton({
   const [courseNum, setCourseNum] = useState('')
   const [semester, setSemester] = useState('')
   const [classNum, setClassNum] = useState('')
+  const [roster, setRoster] = useState<RosterRow[]>([])
+  const [isRosterModalOpen, setIsRosterModalOpen] = useState(false)
 
   const handleDuplicateButtonClick = () => {
     const selectedRows = table.getSelectedRowModel().rows
@@ -47,6 +52,7 @@ export function DuplicateCourseButton({
     setCourseNum(selectedCourse.code ?? '')
     setSemester('')
     setClassNum('')
+    setRoster([])
     setIsDialogOpen(true)
   }
 
@@ -133,8 +139,8 @@ export function DuplicateCourseButton({
     }
   }
 
-  const duplicateTarget = (id: number) => {
-    return duplicateCourse({
+  const duplicateTarget = async (id: number) => {
+    const { data } = await duplicateCourse({
       variables: {
         groupId: id,
         input: {
@@ -144,6 +150,17 @@ export function DuplicateCourseButton({
         }
       }
     })
+
+    const newGroupId = data?.duplicateCourse.duplicatedCourse.id
+    if (newGroupId && roster.length > 0) {
+      await createWhitelist({
+        variables: {
+          groupId: Number(newGroupId),
+          studentIds: roster.map((row) => row.studentId),
+          names: roster.map((row) => row.name || null)
+        }
+      })
+    }
   }
 
   return (
@@ -253,6 +270,30 @@ export function DuplicateCourseButton({
               {classNumError && (
                 <p className="text-sm text-red-500">{classNumError}</p>
               )}
+            </div>
+
+            <div className="flex w-full min-w-0 flex-col gap-2">
+              <label className="text-sm font-medium">Students</label>
+              <button
+                type="button"
+                className="flex h-[42px] w-full items-center justify-between rounded-md border border-gray-300 px-3 text-sm"
+                onClick={() => setIsRosterModalOpen(true)}
+              >
+                <span>
+                  {roster.length > 0
+                    ? `${roster.length} students added`
+                    : 'Add student roster'}
+                </span>
+                {roster.length > 0 && (
+                  <span className="text-primary">Edit</span>
+                )}
+              </button>
+              <StudentRosterModal
+                rows={roster}
+                onSave={setRoster}
+                open={isRosterModalOpen}
+                onOpenChange={setIsRosterModalOpen}
+              />
             </div>
           </div>
         </div>

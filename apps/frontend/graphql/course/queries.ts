@@ -46,4 +46,18 @@ const GET_WHITE_LIST = gql(`
   }
 `)
 
-export { GET_COURSES_USER_LEAD, GET_COURSE, GET_WHITE_LIST }
+const GET_WHITE_LIST_ENTRIES = gql(`
+  query getWhitelistEntries ($groupId: Int!){
+    getWhitelistEntries(groupId: $groupId) {
+      studentId
+      name
+    }
+  }
+`)
+
+export {
+  GET_COURSES_USER_LEAD,
+  GET_COURSE,
+  GET_WHITE_LIST,
+  GET_WHITE_LIST_ENTRIES
+}
