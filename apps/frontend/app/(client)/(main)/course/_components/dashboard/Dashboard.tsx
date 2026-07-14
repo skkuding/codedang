@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
-import { DashboardCalendar } from './DashboardCalendar'
-import { DashboardCardSection } from './DashboardCardSection'
+import { AssignmentCalendar } from './AssignmentCalendar'
+import { AssignmentCard } from './AssignmentCard'
 import { createDashboardViewModel } from './selectors'
 import { useDashboardAssignments } from './useDashboardAssignments'
 import { useDashboardCalendar } from './useDashboardCalendar'
@@ -25,19 +25,17 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
         <div className="order-2 flex max-h-[460px] flex-col md:order-1">
-          <DashboardCardSection
-            courseAssignmentLists={assignmentListsByCourse}
-          />
+          <AssignmentCard courseAssignmentLists={assignmentListsByCourse} />
         </div>
 
         <div className="order-3 flex max-h-[460px] flex-col md:order-2">
-          <DashboardCardSection
+          <AssignmentCard
             isExercise
             courseAssignmentLists={exerciseListsByCourse}
           />
         </div>
         <div className="order-1 flex flex-col md:order-3">
-          <DashboardCalendar
+          <AssignmentCalendar
             selectedDate={selectedDate}
             onSelect={onSelectDate}
             deadlineDateList={deadlineDateList}

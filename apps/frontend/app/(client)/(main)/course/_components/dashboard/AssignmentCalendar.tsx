@@ -6,7 +6,7 @@ import {
   type DayPickerSingleProps
 } from 'react-day-picker'
 
-interface DashboardCalendarProps {
+interface AssignmentCalendarProps {
   selectedDate?: Date
   onSelect: (date: Date | undefined) => void
   deadlineDateList: Date[]
@@ -15,13 +15,13 @@ interface DashboardCalendarProps {
   children?: React.ReactNode
 }
 
-export function DashboardCalendar({
+export function AssignmentCalendar({
   selectedDate,
   onSelect,
   deadlineDateList,
   viewMonth,
   setViewMonth
-}: DashboardCalendarProps) {
+}: AssignmentCalendarProps) {
   const isOutside = (d: Date) =>
     d.getFullYear() !== viewMonth.getFullYear() ||
     d.getMonth() !== viewMonth.getMonth()

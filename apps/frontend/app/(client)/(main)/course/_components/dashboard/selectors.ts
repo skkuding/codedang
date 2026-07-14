@@ -1,5 +1,5 @@
 import type { Assignment } from '@/types/type'
-import type { CourseAssignmentList } from './types'
+import type { CourseAssignments } from './types'
 import { isActiveOnDate, isDueToday, isNotExpired, startOfDay } from './utils'
 
 interface CreateDashboardViewModelParams {
@@ -43,7 +43,7 @@ const toDashboardAssignment = (
 const createCourseAssignmentLists = (
   courseAssignments: CourseAssignment[],
   selectedDate?: Date
-): CourseAssignmentList[] => {
+): CourseAssignments[] => {
   const assignmentListsByCourseId = new Map<
     number,
     { courseTitle: string; assignments: Assignment[] }

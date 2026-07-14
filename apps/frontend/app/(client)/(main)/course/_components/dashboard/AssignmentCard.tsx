@@ -1,20 +1,20 @@
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import {
-  DashboardCourseAssignmentList,
-  DashboardCourseAssignmentListView
-} from './DashboardCourseAssignmentList'
-import type { CourseAssignmentList } from './types'
+  CourseAssignmentList,
+  CourseAssignmentListView
+} from './CourseAssignmentList'
+import type { CourseAssignments } from './types'
 
-interface DashboardCardSectionProps {
-  courseAssignmentLists: CourseAssignmentList[]
+interface AssignmentCardProps {
+  courseAssignmentLists: CourseAssignments[]
   isExercise?: boolean
 }
 
-export function DashboardCardSection({
+export function AssignmentCard({
   courseAssignmentLists,
   isExercise = false
-}: DashboardCardSectionProps) {
+}: AssignmentCardProps) {
   const title = isExercise ? 'Exercise' : 'Assignment'
 
   return (
@@ -25,22 +25,20 @@ export function DashboardCardSection({
         </span>
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
-          {courseAssignmentLists.map((courseAssignmentList, index) => {
+          {courseAssignmentLists.map((courseAssignments, index) => {
             const assignmentListWithoutSummary = (
-              <DashboardCourseAssignmentListView
-                courseAssignmentList={courseAssignmentList}
-              />
+              <CourseAssignmentListView courseAssignments={courseAssignments} />
             )
 
             return (
-              <div key={courseAssignmentList.courseId} className="w-full">
+              <div key={courseAssignments.courseId} className="w-full">
                 <ErrorBoundary
                   fallback={assignmentListWithoutSummary}
-                  resetKeys={[courseAssignmentList.courseId, isExercise]}
+                  resetKeys={[courseAssignments.courseId, isExercise]}
                 >
                   <Suspense fallback={assignmentListWithoutSummary}>
-                    <DashboardCourseAssignmentList
-                      courseAssignmentList={courseAssignmentList}
+                    <CourseAssignmentList
+                      courseAssignments={courseAssignments}
                       isExercise={isExercise}
                     />
                   </Suspense>

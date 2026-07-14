@@ -2,48 +2,48 @@ import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
 import type { Assignment, AssignmentSummary } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { AssignmentLink } from '../../[courseId]/_components/AssignmentLink'
-import type { CourseAssignmentList } from './types'
+import type { CourseAssignments } from './types'
 
-interface DashboardCourseAssignmentListProps {
-  courseAssignmentList: CourseAssignmentList
+interface CourseAssignmentListProps {
+  courseAssignments: CourseAssignments
   isExercise: boolean
 }
 
-interface DashboardCourseAssignmentListViewProps {
-  courseAssignmentList: CourseAssignmentList
+interface CourseAssignmentListViewProps {
+  courseAssignments: CourseAssignments
   summaries?: AssignmentSummary[]
 }
 
-interface DashboardAssignmentRowProps {
+interface AssignmentItemProps {
   assignment: Assignment
   courseId: number
   summary?: AssignmentSummary
 }
 
-function DashboardCourseAssignmentList({
-  courseAssignmentList,
+function CourseAssignmentList({
+  courseAssignments,
   isExercise
-}: DashboardCourseAssignmentListProps) {
+}: CourseAssignmentListProps) {
   const { data: summaries } = useSuspenseQuery({
     ...assignmentQueries.grades({
-      courseId: courseAssignmentList.courseId,
+      courseId: courseAssignments.courseId,
       isExercise
     }),
     staleTime: 30_000
   })
 
   return (
-    <DashboardCourseAssignmentListView
-      courseAssignmentList={courseAssignmentList}
+    <CourseAssignmentListView
+      courseAssignments={courseAssignments}
       summaries={summaries}
     />
   )
 }
 
-function DashboardCourseAssignmentListView({
-  courseAssignmentList,
+function CourseAssignmentListView({
+  courseAssignments,
   summaries
-}: DashboardCourseAssignmentListViewProps) {
+}: CourseAssignmentListViewProps) {
   const summaryByAssignmentId = new Map(
     summaries?.map((summary) => [summary.id, summary])
   )
@@ -52,15 +52,15 @@ function DashboardCourseAssignmentListView({
     <>
       <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
         <span className="bg-primary-light mr-2 inline-block h-[22px] w-[6px] rounded-[1px] align-middle" />
-        {courseAssignmentList.courseTitle}
+        {courseAssignments.courseTitle}
       </p>
 
       <div className="flex flex-col gap-2">
-        {courseAssignmentList.assignments.map((assignment) => (
-          <DashboardAssignmentRow
+        {courseAssignments.assignments.map((assignment) => (
+          <AssignmentItem
             key={assignment.id}
             assignment={assignment}
-            courseId={courseAssignmentList.courseId}
+            courseId={courseAssignments.courseId}
             summary={summaryByAssignmentId.get(assignment.id)}
           />
         ))}
@@ -69,11 +69,11 @@ function DashboardCourseAssignmentListView({
   )
 }
 
-function DashboardAssignmentRow({
+function AssignmentItem({
   assignment,
   courseId,
   summary
-}: DashboardAssignmentRowProps) {
+}: AssignmentItemProps) {
   return (
     <div className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200">
       <div className="relative flex items-center py-[10px]">
@@ -100,4 +100,4 @@ function DashboardAssignmentRow({
   )
 }
 
-export { DashboardCourseAssignmentList, DashboardCourseAssignmentListView }
+export { CourseAssignmentList, CourseAssignmentListView }
