@@ -29,13 +29,10 @@ const isNotExpired = (workItem: WorkItem) => {
   return dueTime >= Date.now()
 }
 
-const formatDueMd = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`
-
 const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
   Boolean(selectedDate && dueDate && isSameDay(selectedDate, dueDate))
 
 export {
-  formatDueMd,
   isActiveOnDate,
   isDueToday,
   isNotExpired,

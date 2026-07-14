@@ -91,11 +91,13 @@ export function Dashboard() {
   })
 
   const summaryQueriesResult = useQueries({
-    queries: validCourseIds.map((id) => ({
-      ...assignmentQueries.grades({ courseId: id }),
-      refetchOnWindowFocus: false,
-      staleTime: 30_000
-    }))
+    queries: validCourseIds.flatMap((courseId) =>
+      [false, true].map((isExercise) => ({
+        ...assignmentQueries.grades({ courseId, isExercise }),
+        refetchOnWindowFocus: false,
+        staleTime: 30_000
+      }))
+    )
   })
 
   const allAssignments = useMemo<Assignment[]>(

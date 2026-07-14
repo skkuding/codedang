@@ -1,7 +1,7 @@
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { Assignment } from '@/types/type'
 import { AssignmentLink } from '../../[courseId]/_components/AssignmentLink'
-import { formatDueMd, isDueToday } from './utils'
+import { isDueToday } from './utils'
 
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
 
@@ -120,8 +120,7 @@ export function DashboardCardSection({
                             </div>
 
                             <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
-                              {'~ '}
-                              {formatDueMd(row.dueTime ?? row.endTime)}
+                              {row.submittedCount}/{row.problemCount}
                             </span>
                           </div>
                         </div>
