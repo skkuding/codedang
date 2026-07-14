@@ -1,5 +1,6 @@
 'use client'
 
+import { courseQueries } from '@/app/(client)/_libs/queries/course'
 import { AlertModal } from '@/components/AlertModal'
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
@@ -54,7 +55,9 @@ export function RegisterCourseButton() {
       await safeFetcherWithAuth.post(`course/${foundCourse?.id}/join`, {
         searchParams: { invitation: invitationCode }
       })
-      queryClient.invalidateQueries({ queryKey: ['joinedCourses'] })
+      queryClient.invalidateQueries({
+        queryKey: courseQueries.joined().queryKey
+      })
       toast.success('Successfully registered course.')
       setIsVerifyDialogOpen(false)
       setIsRegisterDialogOpen(false)

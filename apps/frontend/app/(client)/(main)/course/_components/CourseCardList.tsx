@@ -1,5 +1,6 @@
 'use client'
 
+import { courseQueries } from '@/app/(client)/_libs/queries/course'
 import {
   Carousel,
   CarouselContent,
@@ -7,9 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/shadcn/carousel'
-import { fetcherWithAuth } from '@/libs/utils'
 import type { JoinedCourse } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useMemo } from 'react'
 import { CourseCard } from '../_components/CourseCard'
@@ -20,12 +20,7 @@ interface CourseCardListProps {
 }
 
 export function CourseCardList({ title }: CourseCardListProps) {
-  const { data: courses = [] } = useQuery({
-    queryKey: ['joinedCourses'],
-    queryFn: async () => {
-      return await fetcherWithAuth.get('course/joined').json<JoinedCourse[]>()
-    }
-  })
+  const { data: courses } = useSuspenseQuery(courseQueries.joined())
 
   const courseColumns = useMemo(() => {
     const columns: JoinedCourse[][] = []
