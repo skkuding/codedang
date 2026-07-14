@@ -7,12 +7,12 @@ import {
 import type { CourseAssignments } from './types'
 
 interface AssignmentCardProps {
-  courseAssignmentLists: CourseAssignments[]
+  assignmentsByCourse: CourseAssignments[]
   isExercise?: boolean
 }
 
 export function AssignmentCard({
-  courseAssignmentLists,
+  assignmentsByCourse,
   isExercise = false
 }: AssignmentCardProps) {
   const title = isExercise ? 'Exercise' : 'Assignment'
@@ -25,7 +25,7 @@ export function AssignmentCard({
         </span>
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
-          {courseAssignmentLists.map((courseAssignments, index) => {
+          {assignmentsByCourse.map((courseAssignments, index) => {
             const assignmentListWithoutSummary = (
               <CourseAssignmentListView courseAssignments={courseAssignments} />
             )
@@ -44,7 +44,7 @@ export function AssignmentCard({
                   </Suspense>
                 </ErrorBoundary>
 
-                {index < courseAssignmentLists.length - 1 && (
+                {index < assignmentsByCourse.length - 1 && (
                   <hr className="my-6 border-t-[0.5px] border-neutral-100" />
                 )}
               </div>

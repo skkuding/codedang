@@ -40,29 +40,29 @@ const toDashboardAssignment = (
   }
 }
 
-const createCourseAssignmentLists = (
+const groupAssignmentsByCourse = (
   courseAssignments: CourseAssignment[],
   selectedDate?: Date
 ): CourseAssignments[] => {
-  const assignmentListsByCourseId = new Map<
+  const assignmentsByCourseId = new Map<
     number,
     { courseTitle: string; assignments: Assignment[] }
   >()
 
   for (const { courseId, courseTitle, assignment } of courseAssignments) {
-    const courseAssignmentList = assignmentListsByCourseId.get(courseId) ?? {
+    const courseAssignments = assignmentsByCourseId.get(courseId) ?? {
       courseTitle,
       assignments: []
     }
-    courseAssignmentList.assignments.push(assignment)
-    assignmentListsByCourseId.set(courseId, courseAssignmentList)
+    courseAssignments.assignments.push(assignment)
+    assignmentsByCourseId.set(courseId, courseAssignments)
   }
 
-  return [...assignmentListsByCourseId]
-    .map(([courseId, courseAssignmentList]) => ({
+  return [...assignmentsByCourseId]
+    .map(([courseId, courseAssignments]) => ({
       courseId,
-      courseTitle: courseAssignmentList.courseTitle,
-      assignments: courseAssignmentList.assignments.sort((a, b) => {
+      courseTitle: courseAssignments.courseTitle,
+      assignments: courseAssignments.assignments.sort((a, b) => {
         const dueRank =
           Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
           Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
@@ -118,11 +118,11 @@ const createDashboardViewModel = ({
   )
 
   return {
-    assignmentListsByCourse: createCourseAssignmentLists(
+    assignmentsByCourse: groupAssignmentsByCourse(
       visibleAssignments.filter(({ assignment }) => !assignment.isExercise),
       selectedDate
     ),
-    exerciseListsByCourse: createCourseAssignmentLists(
+    exercisesByCourse: groupAssignmentsByCourse(
       visibleAssignments.filter(({ assignment }) => assignment.isExercise),
       selectedDate
     ),
