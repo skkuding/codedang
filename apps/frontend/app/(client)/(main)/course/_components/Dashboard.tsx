@@ -1,7 +1,6 @@
 'use client'
 
 import { assignmentQueries } from '@/app/(client)/_libs/queries/assignment'
-import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { fetcherWithAuth } from '@/libs/utils'
 import type { Assignment, AssignmentSummary, JoinedCourse } from '@/types/type'
 import {
@@ -10,45 +9,12 @@ import {
   type UseQueryOptions
 } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
 import { DashboardCalendar } from './DashboardCalendar'
-
-type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
-
-interface GroupInfo {
-  id: number
-  groupName: string
-}
-
-interface WorkItem {
-  id: number
-  title: string
-  isExercise: boolean
-  startTime: Date
-  endTime: Date
-  dueTime?: Date
-  group: GroupInfo
-  problemCount: number
-  submittedCount: number
-  week?: number
-  status?: WorkStatus
-  raw: Assignment
-}
-
-interface GroupedRows {
-  courseId: number
-  courseTitle: string
-  courseNum?: string
-  classNum?: number
-  rows: WorkItem[]
-}
-
-interface CardSectionProps {
-  title: string
-  groups: GroupedRows[]
-  selectedDate?: Date
-  courseIdResolver: (row: WorkItem) => number
-}
+import {
+  DashboardCardSection,
+  type GroupedRows,
+  type WorkItem
+} from './DashboardCardSection'
 
 const startOfDay = (date: Date) => {
   const d = new Date(date)
@@ -80,12 +46,7 @@ const isNotExpired = (workItem: WorkItem) => {
   return dueTime >= now
 }
 
-const formatDueMd = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
-
-const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
-  Boolean(selectedDate && dueDate && sameDay(selectedDate, dueDate))
-
-const toGroupInfo = (group: Assignment['group'] | undefined): GroupInfo => ({
+const toGroupInfo = (group: Assignment['group'] | undefined) => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
   groupName: group?.groupName ?? 'Unknown'
 })
@@ -278,7 +239,7 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 gap-[14px] md:grid md:grid-cols-2 lg:grid-cols-3">
         <div className="order-2 flex max-h-[460px] flex-col md:order-1">
-          <CardSection
+          <DashboardCardSection
             title="Assignment"
             groups={groupedByCourse.map((group) => ({
               ...group,
@@ -290,7 +251,7 @@ export function Dashboard() {
         </div>
 
         <div className="order-3 flex max-h-[460px] flex-col md:order-2">
-          <CardSection
+          <DashboardCardSection
             title="Exercise"
             groups={groupedByCourse.map((group) => ({
               ...group,
@@ -309,106 +270,6 @@ export function Dashboard() {
             setViewMonth={setViewMonth}
           />
         </div>
-      </div>
-    </section>
-  )
-}
-
-function CardSection({
-  title,
-  groups,
-  selectedDate,
-  courseIdResolver
-}: CardSectionProps) {
-  return (
-    <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
-      <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
-        <span className="mb-6 text-[24px] font-semibold leading-[33.6px] tracking-[-0.72px]">
-          {title}
-        </span>
-
-        <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
-          {groups
-            .slice()
-            .sort(
-              (groupA, groupB) =>
-                Number(
-                  groupB.rows.some((r) =>
-                    isDueToday(selectedDate, r.dueTime ?? r.endTime)
-                  )
-                ) -
-                Number(
-                  groupA.rows.some((r) =>
-                    isDueToday(selectedDate, r.dueTime ?? r.endTime)
-                  )
-                )
-            )
-            .filter((g) => g.rows.length)
-            .map((group, idx) => (
-              <div key={group.courseTitle} className="w-full">
-                <p className="mb-3 pl-[6px] text-[14px] font-semibold leading-[19.6px] tracking-[-0.42px] text-black">
-                  <span className="bg-primary-light mr-2 inline-block h-[22px] w-[6px] rounded-[1px] align-middle" />
-                  {group.courseTitle}
-                </p>
-
-                <div className="flex flex-col gap-2">
-                  {group.rows
-                    .slice()
-                    .sort((a, b) => {
-                      const dueRank =
-                        Number(
-                          isDueToday(selectedDate, b.dueTime ?? b.endTime)
-                        ) -
-                        Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
-                      if (dueRank !== 0) {
-                        return dueRank
-                      }
-                      const dueA = a.dueTime?.getTime() ?? a.endTime.getTime()
-                      const dueB = b.dueTime?.getTime() ?? b.endTime.getTime()
-                      if (dueA !== dueB) {
-                        return dueA - dueB
-                      }
-                      return a.title.localeCompare(b.title)
-                    })
-                    .map((row) => {
-                      const courseId = courseIdResolver(row)
-
-                      return (
-                        <div
-                          key={row.id}
-                          className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
-                        >
-                          <div className="relative flex items-center py-[10px]">
-                            <div className="flex min-w-0 flex-1 items-center">
-                              <div className="pl-[18px] pr-[10px]">
-                                <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
-                              </div>
-
-                              <div className="min-w-0">
-                                <AssignmentLink
-                                  assignment={row.raw}
-                                  courseId={courseId}
-                                  isExercise={row.isExercise}
-                                />
-                              </div>
-                            </div>
-
-                            <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
-                              {'~ '}
-                              {formatDueMd(row.dueTime ?? row.endTime)}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                </div>
-
-                {idx < groups.length - 1 && (
-                  <hr className="my-6 border-t-[0.5px] border-neutral-100" />
-                )}
-              </div>
-            ))}
-        </ScrollArea>
       </div>
     </section>
   )
