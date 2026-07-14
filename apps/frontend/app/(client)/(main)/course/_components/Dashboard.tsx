@@ -15,36 +15,13 @@ import {
   type GroupedRows,
   type WorkItem
 } from './DashboardCardSection'
-
-const startOfDay = (date: Date) => {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  return d
-}
-
-const todayAtMidnight = () => startOfDay(new Date())
-
-const sameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() &&
-  a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate()
-
-const isActiveOnDate = (selectedDate: Date | undefined, workItem: WorkItem) => {
-  if (!selectedDate) {
-    return true
-  }
-  const selectedStart = startOfDay(selectedDate).getTime()
-  const selectedEnd = selectedStart + 86_400_000 - 1
-  const startTime = workItem.startTime.getTime()
-  const dueTime = workItem.dueTime?.getTime() ?? workItem.endTime.getTime()
-  return !(dueTime < selectedStart || startTime > selectedEnd)
-}
-
-const isNotExpired = (workItem: WorkItem) => {
-  const now = Date.now()
-  const dueTime = (workItem.dueTime ?? workItem.endTime).getTime()
-  return dueTime >= now
-}
+import {
+  isActiveOnDate,
+  isNotExpired,
+  isSameDay,
+  startOfDay,
+  todayAtMidnight
+} from './dashboardUtils'
 
 const toGroupInfo = (group: Assignment['group'] | undefined) => ({
   id: Number.isFinite(Number(group?.id)) ? Number(group?.id) : 0,
@@ -104,7 +81,7 @@ export function Dashboard() {
       return
     }
     const normalized = startOfDay(nextDate)
-    if (selectedDate && sameDay(selectedDate, normalized)) {
+    if (selectedDate && isSameDay(selectedDate, normalized)) {
       setSelectedDate(today)
       setViewMonth(new Date(today.getFullYear(), today.getMonth(), 1))
     } else {

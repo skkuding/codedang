@@ -1,6 +1,7 @@
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import type { Assignment } from '@/types/type'
 import { AssignmentLink } from '../[courseId]/_components/AssignmentLink'
+import { formatDueMd, isDueToday } from './dashboardUtils'
 
 type WorkStatus = 'upcoming' | 'ongoing' | 'finished'
 
@@ -38,16 +39,6 @@ interface DashboardCardSectionProps {
   selectedDate?: Date
   courseIdResolver: (row: WorkItem) => number
 }
-
-const sameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() &&
-  a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate()
-
-const isDueToday = (selectedDate?: Date, dueDate?: Date) =>
-  Boolean(selectedDate && dueDate && sameDay(selectedDate, dueDate))
-
-const formatDueMd = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`
 
 export function DashboardCardSection({
   title,
