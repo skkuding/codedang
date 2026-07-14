@@ -24,6 +24,7 @@ resource "aws_ecr_lifecycle_policy" "client_api_repository_policy" {
     EOF
 }
 
+# TAS-2763: Legacy client API ALB resources are commented in the module implementation.
 module "client_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
@@ -46,6 +47,7 @@ module "client_api_loadbalancer" {
   }
 }
 
+# TAS-2763: Legacy ECS client API resources are commented in the module implementation.
 module "client_api" {
   source = "./modules/service_autoscaling"
 
@@ -56,17 +58,23 @@ module "client_api" {
 
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/client_api.json", {
-        ecr_uri                         = data.aws_ecr_repository.client_api.repository_url,
-        database_url                    = local.storage.database_url,
-        redis_host                      = var.redis_host,
-        redis_port                      = var.redis_port,
-        jwt_secret                      = var.jwt_secret,
-        rabbitmq_host                   = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
-        rabbitmq_port                   = var.rabbitmq_port,
-        rabbitmq_username               = var.rabbitmq_username,
-        rabbitmq_password               = random_password.rabbitmq_password.result,
-        rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
-        rabbitmq_api_url                = aws_mq_broker.judge_queue.instances.0.console_url,
+        ecr_uri      = data.aws_ecr_repository.client_api.repository_url,
+        database_url = local.storage.database_url,
+        redis_host   = var.redis_host,
+        redis_port   = var.redis_port,
+        jwt_secret   = var.jwt_secret,
+        # TAS-2763: aws_mq_broker.judge_queue is commented out.
+        # rabbitmq_host                   = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
+        rabbitmq_host     = var.rabbitmq_host,
+        rabbitmq_port     = var.rabbitmq_port,
+        rabbitmq_username = var.rabbitmq_username,
+        # TAS-2763: random_password, rabbitmq_vhost, and aws_mq_broker are commented out.
+        # rabbitmq_password               = random_password.rabbitmq_password.result,
+        # rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
+        # rabbitmq_api_url                = aws_mq_broker.judge_queue.instances.0.console_url,
+        rabbitmq_password               = var.rabbitmq_password,
+        rabbitmq_vhost                  = var.rabbitmq_vhost,
+        rabbitmq_api_url                = var.rabbitmq_api_url,
         github_client_id                = var.github_client_id,
         github_client_secret            = var.github_client_secret,
         kakao_client_id                 = var.kakao_client_id,

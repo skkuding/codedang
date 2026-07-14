@@ -14,5 +14,8 @@ spec:
       app.kubernetes.io/component: rabbitmq
       app.kubernetes.io/name: rabbitmq
   endpoints:
-    - port: prometheus
+    - port: prometheus-tls
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
       interval: 15s

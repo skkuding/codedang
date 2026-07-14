@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy ECS task definition and service are no longer used.
 resource "aws_ecs_task_definition" "this" {
   family                   = var.task_definition.family
   requires_compatibilities = ["EC2"]
@@ -26,3 +27,4 @@ resource "aws_ecs_service" "this" {
     }
   }
 }
+*/

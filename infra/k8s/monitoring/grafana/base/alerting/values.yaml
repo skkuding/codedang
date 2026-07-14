@@ -9,6 +9,11 @@ alerting:
             type: discord
             settings:
               url: $__env{DISCORD_WEBHOOK_URL}
+              # title/message are Go templates evaluated by Grafana at notification
+              # time. The outer {{ `...` }} escapes the inner Go-template actions so
+              # the Helm chart's `tpl` pass leaves them intact for Grafana to compile.
+              title: '{{ `{{ template "discord.title" . }}` }}'
+              message: '{{ `{{ template "discord.message" . }}` }}'
 
   notification-policies.yaml:
     apiVersion: 1
@@ -20,11 +25,55 @@ alerting:
         group_interval: 5m
         repeat_interval: 24h
         routes:
+          # Noisy monitoring-system states (no data / eval error) repeat at most weekly.
+          # These synthetic alerts replace the original alertname, so match on alertname.
           - receiver: discord
             matchers:
-              - severity = critical
-            repeat_interval: 1h
+              - alertname = DatasourceNoData
+            repeat_interval: 7d
+          - receiver: discord
+            matchers:
+              - alertname = DatasourceError
+            repeat_interval: 7d
           - receiver: discord
             matchers:
               - grafana_state_reason = Error
             repeat_interval: 7d
+          # RabbitMQ queue alerts: split by queue for queue-level visibility
+          - receiver: discord
+            matchers:
+              - service = rabbitmq
+            group_by: ['grafana_folder', 'alertname', 'queue']
+          - receiver: discord
+            matchers:
+              - severity = critical
+            repeat_interval: 1h
+
+  templates.yaml:
+    apiVersion: 1
+    templates:
+      - orgID: 1
+        name: discord.title
+        template: |
+          {{ `{{ define "discord.title" }}` }}[{{ `{{ .Status }}` }}] {{ `{{ or .CommonLabels.alertname "Grafana alert" }}` }}{{ `{{ end }}` }}
+      - orgID: 1
+        name: discord.message
+        template: |
+          {{ `{{ define "discord.message" }}` }}
+          Severity: {{ `{{ or .CommonLabels.severity "unknown" }}` }}
+          Service: {{ `{{ or .CommonLabels.service "unknown" }}` }}
+          Environment: {{ `{{ or .CommonLabels.environment "unknown" }}` }}
+
+          {{ `{{ range .Alerts }}` }}
+          {{ `{{ if eq .Labels.alertname "DatasourceNoData" }}` }}
+          Summary: Grafana no-data state for {{ `{{ or .Labels.rulename .Labels.alertname "unknown rule" }}` }}
+          Description: Grafana did not receive data from datasource {{ `{{ or .Labels.datasource_uid "unknown" }}` }} for query {{ `{{ or .Labels.ref_id "unknown" }}` }}. This may be a stale no-data resolution or a missing scrape target; check the dedicated scrape-health alert for the service.
+          {{ `{{ else if eq .Labels.alertname "DatasourceError" }}` }}
+          Summary: Grafana datasource error for {{ `{{ or .Labels.rulename .Labels.alertname "unknown rule" }}` }}
+          Description: Grafana could not evaluate query {{ `{{ or .Labels.ref_id "unknown" }}` }} from datasource {{ `{{ or .Labels.datasource_uid "unknown" }}` }}. Check datasource connectivity and query health.
+          {{ `{{ else }}` }}
+          Summary: {{ `{{ or .Annotations.summary .Labels.alertname "Grafana alert" }}` }}
+          Description: {{ `{{ or .Annotations.description "No description provided." }}` }}
+          {{ `{{ end }}` }}
+          {{ `{{ end }}` }}
+          {{ `{{ end }}` }}

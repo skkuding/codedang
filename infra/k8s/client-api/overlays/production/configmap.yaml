@@ -5,3 +5,5 @@ metadata:
   namespace: client-api
 data:
   KAKAO_CALLBACK_URL: 'https://codedang.com/api/auth/kakao-callback'
+  KAKAO_LINK_CALLBACK_URL: 'https://codedang.com/api/auth/kakao-link-callback'
+  FRONTEND_URL: 'https://codedang.com'
