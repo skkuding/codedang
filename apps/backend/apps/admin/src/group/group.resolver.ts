@@ -98,6 +98,7 @@ export class GroupResolver {
 }
 
 @Resolver(() => CourseNotice)
+@UseGroupLeaderGuard()
 export class CourseNoticeResolver {
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 
