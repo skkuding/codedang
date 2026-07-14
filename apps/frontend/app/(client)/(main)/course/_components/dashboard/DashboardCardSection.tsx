@@ -5,37 +5,18 @@ import {
   DashboardCourseGroupView
 } from './DashboardCourseGroup'
 import type { GroupedRows } from './types'
-import { isDueToday } from './utils'
 
 interface DashboardCardSectionProps {
   title: string
   groups: GroupedRows[]
   isExercise: boolean
-  selectedDate?: Date
 }
 
 export function DashboardCardSection({
   title,
   groups,
-  isExercise,
-  selectedDate
+  isExercise
 }: DashboardCardSectionProps) {
-  const visibleGroups = groups
-    .filter((group) => group.rows.length)
-    .sort(
-      (groupA, groupB) =>
-        Number(
-          groupB.rows.some((row) =>
-            isDueToday(selectedDate, row.dueTime ?? row.endTime)
-          )
-        ) -
-        Number(
-          groupA.rows.some((row) =>
-            isDueToday(selectedDate, row.dueTime ?? row.endTime)
-          )
-        )
-    )
-
   return (
     <section className="flex h-full rounded-[12px] bg-white shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
       <div className="flex w-full max-w-[100vw] flex-col overflow-hidden py-[30px] pl-6 pr-2 md:max-w-[390px]">
@@ -44,13 +25,8 @@ export function DashboardCardSection({
         </span>
 
         <ScrollArea className="flex-1 pr-4 [&>div>div]:!flex [&>div>div]:!flex-col">
-          {visibleGroups.map((group, index) => {
-            const fallback = (
-              <DashboardCourseGroupView
-                group={group}
-                selectedDate={selectedDate}
-              />
-            )
+          {groups.map((group, index) => {
+            const fallback = <DashboardCourseGroupView group={group} />
 
             return (
               <div key={group.courseId} className="w-full">
@@ -62,12 +38,11 @@ export function DashboardCardSection({
                     <DashboardCourseGroup
                       group={group}
                       isExercise={isExercise}
-                      selectedDate={selectedDate}
                     />
                   </Suspense>
                 </ErrorBoundary>
 
-                {index < visibleGroups.length - 1 && (
+                {index < groups.length - 1 && (
                   <hr className="my-6 border-t-[0.5px] border-neutral-100" />
                 )}
               </div>

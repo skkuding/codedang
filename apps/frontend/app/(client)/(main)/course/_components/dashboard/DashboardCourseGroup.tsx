@@ -3,24 +3,20 @@ import type { AssignmentSummary } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { AssignmentLink } from '../../[courseId]/_components/AssignmentLink'
 import type { GroupedRows } from './types'
-import { isDueToday } from './utils'
 
 interface DashboardCourseGroupProps {
   group: GroupedRows
   isExercise: boolean
-  selectedDate?: Date
 }
 
 interface DashboardCourseGroupViewProps {
   group: GroupedRows
-  selectedDate?: Date
   summaries?: AssignmentSummary[]
 }
 
 function DashboardCourseGroup({
   group,
-  isExercise,
-  selectedDate
+  isExercise
 }: DashboardCourseGroupProps) {
   const { data: summaries } = useSuspenseQuery({
     ...assignmentQueries.grades({
@@ -30,18 +26,11 @@ function DashboardCourseGroup({
     staleTime: 30_000
   })
 
-  return (
-    <DashboardCourseGroupView
-      group={group}
-      selectedDate={selectedDate}
-      summaries={summaries}
-    />
-  )
+  return <DashboardCourseGroupView group={group} summaries={summaries} />
 }
 
 function DashboardCourseGroupView({
   group,
-  selectedDate,
   summaries
 }: DashboardCourseGroupViewProps) {
   const summaryByAssignmentId = new Map(
@@ -56,53 +45,37 @@ function DashboardCourseGroupView({
       </p>
 
       <div className="flex flex-col gap-2">
-        {group.rows
-          .slice()
-          .sort((a, b) => {
-            const dueRank =
-              Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
-              Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
-            if (dueRank !== 0) {
-              return dueRank
-            }
-            const dueA = a.dueTime?.getTime() ?? a.endTime.getTime()
-            const dueB = b.dueTime?.getTime() ?? b.endTime.getTime()
-            if (dueA !== dueB) {
-              return dueA - dueB
-            }
-            return a.title.localeCompare(b.title)
-          })
-          .map((row) => {
-            const summary = summaryByAssignmentId.get(row.id)
+        {group.rows.map((row) => {
+          const summary = summaryByAssignmentId.get(row.id)
 
-            return (
-              <div
-                key={row.id}
-                className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
-              >
-                <div className="relative flex items-center py-[10px]">
-                  <div className="flex min-w-0 flex-1 items-center">
-                    <div className="pl-[18px] pr-[10px]">
-                      <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
-                    </div>
-
-                    <div className="min-w-0">
-                      <AssignmentLink
-                        assignment={row.raw}
-                        courseId={group.courseId}
-                        isExercise={row.isExercise}
-                      />
-                    </div>
+          return (
+            <div
+              key={row.id}
+              className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
+            >
+              <div className="relative flex items-center py-[10px]">
+                <div className="flex min-w-0 flex-1 items-center">
+                  <div className="pl-[18px] pr-[10px]">
+                    <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
                   </div>
 
-                  <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
-                    {summary?.submittedCount ?? '-'}/
-                    {summary?.problemCount ?? row.problemCount}
-                  </span>
+                  <div className="min-w-0">
+                    <AssignmentLink
+                      assignment={row.raw}
+                      courseId={group.courseId}
+                      isExercise={row.isExercise}
+                    />
+                  </div>
                 </div>
+
+                <span className="text-primary ml-3 w-[70px] shrink-0 whitespace-nowrap pr-[18px] text-right text-sm font-medium tabular-nums">
+                  {summary?.submittedCount ?? '-'}/
+                  {summary?.problemCount ?? row.problemCount}
+                </span>
               </div>
-            )
-          })}
+            </div>
+          )
+        })}
       </div>
     </>
   )

@@ -1,6 +1,6 @@
 import type { Assignment, JoinedCourse } from '@/types/type'
 import type { GroupedRows, WorkItem } from './types'
-import { isActiveOnDate, isNotExpired, startOfDay } from './utils'
+import { isActiveOnDate, isDueToday, isNotExpired, startOfDay } from './utils'
 
 interface CreateDashboardViewModelParams {
   assignments: Assignment[]
@@ -41,7 +41,8 @@ const toWorkItem = (assignment: Assignment): WorkItem | null => {
 
 const groupRowsByCourse = (
   rows: WorkItem[],
-  courses: JoinedCourse[]
+  courses: JoinedCourse[],
+  selectedDate?: Date
 ): GroupedRows[] => {
   const rowsByCourse = new Map<number, WorkItem[]>()
 
@@ -60,10 +61,39 @@ const groupRowsByCourse = (
         courseNum: course?.courseInfo.courseNum,
         classNum: course?.courseInfo.classNum,
         courseTitle: courseRows[0].group.groupName || 'Unknown',
-        rows: courseRows
+        rows: courseRows.sort((a, b) => {
+          const dueRank =
+            Number(isDueToday(selectedDate, b.dueTime ?? b.endTime)) -
+            Number(isDueToday(selectedDate, a.dueTime ?? a.endTime))
+          if (dueRank !== 0) {
+            return dueRank
+          }
+
+          const dueA = a.dueTime?.getTime() ?? a.endTime.getTime()
+          const dueB = b.dueTime?.getTime() ?? b.endTime.getTime()
+          if (dueA !== dueB) {
+            return dueA - dueB
+          }
+
+          return a.title.localeCompare(b.title)
+        })
       }
     })
-    .sort((a, b) => a.courseTitle.localeCompare(b.courseTitle))
+    .sort((a, b) => {
+      const dueRank =
+        Number(
+          b.rows.some((row) =>
+            isDueToday(selectedDate, row.dueTime ?? row.endTime)
+          )
+        ) -
+        Number(
+          a.rows.some((row) =>
+            isDueToday(selectedDate, row.dueTime ?? row.endTime)
+          )
+        )
+
+      return dueRank || a.courseTitle.localeCompare(b.courseTitle)
+    })
 }
 
 const createDashboardViewModel = ({
@@ -88,11 +118,13 @@ const createDashboardViewModel = ({
   return {
     assignmentGroups: groupRowsByCourse(
       visibleRows.filter((row) => !row.isExercise),
-      courses
+      courses,
+      selectedDate
     ),
     exerciseGroups: groupRowsByCourse(
       visibleRows.filter((row) => row.isExercise),
-      courses
+      courses,
+      selectedDate
     ),
     deadlineDateList: [...deadlineTimestamps].map(
       (timestamp) => new Date(timestamp)

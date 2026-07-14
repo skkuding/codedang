@@ -28,7 +28,6 @@ export function Dashboard() {
             title="Assignment"
             isExercise={false}
             groups={assignmentGroups}
-            selectedDate={selectedDate}
           />
         </div>
 
@@ -37,7 +36,6 @@ export function Dashboard() {
             title="Exercise"
             isExercise
             groups={exerciseGroups}
-            selectedDate={selectedDate}
           />
         </div>
         <div className="order-1 flex flex-col md:order-3">
