@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   type CanActivate,
   type ExecutionContext
@@ -54,6 +55,8 @@ export class GroupLeaderGuard implements CanActivate {
     if (isGroupLeader) {
       return true
     }
-    return false
+    throw new ForbiddenException(
+      'You do not have permission to manage this course'
+    )
   }
 }
