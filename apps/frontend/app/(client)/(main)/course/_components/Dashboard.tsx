@@ -378,7 +378,7 @@ function CardSection({
                           key={row.id}
                           className="group relative w-full overflow-hidden rounded-md bg-neutral-100 transition hover:bg-neutral-200"
                         >
-                          <div className="relative flex items-center py-[10px]">
+                          <div className="flex items-center py-[10px]">
                             <div className="flex min-w-0 flex-1 items-center">
                               <div className="pl-[18px] pr-[10px]">
                                 <span className="bg-primary inline-block h-2 w-2 shrink-0 rounded-full" />
@@ -389,6 +389,7 @@ function CardSection({
                                   assignment={row.raw}
                                   courseId={courseId}
                                   isExercise={row.isExercise}
+                                  className="static after:absolute after:inset-0 after:cursor-pointer"
                                 />
                               </div>
                             </div>
