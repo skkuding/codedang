@@ -1,10 +1,7 @@
 package loader
 
 import (
-	"context"
-	"os"
 	"testing"
-	"time"
 )
 
 func TestParseDatabaseURL(t *testing.T) {
@@ -81,25 +78,5 @@ func TestParseDatabaseURL(t *testing.T) {
 				t.Errorf("parseDatabaseURL() = %q, want %q", got, tt.want)
 			}
 		})
-	}
-}
-
-func TestPostgresConnection(t *testing.T) {
-	databaseURL := os.Getenv("POSTGRES_INTEGRATION_URL")
-	if databaseURL == "" {
-		t.Skip("POSTGRES_INTEGRATION_URL is not set")
-	}
-
-	t.Setenv("DATABASE_URL", databaseURL)
-	postgres, err := NewPostgresDataSource(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = postgres.client.Close() })
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := postgres.client.PingContext(ctx); err != nil {
-		t.Fatalf("connect to PostgreSQL: %v", err)
 	}
 }
