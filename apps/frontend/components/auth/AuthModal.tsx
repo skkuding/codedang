@@ -5,7 +5,7 @@ import { SignIn } from './SignIn'
 import { SignUp } from './SignUp/SignUp'
 
 export function AuthModal() {
-  const { currentModal } = useAuthModalStore((state) => state)
+  const { currentModal, showSignIn } = useAuthModalStore((state) => state)
   return (
     <>
       <Transition
@@ -42,7 +42,7 @@ export function AuthModal() {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <RecoverAccount />
+        <RecoverAccount onBackToSignIn={showSignIn} />
       </Transition>
     </>
   )
