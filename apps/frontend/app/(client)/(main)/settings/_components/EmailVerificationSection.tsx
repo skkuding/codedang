@@ -67,9 +67,7 @@ export function EmailVerificationSection() {
         headers: { 'email-auth': token }
       })
       toast.success('이메일이 변경되었습니다.')
-      setPinSent(false)
-      setNewEmail('')
-      setVerificationCode('')
+      setTimeout(() => window.location.reload(), 1500)
     } catch {
       toast.error('인증에 실패했습니다. 인증 번호를 확인해주세요.')
     } finally {

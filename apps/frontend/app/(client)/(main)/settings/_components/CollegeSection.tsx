@@ -74,6 +74,9 @@ export function CollegeSection() {
     query.length > 0 ? searchUniversities(query) : []
 
   const filteredUniversities = rawUniversities.filter((uni, idx, arr) => {
+    if (uni.nameKr === '성균관대학교') {
+      return false
+    }
     if (CAMPUS_OVERRIDES[uni.nameKr]) {
       return true
     }

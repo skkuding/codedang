@@ -154,13 +154,16 @@ export default function Page() {
 
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
 
+  const isSamePassword = newPasswordAble && newPassword === currentPassword
+
   const saveAble =
     (Boolean(currentPassword) &&
       Boolean(newPassword) &&
       Boolean(confirmPassword) &&
       isPasswordCorrect &&
       newPasswordAble &&
-      isPasswordsMatch) ||
+      isPasswordsMatch &&
+      !isSamePassword) ||
     (Boolean(realName) &&
       realName !== (defaultProfileValues.userProfile?.realName ?? '')) ||
     majorValue !== defaultProfileValues.major ||
@@ -199,10 +202,8 @@ export default function Page() {
     if (collegeValue !== defaultProfileValues.college) {
       updatePayload.college = collegeValue
     }
-    if (data.currentPassword !== 'tmppassword1') {
+    if (isPasswordCorrect && isPasswordsMatch && !isSamePassword) {
       updatePayload.password = data.currentPassword
-    }
-    if (data.newPassword !== 'tmppassword1') {
       updatePayload.newPassword = data.newPassword
     }
     if (
@@ -215,23 +216,9 @@ export default function Page() {
   }
 
   const onSubmitClick = () => {
-    const reset = (
-      field: 'realName' | 'currentPassword' | 'newPassword' | 'confirmPassword',
-      current: string | undefined,
-      fallback: string
-    ) => {
-      if (current === '') {
-        setValue(field, fallback)
-      }
+    if (realName === '') {
+      setValue('realName', defaultProfileValues.userProfile?.realName ?? '')
     }
-    reset(
-      'realName',
-      realName,
-      defaultProfileValues.userProfile?.realName ?? ''
-    )
-    reset('currentPassword', currentPassword, 'tmppassword1')
-    reset('newPassword', newPassword, 'tmppassword1')
-    reset('confirmPassword', confirmPassword, 'tmppassword1')
   }
 
   const inputBase =
@@ -464,12 +451,20 @@ export default function Page() {
                       />
                     </button>
                   </div>
-                  {errors.newPassword && newPasswordAble && newPassword && (
-                    <ul className="text-xs text-red-500">
-                      <li>8-20자리 이하</li>
-                      <li>영문 대/소문자, 숫자 중 2가지 이상 포함</li>
-                    </ul>
+                  {isSamePassword && (
+                    <p className="text-xs text-red-500">
+                      현재 비밀번호와 동일합니다.
+                    </p>
                   )}
+                  {errors.newPassword &&
+                    newPasswordAble &&
+                    newPassword &&
+                    !isSamePassword && (
+                      <ul className="text-xs text-red-500">
+                        <li>8-20자리 이하</li>
+                        <li>영문 대/소문자, 숫자 중 2가지 이상 포함</li>
+                      </ul>
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-1">

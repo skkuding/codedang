@@ -76,6 +76,7 @@ export function DeleteAccountSection() {
         title="정말 탈퇴하시겠어요?"
         description="탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다."
         cancelText="취소"
+        closeOnAction={false}
         primaryButton={{
           text: isLoading ? '처리 중...' : '탈퇴하기',
           onClick: handleWithdraw
