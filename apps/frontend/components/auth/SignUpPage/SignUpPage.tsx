@@ -1,12 +1,7 @@
 'use client'
 
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList
-} from '@/components/shadcn/command'
+import { MajorSearchInput } from '@/components/MajorSearchInput'
+import { UniversitySearchInput } from '@/components/UniversitySearchInput'
 import {
   Select,
   SelectContent,
@@ -14,20 +9,17 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/shadcn/select'
-import { allMajors } from '@/libs/constants'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import resetGray from '@/public/icons/reset-gray.svg'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { searchUniversities } from 'korea-universities'
 // @ts-expect-error: no type declarations for this package
 import randomNameGenerator from 'korean-random-names-generator'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa6'
-import { IoSearchOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
 import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
@@ -39,41 +31,6 @@ const JOB_TYPE_MAP: Record<string, string> = {
   고등학생: 'HighSchoolStudent',
   직장인: 'Employee',
   기타: 'Other'
-}
-
-const CAMPUS_OVERRIDES: Record<string, Record<string, string>> = {
-  성균관대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '수원캠퍼스' },
-  연세대학교: { 제1캠퍼스: '신촌캠퍼스', 제2캠퍼스: '국제캠퍼스' },
-  경희대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '국제캠퍼스' },
-  중앙대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '안성캠퍼스' },
-  한국외국어대학교: { 제1캠퍼스: '서울캠퍼스', 제2캠퍼스: '글로벌캠퍼스' },
-  단국대학교: { 제1캠퍼스: '죽전캠퍼스', 제2캠퍼스: '천안캠퍼스' },
-  부산대학교: {
-    제1캠퍼스: '부산캠퍼스',
-    제2캠퍼스: '밀양캠퍼스',
-    제3캠퍼스: '양산캠퍼스'
-  },
-  강원대학교: { 제1캠퍼스: '춘천캠퍼스', 제2캠퍼스: '삼척캠퍼스' }
-}
-
-const REGION_SHORT: Record<string, string> = {
-  서울특별시: '서울',
-  경기도: '경기',
-  인천광역시: '인천',
-  부산광역시: '부산',
-  대구광역시: '대구',
-  광주광역시: '광주',
-  대전광역시: '대전',
-  울산광역시: '울산',
-  세종특별자치시: '세종',
-  강원특별자치도: '강원',
-  충청북도: '충북',
-  충청남도: '충남',
-  전라남도: '전남',
-  전북특별자치도: '전북',
-  경상북도: '경북',
-  경상남도: '경남',
-  제주특별자치도: '제주'
 }
 
 const PIN_EXPIRE_SECONDS = 300
@@ -179,14 +136,6 @@ export function SignUpPage() {
   const [codeExpired, setCodeExpired] = useState(false)
   const [remaining, setRemaining] = useState(PIN_EXPIRE_SECONDS)
   const [endTime, setEndTime] = useState(0)
-  const [universityQuery, setUniversityQuery] = useState('')
-  const [universityOpen, setUniversityOpen] = useState(false)
-  const [majorQuery, setMajorQuery] = useState('')
-  const [majorOpen, setMajorOpen] = useState(false)
-
-  const universityRef = useRef<HTMLDivElement>(null)
-  const majorRef = useRef<HTMLDivElement>(null)
-
   const watchPassword = watch('password')
   const watchPasswordConfirm = watch('passwordConfirm')
   const watchJob = watch('job')
@@ -246,25 +195,8 @@ export function SignUpPage() {
     setPinError('')
     setCodeExpired(false)
     setValue('major', '')
-    setMajorQuery('')
     setValue('studentId', '')
   }, [isSKKU, setValue])
-
-  useEffect(() => {
-    if (!universityOpen && !majorOpen) {
-      return
-    }
-    const handler = (e: MouseEvent) => {
-      if (!universityRef.current?.contains(e.target as Node)) {
-        setUniversityOpen(false)
-      }
-      if (!majorRef.current?.contains(e.target as Node)) {
-        setMajorOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [universityOpen, majorOpen])
 
   const formatTimer = () => {
     const min = Math.floor(remaining / 60)
@@ -361,59 +293,6 @@ export function SignUpPage() {
   ) => {
     setAgreements((prev) => ({ ...prev, [key]: checked }))
     setValue(key, checked)
-  }
-
-  const filteredUniversities =
-    universityQuery.length > 0
-      ? searchUniversities(universityQuery).filter((uni, idx, arr) => {
-          if (CAMPUS_OVERRIDES[uni.nameKr]) {
-            return true
-          }
-          return (
-            arr.findIndex(
-              (u) => u.nameKr === uni.nameKr && u.region === uni.region
-            ) === idx
-          )
-        })
-      : []
-
-  const filteredMajors =
-    majorQuery.length > 0
-      ? allMajors.filter((m) =>
-          m.toLowerCase().includes(majorQuery.toLowerCase())
-        )
-      : []
-
-  const getKoreanMajorName = (major: string) =>
-    major
-      .split(/\s*\/\s*/)
-      .at(-1)
-      ?.trim() ?? major
-
-  const getUniversityDisplayName = (
-    uni: (typeof filteredUniversities)[number]
-  ) => {
-    const hasDuplicate =
-      filteredUniversities.filter((u) => u.nameKr === uni.nameKr).length > 1
-    if (!hasDuplicate) {
-      return uni.nameKr
-    }
-
-    const override = CAMPUS_OVERRIDES[uni.nameKr]?.[uni.campus ?? '']
-    if (override) {
-      return `${uni.nameKr} ${override}`
-    }
-
-    const sameRegion =
-      filteredUniversities.filter(
-        (u) => u.nameKr === uni.nameKr && u.region === uni.region
-      ).length > 1
-    if (sameRegion) {
-      return `${uni.nameKr} ${uni.campus}`
-    }
-
-    const short = REGION_SHORT[uni.region] ?? uni.region
-    return `${uni.nameKr} ${short}캠퍼스`
   }
 
   const canSubmit = isUserIdAvailable && emailVerified && isAllChecked
@@ -635,7 +514,6 @@ export function SignUpPage() {
                   if (value !== '대학생') {
                     setValue('university', '')
                     setValue('major', '')
-                    setUniversityQuery('')
                   }
                 }}
               >
@@ -673,141 +551,25 @@ export function SignUpPage() {
               <div className="flex w-full flex-col gap-3">
                 <div className="flex w-full flex-col gap-1">
                   <label className="text-caption2_m_12">대학교</label>
-                  <div ref={universityRef} className="relative">
-                    <div className="relative">
-                      <input
-                        placeholder="대학교 검색"
-                        value={universityQuery}
-                        onChange={(e) => {
-                          setUniversityQuery(e.target.value)
-                          setUniversityOpen(true)
-                          if (watchUniversity) {
-                            setValue('university', '', { shouldValidate: true })
-                          }
-                        }}
-                        onFocus={() => setUniversityOpen(true)}
-                        className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-11 outline-none"
-                      />
-                      <IoSearchOutline
-                        className="text-color-cool-neutral-60 absolute right-4 top-1/2 -translate-y-1/2"
-                        size={18}
-                      />
-                    </div>
-                    {universityOpen && universityQuery.length > 0 && (
-                      <Command
-                        shouldFilter={false}
-                        className="border-line absolute z-10 mt-1 w-full rounded-[12px] border bg-white shadow-md"
-                      >
-                        <CommandList className="max-h-[200px]">
-                          {filteredUniversities.length > 0 ? (
-                            <CommandGroup>
-                              {filteredUniversities.map((uni) => {
-                                const displayName =
-                                  getUniversityDisplayName(uni)
-                                return (
-                                  <CommandItem
-                                    key={uni.id}
-                                    value={displayName}
-                                    onSelect={() => {
-                                      setValue('university', displayName, {
-                                        shouldValidate: true
-                                      })
-                                      setUniversityQuery(displayName)
-                                      setUniversityOpen(false)
-                                    }}
-                                    className={cn(
-                                      'text-body1_m_16 cursor-pointer px-5 py-[13px] aria-selected:bg-gray-100/80',
-                                      watchUniversity === displayName &&
-                                        'bg-fill'
-                                    )}
-                                  >
-                                    {displayName}
-                                  </CommandItem>
-                                )
-                              })}
-                            </CommandGroup>
-                          ) : (
-                            <CommandEmpty className="text-body1_m_16 text-color-cool-neutral-60 py-[13px] text-left">
-                              검색 결과가 없습니다
-                            </CommandEmpty>
-                          )}
-                        </CommandList>
-                      </Command>
-                    )}
-                  </div>
-                  {errors.university?.message && (
-                    <p className="text-caption3_r_13 text-color-red-50">
-                      {errors.university.message}
-                    </p>
-                  )}
+                  <UniversitySearchInput
+                    value={watchUniversity}
+                    onChange={(v) =>
+                      setValue('university', v, { shouldValidate: true })
+                    }
+                    error={errors.university?.message}
+                  />
                 </div>
 
                 {isSKKU && (
                   <div className="flex w-full flex-col gap-1">
                     <label className="text-caption2_m_12">학과</label>
-                    <div ref={majorRef} className="relative">
-                      <div className="relative">
-                        <input
-                          placeholder="학과 검색"
-                          value={majorQuery}
-                          onChange={(e) => {
-                            setMajorQuery(e.target.value)
-                            setMajorOpen(true)
-                            setValue('major', '', { shouldValidate: true })
-                          }}
-                          onFocus={() => setMajorOpen(true)}
-                          className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-11 outline-none"
-                        />
-                        <IoSearchOutline
-                          className="text-color-cool-neutral-60 absolute right-4 top-1/2 -translate-y-1/2"
-                          size={18}
-                        />
-                      </div>
-                      {majorOpen && majorQuery.length > 0 && (
-                        <Command
-                          shouldFilter={false}
-                          className="border-line absolute z-10 mt-1 w-full rounded-[12px] border bg-white shadow-md"
-                        >
-                          <CommandList className="max-h-[200px]">
-                            {filteredMajors.length > 0 ? (
-                              <CommandGroup>
-                                {filteredMajors.map((major) => {
-                                  const displayName = getKoreanMajorName(major)
-                                  return (
-                                    <CommandItem
-                                      key={major}
-                                      value={displayName}
-                                      onSelect={() => {
-                                        setValue('major', displayName, {
-                                          shouldValidate: true
-                                        })
-                                        setMajorQuery(displayName)
-                                        setMajorOpen(false)
-                                      }}
-                                      className={cn(
-                                        'text-body1_m_16 cursor-pointer px-5 py-[13px] aria-selected:bg-gray-100/80',
-                                        majorQuery === displayName && 'bg-fill'
-                                      )}
-                                    >
-                                      {displayName}
-                                    </CommandItem>
-                                  )
-                                })}
-                              </CommandGroup>
-                            ) : (
-                              <CommandEmpty className="text-body1_m_16 text-color-cool-neutral-60 py-[13px] text-left">
-                                검색 결과가 없습니다
-                              </CommandEmpty>
-                            )}
-                          </CommandList>
-                        </Command>
-                      )}
-                    </div>
-                    {errors.major?.message && (
-                      <p className="text-caption3_r_13 text-color-red-50">
-                        {errors.major.message}
-                      </p>
-                    )}
+                    <MajorSearchInput
+                      value={watch('major')}
+                      onChange={(v) =>
+                        setValue('major', v, { shouldValidate: true })
+                      }
+                      error={errors.major?.message}
+                    />
                   </div>
                 )}
 
