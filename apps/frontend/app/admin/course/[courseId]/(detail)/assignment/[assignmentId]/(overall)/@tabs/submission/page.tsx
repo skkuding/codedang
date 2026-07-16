@@ -7,11 +7,11 @@ import {
 } from '@/components/shadcn/tabs'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
-import { ParticipantTable } from '../../../../../_components/ParticipantTable'
+import { ParticipantTable } from '../../../../../../_components/ParticipantTable'
 import {
   SubmissionTable,
   SubmissionTableFallback
-} from '../../../../../_components/SubmissionTable'
+} from '../../../../../../_components/SubmissionTable'
 
 export default function Submission() {
   return (

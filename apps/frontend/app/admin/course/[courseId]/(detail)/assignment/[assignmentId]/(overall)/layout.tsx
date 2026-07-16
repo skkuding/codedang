@@ -9,7 +9,7 @@ import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft } from 'react-icons/fa6'
-import { AssignmentOverallTabs } from '../../../_components/AssignmentOverallTabs'
+import { AssignmentOverallTabs } from '../../../../_components/AssignmentOverallTabs'
 
 export default function Layout({ tabs }: { tabs: React.ReactNode }) {
   const { courseId, assignmentId } = useParams()

@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import {
   AssignmentTable,
   AssignmentTableFallback
-} from '../../_components/AssignmentTable'
+} from '../../../_components/AssignmentTable'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +16,7 @@ export default async function Page(props: {
     <div className="space-y-5">
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<AssignmentTableFallback />}>
-          <AssignmentTable groupId={courseId} isExercise={true} />
+          <AssignmentTable groupId={courseId} />
         </Suspense>
       </ErrorBoundary>
     </div>
