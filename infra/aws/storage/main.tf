@@ -39,5 +39,6 @@ data "terraform_remote_state" "vpc" {
 }
 
 locals {
-  vpc = data.terraform_remote_state.vpc.outputs
+  vpc          = data.terraform_remote_state.vpc.outputs
+  database_url = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public&sslmode=require"
 }
