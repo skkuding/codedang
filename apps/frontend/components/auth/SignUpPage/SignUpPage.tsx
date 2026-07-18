@@ -16,11 +16,11 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import randomNameGenerator from 'korean-random-names-generator'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa6'
 import { toast } from 'sonner'
+import { WelcomeModal } from './WelcomeModal'
 import { signupSchema } from './signup.schema'
 import type { SignUpFormValues } from './signup.type'
 
@@ -88,12 +88,12 @@ function VisibleButton({ isVisible, setIsVisible }: VisibleButtonProps) {
 }
 
 export function SignUpPage() {
-  const router = useRouter()
   const [agreements, setAgreements] = useState({
     terms: false,
     privacy: false,
     minorPrivacy: false
   })
+  const [showWelcome, setShowWelcome] = useState(false)
 
   const {
     register,
@@ -334,426 +334,430 @@ export function SignUpPage() {
           studentId: data.studentId || undefined
         }
       })
-      toast.success('회원가입이 완료됐습니다!')
-      router.push('/login')
+      setShowWelcome(true)
     } catch {
       toast.error('회원가입에 실패했습니다. 다시 시도해주세요')
     }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="border-color-cool-neutral-90 flex w-[500px] flex-col items-start rounded-[16px] border bg-white px-6 py-7"
-    >
-      <div className="flex w-full flex-col gap-[48px]">
-        <div className="flex w-full flex-col gap-5">
-          <div className="flex w-full items-center justify-between">
-            <p className="text-head5_sb_24">회원가입</p>
-            <Link href="/login" className="text-sub2_m_18 whitespace-nowrap">
-              <span className="text-primary">기존 회원</span>
-              <span className="text-black">이신가요?</span>
-            </Link>
-          </div>
-
-          <div className="flex w-full flex-col gap-6">
-            <div className="flex w-full flex-col gap-1">
-              <label className="text-caption2_m_12">이름</label>
-              <input
-                placeholder="이름"
-                className={cn(
-                  'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                  errors.name
-                    ? 'border-error focus:border-error'
-                    : 'focus:border-primary border-line'
-                )}
-                {...register('name')}
-              />
-              {errors.name?.message && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  {errors.name.message}
-                </p>
-              )}
+    <>
+      <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="border-color-cool-neutral-90 flex w-[500px] flex-col items-start rounded-[16px] border bg-white px-6 py-7"
+      >
+        <div className="flex w-full flex-col gap-[48px]">
+          <div className="flex w-full flex-col gap-5">
+            <div className="flex w-full items-center justify-between">
+              <p className="text-head5_sb_24">회원가입</p>
+              <Link href="/login" className="text-sub2_m_18 whitespace-nowrap">
+                <span className="text-primary">기존 회원</span>
+                <span className="text-black">이신가요?</span>
+              </Link>
             </div>
 
-            <div className="flex w-full flex-col gap-1">
-              <label className="text-caption2_m_12">아이디</label>
-              <div className="flex gap-[6px]">
+            <div className="flex w-full flex-col gap-6">
+              <div className="flex w-full flex-col gap-1">
+                <label className="text-caption2_m_12">이름</label>
                 <input
-                  placeholder="아이디"
+                  placeholder="이름"
                   className={cn(
                     'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                    errors.userId
+                    errors.name
                       ? 'border-error focus:border-error'
                       : 'focus:border-primary border-line'
                   )}
-                  {...register('userId')}
+                  {...register('name')}
                 />
-                <button
-                  type="button"
-                  onClick={checkUserId}
-                  disabled={!watchUserId || watchUserId.length < 3}
-                  className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  중복 확인
-                </button>
-              </div>
-              {errors.userId?.message && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  {errors.userId.message}
-                </p>
-              )}
-              {!errors.userId &&
-                !isCheckingUserId &&
-                touchedFields.userId &&
-                !isUserIdAvailable &&
-                watchUserId.length >= 3 && (
+                {errors.name?.message && (
                   <p className="text-caption3_r_13 text-color-red-50">
-                    아이디 중복 확인을 해주세요
-                  </p>
-                )}
-              {!errors.userId && isUserIdAvailable && (
-                <p className="text-caption4_r_12 text-primary">
-                  사용 가능한 아이디입니다
-                </p>
-              )}
-            </div>
-
-            <div className="flex w-full flex-col gap-2">
-              <label className="text-caption2_m_12">비밀번호</label>
-              <div className="flex w-full flex-col gap-[6px]">
-                <div className="relative">
-                  <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder="영문자, 숫자 포함 8-20자"
-                    className={cn(
-                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                      errors.password
-                        ? 'border-error focus:border-error'
-                        : 'focus:border-primary border-line'
-                    )}
-                    {...register('password')}
-                  />
-                  <VisibleButton
-                    isVisible={isPasswordVisible}
-                    setIsVisible={setIsPasswordVisible}
-                  />
-                </div>
-                {errors.password?.message && (
-                  <p className="text-caption3_r_13 text-color-red-50">
-                    {errors.password.message}
-                  </p>
-                )}
-                <div className="relative">
-                  <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder="비밀번호 확인"
-                    className={cn(
-                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                      isPasswordMismatch
-                        ? 'border-error focus:border-error'
-                        : 'focus:border-primary border-line'
-                    )}
-                    {...register('passwordConfirm')}
-                  />
-                  <VisibleButton
-                    isVisible={isPasswordVisible}
-                    setIsVisible={setIsPasswordVisible}
-                  />
-                </div>
-                {isPasswordMismatch && (
-                  <p className="text-caption3_r_13 text-color-red-50">
-                    비밀번호가 일치하지 않습니다
-                  </p>
-                )}
-                {isPasswordAvailable && (
-                  <p className="text-caption3_r_13 text-primary">
-                    사용 가능한 비밀번호입니다
+                    {errors.name.message}
                   </p>
                 )}
               </div>
-            </div>
 
-            <div className="flex w-full flex-col gap-1">
-              <label className="text-caption2_m_12">닉네임</label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
+              <div className="flex w-full flex-col gap-1">
+                <label className="text-caption2_m_12">아이디</label>
+                <div className="flex gap-[6px]">
                   <input
-                    placeholder="희망찬 올빼미"
-                    className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-[52px] outline-none"
-                    {...register('nickname')}
+                    placeholder="아이디"
+                    className={cn(
+                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                      errors.userId
+                        ? 'border-error focus:border-error'
+                        : 'focus:border-primary border-line'
+                    )}
+                    {...register('userId')}
                   />
                   <button
                     type="button"
-                    onClick={generateNickname}
-                    className="text-color-cool-neutral-60 hover:text-primary absolute inset-y-0 right-5 flex items-center"
-                    aria-label="닉네임 자동 생성"
+                    onClick={checkUserId}
+                    disabled={!watchUserId || watchUserId.length < 3}
+                    className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <Image
-                      src={resetGray}
-                      alt="닉네임 재생성"
-                      width={20}
-                      height={20}
-                    />
+                    중복 확인
                   </button>
                 </div>
-              </div>
-              {!watchNickname && (
-                <p className="text-caption3_r_13 text-color-cool-neutral-60">
-                  * 닉네임 미입력시, 코드당이 자동으로 닉네임을 추천해드려요!
-                </p>
-              )}
-            </div>
-
-            <div className="flex w-full flex-col gap-1">
-              <label className="text-caption2_m_12">직업</label>
-              <Select
-                value={watchJob}
-                onValueChange={(value) => {
-                  setValue('job', value, { shouldValidate: true })
-                  if (value !== '대학생') {
-                    setValue('university', '')
-                    setValue('major', '')
-                  }
-                }}
-              >
-                <SelectTrigger
-                  className={cn(
-                    'h-[46px] rounded-[12px] border bg-white px-5',
-                    errors.job
-                      ? 'border-error'
-                      : 'border-line focus:border-primary'
-                  )}
-                >
-                  <SelectValue placeholder="직업" />
-                </SelectTrigger>
-                <SelectContent>
-                  {JOB_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={option}
-                      value={option}
-                      showSelectIcon={false}
-                      className="cursor-pointer px-5 py-[13px] hover:bg-gray-100/80"
-                    >
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.job?.message && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  {errors.job.message}
-                </p>
-              )}
-            </div>
-
-            {watchJob === '대학생' && (
-              <div className="flex w-full flex-col gap-3">
-                <div className="flex w-full flex-col gap-1">
-                  <label className="text-caption2_m_12">대학교</label>
-                  <UniversitySearchInput
-                    value={watchUniversity}
-                    onChange={(v) =>
-                      setValue('university', v, { shouldValidate: true })
-                    }
-                    error={errors.university?.message}
-                  />
-                </div>
-
-                {isSKKU && (
-                  <div className="flex w-full flex-col gap-1">
-                    <label className="text-caption2_m_12">학과</label>
-                    <MajorSearchInput
-                      value={watch('major')}
-                      onChange={(v) =>
-                        setValue('major', v, { shouldValidate: true })
-                      }
-                      error={errors.major?.message}
-                    />
-                  </div>
+                {errors.userId?.message && (
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    {errors.userId.message}
+                  </p>
                 )}
+                {!errors.userId &&
+                  !isCheckingUserId &&
+                  touchedFields.userId &&
+                  !isUserIdAvailable &&
+                  watchUserId.length >= 3 && (
+                    <p className="text-caption3_r_13 text-color-red-50">
+                      아이디 중복 확인을 해주세요
+                    </p>
+                  )}
+                {!errors.userId && isUserIdAvailable && (
+                  <p className="text-caption4_r_12 text-primary">
+                    사용 가능한 아이디입니다
+                  </p>
+                )}
+              </div>
 
-                {isSKKU && (
-                  <div className="flex w-full flex-col gap-1">
-                    <label className="text-caption2_m_12">학번</label>
+              <div className="flex w-full flex-col gap-2">
+                <label className="text-caption2_m_12">비밀번호</label>
+                <div className="flex w-full flex-col gap-[6px]">
+                  <div className="relative">
                     <input
-                      inputMode="numeric"
-                      placeholder="학번 10자리를 입력해주세요"
+                      type={isPasswordVisible ? 'text' : 'password'}
+                      placeholder="영문자, 숫자 포함 8-20자"
                       className={cn(
                         'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                        errors.studentId
+                        errors.password
                           ? 'border-error focus:border-error'
                           : 'focus:border-primary border-line'
                       )}
-                      {...register('studentId')}
+                      {...register('password')}
                     />
-                    {errors.studentId?.message && (
-                      <p className="text-caption3_r_13 text-color-red-50">
-                        {errors.studentId.message}
-                      </p>
-                    )}
+                    <VisibleButton
+                      isVisible={isPasswordVisible}
+                      setIsVisible={setIsPasswordVisible}
+                    />
                   </div>
+                  {errors.password?.message && (
+                    <p className="text-caption3_r_13 text-color-red-50">
+                      {errors.password.message}
+                    </p>
+                  )}
+                  <div className="relative">
+                    <input
+                      type={isPasswordVisible ? 'text' : 'password'}
+                      placeholder="비밀번호 확인"
+                      className={cn(
+                        'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                        isPasswordMismatch
+                          ? 'border-error focus:border-error'
+                          : 'focus:border-primary border-line'
+                      )}
+                      {...register('passwordConfirm')}
+                    />
+                    <VisibleButton
+                      isVisible={isPasswordVisible}
+                      setIsVisible={setIsPasswordVisible}
+                    />
+                  </div>
+                  {isPasswordMismatch && (
+                    <p className="text-caption3_r_13 text-color-red-50">
+                      비밀번호가 일치하지 않습니다
+                    </p>
+                  )}
+                  {isPasswordAvailable && (
+                    <p className="text-caption3_r_13 text-primary">
+                      사용 가능한 비밀번호입니다
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex w-full flex-col gap-1">
+                <label className="text-caption2_m_12">닉네임</label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      placeholder="희망찬 올빼미"
+                      className="placeholder:text-body1_m_16 focus:border-primary border-line placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-[52px] outline-none"
+                      {...register('nickname')}
+                    />
+                    <button
+                      type="button"
+                      onClick={generateNickname}
+                      className="text-color-cool-neutral-60 hover:text-primary absolute inset-y-0 right-5 flex items-center"
+                      aria-label="닉네임 자동 생성"
+                    >
+                      <Image
+                        src={resetGray}
+                        alt="닉네임 재생성"
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </div>
+                </div>
+                {!watchNickname && (
+                  <p className="text-caption3_r_13 text-color-cool-neutral-60">
+                    * 닉네임 미입력시, 코드당이 자동으로 닉네임을 추천해드려요!
+                  </p>
                 )}
               </div>
-            )}
 
-            <div className="flex w-full flex-col gap-[6px]">
-              <label className="text-caption2_m_12">이메일</label>
-              <div className="flex gap-[6px]">
-                {isSKKU ? (
-                  <div
+              <div className="flex w-full flex-col gap-1">
+                <label className="text-caption2_m_12">직업</label>
+                <Select
+                  value={watchJob}
+                  onValueChange={(value) => {
+                    setValue('job', value, { shouldValidate: true })
+                    if (value !== '대학생') {
+                      setValue('university', '')
+                      setValue('major', '')
+                    }
+                  }}
+                >
+                  <SelectTrigger
                     className={cn(
-                      'flex h-[46px] min-w-0 flex-1 items-center gap-1 rounded-[12px] border bg-white px-5',
-                      getEmailBorderClass()
+                      'h-[46px] rounded-[12px] border bg-white px-5',
+                      errors.job
+                        ? 'border-error'
+                        : 'border-line focus:border-primary'
                     )}
                   >
+                    <SelectValue placeholder="직업" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {JOB_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option}
+                        value={option}
+                        showSelectIcon={false}
+                        className="cursor-pointer px-5 py-[13px] hover:bg-gray-100/80"
+                      >
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.job?.message && (
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    {errors.job.message}
+                  </p>
+                )}
+              </div>
+
+              {watchJob === '대학생' && (
+                <div className="flex w-full flex-col gap-3">
+                  <div className="flex w-full flex-col gap-1">
+                    <label className="text-caption2_m_12">대학교</label>
+                    <UniversitySearchInput
+                      value={watchUniversity}
+                      onChange={(v) =>
+                        setValue('university', v, { shouldValidate: true })
+                      }
+                      error={errors.university?.message}
+                    />
+                  </div>
+
+                  {isSKKU && (
+                    <div className="flex w-full flex-col gap-1">
+                      <label className="text-caption2_m_12">학과</label>
+                      <MajorSearchInput
+                        value={watch('major')}
+                        onChange={(v) =>
+                          setValue('major', v, { shouldValidate: true })
+                        }
+                        error={errors.major?.message}
+                      />
+                    </div>
+                  )}
+
+                  {isSKKU && (
+                    <div className="flex w-full flex-col gap-1">
+                      <label className="text-caption2_m_12">학번</label>
+                      <input
+                        inputMode="numeric"
+                        placeholder="학번 10자리를 입력해주세요"
+                        className={cn(
+                          'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                          errors.studentId
+                            ? 'border-error focus:border-error'
+                            : 'focus:border-primary border-line'
+                        )}
+                        {...register('studentId')}
+                      />
+                      {errors.studentId?.message && (
+                        <p className="text-caption3_r_13 text-color-red-50">
+                          {errors.studentId.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex w-full flex-col gap-[6px]">
+                <label className="text-caption2_m_12">이메일</label>
+                <div className="flex gap-[6px]">
+                  {isSKKU ? (
+                    <div
+                      className={cn(
+                        'flex h-[46px] min-w-0 flex-1 items-center gap-1 rounded-[12px] border bg-white px-5',
+                        getEmailBorderClass()
+                      )}
+                    >
+                      <input
+                        placeholder="codedang"
+                        value={emailLocal}
+                        onChange={(e) => setEmailLocal(e.target.value)}
+                        disabled={emailVerified}
+                        className="placeholder:text-body1_m_16 placeholder:text-color-neutral-90 min-w-0 flex-1 bg-transparent outline-none"
+                      />
+                      <span className="text-body1_m_16 text-color-neutral-30 shrink-0">
+                        @skku.edu
+                      </span>
+                    </div>
+                  ) : (
                     <input
-                      placeholder="codedang"
+                      placeholder="이메일을 입력해주세요"
                       value={emailLocal}
                       onChange={(e) => setEmailLocal(e.target.value)}
                       disabled={emailVerified}
-                      className="placeholder:text-body1_m_16 placeholder:text-color-neutral-90 min-w-0 flex-1 bg-transparent outline-none"
-                    />
-                    <span className="text-body1_m_16 text-color-neutral-30 shrink-0">
-                      @skku.edu
-                    </span>
-                  </div>
-                ) : (
-                  <input
-                    placeholder="이메일을 입력해주세요"
-                    value={emailLocal}
-                    onChange={(e) => setEmailLocal(e.target.value)}
-                    disabled={emailVerified}
-                    className={cn(
-                      'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] min-w-0 flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none',
-                      getEmailBorderClass()
-                    )}
-                  />
-                )}
-                <button
-                  type="button"
-                  onClick={sendEmail}
-                  disabled={!emailLocal || emailVerified}
-                  className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {emailSent && !codeExpired && !emailVerified
-                    ? '재발송'
-                    : '인증 하기'}
-                </button>
-              </div>
-              {errors.email?.message && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  {errors.email.message}
-                </p>
-              )}
-              {emailVerified && (
-                <p className="text-caption3_r_13 text-primary">
-                  이메일 인증이 완료되었습니다
-                </p>
-              )}
-
-              {emailSent && !emailVerified && (
-                <div className="mt-1 flex gap-[6px]">
-                  <div className="relative flex-1">
-                    <input
-                      inputMode="numeric"
-                      maxLength={6}
-                      placeholder="메일로 도착한 인증 번호를 입력해주세요"
-                      value={verificationCode}
-                      onChange={(e) => {
-                        const val = e.target.value
-                          .replace(/\D/g, '')
-                          .slice(0, 6)
-                        setVerificationCode(val)
-                        setPinError('')
-                      }}
-                      disabled={codeExpired}
                       className={cn(
-                        'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-20 outline-none',
-                        pinError || codeExpired
-                          ? 'border-error focus:border-error'
-                          : 'focus:border-primary border-line'
+                        'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] min-w-0 flex-1 rounded-[12px] border bg-white px-5 py-[11px] outline-none',
+                        getEmailBorderClass()
                       )}
                     />
-                    {!codeExpired && (
-                      <span className="text-caption3_r_13 text-color-red-50 absolute right-4 top-1/2 -translate-y-1/2">
-                        {formatTimer()}
-                      </span>
-                    )}
-                  </div>
+                  )}
                   <button
                     type="button"
-                    onClick={() => verifyPin(verificationCode)}
-                    disabled={verificationCode.length !== 6 || codeExpired}
-                    className="text-sub3_sb_16 bg-primary h-[46px] shrink-0 rounded-[12px] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    onClick={sendEmail}
+                    disabled={!emailLocal || emailVerified}
+                    className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    인증 확인
+                    {emailSent && !codeExpired && !emailVerified
+                      ? '재발송'
+                      : '인증 하기'}
                   </button>
                 </div>
-              )}
-              {codeExpired && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  인증 코드가 만료되었습니다. 재발송 버튼을 눌러주세요
-                </p>
-              )}
-              {pinError && (
-                <p className="text-caption3_r_13 text-color-red-50">
-                  {pinError}
-                </p>
-              )}
+                {errors.email?.message && (
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    {errors.email.message}
+                  </p>
+                )}
+                {emailVerified && (
+                  <p className="text-caption3_r_13 text-primary">
+                    이메일 인증이 완료되었습니다
+                  </p>
+                )}
+
+                {emailSent && !emailVerified && (
+                  <div className="mt-1 flex gap-[6px]">
+                    <div className="relative flex-1">
+                      <input
+                        inputMode="numeric"
+                        maxLength={6}
+                        placeholder="메일로 도착한 인증 번호를 입력해주세요"
+                        value={verificationCode}
+                        onChange={(e) => {
+                          const val = e.target.value
+                            .replace(/\D/g, '')
+                            .slice(0, 6)
+                          setVerificationCode(val)
+                          setPinError('')
+                        }}
+                        disabled={codeExpired}
+                        className={cn(
+                          'placeholder:text-body1_m_16 placeholder:text-color-neutral-90 h-[46px] w-full rounded-[12px] border bg-white px-5 py-[11px] pr-20 outline-none',
+                          pinError || codeExpired
+                            ? 'border-error focus:border-error'
+                            : 'focus:border-primary border-line'
+                        )}
+                      />
+                      {!codeExpired && (
+                        <span className="text-caption3_r_13 text-color-red-50 absolute right-4 top-1/2 -translate-y-1/2">
+                          {formatTimer()}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => verifyPin(verificationCode)}
+                      disabled={verificationCode.length !== 6 || codeExpired}
+                      className="text-sub3_sb_16 bg-primary h-[46px] shrink-0 rounded-[12px] px-4 text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      인증 확인
+                    </button>
+                  </div>
+                )}
+                {codeExpired && (
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    인증 코드가 만료되었습니다. 재발송 버튼을 눌러주세요
+                  </p>
+                )}
+                {pinError && (
+                  <p className="text-caption3_r_13 text-color-red-50">
+                    {pinError}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex w-full flex-col gap-12">
-          <div className="flex w-full flex-col gap-[10px]">
-            <div className="border-line border-b pb-[10px]">
+          <div className="flex w-full flex-col gap-12">
+            <div className="flex w-full flex-col gap-[10px]">
+              <div className="border-line border-b pb-[10px]">
+                <AgreementCheckbox
+                  checked={isAllChecked}
+                  onChange={handleAllAgreementChange}
+                >
+                  전체동의
+                </AgreementCheckbox>
+              </div>
+
               <AgreementCheckbox
-                checked={isAllChecked}
-                onChange={handleAllAgreementChange}
+                checked={agreements.terms}
+                onChange={(checked) => handleAgreementChange('terms', checked)}
               >
-                전체동의
+                이용약관 동의
+              </AgreementCheckbox>
+
+              <AgreementCheckbox
+                checked={agreements.privacy}
+                onChange={(checked) =>
+                  handleAgreementChange('privacy', checked)
+                }
+              >
+                코드당 개인정보 수집 및 이용 동의
+              </AgreementCheckbox>
+
+              <AgreementCheckbox
+                checked={agreements.minorPrivacy}
+                onChange={(checked) =>
+                  handleAgreementChange('minorPrivacy', checked)
+                }
+              >
+                14세미만 개인정보 이용 보호
               </AgreementCheckbox>
             </div>
 
-            <AgreementCheckbox
-              checked={agreements.terms}
-              onChange={(checked) => handleAgreementChange('terms', checked)}
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className={cn(
+                'text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] transition-colors',
+                canSubmit
+                  ? 'bg-primary hover:bg-primary-strong text-white'
+                  : 'bg-color-neutral-95 text-color-neutral-70 cursor-not-allowed'
+              )}
             >
-              이용약관 동의
-            </AgreementCheckbox>
-
-            <AgreementCheckbox
-              checked={agreements.privacy}
-              onChange={(checked) => handleAgreementChange('privacy', checked)}
-            >
-              코드당 개인정보 수집 및 이용 동의
-            </AgreementCheckbox>
-
-            <AgreementCheckbox
-              checked={agreements.minorPrivacy}
-              onChange={(checked) =>
-                handleAgreementChange('minorPrivacy', checked)
-              }
-            >
-              14세미만 개인정보 이용 보호
-            </AgreementCheckbox>
+              가입하기
+            </button>
           </div>
-
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={cn(
-              'text-sub3_sb_16 flex h-[52px] w-full items-center justify-center rounded-[12px] transition-colors',
-              canSubmit
-                ? 'bg-primary hover:bg-primary-strong text-white'
-                : 'bg-color-neutral-95 text-color-neutral-70 cursor-not-allowed'
-            )}
-          >
-            가입하기
-          </button>
         </div>
-      </div>
-    </form>
+      </form>
+    </>
   )
 }
