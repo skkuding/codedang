@@ -259,11 +259,12 @@ export function SignUpPage() {
   }
 
   const checkUserId = async () => {
+    setIsCheckingUserId(true)
     const valid = await trigger('userId')
     if (!valid) {
+      setIsCheckingUserId(false)
       return
     }
-    setIsCheckingUserId(true)
     try {
       await safeFetcher.get(`user/username-check?username=${watchUserId}`)
       clearErrors('userId')
