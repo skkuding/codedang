@@ -19,7 +19,7 @@ import { usePostHog } from 'posthog-js/react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import type { SubmitHandler } from 'react-hook-form'
-import { FaEyeSlash } from 'react-icons/fa'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { RecoverAccount } from '../RecoverAccount/RecoverAccount'
 
@@ -166,7 +166,11 @@ export function LogInPage() {
                     className="absolute inset-y-0 right-5 flex items-center"
                     onClick={() => setIsPasswordVisible((prev) => !prev)}
                   >
-                    <FaEyeSlash className="text-gray-400" />
+                    {isPasswordVisible ? (
+                      <FaEye className="text-gray-400" />
+                    ) : (
+                      <FaEyeSlash className="text-gray-400" />
+                    )}
                   </button>
                 </div>
               </div>
