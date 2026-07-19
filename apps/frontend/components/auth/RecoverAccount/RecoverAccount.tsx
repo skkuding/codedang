@@ -31,7 +31,7 @@ export function RecoverAccount({ onBackToSignIn }: RecoverAccountProps) {
         width={100}
       />
 
-      {modalPage === 0 && <FindUserId />}
+      {modalPage === 0 && <FindUserId onLogIn={onBackToSignIn} />}
       {modalPage === 1 && <ResetPasswordEmailVerify />}
       {modalPage === 2 && <ResetPassword />}
     </div>

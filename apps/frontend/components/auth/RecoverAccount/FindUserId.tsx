@@ -1,7 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
-import { useAuthModalStore } from '@/stores/authModal'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useState } from 'react'
@@ -15,7 +14,11 @@ const schema = v.object({
   email: v.pipe(v.string(), v.email('Invalid email address'))
 })
 
-export function FindUserId() {
+interface FindUserIdProps {
+  onLogIn: () => void
+}
+
+export function FindUserId({ onLogIn }: FindUserIdProps) {
   const [userId, setUserId] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
   const [wrongEmail, setWrongEmail] = useState<string>('')
@@ -24,7 +27,6 @@ export function FindUserId() {
   const { nextModal, setFormData } = useRecoverAccountModalStore(
     (state) => state
   )
-  const { showSignIn } = useAuthModalStore((state) => state)
 
   const {
     handleSubmit,
@@ -130,11 +132,7 @@ export function FindUserId() {
 
       <div className="flex flex-col gap-2">
         {userId ? (
-          <Button
-            onClick={() => showSignIn()}
-            type="button"
-            className="font-semibold"
-          >
+          <Button onClick={onLogIn} type="button" className="font-semibold">
             Log in
           </Button>
         ) : (
