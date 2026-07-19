@@ -100,7 +100,11 @@ export function LogInPage() {
           }
         })
 
-        if (!justLinkedSocial && !isSocialLoginPromoDismissedToday()) {
+        if (
+          !justLinkedSocial &&
+          !oauthToken &&
+          !isSocialLoginPromoDismissedToday()
+        ) {
           setIsSocialPromoModalOpen(true)
         } else {
           router.push('/')
