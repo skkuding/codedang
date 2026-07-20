@@ -131,7 +131,7 @@ export function ResetPasswordEmailVerify() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex w-full flex-col gap-1 px-2"
     >
-      <p className="text-primary mb-4 text-left font-mono text-xl font-bold">
+      <p className="text-primary mb-8 text-left font-mono text-xl font-bold">
         Reset Password
       </p>
       <div className="flex justify-between">
