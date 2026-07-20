@@ -32,9 +32,11 @@ interface AlertModalProps {
   type: 'confirm' | 'warning'
   showIcon?: boolean
   showCancelButton?: boolean
+  cancelText?: string
   title: string
   description?: string
   primaryButton: ButtonProps
+  closeOnAction?: boolean
   children?: React.ReactNode
   onClose?: () => void
 }
@@ -53,6 +55,8 @@ export function AlertModal({
   type,
   showIcon = true,
   showCancelButton = true,
+  cancelText = 'Cancel',
+  closeOnAction = true,
   title,
   description,
   primaryButton,
@@ -107,10 +111,23 @@ export function AlertModal({
         <AlertDialogFooter className="flex w-full flex-row gap-[4px]">
           {showCancelButton && (
             <AlertDialogCancel className="h-[46px] w-full">
-              Cancel
+              {cancelText}
             </AlertDialogCancel>
           )}
-          <AlertDialogAction asChild>
+          {closeOnAction ? (
+            <AlertDialogAction asChild>
+              <Button
+                onClick={primaryButton.onClick}
+                className={cn(
+                  'h-[46px] w-full',
+                  type === 'warning' ? 'bg-error hover:bg-red-500/90' : null
+                )}
+                variant={primaryButton.variant}
+              >
+                {primaryButton.text}
+              </Button>
+            </AlertDialogAction>
+          ) : (
             <Button
               onClick={primaryButton.onClick}
               className={cn(
@@ -121,7 +138,7 @@ export function AlertModal({
             >
               {primaryButton.text}
             </Button>
-          </AlertDialogAction>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

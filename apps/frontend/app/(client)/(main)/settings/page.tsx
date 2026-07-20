@@ -1,54 +1,76 @@
 'use client'
 
+import { allMajors } from '@/libs/constants'
+import { cn } from '@/libs/utils'
+import invisibleIcon from '@/public/icons/invisible.svg'
+import visibleIcon from '@/public/icons/visible.svg'
 import type { SettingsFormat } from '@/types/type'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { updateUserProfile } from '../../_libs/apis/profile'
 import { profileQueries } from '../../_libs/queries/profile'
+import { AccountLinkingSection } from './_components/AccountLinkingSection'
+import { CollegeSection } from './_components/CollegeSection'
 import { ConfirmModal } from './_components/ConfirmModal'
-import { CurrentPwSection } from './_components/CurrentPwSection'
-import { EmailSection } from './_components/EmailSection'
-import { IdSection } from './_components/IdSection'
-import { LogoSection } from './_components/LogoSection'
-import { MajorSection } from './_components/MajorSection'
-import { NameSection } from './_components/NameSection'
-import { NewPwSection } from './_components/NewPwSection'
-import { PushNotificationSection } from './_components/PushNotificationSection'
-import { ReEnterNewPwSection } from './_components/ReEnterNewPwSection'
-import { SaveButton } from './_components/SaveButton'
-import { StudentIdSection } from './_components/StudentIdSection'
-import { TopicSection } from './_components/TopicSection'
+import { DeleteAccountSection } from './_components/DeleteAccountSection'
+import { EmailVerificationSection } from './_components/EmailVerificationSection'
+import { NicknameSection } from './_components/NicknameSection'
+import { ProfilePhotoSection } from './_components/ProfilePhotoSection'
 import { SettingsProvider } from './_components/context'
 import { useCheckPassword } from './_libs/hooks/useCheckPassword'
 import { getSchema } from './_libs/schemas'
 import { useConfirmNavigation } from './_libs/utils'
 
+const JOB_TYPE_LABELS: Record<string, string> = {
+  CollegeStudent: '대학생',
+  HighSchoolStudent: '고등학생',
+  Employee: '직장인',
+  Other: '기타'
+}
+
+const findMajorKoreanName = (storedMajor?: string) => {
+  if (!storedMajor) {
+    return ''
+  }
+  const entry =
+    allMajors.find((m: string) => m.includes(storedMajor)) ?? storedMajor
+  return (
+    entry
+      .split(/\s*\/\s*/)
+      .at(-1)
+      ?.trim() ?? entry
+  )
+}
+
+const getJobLabel = (jobType?: string) => {
+  if (!jobType) {
+    return '직업'
+  }
+  return JOB_TYPE_LABELS[jobType] ?? jobType
+}
+
 type UpdatePayload = Partial<{
   password: string
   newPassword: string
   realName: string
-  studentId: string
   college: string
   major: string
+  nickname: string
 }>
 
 export default function Page() {
-  const searchParams = useSearchParams()
-  const updateNow = searchParams.get('updateNow')
-  const router = useRouter()
   const bypassConfirmation = useRef<boolean>(false)
 
   const { data: defaultProfileValues, isLoading } = useQuery({
     ...profileQueries.fetch(),
     initialData: {
       username: '',
-      userProfile: {
-        realName: ''
-      },
+      nickname: '',
+      userProfile: { realName: '' },
       studentId: '',
       college: '',
       major: '',
@@ -60,14 +82,13 @@ export default function Page() {
   const [majorValue, setMajorValue] = useState(defaultProfileValues.major)
   const [collegeValue, setCollegeValue] = useState(defaultProfileValues.college)
 
-  useEffect(() => {
-    if (defaultProfileValues.major) {
-      setMajorValue(defaultProfileValues.major)
-    }
-    if (defaultProfileValues.college) {
-      setCollegeValue(defaultProfileValues.college)
-    }
-  }, [defaultProfileValues.major, defaultProfileValues.college])
+  const isSKKU =
+    Boolean(defaultProfileValues.studentId) &&
+    defaultProfileValues.studentId !== '0000000000'
+
+  const [passwordShow, setPasswordShow] = useState(false)
+  const [newPasswordShow, setNewPasswordShow] = useState(false)
+  const [confirmPasswordShow, setConfirmPasswordShow] = useState(false)
 
   const {
     register,
@@ -75,16 +96,18 @@ export default function Page() {
     getValues,
     setValue,
     watch,
+    reset,
     formState: { errors }
   } = useForm<SettingsFormat>({
-    resolver: valibotResolver(getSchema(Boolean(updateNow))),
+    resolver: valibotResolver(getSchema()),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      realName: defaultProfileValues.userProfile?.realName ?? '',
-      studentId: defaultProfileValues.studentId
+      realName: '',
+      studentId: '',
+      nickname: ''
     }
   })
 
@@ -92,10 +115,35 @@ export default function Page() {
   const newPassword = watch('newPassword')
   const confirmPassword = watch('confirmPassword')
   const realName = watch('realName')
-  const studentId = watch('studentId')
+  const nickname = watch('nickname')
+
+  const initialized = useRef(false)
+
+  useEffect(() => {
+    if (isLoading || !defaultProfileValues.username) {
+      return
+    }
+    if (!initialized.current) {
+      initialized.current = true
+      reset({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        realName: defaultProfileValues.userProfile?.realName ?? '',
+        studentId: defaultProfileValues.studentId ?? '',
+        nickname: defaultProfileValues.nickname ?? ''
+      })
+    }
+    if (defaultProfileValues.college) {
+      setCollegeValue(defaultProfileValues.college)
+    }
+    if (defaultProfileValues.major) {
+      setMajorValue(defaultProfileValues.major)
+    }
+  }, [isLoading, reset, defaultProfileValues])
 
   const { isConfirmModalOpen, setIsConfirmModalOpen, confirmAction } =
-    useConfirmNavigation(bypassConfirmation, Boolean(updateNow))
+    useConfirmNavigation(bypassConfirmation, false)
 
   const {
     isPasswordCorrect,
@@ -104,35 +152,23 @@ export default function Page() {
     checkPassword
   } = useCheckPassword(defaultProfileValues, currentPassword)
 
-  const [passwordShow, setPasswordShow] = useState<boolean>(false)
-  const [newPasswordShow, setNewPasswordShow] = useState<boolean>(false)
-  const [confirmPasswordShow, setConfirmPasswordShow] = useState<boolean>(false)
-  const [majorOpen, setMajorOpen] = useState<boolean>(false)
-  const [collegeOpen, setCollegeOpen] = useState<boolean>(false)
-
   const isPasswordsMatch = newPassword === confirmPassword && newPassword !== ''
-  const saveAblePassword: boolean =
-    Boolean(currentPassword) &&
-    Boolean(newPassword) &&
-    Boolean(confirmPassword) &&
-    isPasswordCorrect &&
-    newPasswordAble &&
-    isPasswordsMatch
-  const saveAbleOthers: boolean =
-    Boolean(realName) ||
-    Boolean(majorValue !== defaultProfileValues.major) ||
-    Boolean(collegeValue !== defaultProfileValues.college)
+
+  const isSamePassword = newPasswordAble && newPassword === currentPassword
+
   const saveAble =
-    (saveAblePassword || saveAbleOthers) &&
-    ((isPasswordsMatch && !errors.newPassword) ||
-      (!newPassword && !confirmPassword)) &&
-    majorValue !== 'none' &&
-    collegeValue !== 'none'
-  const saveAbleUpdateNow =
-    Boolean(studentId) &&
-    majorValue !== 'none' &&
-    collegeValue !== 'none' &&
-    !errors.studentId
+    (Boolean(currentPassword) &&
+      Boolean(newPassword) &&
+      Boolean(confirmPassword) &&
+      isPasswordCorrect &&
+      newPasswordAble &&
+      isPasswordsMatch &&
+      !isSamePassword) ||
+    (Boolean(realName) &&
+      realName !== (defaultProfileValues.userProfile?.realName ?? '')) ||
+    majorValue !== defaultProfileValues.major ||
+    collegeValue !== defaultProfileValues.college ||
+    Boolean(nickname && nickname !== defaultProfileValues.nickname)
 
   useEffect(() => {
     if (isPasswordsMatch) {
@@ -145,27 +181,18 @@ export default function Page() {
     mutationFn: updateUserProfile,
     onError: (error) => {
       console.error(error)
-      toast.error('Failed to update your information, Please try again')
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
+      toast.error('정보 업데이트에 실패했습니다. 다시 시도해주세요.')
+      setTimeout(() => window.location.reload(), 1500)
     },
     onSuccess: () => {
-      toast.success('Successfully updated your information')
+      toast.success('정보가 성공적으로 업데이트되었습니다.')
       bypassConfirmation.current = true
-      setTimeout(() => {
-        if (updateNow) {
-          router.push('/')
-        } else {
-          window.location.reload()
-        }
-      }, 1500)
+      setTimeout(() => window.location.reload(), 1500)
     }
   })
 
   const onSubmit = (data: SettingsFormat) => {
     const updatePayload: UpdatePayload = {}
-
     if (data.realName !== defaultProfileValues.userProfile?.realName) {
       updatePayload.realName = data.realName
     }
@@ -175,130 +202,349 @@ export default function Page() {
     if (collegeValue !== defaultProfileValues.college) {
       updatePayload.college = collegeValue
     }
-    if (data.currentPassword !== 'tmppassword1') {
+    if (isPasswordCorrect && isPasswordsMatch && !isSamePassword) {
       updatePayload.password = data.currentPassword
-    }
-    if (data.newPassword !== 'tmppassword1') {
       updatePayload.newPassword = data.newPassword
     }
-    if (updateNow && data.studentId !== '0000000000') {
-      updatePayload.studentId = data.studentId
+    if (
+      data.nickname !== undefined &&
+      data.nickname !== defaultProfileValues.nickname
+    ) {
+      updatePayload.nickname = data.nickname
     }
-
     mutate(updatePayload)
   }
 
-  const resetToSubmittableValue = (
-    field: 'realName' | 'currentPassword' | 'newPassword' | 'confirmPassword',
-    value: string | undefined,
-    defaultValue: string
-  ) => {
-    if (value === '') {
-      setValue(field, defaultValue)
+  const onSubmitClick = () => {
+    if (realName === '') {
+      setValue('realName', defaultProfileValues.userProfile?.realName ?? '')
     }
   }
 
-  const onSubmitClick = () => {
-    resetToSubmittableValue(
-      'realName',
-      realName,
-      defaultProfileValues.userProfile?.realName ?? ''
-    )
-    resetToSubmittableValue('currentPassword', currentPassword, 'tmppassword1')
-    resetToSubmittableValue('newPassword', newPassword, 'tmppassword1')
-    resetToSubmittableValue('confirmPassword', confirmPassword, 'tmppassword1')
-  }
+  const inputBase =
+    'h-[46px] w-full rounded-xl border border-line px-5 py-[11px] text-body1_m_16 outline-none'
+  const labelBase = 'text-caption2_m_12 text-color-neutral-15'
 
-  const settingsContextValue = {
-    defaultProfileValues,
-    isLoading,
-    passwordState: {
-      passwordShow,
-      setPasswordShow,
-      newPasswordShow,
-      setNewPasswordShow,
-      confirmPasswordShow,
-      setConfirmPasswordShow
-    },
-    majorState: {
-      majorOpen,
-      setMajorOpen,
-      majorValue,
-      setMajorValue
-    },
-    collegeState: {
-      collegeOpen,
-      setCollegeOpen,
-      collegeValue,
-      setCollegeValue
-    },
-    formState: {
-      register,
-      errors
-    },
-    updateNow: Boolean(updateNow)
-  }
   return (
-    <div className="mt-[60px] flex w-full max-w-[1440px] gap-20 px-4 pb-6 sm:px-[116px]">
-      {/* Logo */}
-      <LogoSection />
+    <div className="mt-[60px] flex w-full justify-center bg-white">
+      <SettingsProvider
+        value={{
+          defaultProfileValues,
+          isLoading,
+          majorState: { majorValue, setMajorValue },
+          collegeState: { collegeValue, setCollegeValue }
+        }}
+      >
+        <div className="flex w-full max-w-[1440px] flex-col gap-10 px-5 py-7 sm:px-6 md:px-[116px] xl:px-[226px]">
+          <form
+            id="settings-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-10"
+          >
+            <section className="flex flex-col gap-6">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                프로필 정보
+              </h2>
+              <ProfilePhotoSection />
+              <div className="flex flex-col gap-6">
+                <div className="flex gap-6">
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <label className={labelBase}>이름</label>
+                    <div
+                      className={cn(
+                        inputBase,
+                        'bg-fill-neutral text-color-neutral-70 flex items-center'
+                      )}
+                    >
+                      {isLoading
+                        ? 'Loading...'
+                        : defaultProfileValues.userProfile?.realName || '이름'}
+                    </div>
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <label className={labelBase}>아이디</label>
+                    <div
+                      className={cn(
+                        inputBase,
+                        'bg-fill-neutral text-color-neutral-70 flex items-center'
+                      )}
+                    >
+                      {isLoading
+                        ? 'Loading...'
+                        : defaultProfileValues.username || '아이디'}
+                    </div>
+                  </div>
+                </div>
 
-      <SettingsProvider value={settingsContextValue}>
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex h-svh max-h-[1000px] w-full flex-col justify-between gap-4 overflow-y-auto px-4"
-        >
-          {/* Topic */}
-          <TopicSection />
-          {/* ID */}
-          <IdSection />
-          {/* Email */}
-          <EmailSection />
-          {/* Current password */}
-          <CurrentPwSection
-            currentPassword={currentPassword}
-            isCheckButtonClicked={isCheckButtonClicked}
-            isPasswordCorrect={isPasswordCorrect}
-            checkPassword={checkPassword}
-          />
-          {/* New password */}
-          <NewPwSection
-            newPasswordAble={newPasswordAble}
-            isPasswordsMatch={isPasswordsMatch}
-            confirmPassword={confirmPassword}
-            newPassword={newPassword}
-          />
-          {/* Re-enter new password */}
-          <ReEnterNewPwSection
-            newPasswordAble={newPasswordAble}
-            isPasswordsMatch={isPasswordsMatch}
-            confirmPassword={confirmPassword}
-            getValues={getValues}
-          />
+                <div className="flex gap-6">
+                  <NicknameSection register={register} errors={errors} />
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <label className={labelBase}>직업</label>
+                    <div
+                      className={cn(
+                        inputBase,
+                        'bg-fill-neutral text-color-neutral-70 flex items-center'
+                      )}
+                    >
+                      {isLoading
+                        ? 'Loading...'
+                        : getJobLabel(defaultProfileValues.jobType)}
+                    </div>
+                  </div>
+                </div>
 
-          <hr className="my-4 border-neutral-200" />
+                {isSKKU ? (
+                  <>
+                    <div className="w-1/2 pr-3">
+                      <div className="flex flex-col gap-1">
+                        <label className={labelBase}>대학교</label>
+                        <div
+                          className={cn(
+                            inputBase,
+                            'bg-fill-neutral text-color-neutral-70 flex items-center'
+                          )}
+                        >
+                          {isLoading ? 'Loading...' : '성균관대학교'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-6">
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <label className={labelBase}>학과</label>
+                        <div
+                          className={cn(
+                            inputBase,
+                            'bg-fill-neutral text-color-neutral-70 flex items-center'
+                          )}
+                        >
+                          {isLoading
+                            ? 'Loading...'
+                            : findMajorKoreanName(
+                                majorValue || defaultProfileValues.major
+                              ) || '학과'}
+                        </div>
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <label className={labelBase}>학번</label>
+                        <div
+                          className={cn(
+                            inputBase,
+                            'bg-fill-neutral text-color-neutral-70 flex items-center'
+                          )}
+                        >
+                          {isLoading
+                            ? 'Loading...'
+                            : defaultProfileValues.studentId || '학번'}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-1/2 pr-3">
+                    <CollegeSection />
+                  </div>
+                )}
+              </div>
+            </section>
 
-          {/* Name */}
-          <NameSection realName={realName} />
-          {/* Student ID */}
-          <StudentIdSection studentId={studentId} />
-          {/* Major */}
-          <MajorSection />
-          {/* Push Notifications */}
-          <PushNotificationSection />
-          {/* Save Button */}
-          <SaveButton
-            saveAble={saveAble}
-            saveAbleUpdateNow={saveAbleUpdateNow}
-            onSubmitClick={onSubmitClick}
-          />
-        </form>
+            <section className="flex flex-col gap-5">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                이메일 인증
+              </h2>
+              <EmailVerificationSection />
+            </section>
+
+            {/* <section className="flex flex-col gap-5">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                이메일 알림
+              </h2>
+              <EmailNotificationSection />
+            </section> */}
+
+            <section className="flex flex-col gap-5">
+              <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+                비밀번호 변경
+              </h2>
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-1">
+                  <label className={labelBase}>현재 비밀번호</label>
+                  <div className="flex items-center gap-1.5">
+                    <div className="relative min-w-0 flex-1">
+                      <input
+                        type={passwordShow ? 'text' : 'password'}
+                        placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
+                        {...register('currentPassword')}
+                        className={cn(
+                          inputBase,
+                          'focus:border-primary text-color-neutral-30 placeholder:text-color-neutral-90 w-full bg-white pr-12',
+                          errors.currentPassword && 'border-red-500',
+                          isCheckButtonClicked &&
+                            (isPasswordCorrect
+                              ? 'border-primary'
+                              : 'border-red-500')
+                        )}
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                        onClick={() => setPasswordShow((v) => !v)}
+                      >
+                        <Image
+                          src={passwordShow ? visibleIcon : invisibleIcon}
+                          alt=""
+                          width={20}
+                          height={20}
+                        />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={checkPassword}
+                      disabled={!currentPassword}
+                      className="text-primary border-primary-light h-[46px] shrink-0 rounded-xl border bg-white px-5 py-[13px] text-base font-semibold tracking-[-0.64px] disabled:opacity-50"
+                    >
+                      확인
+                    </button>
+                  </div>
+                  {!errors.currentPassword && isCheckButtonClicked && (
+                    <p
+                      className={cn(
+                        'text-xs',
+                        isPasswordCorrect ? 'text-primary' : 'text-red-500'
+                      )}
+                    >
+                      {isPasswordCorrect
+                        ? '비밀번호가 일치합니다.'
+                        : '비밀번호가 일치하지 않습니다.'}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={labelBase}>새 비밀번호</label>
+                  <div className="relative">
+                    <input
+                      type={newPasswordShow ? 'text' : 'password'}
+                      placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
+                      disabled={!newPasswordAble}
+                      {...register('newPassword')}
+                      className={cn(
+                        inputBase,
+                        'focus:border-primary disabled:bg-fill-neutral text-color-neutral-30 placeholder:text-color-neutral-90 bg-white pr-12',
+                        isPasswordsMatch
+                          ? 'border-primary'
+                          : ((errors.newPassword && newPassword) ||
+                              confirmPassword) &&
+                              'border-red-500'
+                      )}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      onClick={() => setNewPasswordShow((v) => !v)}
+                    >
+                      <Image
+                        src={newPasswordShow ? visibleIcon : invisibleIcon}
+                        alt=""
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </div>
+                  {isSamePassword && (
+                    <p className="text-xs text-red-500">
+                      현재 비밀번호와 동일합니다.
+                    </p>
+                  )}
+                  {errors.newPassword &&
+                    newPasswordAble &&
+                    newPassword &&
+                    !isSamePassword && (
+                      <ul className="text-xs text-red-500">
+                        <li>8-20자리 이하</li>
+                        <li>영문 대/소문자, 숫자 중 2가지 이상 포함</li>
+                      </ul>
+                    )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={labelBase}>새 비밀번호 확인</label>
+                  <div className="relative">
+                    <input
+                      type={confirmPasswordShow ? 'text' : 'password'}
+                      placeholder="영문자, 숫자 포함 8-20자 (특수문자 제외)"
+                      disabled={!newPasswordAble}
+                      {...register('confirmPassword')}
+                      className={cn(
+                        inputBase,
+                        'focus:border-primary disabled:bg-fill-neutral text-color-neutral-30 placeholder:text-color-neutral-90 bg-white pr-12',
+                        isPasswordsMatch
+                          ? 'border-primary'
+                          : confirmPassword && 'border-red-500'
+                      )}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                      onClick={() => setConfirmPasswordShow((v) => !v)}
+                    >
+                      <Image
+                        src={confirmPasswordShow ? visibleIcon : invisibleIcon}
+                        alt=""
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </div>
+                  {getValues('confirmPassword') && (
+                    <p
+                      className={cn(
+                        'text-xs',
+                        isPasswordsMatch ? 'text-primary' : 'text-red-500'
+                      )}
+                    >
+                      {isPasswordsMatch
+                        ? '비밀번호가 일치합니다.'
+                        : '비밀번호가 일치하지 않습니다.'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </section>
+          </form>
+
+          <section className="flex flex-col gap-5">
+            <h2 className="text-2xl font-semibold leading-[1.3] tracking-[-0.72px]">
+              계정 연동
+            </h2>
+            <Suspense>
+              <AccountLinkingSection />
+            </Suspense>
+          </section>
+
+          <div className="flex flex-col gap-3">
+            <button
+              type="submit"
+              form="settings-form"
+              disabled={!saveAble}
+              onClick={onSubmitClick}
+              className={cn(
+                'text-sub3_sb_16 w-full rounded-xl px-5 py-[15px] text-white',
+                saveAble
+                  ? 'bg-primary'
+                  : 'bg-fill-neutral text-color-neutral-30 cursor-not-allowed'
+              )}
+            >
+              변경사항 저장하기
+            </button>
+            <DeleteAccountSection />
+          </div>
+        </div>
       </SettingsProvider>
 
       <ConfirmModal
-        title="Are you sure you want to leave?"
-        description={`Your changes have not been saved.\nIf you leave this page, all changes will be lost.\nDo you still want to proceed?`}
+        title="페이지를 떠나시겠습니까?"
+        description={`변경사항이 저장되지 않았습니다.\n이 페이지를 벗어나면 모든 변경사항이 사라집니다.\n계속 진행하시겠습니까?`}
         open={isConfirmModalOpen}
         handleOpen={() => setIsConfirmModalOpen(true)}
         handleClose={() => setIsConfirmModalOpen(false)}
