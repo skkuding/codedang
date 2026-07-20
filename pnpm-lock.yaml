@@ -713,6 +713,12 @@ importers:
       katex:
         specifier: ^0.16.22
         version: 0.16.22
+      korea-universities:
+        specifier: ^1.0.1
+        version: 1.0.1
+      korean-random-names-generator:
+        specifier: ^0.0.0
+        version: 0.0.0
       ky:
         specifier: ^1.8.2
         version: 1.8.2
@@ -9139,6 +9145,12 @@ packages:
       '@types/node': '>=18'
       typescript: '>=5.0.4'
 
+  korea-universities@1.0.1:
+    resolution: {integrity: sha512-OK/CE5sEBxGA1JowRpSfA1C6gCwP4LYYJlPAeSj14fc2WNr7HRwzk7nmB85hkyZAzBLX2N4Ezq0z0SmxCvAeTQ==}
+
+  korean-random-names-generator@0.0.0:
+    resolution: {integrity: sha512-mG6Y9LSnsZsRsMmDid6OYnkpiQyp0z/LUTAhCnwbB7CxdD51BcCOjLM118qjpOjbX8k+qI2X5GsPHUYUpWiKjg==}
+
   ky@1.8.2:
     resolution: {integrity: sha512-XybQJ3d4Ea1kI27DoelE5ZCT3bSJlibYTtQuMsyzKox3TMyayw1asgQdl54WroAm+fIA3ZCr8zXW2RpR7qWVpA==}
     engines: {node: '>=18'}
@@ -10997,6 +11009,7 @@ packages:
   recharts@2.15.4:
     resolution: {integrity: sha512-UT/q6fwS3c1dHbXv2uFgYJ9BMFHu3fwnd7AYZaEQhXuYQ4hgsxLvsUXzGdKeZrW5xopzDCvuA2N41WJ88I7zIw==}
     engines: {node: '>=14'}
+    deprecated: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest features and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide
     peerDependencies:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -22884,6 +22897,10 @@ snapshots:
       typescript: 5.9.2
       zod: 3.25.76
       zod-validation-error: 3.5.3(zod@3.25.76)
+
+  korea-universities@1.0.1: {}
+
+  korean-random-names-generator@0.0.0: {}
 
   ky@1.8.2: {}
 

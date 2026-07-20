@@ -60,7 +60,7 @@ const profile: UserProfile = {
   id: ID,
   userId: ID,
   realName: 'real name',
-  profileImageUrl: null,
+  profileImageUrl: '',
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
