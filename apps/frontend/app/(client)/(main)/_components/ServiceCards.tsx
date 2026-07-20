@@ -1,11 +1,11 @@
-// 'use client'
-// import { cn } from '@/libs/utils'
+'use client'
+
+import { cn } from '@/libs/utils'
 import GraduationIcon from '@/public/icons/graduation_blue.svg'
 import LaptopCodingIcon from '@/public/icons/laptop-coding.svg'
 import NotificationIcon from '@/public/icons/notification.svg'
 import PrizeIcon from '@/public/icons/prize_blue.svg'
-
-// import { useState } from 'react'
+import { useState } from 'react'
 
 const SERVICE_TABS = [
   'NOTICE',
@@ -54,12 +54,41 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
   ],
   STUDY: []
 }
+interface ServiceTabsProps {
+  selectedTab: ServiceTab
+  onTabChange: (tab: ServiceTab) => void
+}
 
-const features = SERVICE_TABS.flatMap((tab) => FEATURE_LIST[tab])
+function ServiceTabs({ selectedTab, onTabChange }: ServiceTabsProps) {
+  return (
+    <div className="flex h-[58px] w-full items-center overflow-x-auto rounded-full bg-white p-1.5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)] md:w-auto">
+      <div className="flex w-max items-center">
+        {SERVICE_TABS.map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            className={cn(
+              'text-body1_m_16 flex h-[46px] w-[115px] shrink-0 items-center justify-center rounded-full px-4 py-2.5 transition-colors',
+              selectedTab === tab
+                ? 'bg-color-cool-neutral-15 text-white'
+                : 'text-color-cool-neutral-70 hover:bg-[#F1F4F6]'
+            )}
+            onClick={() => onTabChange(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// const features = SERVICE_TABS.flatMap((tab) => FEATURE_LIST[tab])
 
 export function ServiceCards() {
-  // const [selectedTab, setSelectedTab] = useState<ServiceTab>('CONTEST')
+  const [selectedTab, setSelectedTab] = useState<ServiceTab>('CONTEST')
   // const features = FEATURE_LIST[selectedTab]
+  const features = SERVICE_TABS.flatMap((tab) => FEATURE_LIST[tab])
 
   return (
     <section className="font-pretendard flex w-full flex-col items-center px-5 md:px-0">
@@ -92,6 +121,7 @@ export function ServiceCards() {
             </div>
           </div>
           */}
+          <ServiceTabs selectedTab={selectedTab} onTabChange={setSelectedTab} />
         </div>
 
         <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
