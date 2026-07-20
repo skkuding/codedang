@@ -259,19 +259,20 @@ export function SignUpPage() {
   }
 
   const checkUserId = async () => {
+    setIsCheckingUserId(true)
     const valid = await trigger('userId')
     if (!valid) {
+      setIsCheckingUserId(false)
       return
     }
-    setIsCheckingUserId(true)
     try {
       await safeFetcher.get(`user/username-check?username=${watchUserId}`)
       clearErrors('userId')
       setIsUserIdAvailable(true)
+      setIsCheckingUserId(false)
     } catch {
       setError('userId', { message: '중복된 아이디입니다' })
       setIsUserIdAvailable(false)
-    } finally {
       setIsCheckingUserId(false)
     }
   }
@@ -392,6 +393,7 @@ export function SignUpPage() {
                   />
                   <button
                     type="button"
+                    onMouseDown={() => setIsCheckingUserId(true)}
                     onClick={checkUserId}
                     disabled={!watchUserId || watchUserId.length < 3}
                     className="text-sub3_sb_16 border-primary text-primary h-[46px] shrink-0 rounded-[12px] border px-4 disabled:cursor-not-allowed disabled:opacity-40"
