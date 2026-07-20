@@ -1,13 +1,10 @@
 'use client'
 
-import { Camera } from 'lucide-react'
 import Image from 'next/image'
-import { useRef } from 'react'
 import { useSettingsContext } from './context'
 
 export function ProfilePhotoSection() {
   const { defaultProfileValues, isLoading } = useSettingsContext()
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const rawUrl = defaultProfileValues.userProfile?.profileImageUrl
   const profileImageUrl = rawUrl?.startsWith('dicebear:')
@@ -15,7 +12,7 @@ export function ProfilePhotoSection() {
     : rawUrl
 
   return (
-    <div className="relative size-[160px]">
+    <div className="size-[160px]">
       <div className="bg-fill-neutral size-full overflow-hidden rounded-full">
         {!isLoading && profileImageUrl ? (
           <Image
@@ -43,19 +40,6 @@ export function ProfilePhotoSection() {
           </div>
         )}
       </div>
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        className="bg-color-neutral-30 hover:bg-color-neutral-20 absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-full text-white shadow-md"
-      >
-        <Camera size={16} />
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-      />
     </div>
   )
 }
