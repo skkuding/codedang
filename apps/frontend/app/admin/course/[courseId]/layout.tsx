@@ -76,7 +76,7 @@ export default function CourseDetailLayout({
 
         <div className="mx-auto my-10 w-full">
           <div className="w-full">
-            <nav className="flex w-full justify-between border-b border-gray-200">
+            <nav className="flex w-full border-b border-gray-200">
               {tabs.map((tab) => {
                 const isActive = pathname === tab.href
                 return (
@@ -84,7 +84,7 @@ export default function CourseDetailLayout({
                     key={`tab-${tab.name}`}
                     href={tab.href}
                     className={cn(
-                      'text-sub3_sb_16 relative flex h-[40px] w-[285.5px] items-center justify-center pb-4 transition-colors',
+                      'text-sub3_sb_16 relative flex h-[40px] flex-1 items-center justify-center pb-4 transition-colors',
                       isActive
                         ? 'text-primary after:bg-primary after:absolute after:bottom-[-1px] after:left-0 after:h-[2px] after:w-full'
                         : 'text-color-neutral-40 hover:text-color-neutral-70'
