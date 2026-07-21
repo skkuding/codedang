@@ -12,6 +12,7 @@ export interface RosterRow {
 }
 
 const emptyRow = (): RosterRow => ({ studentId: '', name: '' })
+const INITIAL_ROW_COUNT = 5
 
 interface StudentRosterModalProps {
   rows: RosterRow[]
@@ -61,7 +62,11 @@ export function StudentRosterModal({
 
   useEffect(() => {
     if (open) {
-      setDraft(rows.length > 0 ? rows : [emptyRow()])
+      setDraft(
+        rows.length > 0
+          ? rows
+          : Array.from({ length: INITIAL_ROW_COUNT }, emptyRow)
+      )
     }
   }, [open, rows])
 
@@ -96,7 +101,8 @@ export function StudentRosterModal({
     ])
   const removeRow = (rowIndex: number) =>
     setDraft((prev) => prev.filter((_, i) => i !== rowIndex))
-  const clearAll = () => setDraft([emptyRow()])
+  const clearAll = () =>
+    setDraft(Array.from({ length: INITIAL_ROW_COUNT }, emptyRow))
 
   const nonEmptyCount = draft.filter((row) => row.studentId.trim()).length
 
@@ -108,6 +114,7 @@ export function StudentRosterModal({
       headerDescription="Copy the Student ID column (and Name) from your portal and paste it into any cell — all rows fill at once. You can also type entries manually."
       open={open}
       onOpenChange={onOpenChange}
+      className="h-auto! max-h-[calc(100vh-120px)]!"
       primaryButton={{
         text: 'Save roster',
         onClick: () => {
@@ -137,25 +144,31 @@ export function StudentRosterModal({
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-md border">
+        <div className="max-h-[calc(100vh-460px)] overflow-y-auto rounded-[14px] border border-[#e2e2e7]">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="sticky top-0 z-10 bg-[#f6f6f8]">
               <tr>
-                <th className="w-10 px-3 py-2 text-left font-medium text-gray-500">
+                <th className="h-12 w-[52px] border-r border-[#e8e8ee] px-3 text-center align-middle text-[13px] font-semibold text-[#b4b4bc]">
                   #
                 </th>
-                <th className="px-3 py-2 text-left font-medium">Student ID</th>
-                <th className="px-3 py-2 text-left font-medium">Name</th>
-                <th className="w-10" />
+                <th className="h-12 border-r border-[#e8e8ee] px-5 text-left align-middle text-[15px] font-semibold text-[#3f3f46]">
+                  Student ID
+                </th>
+                <th className="h-12 border-r border-[#e8e8ee] px-5 text-left align-middle text-[15px] font-semibold text-[#3f3f46]">
+                  Name
+                </th>
+                <th className="h-12 w-[44px] align-middle" />
               </tr>
             </thead>
             <tbody>
               {draft.map((row, rowIndex) => (
-                <tr key={rowIndex} className="border-t">
-                  <td className="px-3 py-1.5 text-gray-400">{rowIndex + 1}</td>
-                  <td className="px-1 py-1">
+                <tr key={rowIndex} className="border-t border-[#eeeef1]">
+                  <td className="h-12 border-r border-[#eeeef1] bg-[#fafafb] px-3 text-center align-middle text-[13px] tabular-nums text-[#b4b4bc]">
+                    {rowIndex + 1}
+                  </td>
+                  <td className="h-12 border-r border-[#eeeef1] px-1 align-middle">
                     <input
-                      className="w-full rounded-sm border-none bg-transparent px-2 py-1 outline-none focus:bg-gray-50"
+                      className="w-full rounded-sm border-none bg-transparent px-2 py-1 text-[#18181b] outline-none focus:bg-gray-50"
                       placeholder="2024310001"
                       value={row.studentId}
                       onChange={(e) =>
@@ -164,9 +177,9 @@ export function StudentRosterModal({
                       onPaste={(e) => handlePaste(e, rowIndex, 'studentId')}
                     />
                   </td>
-                  <td className="px-1 py-1">
+                  <td className="h-12 border-r border-[#eeeef1] px-1 align-middle">
                     <input
-                      className="w-full rounded-sm border-none bg-transparent px-2 py-1 outline-none focus:bg-gray-50"
+                      className="w-full rounded-sm border-none bg-transparent px-2 py-1 text-[#18181b] outline-none focus:bg-gray-50"
                       placeholder="Hong Gil-dong"
                       value={row.name}
                       onChange={(e) =>
@@ -175,7 +188,7 @@ export function StudentRosterModal({
                       onPaste={(e) => handlePaste(e, rowIndex, 'name')}
                     />
                   </td>
-                  <td className="px-2">
+                  <td className="h-12 px-2 text-center align-middle">
                     <button
                       type="button"
                       aria-label="Remove row"
@@ -191,10 +204,10 @@ export function StudentRosterModal({
           </table>
           <button
             type="button"
-            className="w-full border-t px-3 py-2 text-center text-sm text-gray-500 hover:bg-gray-50"
+            className="flex w-full items-center justify-center gap-2 border-t border-[#eeeef1] bg-[#fbfbfc] py-[13px] text-[15px] font-medium text-[#52525b] hover:bg-[#f4f4f5]"
             onClick={addRow}
           >
-            + Add row
+            <span className="text-[17px] leading-none">+</span> Add row
           </button>
         </div>
       </div>

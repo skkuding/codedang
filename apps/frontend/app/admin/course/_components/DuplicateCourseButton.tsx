@@ -157,7 +157,7 @@ export function DuplicateCourseButton({
         variables: {
           groupId: Number(newGroupId),
           studentIds: roster.map((row) => row.studentId),
-          names: roster.map((row) => row.name || null)
+          names: roster.map((row) => row.name)
         }
       })
     }

@@ -85,7 +85,7 @@ const DUPLICATE_COURSE = gql(`
 `)
 
 const CREATE_WHITE_LIST = gql(`
-  mutation createWhitelist($groupId: Int!, $studentIds: [String!]!, $names: [String]){
+  mutation createWhitelist($groupId: Int!, $studentIds: [String!]!, $names: [String!]){
     createWhitelist(groupId: $groupId, studentIds: $studentIds, names: $names)
   }
 `)

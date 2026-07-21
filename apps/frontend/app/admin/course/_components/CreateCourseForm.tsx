@@ -92,13 +92,15 @@ export function CreateCourseForm({
       })
 
       const groupId = created?.createCourse.id
-      const roster = data.roster ?? []
+      // valibotResolver strips keys not declared in courseSchema, so read
+      // roster directly from form state instead of the resolver output.
+      const roster = methods.getValues('roster') ?? []
       if (groupId && roster.length > 0) {
         await createWhitelist({
           variables: {
             groupId: Number(groupId),
             studentIds: roster.map((row) => row.studentId),
-            names: roster.map((row) => row.name || null)
+            names: roster.map((row) => row.name)
           }
         })
       }

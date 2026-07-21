@@ -83,7 +83,9 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     try {
       const [result, whitelistResult] = await Promise.all([
         refetch({ groupId: selectedRow.original.id }),
-        refetchWhitelist({ groupId: selectedRow.original.id })
+        // Roster fetch failing (e.g. backend doesn't support it yet)
+        // shouldn't block editing the rest of the course.
+        refetchWhitelist({ groupId: selectedRow.original.id }).catch(() => null)
       ])
       if (result.data) {
         const data = result.data.getCourse
@@ -112,7 +114,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
           phoneNum2: p2,
           phoneNum3: p3,
           roster: (
-            (whitelistResult.data?.getWhitelistEntries ?? []) as {
+            (whitelistResult?.data?.getWhitelistEntries ?? []) as {
               studentId: string
               name: string | null
             }[]
@@ -151,7 +153,9 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     data.email = local || domain ? `${local}@${domain}` : ''
     const selectedRow = table.getSelectedRowModel().rows[0]
     const groupId = Number(selectedRow.original.id)
-    const roster = data.roster ?? []
+    // valibotResolver strips keys not declared in courseSchema, so read
+    // roster directly from form state instead of the resolver output.
+    const roster = methods.getValues('roster') ?? []
     const updatePromise = (async () => {
       await updateCourse({
         variables: {
@@ -163,7 +167,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         variables: {
           groupId,
           studentIds: roster.map((row) => row.studentId),
-          names: roster.map((row) => row.name || null)
+          names: roster.map((row) => row.name)
         }
       })
     })()
