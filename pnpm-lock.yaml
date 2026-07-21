@@ -250,6 +250,9 @@ importers:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       es-toolkit:
         specifier: ^1.39.9
         version: 1.39.9
