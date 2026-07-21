@@ -76,7 +76,7 @@ export default function CourseDetailLayout({
 
         <div className="mx-auto my-10 w-full">
           <div className="w-full">
-            <nav className="flex w-full justify-start border-b border-gray-200">
+            <nav className="flex w-full justify-between border-b border-gray-200">
               {tabs.map((tab) => {
                 const isActive = pathname === tab.href
                 return (
