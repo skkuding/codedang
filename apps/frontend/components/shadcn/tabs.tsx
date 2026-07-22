@@ -14,7 +14,8 @@ const tabsListVariants = cva('inline-flex', {
       outline: 'gap-0 rounded-full border-2 border-color-line p-1',
       problem:
         'items-center gap-0 rounded-full border border-color-line bg-white p-1',
-      editor: 'gap-1 rounded bg-editor-background-1 py-1 px-1.5' // 수정: 넓은 간격, 둥근 모서리, 어두운 배경, 패딩
+      editor: 'gap-1 rounded bg-editor-background-1 py-1 px-1.5', // 수정: 넓은 간격, 둥근 모서리, 어두운 배경, 패딩
+      underline: 'gap-0 border-b border-color-line w-full'
     }
   },
   defaultVariants: {
@@ -46,6 +47,11 @@ const tabsTriggerVariants = cva(
           'rounded-sm text-xs font-normal px-2 py-1',
           'data-[state=active]:bg-[#334155] data-[state=active]:text-primary-light',
           'data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-100'
+        ],
+        underline: [
+          'px-3 pb-4 text-sub3_sb_16 border-b-2',
+          'data-[state=active]:border-primary data-[state=active]:text-primary',
+          'data-[state=inactive]:border-transparent data-[state=inactive]:text-color-cool-neutral-40'
         ]
       }
     },
