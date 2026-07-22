@@ -14,8 +14,8 @@ import { useState } from 'react'
 import { columns } from './Columns'
 import { ProblemDataTable } from './ProblemDataTable'
 
-const ITEMS_PER_PAGE = 10
-const PAGES_PER_SLOT = 10
+const ITEMS_PER_PAGE = 1 //10 테스트용
+const PAGES_PER_SLOT = 5 //10
 
 export function ProblemTable() {
   const searchParams = useSearchParams()
@@ -68,6 +68,8 @@ function ProblemPaginatedTable({
     pagesPerSlot: PAGES_PER_SLOT,
     updateQueryParams
   })
+  console.log(problemQueries.list({ ...queryParams, search, order }).queryKey)
+  console.log(data.data)
 
   return (
     <div className="flex w-full flex-col items-center">
