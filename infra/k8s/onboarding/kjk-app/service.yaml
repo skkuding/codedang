@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: 
+  name: kjk-test-app
   namespace: onboarding
 spec:
   selector:
-    app: 
+    app: kjk-test-app
   ports:
     - protocol: TCP
       port: 80

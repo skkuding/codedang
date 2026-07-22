@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: <name>
+  name: kjk-test-app
   namespace: onboarding
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -9,16 +9,16 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - 
-      secretName: <name>-tls
+        - kjktest.stage.codedang.com
+      secretName: kjk-test-app-tls
   rules:
-    - host: 
+    - host: kjktest.stage.codedang.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: <name>
+                name: kjk-test-app
                 port:
                   number: 80
