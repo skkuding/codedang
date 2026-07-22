@@ -641,6 +641,34 @@ export class SubmissionService {
   }
 
   /**
+   * 주어진 사용자가 해당 과제의 group leader인지 확인합니다.
+   *
+   * @param {number} assignmentId - 과제 ID
+   * @param {number} userId - 사용자 ID
+   * @returns {Promise<boolean>} group leader 여부
+   */
+  async isGroupLeader(assignmentId: number, userId: number): Promise<boolean> {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: {
+        id: assignmentId
+      },
+      select: { groupId: true }
+    })
+    if (!assignment) {
+      return false
+    }
+    const leader = await this.prisma.userGroup.findFirst({
+      where: {
+        userId,
+        groupId: assignment.groupId,
+        isGroupLeader: true
+      },
+      select: { userId: true }
+    })
+    return !!leader
+  }
+
+  /**
    * 임의의 6자리 16진수 문자열을 생성합니다.
    *
    * @returns {string} 생성된 6자리 16진수 문자열
@@ -1110,30 +1138,48 @@ export class SubmissionService {
         isJudgeResultVisible = contest.isJudgeResultVisible
       }
     } else if (assignmentId) {
-      const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_userId: {
-            assignmentId,
-            userId
+      isStaff = await this.isGroupLeader(assignmentId, userId)
+      if (isStaff) {
+        const assignmentData = await this.prisma.assignment.findUnique({
+          where: { id: assignmentId },
+          select: {
+            groupId: true,
+            startTime: true,
+            endTime: true,
+            isJudgeResultVisible: true
           }
-        },
-        select: {
-          assignment: {
-            select: {
-              groupId: true,
-              startTime: true,
-              endTime: true,
-              isJudgeResultVisible: true
+        })
+        if (!assignmentData) {
+          throw new EntityNotExistException('Assignment')
+        }
+        assignment = assignmentData
+        isHiddenTestcaseVisible = assignment.isJudgeResultVisible
+      } else {
+        const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId: {
+              assignmentId,
+              userId
+            }
+          },
+          select: {
+            assignment: {
+              select: {
+                groupId: true,
+                startTime: true,
+                endTime: true,
+                isJudgeResultVisible: true
+              }
             }
           }
+        })
+        if (!assignmentRecord) {
+          throw new EntityNotExistException('AssignmentRecord')
         }
-      })
-      if (!assignmentRecord) {
-        throw new EntityNotExistException('AssignmentRecord')
+        assignment = assignmentRecord.assignment
+        isHiddenTestcaseVisible = assignment.isJudgeResultVisible
       }
-      assignment = assignmentRecord.assignment
-      isHiddenTestcaseVisible = assignment.isJudgeResultVisible
     }
 
     let problem
