@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: choesuna-react-app
+  namespace: onboarding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: choesuna-react-app
+  template:
+    metadata:
+      labels:
+        app: choesuna-react-app
+        environment: stage
+    spec:
+      containers:
+        - name: choesuna-react-app
+          image: okteto/example-react:latest
+          ports:
+            - containerPort: 3000
