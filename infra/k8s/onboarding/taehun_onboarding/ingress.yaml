@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: taehun-onboarding
+  namespace: onboarding
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - taehun.stage.codedang.com
+      secretName: taehun-onboarding-tls
+  rules:
+    - host: taehun.stage.codedang.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: taehun-onboarding
+                port:
+                  number: 80
