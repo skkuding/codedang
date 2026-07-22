@@ -8,3 +8,11 @@
 #   records = local.stage_cluster_ip
 #   ttl     = 300
 # }
+
+resource "aws_route53_record" "choesuna-react-app" {
+  name    = "choesuna-react-app.stage.codedang.com"
+  zone_id = data.aws_route53_zone.codedang.zone_id
+  type    = "A"
+  records = local.stage_cluster_ip
+  ttl     = 300
+}
