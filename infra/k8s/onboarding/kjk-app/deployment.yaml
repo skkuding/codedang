@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kjk-test-app
+  namespace: onboarding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kjk-test-app
+  template:
+    metadata:
+      labels:
+        app: kjk-test-app
+    spec:
+      containers:
+        - name: kjk-test-app
+          image: okteto/example-react:latest
+          ports:
+            - name: http
+              containerPort: 9000

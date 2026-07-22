@@ -16,3 +16,11 @@ resource "aws_route53_record" "choesuna-react-app" {
   records = local.stage_cluster_ip
   ttl     = 300
 }
+
+resource "aws_route53_record" "kjk-test-app" {
+  name    = "kjktest.stage.codedang.com"
+  zone_id = data.aws_route53_zone.codedang.zone_id
+  type    = "A"
+  records = local.stage_cluster_ip
+  ttl     = 300
+ }
