@@ -68,6 +68,7 @@ function ProblemPaginatedTable({
     pagesPerSlot: PAGES_PER_SLOT,
     updateQueryParams
   })
+  const currentSlot = Math.floor((currentPage - 1) / PAGES_PER_SLOT)
   console.log(problemQueries.list({ ...queryParams, search, order }).queryKey)
   console.log(data.data)
 
@@ -78,7 +79,9 @@ function ProblemPaginatedTable({
         total={data.total}
         columns={columns}
         itemsPerPage={ITEMS_PER_PAGE}
+        pagesPerSlot={PAGES_PER_SLOT}
         currentPage={currentPage}
+        currentSlot={currentSlot}
         search={search}
         headerStyle={{
           title:
