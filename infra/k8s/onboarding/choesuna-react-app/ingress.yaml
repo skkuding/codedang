@@ -3,10 +3,16 @@ kind: Ingress
 metadata:
   name: choesuna-react-app
   namespace: onboarding
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - choesuna-react-app.stage.codedang.com
+      secretName: choesuna-react-app-tls
   rules:
-    - host: choesuna-react-app.first-task.codedang.com
+    - host: choesuna-react-app.stage.codedang.com
       http:
         paths:
           - path: /
@@ -15,4 +21,4 @@ spec:
               service:
                 name: choesuna-react-app
                 port:
-                  number: 3000
+                  number: 9000
