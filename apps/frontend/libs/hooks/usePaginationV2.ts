@@ -63,14 +63,12 @@ export const usePagination = <T extends Item>({
 
     if (slotChanged && updateQueryParams) {
       if (direction === 'prev') {
-        console.log('updateQueryParams')
         updateQueryParams(({ take }) => ({
           cursor: data.at(0)?.id,
           take: -Math.abs(take ?? 0)
         }))
       }
       if (direction === 'next') {
-        console.log('updateQueryParams')
         updateQueryParams(({ take }) => ({
           cursor: data.at(-1)?.id,
           take: Math.abs(take ?? 0)
