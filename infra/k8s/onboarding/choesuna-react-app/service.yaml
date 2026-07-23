@@ -7,5 +7,5 @@ spec:
   selector:
     app: choesuna-react-app
   ports:
-    - port: 3000
-      targetPort: 3000
+    - port: 9000
+      targetPort: 9000
