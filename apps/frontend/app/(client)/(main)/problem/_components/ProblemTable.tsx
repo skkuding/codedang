@@ -14,7 +14,7 @@ import { useState } from 'react'
 import { columns } from './Columns'
 import { ProblemDataTable } from './ProblemDataTable'
 
-const ITEMS_PER_PAGE = 1 //10 테스트용
+const ITEMS_PER_PAGE = 1 //10 테스트용..머지할 때 롤백할 게용
 const PAGES_PER_SLOT = 5 //10
 
 export function ProblemTable() {
@@ -69,8 +69,6 @@ function ProblemPaginatedTable({
     updateQueryParams
   })
   const currentSlot = Math.floor((currentPage - 1) / PAGES_PER_SLOT)
-  console.log(problemQueries.list({ ...queryParams, search, order }).queryKey)
-  console.log(data.data)
 
   return (
     <div className="flex w-full flex-col items-center">

@@ -60,7 +60,6 @@ export const usePagination = <T extends Item>({
     const newSlot = Math.floor((newPage - 1) / pagesPerSlot)
     const slotChanged = slot !== newSlot
     setSlot(newSlot)
-    console.log(slotChanged)
 
     if (slotChanged && updateQueryParams) {
       if (direction === 'prev') {
