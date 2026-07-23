@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { FormSection } from '../../_components/FormSection'
 import { DropdownForm } from './DropdownForm'
 import { InputForm } from './InputForm'
+import { StudentRosterField } from './StudentRosterModal'
 
 export function CourseFormFields() {
   const [courseNumber, setCourseNumber] = useState('')
@@ -79,6 +80,9 @@ export function CourseFormFields() {
       </FormSection>
       <FormSection isFlexColumn title="Semester" className="gap-[6px]">
         <DropdownForm name="semester" items={semesterItems} />
+      </FormSection>
+      <FormSection isFlexColumn title="Students" className="gap-[6px]">
+        <StudentRosterField />
       </FormSection>
       <span className="whitespace-nowrap text-lg">Contact</span>
       <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">

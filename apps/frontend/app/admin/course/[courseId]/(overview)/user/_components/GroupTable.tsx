@@ -7,8 +7,9 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
+import { GET_WHITE_LIST_ENTRIES } from '@/graphql/course/queries'
 import { GET_GROUP_MEMBERS } from '@/graphql/user/queries'
-import { useSuspenseQuery } from '@apollo/client'
+import { useQuery, useSuspenseQuery } from '@apollo/client'
 import { useParams } from 'next/navigation'
 import { InviteUserButton } from '../_components/InviteUserButton'
 import { createColumns } from './Columns'
@@ -22,11 +23,24 @@ export function GroupTable() {
     variables: { groupId, take: 1000, leaderOnly: false }
   })
 
+  // Roster names are optional (instructors, pre-roster members, or a
+  // backend that doesn't support this query yet all have no entry here),
+  // so a fetch error just means everyone falls back to their account name.
+  const { data: whitelistData } = useQuery(GET_WHITE_LIST_ENTRIES, {
+    variables: { groupId },
+    errorPolicy: 'ignore'
+  })
+  const rosterNameByStudentId = new Map(
+    whitelistData?.getWhitelistEntries
+      .filter((entry) => entry.name)
+      .map((entry) => [entry.studentId, entry.name as string])
+  )
+
   const members = data.getGroupMembers.map((member) => ({
     id: member.userId,
     username: member.username,
     userId: member.userId,
-    name: member.name,
+    name: rosterNameByStudentId.get(member.studentId) ?? member.name,
     email: member.email,
     major: member.major,
     studentId: member.studentId,

@@ -3,8 +3,8 @@
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import { UPDATE_COURSE } from '@/graphql/course/mutation'
-import { GET_COURSE } from '@/graphql/course/queries'
+import { CREATE_WHITE_LIST, UPDATE_COURSE } from '@/graphql/course/mutation'
+import { GET_COURSE, GET_WHITE_LIST_ENTRIES } from '@/graphql/course/queries'
 import PenIcon from '@/public/icons/pen.svg'
 import { useMutation, useQuery } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 import { courseSchema } from '../_libs/schema'
 import { CourseFormFields } from './CourseFormFields'
+import type { RosterRow } from './StudentRosterModal'
 
 interface UpdateCourseButtonProps {
   onSuccess?: () => void
@@ -43,9 +44,11 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     phoneNum3?: string
     emailLocal?: string
     emailDomain?: string
+    roster?: RosterRow[]
   }
 
   const [updateCourse] = useMutation(UPDATE_COURSE)
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
   const methods = useForm<FormValues>({
     resolver: valibotResolver(courseSchema),
     mode: 'onChange',
@@ -66,6 +69,10 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     variables: { groupId: 0 },
     skip: true
   })
+  const { refetch: refetchWhitelist } = useQuery(GET_WHITE_LIST_ENTRIES, {
+    variables: { groupId: 0 },
+    skip: true
+  })
 
   const handleUpdateButtonClick = async () => {
     const selectedRow = table.getSelectedRowModel().rows[0]
@@ -74,7 +81,12 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     }
 
     try {
-      const result = await refetch({ groupId: selectedRow.original.id })
+      const [result, whitelistResult] = await Promise.all([
+        refetch({ groupId: selectedRow.original.id }),
+        // Roster fetch failing (e.g. backend doesn't support it yet)
+        // shouldn't block editing the rest of the course.
+        refetchWhitelist({ groupId: selectedRow.original.id }).catch(() => null)
+      ])
       if (result.data) {
         const data = result.data.getCourse
 
@@ -101,6 +113,15 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
           phoneNum1: p1,
           phoneNum2: p2,
           phoneNum3: p3,
+          roster: (
+            (whitelistResult?.data?.getWhitelistEntries ?? []) as {
+              studentId: string
+              name: string | null
+            }[]
+          ).map((entry) => ({
+            studentId: entry.studentId,
+            name: entry.name ?? ''
+          })),
           config: {
             showOnList: true,
             allowJoinFromSearch: true,
@@ -131,12 +152,25 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     const domain = String(data.emailDomain || '').trim()
     data.email = local || domain ? `${local}@${domain}` : ''
     const selectedRow = table.getSelectedRowModel().rows[0]
-    const updatePromise = updateCourse({
-      variables: {
-        groupId: Number(selectedRow.original.id),
-        input: data
-      }
-    })
+    const groupId = Number(selectedRow.original.id)
+    // valibotResolver strips keys not declared in courseSchema, so read
+    // roster directly from form state instead of the resolver output.
+    const roster = methods.getValues('roster') ?? []
+    const updatePromise = (async () => {
+      await updateCourse({
+        variables: {
+          groupId,
+          input: data
+        }
+      })
+      await createWhitelist({
+        variables: {
+          groupId,
+          studentIds: roster.map((row) => row.studentId),
+          names: roster.map((row) => row.name)
+        }
+      })
+    })()
 
     toast.promise(updatePromise, {
       loading: 'Updating course...',
