@@ -18,4 +18,4 @@ spec:
         - name: choesuna-react-app
           image: okteto/example-react:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 9000
