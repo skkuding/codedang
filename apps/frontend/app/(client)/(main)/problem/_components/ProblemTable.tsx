@@ -68,6 +68,7 @@ function ProblemPaginatedTable({
     pagesPerSlot: PAGES_PER_SLOT,
     updateQueryParams
   })
+  const currentSlot = Math.floor((currentPage - 1) / PAGES_PER_SLOT)
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -76,7 +77,9 @@ function ProblemPaginatedTable({
         total={data.total}
         columns={columns}
         itemsPerPage={ITEMS_PER_PAGE}
+        pagesPerSlot={PAGES_PER_SLOT}
         currentPage={currentPage}
+        currentSlot={currentSlot}
         search={search}
         headerStyle={{
           title:
