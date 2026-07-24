@@ -513,7 +513,19 @@ export class SubmissionService {
         }
       })
 
-      await this.createSubmissionResults(submission, judgeOnlyHiddenTestcases)
+      const testcasesCount = await this.createSubmissionResults(
+        submission,
+        judgeOnlyHiddenTestcases
+      )
+
+      if (testcasesCount === 0) {
+        // 채점할 테스트 케이스가 없는 경우 정답 처리 후 return
+        await this.prisma.submission.update({
+          where: { id: submission.id },
+          data: { result: ResultStatus.Accepted }
+        })
+        return submission
+      }
 
       await this.publish.publishJudgeRequestMessage({
         code,
@@ -543,7 +555,7 @@ export class SubmissionService {
   async createSubmissionResults(
     submission: Submission,
     judgeOnlyHiddenTestcases: boolean
-  ): Promise<void> {
+  ): Promise<number> {
     let testcases = await this.prisma.problemTestcase.findMany({
       where: {
         problemId: submission.problemId,
@@ -556,6 +568,10 @@ export class SubmissionService {
       testcases = testcases.filter((testcase) => testcase.isHidden)
     }
 
+    if (testcases.length === 0) {
+      return 0 // 채점할 테스트 케이스가 없으니 return
+    }
+
     await this.prisma.submissionResult.createMany({
       data: testcases.map((testcase) => {
         return {
@@ -565,6 +581,8 @@ export class SubmissionService {
         }
       })
     })
+
+    return testcases.length
   }
 
   /**
