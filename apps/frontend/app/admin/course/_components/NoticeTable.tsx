@@ -2,7 +2,10 @@
 
 import { CreateNoticeModal } from '@/app/admin/course/[courseId]/notice/_components/CreateNoticeModal'
 import { DeleteNoticeModal } from '@/app/admin/course/[courseId]/notice/_components/DeleteNoticeModal'
-import { DELETE_COURSE_NOTICE } from '@/graphql/course/mutation'
+import {
+  DELETE_COURSE_NOTICE,
+  UPDATE_COURSE_NOTICE
+} from '@/graphql/course/mutation'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import type {
   CourseNoticeDetailResponse,
@@ -83,6 +86,16 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
 
   const [deleteCourseNotice, { loading: isDeleting }] =
     useMutation(DELETE_COURSE_NOTICE)
+  const [updateCourseNotice] = useMutation(UPDATE_COURSE_NOTICE)
+  const [togglingPinId, setTogglingPinId] = useState<number | null>(null)
+
+  const noticeNumberMap = useMemo(() => {
+    return new Map(
+      [...notices]
+        .sort((a, b) => getNoticeTime(a) - getNoticeTime(b))
+        .map((notice, index) => [notice.id, index + 1])
+    )
+  }, [notices])
 
   const sortedNotices = useMemo(() => {
     return [...notices].sort((a, b) => {
@@ -112,7 +125,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     setLoadingEditId(notice.id)
     try {
       const detail = await safeFetcherWithAuth
-        .get(`course/notice/${notice.id}`)
+        .get(`course/${groupId}/notice/${notice.id}`)
         .json<CourseNoticeDetailResponse>()
       setEditingNotice({
         id: notice.id,
@@ -128,9 +141,31 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     }
   }
 
+  const handleTogglePin = async (notice: CourseNoticeListItem) => {
+    setTogglingPinId(notice.id)
+    try {
+      await updateCourseNotice({
+        variables: {
+          groupId: Number(groupId),
+          courseNoticeId: notice.id,
+          input: { isFixed: !notice.isFixed }
+        }
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['adminCourseNotices', Number(groupId)]
+      })
+    } catch {
+      toast.error('Failed to update pin status.')
+    } finally {
+      setTogglingPinId(null)
+    }
+  }
+
   const handleDelete = async (courseNoticeId: number) => {
     try {
-      await deleteCourseNotice({ variables: { courseNoticeId } })
+      await deleteCourseNotice({
+        variables: { groupId: Number(groupId), courseNoticeId }
+      })
       toast.success('Notice deleted!')
       await queryClient.invalidateQueries({
         queryKey: ['adminCourseNotices', Number(groupId)]
@@ -169,7 +204,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
                     className="grid grid-cols-[88px_minmax(0,1fr)_96px_96px_88px] items-center gap-2 border-b border-[#E5E7EB] py-3"
                   >
                     <div className="px-4 text-sm text-[#52525B]">
-                      {notice.id}
+                      {noticeNumberMap.get(notice.id)}
                     </div>
 
                     <div className="min-w-0 px-2">
@@ -205,9 +240,11 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
                     <div className="flex justify-center">
                       <input
                         type="checkbox"
+                        aria-label={`Pin ${notice.title}`}
                         checked={notice.isFixed}
-                        readOnly
-                        className="h-4 w-4 rounded border border-[#D4D4D8]"
+                        disabled={togglingPinId === notice.id}
+                        onChange={() => handleTogglePin(notice)}
+                        className="h-4 w-4 rounded border border-[#D4D4D8] disabled:cursor-not-allowed disabled:opacity-60"
                       />
                     </div>
                   </div>

@@ -98,7 +98,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
         no: String(noMap.get(n.id) ?? 0).padStart(2, '0'),
         title: n.title,
         createdBy: n.createdBy ?? 'Unknown',
-        date: n.createTime ?? n.updateTime ?? '',
+        date: n.updateTime ?? n.createTime ?? '',
         isRead: n.isRead,
         isFixed: n.isFixed
       }))

@@ -14,16 +14,12 @@ export default async function Page(props: {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex justify-between">
-        <p className="text-head3_sb_28">NOTICE LIST</p>
+      <div className="flex justify-end">
         <div className="flex gap-2">
           <ImportNoticeModal courseId={courseId} />
           <CreateNoticeModal courseId={courseId} />
         </div>
       </div>
-      <p className="text-body1_m_16 text-color-neutral-50">
-        Here&apos;s a notice list you made
-      </p>
       <div className="mt-8">
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<NoticeTableFallback />}>

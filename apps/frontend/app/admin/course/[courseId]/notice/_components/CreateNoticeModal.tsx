@@ -1,11 +1,7 @@
 'use client'
 
 import { TextEditor } from '@/app/admin/_components/TextEditor'
-import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
-import { Checkbox } from '@/components/shadcn/checkbox'
-import { Input } from '@/components/shadcn/input'
-import { Label } from '@/components/shadcn/label'
 import {
   CREATE_COURSE_NOTICE,
   UPDATE_COURSE_NOTICE
@@ -16,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
+import { NoticeModal, NoticeModalTitle } from './NoticeModal'
 
 interface CreateNoticeModalProps {
   courseId: string
@@ -102,6 +99,7 @@ export function CreateNoticeModal({
       if (isEditMode && editData) {
         await updateCourseNotice({
           variables: {
+            groupId: Number(courseId),
             courseNoticeId: editData.id,
             input: {
               title,
@@ -115,8 +113,8 @@ export function CreateNoticeModal({
       } else {
         await createCourseNotice({
           variables: {
+            groupId: Number(courseId),
             input: {
-              groupId: Number(courseId),
               title,
               content: mainText,
               isPublic,
@@ -142,66 +140,62 @@ export function CreateNoticeModal({
       {!isControlled && (
         <Button
           variant="default"
-          className="h-[46px] w-[126px] rounded-full bg-[#3581FA] px-6 py-[10px] hover:bg-[#3581FA]/90"
+          className="bg-primary hover:bg-primary-strong h-[46px] w-[126px] rounded-full px-6 py-[10px]"
           onClick={() => setIsOpen(true)}
         >
           <FaPen className="mr-2 h-5 w-5" />
-          <span className="text-[18px] font-medium leading-[140%] tracking-[-0.03em]">
-            Create
-          </span>
+          <span className="text-sub2_m_18">Create</span>
         </Button>
       )}
 
-      <Modal
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        size="lg"
-        type="custom"
-        title={isEditMode ? 'Edit Notice' : 'Create Notice'}
-      >
-        <div className="flex flex-col gap-6 pt-4">
-          <div className="flex items-center gap-4">
-            <Label htmlFor="title" className="whitespace-nowrap text-base">
-              Title <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="title"
-              placeholder="Enter the Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="h-10 max-w-[645px] flex-1 rounded-3xl"
-            />
-          </div>
+      <NoticeModal open={isOpen} onOpenChange={setIsOpen}>
+        <div className="flex flex-col gap-7 px-10 pb-[50px] pt-10">
+          <NoticeModalTitle className="text-head4_m_28 text-color-common-0">
+            {isEditMode ? 'Edit Notice' : 'Create Notice'}
+          </NoticeModalTitle>
 
-          <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox
-                checked={isPublic}
-                onCheckedChange={(checked) => setIsPublic(Boolean(checked))}
-              />
-              Public
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox
-                checked={isFixed}
-                onCheckedChange={(checked) => setIsFixed(Boolean(checked))}
-              />
-              Fixed
-            </label>
-          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex shrink-0 items-center gap-1">
+                <label htmlFor="title" className="text-sub3_sb_16">
+                  Title
+                </label>
+                <span className="text-error text-sub3_sb_16 leading-none">
+                  *
+                </span>
+              </div>
+              <div className="border-color-neutral-95 flex flex-1 items-center justify-between gap-2 rounded-full border px-4 py-[11px]">
+                <input
+                  id="title"
+                  type="text"
+                  placeholder="Enter the Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={35}
+                  className="text-body1_m_16 placeholder:text-color-neutral-90 text-color-common-0 w-full flex-1 border-none bg-transparent p-0 outline-none focus:outline-none focus:ring-0"
+                />
+                <span className="text-caption1_m_13 text-color-cool-neutral-50 shrink-0">
+                  {title.length}/35
+                </span>
+              </div>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="mainText" className="text-base">
-              Main Text <span className="text-red-500">*</span>
-            </Label>
-            <div className="relative">
-              <TextEditor
-                placeholder="Enter the Main Text"
-                onChange={handleMainTextChange}
-                defaultValue={editData?.content || ''}
-              />
-              <div className="absolute bottom-4 right-4 text-sm text-gray-500">
-                {charCount}/400
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-1">
+                <span className="text-sub1_sb_18">Main Text</span>
+                <span className="text-error text-sub1_sb_18 leading-none">
+                  *
+                </span>
+              </div>
+              <div className="relative">
+                <TextEditor
+                  placeholder="Enter the Main Text"
+                  onChange={handleMainTextChange}
+                  defaultValue={editData?.content || ''}
+                />
+                <div className="text-caption1_m_13 text-color-cool-neutral-50 absolute bottom-4 right-4">
+                  {charCount}/400
+                </div>
               </div>
             </div>
           </div>
@@ -211,7 +205,7 @@ export function CreateNoticeModal({
               type="button"
               variant="outline"
               onClick={closeModal}
-              className="border-[#3581FA] bg-white text-[#3581FA] hover:bg-white"
+              className="border-primary text-sub2_m_18 text-primary rounded-full border bg-white px-6 pb-[11px] pt-[10px] hover:bg-white"
             >
               Cancel
             </Button>
@@ -220,17 +214,18 @@ export function CreateNoticeModal({
               onClick={handleSubmit}
               disabled={
                 !title.trim() ||
+                title.length > 35 ||
                 !mainText.trim() ||
                 charCount > 400 ||
                 isPending
               }
-              className="bg-[#3581FA] text-white hover:bg-[#3581FA]/90"
+              className="bg-primary hover:bg-primary-strong text-sub2_m_18 rounded-full px-6 pb-[11px] pt-[10px] text-white"
             >
               {isEditMode ? 'Update' : 'Create'}
             </Button>
           </div>
         </div>
-      </Modal>
+      </NoticeModal>
     </>
   )
 }

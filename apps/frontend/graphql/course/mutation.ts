@@ -97,8 +97,8 @@ const DELETE_WHITE_LIST = gql(`
 `)
 
 const CREATE_COURSE_NOTICE = gql(`
-  mutation CreateCourseNotice($input: CreateCourseNoticeInput!) {
-    createCourseNotice(input: $input) {
+  mutation CreateCourseNotice($groupId: Int!, $input: CreateCourseNoticeInput!) {
+    createCourseNotice(groupId: $groupId, input: $input) {
       id
       title
       content
@@ -112,10 +112,15 @@ const CREATE_COURSE_NOTICE = gql(`
 
 const UPDATE_COURSE_NOTICE = gql(`
   mutation UpdateCourseNotice(
+    $groupId: Int!
     $courseNoticeId: Int!
     $input: UpdateCourseNoticeInput!
   ) {
-    updateCourseNotice(courseNoticeId: $courseNoticeId, input: $input) {
+    updateCourseNotice(
+      groupId: $groupId
+      courseNoticeId: $courseNoticeId
+      input: $input
+    ) {
       id
       title
       content
@@ -127,8 +132,8 @@ const UPDATE_COURSE_NOTICE = gql(`
 `)
 
 const DELETE_COURSE_NOTICE = gql(`
-  mutation DeleteCourseNotice($courseNoticeId: Int!) {
-    deleteCourseNotice(courseNoticeId: $courseNoticeId) {
+  mutation DeleteCourseNotice($groupId: Int!, $courseNoticeId: Int!) {
+    deleteCourseNotice(groupId: $groupId, courseNoticeId: $courseNoticeId) {
       id
     }
   }
@@ -136,12 +141,12 @@ const DELETE_COURSE_NOTICE = gql(`
 
 const CLONE_COURSE_NOTICES = gql(`
   mutation CloneCourseNotices(
+    $groupId: Int!
     $courseNoticeIds: [Int!]!
-    $cloneToId: Int!
   ) {
     cloneCourseNotices(
+      groupId: $groupId
       courseNoticeIds: $courseNoticeIds
-      cloneToId: $cloneToId
     ) {
       id
       title

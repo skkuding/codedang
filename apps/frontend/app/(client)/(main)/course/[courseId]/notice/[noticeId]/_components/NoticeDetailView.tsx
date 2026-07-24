@@ -41,12 +41,12 @@ export function NoticeDetailView() {
   })
 
   const { data: noticeData } = useQuery({
-    queryKey: ['courseNoticeDetail', currentId],
+    queryKey: ['courseNoticeDetail', courseId, currentId],
     queryFn: () =>
       safeFetcherWithAuth
-        .get(`course/notice/${currentId}`)
+        .get(`course/${courseId}/notice/${currentId}`)
         .json<CourseNoticeDetailResponse>(),
-    enabled: Number.isFinite(currentId)
+    enabled: Boolean(courseId) && Number.isFinite(currentId)
   })
 
   const {

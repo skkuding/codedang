@@ -1,16 +1,17 @@
 'use client'
 
 import { DataTableRoot } from '@/app/admin/_components/table'
-import { Modal } from '@/components/Modal'
 import { Button } from '@/components/shadcn/button'
 import { CLONE_COURSE_NOTICES } from '@/graphql/course/mutation'
+import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import PlusIcon from '@/public/icons/plus-line.svg'
-import { useMutation } from '@apollo/client'
+import { useMutation, useQuery as useApolloQuery } from '@apollo/client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 import { toast } from 'sonner'
 import { ImportNoticeTableContent } from './ImportNoticeTableContent'
+import { NoticeModal } from './NoticeModal'
 import {
   importNoticeColumns,
   type NoticeItem
@@ -48,6 +49,25 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
   const [cloneCourseNotices, { loading: isCloning }] =
     useMutation(CLONE_COURSE_NOTICES)
 
+  const { data: coursesData } = useApolloQuery(GET_COURSES_USER_LEAD, {
+    skip: !open
+  })
+
+  const importableCourses = useMemo(
+    () =>
+      (coursesData?.getCoursesUserLead ?? []).filter(
+        (course) => Number(course.id) !== Number(courseId)
+      ),
+    [coursesData, courseId]
+  )
+
+  const sourceCourseName = useMemo(
+    () =>
+      importableCourses.find((course) => String(course.id) === sourceCourseId)
+        ?.groupName ?? '',
+    [importableCourses, sourceCourseId]
+  )
+
   const { data: noticeItems = [], isLoading } = useQuery({
     queryKey: ['importableCourseNotices', sourceCourseId, order],
     queryFn: async () => {
@@ -79,7 +99,7 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
         id: n.id,
         title: n.title,
         date: n.createTime ?? n.updateTime ?? '',
-        course: sourceCourseId,
+        course: sourceCourseName,
         creator: n.createdBy ?? 'Unknown'
       }))
     },
@@ -99,7 +119,7 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
       await cloneCourseNotices({
         variables: {
           courseNoticeIds: selectedIds,
-          cloneToId: Number(courseId)
+          groupId: Number(courseId)
         }
       })
 
@@ -124,12 +144,12 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
         onClick={() => setOpen(true)}
       >
         <span className="text-sub2_m_18 flex items-center gap-[6px]">
-          <PlusIcon />
+          <HiMiniPlusCircle className="h-5 w-5" />
           Import
         </span>
       </Button>
 
-      <Modal
+      <NoticeModal
         open={open}
         onOpenChange={(nextOpen) => {
           if (!nextOpen) {
@@ -140,32 +160,29 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
 
           setOpen(true)
         }}
-        size="lg"
-        type="custom"
-        title="Import Notice"
-        className="h-auto! w-[800px]!"
+        className="max-h-[85vh]"
       >
-        <div className="pt-4">
-          {isLoading ? (
-            <div className="flex h-40 items-center justify-center text-sm text-gray-400">
-              Loading...
-            </div>
-          ) : (
-            <DataTableRoot
-              data={sortedItems}
-              columns={importNoticeColumns}
-              defaultPageSize={6}
-            >
+        <DataTableRoot
+          data={sortedItems}
+          columns={importNoticeColumns}
+          defaultPageSize={6}
+        >
+          <div className="flex flex-col gap-2 pb-[50px] pt-10">
+            <div className="flex flex-col gap-3 px-10 py-2">
               <ImportNoticeTableContent
                 order={order}
                 onOrderChange={setOrder}
                 onImportSelected={handleImportSelected}
                 isImporting={isCloning}
+                importableCourses={importableCourses}
+                sourceCourseId={sourceCourseId}
+                onSourceCourseIdChange={setSourceCourseId}
+                isLoadingNotices={isLoading}
               />
-            </DataTableRoot>
-          )}
-        </div>
-      </Modal>
+            </div>
+          </div>
+        </DataTableRoot>
+      </NoticeModal>
     </>
   )
 }
