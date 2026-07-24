@@ -1003,6 +1003,7 @@ export class GroupService {
 
     const total = await this.prisma.courseNotice.count({
       where: {
+        groupId,
         isFixed: fixed,
         title: {
           contains: search,
@@ -1021,7 +1022,15 @@ export class GroupService {
    * @param {number} id 강의 공지의 아이디
    * @returns 현재 공지사항의 내용과 이전/이후 공지의 아이디
    */
-  async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
+  async getCourseNoticeByID({
+    userId,
+    groupId,
+    id
+  }: {
+    userId: number
+    groupId: number
+    id: number
+  }) {
     const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
         id
@@ -1047,7 +1056,7 @@ export class GroupService {
       }
     })
 
-    if (!courseNotice) {
+    if (!courseNotice || courseNotice.groupId !== groupId) {
       throw new EntityNotExistException('CourseNotice')
     }
 
@@ -1079,6 +1088,7 @@ export class GroupService {
       return {
         where: {
           id: options.compare,
+          groupId,
           isPublic: true
         },
         orderBy: {
