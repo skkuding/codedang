@@ -14,8 +14,8 @@ import { useState } from 'react'
 import { columns } from './Columns'
 import { ProblemDataTable } from './ProblemDataTable'
 
-const ITEMS_PER_PAGE = 1 //10 테스트용..머지할 때 롤백할 게용
-const PAGES_PER_SLOT = 5 //10
+const ITEMS_PER_PAGE = 10
+const PAGES_PER_SLOT = 10
 
 export function ProblemTable() {
   const searchParams = useSearchParams()
