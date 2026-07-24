@@ -509,16 +509,19 @@ export class CourseNoticeService {
   /**
    * 공지사항을 1개 만듭니다.
    *
+   * @param {number} groupId 공지사항을 생성할 강의 아이디
    * @param {number} userId 접근하려는 유저 아이디
-   * @param {CreateCourseNoticeInput} createCourseNoticeInput 공지사항 내용 (groupId, title, content, isFixed, isPublic)
+   * @param {CreateCourseNoticeInput} createCourseNoticeInput 공지사항 내용 (title, content, isFixed, isPublic)
    * @returns {CourseNotice}
    */
   async createCourseNotice(
+    groupId: number,
     userId: number,
     createCourseNoticeInput: CreateCourseNoticeInput
   ) {
     const courseNotice = await this.prisma.courseNotice.create({
       data: {
+        groupId,
         createdById: userId,
         ...createCourseNoticeInput
       }
@@ -530,10 +533,30 @@ export class CourseNoticeService {
   /**
    * 강의 내 공지 1개를 삭제합니다.
    *
+   * @param {number} groupId 강의 아이디
    * @param {number} courseNoticeId 강의 공지 아이디
    * @returns {CourseNotice}
    */
-  async deleteCourseNotice(courseNoticeId: number) {
+  async deleteCourseNotice(groupId: number, courseNoticeId: number) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id: courseNoticeId
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (!courseNotice) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    if (groupId !== courseNotice.groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access course notice in your own group'
+      )
+    }
+
     return await this.prisma.courseNotice.delete({
       where: {
         id: courseNoticeId
@@ -543,13 +566,15 @@ export class CourseNoticeService {
 
   /**
    * 강의 내 공지 1개를 수정합니다.
-   * (읽음 기록을 초기화합니다.)
+   * (제목 또는 내용이 변경되는 경우에만 읽음 기록을 초기화합니다. 고정 여부만 변경하는 경우에는 초기화하지 않습니다.)
    *
+   * @param {number} groupId 강의 아이디
    * @param {number} courseNoticeId 강의 공지 아이디
    * @param {UpdateCourseNoticeInput} updateCourseNoticeInput 수정할 공지사항 내용 (title, content, isFixed, isPublic 등 옵셔널)
    * @returns {CourseNotice}
    */
   async updateCourseNotice(
+    groupId: number,
     courseNoticeId: number,
     updateCourseNoticeInput: UpdateCourseNoticeInput
   ) {
@@ -566,7 +591,19 @@ export class CourseNoticeService {
       throw new EntityNotExistException('CourseNotice')
     }
 
-    await this.markAsUnread(courseNotice.groupId, courseNoticeId)
+    if (groupId !== courseNotice.groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access course notice in your own group'
+      )
+    }
+
+    const isContentChanged =
+      updateCourseNoticeInput.title !== undefined ||
+      updateCourseNoticeInput.content !== undefined
+
+    if (isContentChanged) {
+      await this.markAsUnread(courseNotice.groupId, courseNoticeId)
+    }
 
     return await this.prisma.courseNotice.update({
       where: {

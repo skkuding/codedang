@@ -187,16 +187,19 @@ export class CourseController {
    * <TODO>: 그룹 멤버 가드 적용 안됨
    *
    * @param {AuthenticatedRequest} req
+   * @param {number} groupId 공지가 속한 강의(코스) 아이디
    * @param {number} id 조회하려는 강의 공지사항의 아이디
    * @returns 현재 조회하려는 공지의 내용과 정보 및 이전/이후 공지 아이디
    */
-  @Get('notice/:id') // course notice id
+  @Get(':groupId/notice/:id') // course notice id
   async getCourseNoticeByID(
     @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     return await this.groupService.getCourseNoticeByID({
       userId: req.user.id,
+      groupId,
       id
     })
   }

@@ -98,32 +98,44 @@ export class GroupResolver {
 }
 
 @Resolver(() => CourseNotice)
+@UseGroupLeaderGuard()
 export class CourseNoticeResolver {
   constructor(private readonly courseNoticeService: CourseNoticeService) {}
 
   @Mutation(() => CourseNotice)
   async createCourseNotice(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('input') input: CreateCourseNoticeInput,
     @Context('req') req: AuthenticatedRequest
   ) {
-    return await this.courseNoticeService.createCourseNotice(req.user.id, input)
+    return await this.courseNoticeService.createCourseNotice(
+      groupId,
+      req.user.id,
+      input
+    )
   }
 
   @Mutation(() => CourseNotice)
   async deleteCourseNotice(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
     courseNoticeId: number
   ) {
-    return await this.courseNoticeService.deleteCourseNotice(courseNoticeId)
+    return await this.courseNoticeService.deleteCourseNotice(
+      groupId,
+      courseNoticeId
+    )
   }
 
   @Mutation(() => CourseNotice)
   async updateCourseNotice(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
     courseNoticeId: number,
     @Args('input') input: UpdateCourseNoticeInput
   ) {
     return await this.courseNoticeService.updateCourseNotice(
+      groupId,
       courseNoticeId,
       input
     )
@@ -132,15 +144,14 @@ export class CourseNoticeResolver {
   @Mutation(() => [CourseNotice])
   async cloneCourseNotices(
     @Context('req') req: AuthenticatedRequest,
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
     @Args('courseNoticeIds', { type: () => [Int] })
-    courseNoticeIds: number[],
-    @Args('cloneToId', { type: () => Int }, IDValidationPipe)
-    cloneToId: number
+    courseNoticeIds: number[]
   ) {
     return await this.courseNoticeService.cloneCourseNotice(
       req.user.id,
       courseNoticeIds,
-      cloneToId
+      groupId
     )
   }
 }

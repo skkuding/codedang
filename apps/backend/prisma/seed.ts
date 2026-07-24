@@ -734,35 +734,59 @@ int main() {
   const courseNotices = await prisma.courseNotice.createManyAndReturn({
     data: [
       {
-        groupId: 1,
-        title: '첫 번째 강의 공지입니다.',
+        groupId: privateGroup1.id,
+        title: '[컴퓨터프로그래밍] 첫 번째 강의 공지입니다.',
         content:
-          '1번 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
+          '컴퓨터프로그래밍 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
         isPublic: false,
         isFixed: false
       },
       {
-        groupId: 1,
-        title: '두 번째 강의 공지입니다.',
+        groupId: privateGroup1.id,
+        title: '[컴퓨터프로그래밍] 두 번째 강의 공지입니다.',
         content:
-          '1번 강의에 대한 공지사항입니다.\n이 공지는 모든 사용자에게 공개되며 고정되어 있지 않습니다.',
-        isPublic: true,
+          '컴퓨터프로그래밍 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
+        isPublic: false,
         isFixed: false
       },
       {
-        groupId: 1,
-        title: '세 번째 강의 공지입니다.',
+        groupId: privateGroup1.id,
+        title: '[컴퓨터프로그래밍] 세 번째 강의 공지입니다.',
         content:
-          '1번 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있습니다.',
+          '컴퓨터프로그래밍 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있습니다.',
         isPublic: false,
         isFixed: true
       },
       {
-        groupId: 1,
-        title: '네 번째 강의 공지입니다.',
+        groupId: privateGroup1.id,
+        title: '[컴퓨터프로그래밍] 네 번째 강의 공지입니다.',
         content:
-          '1번 강의에 대한 공지사항입니다.\n이 공지는 모든 사용자에게 공개되며 고정되어 있습니다.',
-        isPublic: true,
+          '컴퓨터프로그래밍 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있습니다.',
+        isPublic: false,
+        isFixed: true
+      },
+      {
+        groupId: privateGroup2.id,
+        title: '[정보보호개론] 첫 번째 강의 공지입니다.',
+        content:
+          '정보보호개론 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
+        isPublic: false,
+        isFixed: false
+      },
+      {
+        groupId: privateGroup2.id,
+        title: '[정보보호개론] 두 번째 강의 공지입니다.',
+        content:
+          '정보보호개론 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
+        isPublic: false,
+        isFixed: false
+      },
+      {
+        groupId: privateGroup2.id,
+        title: '[정보보호개론] 세 번째 강의 공지입니다.',
+        content:
+          '정보보호개론 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있습니다.',
+        isPublic: false,
         isFixed: true
       }
     ]
@@ -770,7 +794,7 @@ int main() {
 
   const students = await prisma.userGroup.findMany({
     where: {
-      groupId: 1
+      groupId: privateGroup1.id
     },
     select: {
       userId: true,
