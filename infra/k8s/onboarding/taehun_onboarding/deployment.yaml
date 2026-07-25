@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taehun-onboarding
+  namespace: onboarding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taehun-onboarding
+  template:
+    metadata:
+      labels:
+        app: taehun-onboarding
+    spec:
+      containers:
+        - name: taehoon-server
+          image: okteto/example-react:latest
+          ports:
+            - name: http
+              containerPort: 9000

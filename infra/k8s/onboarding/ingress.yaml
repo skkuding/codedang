@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: junyoung-ingress
+  namespace: onboarding
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - junyoung.stage.codedang.com
+      secretName: junyoung-tls
+  rules:
+    - host: junyoung.stage.codedang.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: junyoung-service
+                port:
+                  number: 80
