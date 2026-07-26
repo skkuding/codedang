@@ -24,7 +24,19 @@ script:pre-request {
 }
 
 docs {
-  # Get Joined Groups
+  # 📘 Get Joined Courses
+  
+  **GET** `/course/joined`
+  
+  Get information of joined courses of current user.
+  
+  현재 User가 속해있는 group(강의)들의 정보를 반환합니다.
+  
   ---
-  - 현재 User가 속해있는 Group 정보를 반환합니다.
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
 }

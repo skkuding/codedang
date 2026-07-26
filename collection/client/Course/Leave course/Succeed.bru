@@ -20,7 +20,34 @@ script:pre-request {
 }
 
 docs {
-  # Get Group Members
+  # 📘 Leave Course
+  
+  **DELETE** `/course/:id/leave`
+  
+  Delete a user from a specific course.
+  
+  URL param으로 전달된 `groupId`에 해당하는 course에서 user가 탈퇴합니다.
+  
+  - userGroup에서 모든 리더 목록을 조회합니다.
+  - 마지막 리더가 탈퇴하려고 시도하는 경우, ConflictFoundException를 발생시켜 그룹이 운영 불가능한 상태를 차단합니다.
+  - 탈퇴하는 유저의 과제 제출 기록도 함께 삭제합니다.
+  
+  
   ---
-  - URL param으로 전달된 `groupId`에 해당하는 Group에 속해있는 User들의 `username` 리스트를 반환합니다.
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       | 탈퇴하려는 group(강의)의 id |
+  
+  ---
 }
