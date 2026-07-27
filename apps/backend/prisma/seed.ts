@@ -737,8 +737,8 @@ int main() {
         groupId: privateGroup1.id,
         title: '[컴퓨터프로그래밍] 첫 번째 강의 공지입니다.',
         content:
-          '컴퓨터프로그래밍 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
-        isPublic: false,
+          '컴퓨터프로그래밍 강의에 대한 공지사항입니다.\n이 공지는 모든 사용자에게 공개되며 고정되어 있지 않습니다.',
+        isPublic: true,
         isFixed: false
       },
       {
@@ -769,8 +769,8 @@ int main() {
         groupId: privateGroup2.id,
         title: '[정보보호개론] 첫 번째 강의 공지입니다.',
         content:
-          '정보보호개론 강의에 대한 공지사항입니다.\n이 공지는 해당 강의 수강생들에게만 공개되며 고정되어 있지 않습니다.',
-        isPublic: false,
+          '정보보호개론 강의에 대한 공지사항입니다.\n이 공지는 모든 사용자에게 공개되며 고정되어 있지 않습니다.',
+        isPublic: true,
         isFixed: false
       },
       {
