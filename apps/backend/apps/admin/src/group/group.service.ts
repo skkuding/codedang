@@ -583,7 +583,9 @@ export class CourseNoticeService {
         id: courseNoticeId
       },
       select: {
-        groupId: true
+        groupId: true,
+        title: true,
+        content: true
       }
     })
 
@@ -598,8 +600,10 @@ export class CourseNoticeService {
     }
 
     const isContentChanged =
-      updateCourseNoticeInput.title !== undefined ||
-      updateCourseNoticeInput.content !== undefined
+      (updateCourseNoticeInput.title !== undefined &&
+        updateCourseNoticeInput.title !== courseNotice.title) ||
+      (updateCourseNoticeInput.content !== undefined &&
+        updateCourseNoticeInput.content !== courseNotice.content)
 
     if (isContentChanged) {
       await this.markAsUnread(courseNotice.groupId, courseNoticeId)
