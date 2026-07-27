@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation ($courseNoticeIds: [Int!]!, $cloneToId: Int!) {
-    cloneCourseNotices(courseNoticeIds: $courseNoticeIds, cloneToId: $cloneToId) {
+  mutation ($courseNoticeIds: [Int!]!, $groupId: Int!) {
+    cloneCourseNotices(courseNoticeIds: $courseNoticeIds, groupId: $groupId) {
       id
       createdById
       title
@@ -31,7 +31,7 @@ body:graphql:vars {
     "courseNoticeIds": [
       1,2,3
     ],
-    "cloneToId": 2
+    "groupId": 2
   }
 }
 
@@ -67,5 +67,5 @@ docs {
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
   | `courseNoticeIds` | number[] | ✅       | 복제할 공지사항의 아이디 리스트 |
-  | `cloneToId` | number | ✅       | 복제된 공지사항을 넣을 강의 아이디 |
+  | `groupId` | number | ✅       | 복제된 공지사항을 넣을 강의 아이디 (요청자가 리더인 강의여야 함) |
 }

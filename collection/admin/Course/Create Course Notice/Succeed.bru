@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation ($input: CreateCourseNoticeInput!) {
-    createCourseNotice(input: $input) {
+  mutation ($groupId: Int!, $input: CreateCourseNoticeInput!) {
+    createCourseNotice(groupId: $groupId, input: $input) {
       id
       createdById
       title
@@ -28,8 +28,8 @@ body:graphql {
 
 body:graphql:vars {
   {
+    "groupId": 1,
     "input": {
-      "groupId": 1,
       "title": "Notice created by bruno 3",
       "content": "123",
       "isFixed": false,
@@ -68,13 +68,13 @@ docs {
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
+  | `groupId` | number | ✅       | 강의 아이디 |
   | `input` | object | ✅       | 공지사항 생성에 필요한 요소들 |
 
   #### input
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
-  | `groupId` | number | ✅       | 강의 아이디 |
   | `title` | string | ✅       | 공지사항 제목 |
   | `content` | string | ✅       | 공지사항 본문 |
   | `isPublic` | boolean |         | 전체 공개 여부를 나타냅니다. 기본값은 false |
