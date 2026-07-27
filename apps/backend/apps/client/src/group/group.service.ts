@@ -935,38 +935,40 @@ export class GroupService {
     order?: CourseNoticeOrder
   }) {
     const paginator = this.prisma.getPaginator(cursor)
-    const courseNotices = await this.prisma.courseNotice.findMany({
-      ...paginator,
-      where: {
-        isFixed: fixed,
-        NOT:
-          readFilter == 'unread'
-            ? {
-                readBy: {
-                  has: userId
-                }
-              }
-            : undefined,
-        title: {
-          contains: search,
-          mode: 'insensitive'
-        },
-        groupId,
-        OR: [
-          {
-            group: {
-              userGroup: {
-                some: {
-                  userId
-                }
+    const where: Prisma.CourseNoticeWhereInput = {
+      isFixed: fixed,
+      NOT:
+        readFilter == 'unread'
+          ? {
+              readBy: {
+                has: userId
               }
             }
-          },
-          {
-            isPublic: true
-          }
-        ]
+          : undefined,
+      title: {
+        contains: search,
+        mode: 'insensitive'
       },
+      groupId,
+      OR: [
+        {
+          group: {
+            userGroup: {
+              some: {
+                userId
+              }
+            }
+          }
+        },
+        {
+          isPublic: true
+        }
+      ]
+    }
+
+    const courseNotices = await this.prisma.courseNotice.findMany({
+      ...paginator,
+      where,
       take,
       select: {
         id: true,
@@ -1002,14 +1004,7 @@ export class GroupService {
     })
 
     const total = await this.prisma.courseNotice.count({
-      where: {
-        groupId,
-        isFixed: fixed,
-        title: {
-          contains: search,
-          mode: 'insensitive'
-        }
-      }
+      where
     })
 
     return { data, total }
