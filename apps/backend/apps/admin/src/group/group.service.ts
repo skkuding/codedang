@@ -620,6 +620,8 @@ export class CourseNoticeService {
    * @param {number[]} courseNoticeIds 복제할 공지 아이디 목록
    * @param {number} cloneToId 복제해 넣을 강의 아이디
    * @returns {CourseNotice[]}
+   * @throws EntityNotExistException - 요청한 공지 중 존재하지 않는 것이 있는 경우
+   * @throws ForbiddenAccessException - 원본 공지가 속한 강의 중 사용자가 리더가 아닌 강의가 있는 경우
    */
   async cloneCourseNotice(
     userId: number,
@@ -633,6 +635,7 @@ export class CourseNoticeService {
         }
       },
       select: {
+        groupId: true,
         title: true,
         content: true,
         isFixed: true,
@@ -640,8 +643,29 @@ export class CourseNoticeService {
       }
     })
 
-    if (originals.length == 0) {
+    if (originals.length !== courseNoticeIds.length) {
       throw new EntityNotExistException('CourseNotice')
+    }
+
+    const originalGroupIds = [
+      ...new Set(originals.map((original) => original.groupId))
+    ]
+
+    const leaderGroups = await this.prisma.userGroup.findMany({
+      where: {
+        userId,
+        groupId: { in: originalGroupIds },
+        isGroupLeader: true
+      },
+      select: {
+        groupId: true
+      }
+    })
+
+    if (leaderGroups.length !== originalGroupIds.length) {
+      throw new ForbiddenAccessException(
+        'You can only clone course notices from a course you lead'
+      )
     }
 
     const clones = await this.prisma.courseNotice.createManyAndReturn({
