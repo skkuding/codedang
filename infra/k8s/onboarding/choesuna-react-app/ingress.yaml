@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: choesuna-react-app
+  namespace: onboarding
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - choesuna-react-app.stage.codedang.com
+      secretName: choesuna-react-app-tls
+  rules:
+    - host: choesuna-react-app.stage.codedang.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: choesuna-react-app
+                port:
+                  number: 9000

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: junyoung-deployment
+  namespace: onboarding
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: junyoung-pod
+  template:
+    metadata:
+      labels:
+        app: junyoung-pod
+    spec:
+      containers:
+        - name: junyoung-container
+          image: okteto/example-react:latest
+          ports:
+            - name: http
+              containerPort: 9000

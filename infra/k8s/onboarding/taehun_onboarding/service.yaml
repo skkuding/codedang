@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: taehun-onboarding
+  namespace: onboarding
+spec:
+  selector:
+    app: taehun-onboarding
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 9000
+  type: ClusterIP
