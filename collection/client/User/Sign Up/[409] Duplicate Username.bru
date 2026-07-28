@@ -19,7 +19,11 @@ body:json {
     "username": "super",
     "password": "it'smehi",
     "email": "nicole2974@g.skku.edu",
-    "realName": "MyeongRyunLee"
+    "realName": "MyeongRyunLee",
+    "nickname": "test",
+    "jobType": "CollegeStudent",
+    "college": "test",
+    "major": "Software"
   }
 }
 
@@ -27,7 +31,7 @@ script:pre-request {
   const axios = require('axios')
   const baseUrl = bru.getEnvVar('baseUrl')
   const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
-    "pin": "870155", // email 속의 pin
+    "pin": "333269", // email 속의 pin
     "email": "nicole2974@g.skku.edu" // email 주소
   })
   req.setHeader('email-auth', res.headers['email-auth'])
