@@ -4,12 +4,13 @@ import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import type { Contest, User, Assignment } from '@prisma/client'
-import { Language, Role } from '@prisma/client'
+import { Language, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
-import { spy, stub } from 'sinon'
+import { spy, stub, type SinonStub } from 'sinon'
+import { PERCENTAGE_SCALE } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -21,6 +22,7 @@ import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
 import { SubmissionPublicationService } from '../submission-pub.service'
+import { SubmissionSubscriptionService } from '../submission-sub.service'
 import { SubmissionService } from '../submission.service'
 
 const db = {
@@ -28,6 +30,7 @@ const db = {
     findMany: stub(),
     findFirst: stub(),
     findUnique: stub(),
+    findUniqueOrThrow: stub(),
     create: stub(),
     update: stub(),
     count: stub()
@@ -141,6 +144,7 @@ const USERIP = '127.0.0.1'
 describe('SubmissionService', () => {
   let service: SubmissionService
   let publish: SubmissionPublicationService
+  let subscribe: SubmissionSubscriptionService
   let cache: Cache
 
   beforeEach(async () => {
@@ -154,6 +158,10 @@ describe('SubmissionService', () => {
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
+        },
+        {
+          provide: SubmissionSubscriptionService,
+          useFactory: () => ({ updateSubmissionResult: stub() })
         },
         {
           provide: CACHE_MANAGER,
@@ -173,6 +181,9 @@ describe('SubmissionService', () => {
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
+    subscribe = module.get<SubmissionSubscriptionService>(
+      SubmissionSubscriptionService
+    )
     cache = module.get<Cache>(CACHE_MANAGER)
     stub(cache, 'set').resolves()
     stub(cache, 'get').resolves([])
@@ -184,6 +195,7 @@ describe('SubmissionService', () => {
     db.submission.findUnique.resetHistory()
     db.submission.create.resetHistory()
     db.submission.update.resetHistory()
+    db.submission.findUniqueOrThrow.resetHistory()
     db.submissionResult.create.resetHistory()
     db.submissionResult.createMany.resetHistory()
     db.submissionResult.updateMany.resetHistory()
@@ -371,6 +383,45 @@ describe('SubmissionService', () => {
       ).to.deep.equal(submissions[0])
       expect(createSpy.calledOnceWith(submissions[0])).to.be.true
       expect(publishSpy.calledOnce).to.be.true
+    })
+
+    it('should finalize submission without publishing when no testcase is judgeable', async () => {
+      const createdSubmission = {
+        ...submissions[0],
+        contestId: CONTEST_ID
+      }
+      const finalizedSubmission = {
+        ...createdSubmission,
+        result: ResultStatus.Accepted,
+        score: PERCENTAGE_SCALE
+      }
+
+      db.submission.create.resolves(createdSubmission)
+      db.submission.findUniqueOrThrow.resolves(finalizedSubmission)
+
+      const createResultsStub = stub(
+        service,
+        'createSubmissionResults'
+      ).resolves(0)
+      const publishStub = stub(publish, 'publishJudgeRequestMessage')
+      const updateResultStub = subscribe.updateSubmissionResult as SinonStub
+
+      const result = await service.createSubmission({
+        submissionDto,
+        problem: problems[0],
+        userId: submissions[0].userId,
+        userIp: USERIP,
+        idOptions: {
+          contestId: CONTEST_ID
+        },
+        judgeOnlyHiddenTestcases: true
+      })
+
+      expect(createResultsStub.calledOnce).to.be.true
+      expect(updateResultStub.calledOnceWithExactly(createdSubmission.id, true))
+        .to.be.true
+      expect(publishStub.called).to.be.false
+      expect(result).to.deep.equal(finalizedSubmission)
     })
 
     it('should create submission with contestId', async () => {

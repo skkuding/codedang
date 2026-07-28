@@ -38,6 +38,7 @@ import {
   Template
 } from './class/create-submission.dto'
 import { SubmissionPublicationService } from './submission-pub.service'
+import { SubmissionSubscriptionService } from './submission-sub.service'
 
 @Injectable()
 export class SubmissionService {
@@ -49,6 +50,7 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly publish: SubmissionPublicationService,
+    private readonly subscribe: SubmissionSubscriptionService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -518,13 +520,16 @@ export class SubmissionService {
         judgeOnlyHiddenTestcases
       )
 
-      if (testcasesCount === 0) {
-        // 채점할 테스트 케이스가 없는 경우 정답 처리 후 return
-        await this.prisma.submission.update({
-          where: { id: submission.id },
-          data: { result: ResultStatus.Accepted }
+      if (
+        testcasesCount === 0 &&
+        submission.contestId &&
+        judgeOnlyHiddenTestcases
+      ) {
+        // 채점할 테스트 케이스가 없는 경우 정답 및 후속 처리 후 return
+        await this.subscribe.updateSubmissionResult(submission.id, true) // 문제 정답 후속처리
+        return await this.prisma.submission.findUniqueOrThrow({
+          where: { id: submission.id }
         })
-        return submission
       }
 
       await this.publish.publishJudgeRequestMessage({
@@ -549,7 +554,7 @@ export class SubmissionService {
    * 각 테스트 케이스에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정
    *
    * @param {Submission} submission - 테스트 케이스 결과를 생성할 제출 기록
-   * @returns {Promise<void>}
+   * @returns {Promise<number>} - 생성한 테스트 케이스 결과 개수
    */
   @Span()
   async createSubmissionResults(

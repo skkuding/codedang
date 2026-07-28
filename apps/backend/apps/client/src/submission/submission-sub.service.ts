@@ -436,10 +436,14 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * 6. 대회(`contestId`) 제출이거나 과제(`assignmentId`) 제출인 경우, 각각의 전용 기록(`Record`) 업데이트 로직을 호출합니다.
    *
    * @param {number} submissionId 최종 결과를 산출할 제출 ID
+   * @param {boolean} hasNoJudgeableTestcases 채점 가능한 테스트케이스가 없는 경우
    * @returns {Promise<void>}
    */
   @Span()
-  async updateSubmissionResult(submissionId: number): Promise<void> {
+  async updateSubmissionResult(
+    submissionId: number,
+    hasNoJudgeableTestcases = false
+  ): Promise<void> {
     const submission = await this.prisma.submission.findUnique({
       where: {
         id: submissionId,
@@ -490,10 +494,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
     await this.prisma.submission.update({
       where: { id: submissionId },
-      data: { result: submissionResult }
+      data: {
+        result: submissionResult,
+        ...(hasNoJudgeableTestcases && { score: PERCENTAGE_SCALE })
+      }
     })
 
-    await this.updateSubmissionScore(submission.id)
+    if (!hasNoJudgeableTestcases) {
+      await this.updateSubmissionScore(submission.id)
+    }
     await this.updateProblemAccepted(submission.problemId, allAccepted)
 
     if (submission.userId) {

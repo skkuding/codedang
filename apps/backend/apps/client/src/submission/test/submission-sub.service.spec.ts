@@ -11,7 +11,7 @@ import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { JudgeAMQPService } from '@libs/amqp'
-import { Status } from '@libs/constants'
+import { PERCENTAGE_SCALE, Status } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { problems } from '@admin/problem/mock/mock'
@@ -555,6 +555,53 @@ describe('SubmissionSubscriptionService', () => {
       expect(updateSpy.notCalled).to.be.true
       expect(scoreSpy.notCalled).to.be.true
       expect(acceptSpy.notCalled).to.be.true
+    })
+
+    it('should mark submission accepted with full score when no testcase is judgeable', async () => {
+      const submissionWithoutResults = {
+        ...contestSubmission,
+        submissionResult: []
+      }
+
+      sandbox
+        .stub(db.submission, 'findUnique')
+        .resolves(submissionWithoutResults)
+
+      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
+      const submissionScoreSpy = sandbox
+        .stub(service, 'updateSubmissionScore')
+        .resolves()
+      const problemAcceptedSpy = sandbox
+        .stub(service, 'updateProblemAccepted')
+        .resolves()
+      const contestRecordSpy = sandbox
+        .stub(service, 'updateContestRecord')
+        .resolves()
+
+      await service.updateSubmissionResult(submissionWithoutResults.id, true)
+
+      expect(
+        updateSpy.calledOnceWith({
+          where: {
+            id: submissionWithoutResults.id
+          },
+          data: {
+            result: ResultStatus.Accepted,
+            score: PERCENTAGE_SCALE
+          }
+        })
+      ).to.be.true
+
+      expect(submissionScoreSpy.notCalled).to.be.true
+      expect(
+        problemAcceptedSpy.calledOnceWithExactly(
+          submissionWithoutResults.problemId,
+          true
+        )
+      ).to.be.true
+      expect(
+        contestRecordSpy.calledOnceWithExactly(submissionWithoutResults, true)
+      ).to.be.true
     })
 
     it('should resolve contest submission', async () => {
