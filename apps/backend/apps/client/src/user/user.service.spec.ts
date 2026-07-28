@@ -60,7 +60,8 @@ const profile: UserProfile = {
   id: ID,
   userId: ID,
   realName: 'real name',
-  profileImageUrl: '',
+  profileImageUrl:
+    'https://api.dicebear.com/9.x/notionists/svg?seed=${user.username}',
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
@@ -484,6 +485,67 @@ describe('UserService', () => {
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createUserSpy.calledOnce).to.be.false
     })
+
+    it('should not sign up SKKU student without studentId and major', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(
+        service.signUp(authRequestObject, {
+          ...signUpDto,
+          college: '성균관대학교 자연과학캠퍼스'
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(createUserSpy.calledOnce).to.be.false
+    })
+
+    it('should not sign up SKKU student with non-skku email', async () => {
+      db.user.findUnique.resolves(null)
+      service.verifyJwtFromRequestHeader = fake.resolves({
+        email: 'test@gmail.com',
+        iat: 0,
+        exp: 0,
+        iss: ''
+      })
+
+      await expect(
+        service.signUp(authRequestObject, {
+          ...signUpDto,
+          email: 'test@gmail.com',
+          college: '성균관대학교 자연과학캠퍼스',
+          studentId: '2020000000',
+          major: '컴퓨터공학과'
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(createUserSpy.calledOnce).to.be.false
+    })
+    it('should not sign up college student without college name', async () => {
+      db.user.findUnique.resolves(null)
+
+      await expect(
+        service.signUp(authRequestObject, {
+          ...signUpDto,
+          college: undefined
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(createUserSpy.calledOnce).to.be.false
+    })
+    it('should sign up SKKU student successfully', async () => {
+      db.user.findUnique.resolves(null)
+
+      const skkuSignUpDto = {
+        ...signUpDto,
+        username: user.username,
+        email: 'email@skku.edu',
+        college: '성균관대학교 자연과학캠퍼스',
+        studentId: '2020000000',
+        major: '컴퓨터공학과'
+      }
+
+      const ret = await service.signUp(authRequestObject, skkuSignUpDto)
+      expect(ret).to.deep.equal(user)
+      expect(createUserSpy.calledOnce).to.be.true
+      expect(createUserProfileSpy.calledOnce).to.be.true
+    })
   })
 
   describe('deleteUser', () => {
@@ -608,6 +670,41 @@ describe('UserService', () => {
       await expect(
         service.updateUserEmail(authRequestObject, { email: 'new@email.com' })
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+  })
+
+  describe('updateUser', () => {
+    it('should update user successfully', async () => {
+      db.user.update.resolves({
+        nickname: 'newnickname',
+        studentId: '2026000000',
+        college: '테스트대학교',
+        major: '소프트웨어학과',
+        userProfile: {
+          realName: 'new name',
+          profileImageUrl: `https://api.dicebear.com/9.x/notionists/svg?seed=newnickname`
+        }
+      })
+
+      const ret = await service.updateUser(authRequestObject, {
+        nickname: 'newnickname',
+        studentId: '2026000000',
+        college: '테스트대학교',
+        major: '소프트웨어학과',
+        realName: 'new name',
+        profileImageUrl: `https://api.dicebear.com/9.x/notionists/svg?seed=newnickname`
+      })
+
+      expect(ret).to.deep.equal({
+        nickname: 'newnickname',
+        studentId: '2026000000',
+        college: '테스트대학교',
+        major: '소프트웨어학과',
+        userProfile: {
+          realName: 'new name',
+          profileImageUrl: `https://api.dicebear.com/9.x/notionists/svg?seed=newnickname`
+        }
+      })
     })
   })
 
