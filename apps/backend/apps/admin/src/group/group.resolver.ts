@@ -149,7 +149,7 @@ export class CourseNoticeResolver {
     courseNoticeIds: number[]
   ) {
     return await this.courseNoticeService.cloneCourseNotice(
-      req.user.id,
+      req.user,
       courseNoticeIds,
       groupId
     )

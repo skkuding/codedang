@@ -620,15 +620,15 @@ export class CourseNoticeService {
   /**
    * 한 강의 내 공지사항 여러 개를 다른 강의로 복제합니다.
    *
-   * @param {number} userId 유저 아이디 (복제된 공지의 작성자로 설정됩니다.)
+   * @param {AuthenticatedUser} reqUser 요청한 사용자 (복제된 공지의 작성자로 설정됩니다.)
    * @param {number[]} courseNoticeIds 복제할 공지 아이디 목록
    * @param {number} cloneToId 복제해 넣을 강의 아이디
    * @returns {CourseNotice[]}
    * @throws EntityNotExistException - 요청한 공지 중 존재하지 않는 것이 있는 경우
-   * @throws ForbiddenAccessException - 원본 공지가 속한 강의 중 사용자가 리더가 아닌 강의가 있는 경우
+   * @throws ForbiddenAccessException - Admin/SuperAdmin이 아니면서, 원본 공지가 속한 강의 중 리더가 아닌 강의가 있는 경우
    */
   async cloneCourseNotice(
-    userId: number,
+    reqUser: AuthenticatedUser,
     courseNoticeIds: number[],
     cloneToId: number
   ) {
@@ -651,31 +651,35 @@ export class CourseNoticeService {
       throw new EntityNotExistException('CourseNotice')
     }
 
-    const originalGroupIds = [
-      ...new Set(originals.map((original) => original.groupId))
-    ]
+    const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
 
-    const leaderGroups = await this.prisma.userGroup.findMany({
-      where: {
-        userId,
-        groupId: { in: originalGroupIds },
-        isGroupLeader: true
-      },
-      select: {
-        groupId: true
+    if (!hasPrivilege) {
+      const originalGroupIds = [
+        ...new Set(originals.map((original) => original.groupId))
+      ]
+
+      const leaderGroups = await this.prisma.userGroup.findMany({
+        where: {
+          userId: reqUser.id,
+          groupId: { in: originalGroupIds },
+          isGroupLeader: true
+        },
+        select: {
+          groupId: true
+        }
+      })
+
+      if (leaderGroups.length !== originalGroupIds.length) {
+        throw new ForbiddenAccessException(
+          'You can only clone course notices from a course you lead'
+        )
       }
-    })
-
-    if (leaderGroups.length !== originalGroupIds.length) {
-      throw new ForbiddenAccessException(
-        'You can only clone course notices from a course you lead'
-      )
     }
 
     const clones = await this.prisma.courseNotice.createManyAndReturn({
       data: originals.map((original) => {
         return {
-          createdById: userId,
+          createdById: reqUser.id,
           groupId: cloneToId,
           title: original.title,
           content: original.content,

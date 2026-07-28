@@ -1230,17 +1230,28 @@ export class GroupService {
     const isVisibleSecretComment =
       userRole != Role.User || myRoleInCourse?.isGroupLeader
 
+    const maskStudentId = (studentId: string) =>
+      `${studentId.slice(0, 4)}${'#'.repeat(Math.max(studentId.length - 4, 0))}`
+
     type Comment = (typeof comments)[number]
     const commentDatas = comments.reduce(
       (acc, comment) => {
+        if (comment.createdBy?.studentId) {
+          comment = {
+            ...comment,
+            createdBy: {
+              ...comment.createdBy,
+              studentId: maskStudentId(comment.createdBy.studentId)
+            }
+          }
+        }
+
         if (
           !isVisibleSecretComment &&
           userId != comment.createdById &&
           comment.isSecret
         ) {
-          // 비밀 댓글이어도 작성자(username, studentId)는 그대로 노출한다.
-          // FE가 studentId를 "연도+####" 형식으로 마스킹해서 보여주므로 화면상 노출은 없으나,
-          // API 응답 자체에는 원본 studentId가 그대로 실린다. (서버 단 마스킹은 TODO)
+          // 비밀 댓글이어도 작성자(username, 마스킹된 studentId)는 그대로 노출한다.
           comment = {
             ...comment,
             content: ''
