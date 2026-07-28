@@ -26,7 +26,8 @@ import { GroupService } from '@client/group/group.service'
 import { UserService } from './user.service'
 
 const ID = 1
-const EMAIL_ADDRESS = 'email@skku.edu'
+const EMAIL_ADDRESS = 'email@example.com'
+const SKKU_EMAIL_ADDRESS = 'email@skku.edu'
 const PASSWORD_RESET_PIN = 'thisIsPasswordResetPin'
 const PASSWORD_RESET_PIN_KEY = emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
 const emailAuthJwtPayload = {
@@ -500,17 +501,11 @@ describe('UserService', () => {
 
     it('should not sign up SKKU student with non-skku email', async () => {
       db.user.findUnique.resolves(null)
-      service.verifyJwtFromRequestHeader = fake.resolves({
-        email: 'test@gmail.com',
-        iat: 0,
-        exp: 0,
-        iss: ''
-      })
 
       await expect(
         service.signUp(authRequestObject, {
           ...signUpDto,
-          email: 'test@gmail.com',
+          email: EMAIL_ADDRESS,
           college: '성균관대학교 자연과학캠퍼스',
           studentId: '2020000000',
           major: '컴퓨터공학과'
@@ -531,11 +526,17 @@ describe('UserService', () => {
     })
     it('should sign up SKKU student successfully', async () => {
       db.user.findUnique.resolves(null)
+      service.verifyJwtFromRequestHeader = fake.resolves({
+        email: SKKU_EMAIL_ADDRESS,
+        iat: 0,
+        exp: 0,
+        iss: ''
+      })
 
       const skkuSignUpDto = {
         ...signUpDto,
         username: user.username,
-        email: 'email@skku.edu',
+        email: SKKU_EMAIL_ADDRESS,
         college: '성균관대학교 자연과학캠퍼스',
         studentId: '2020000000',
         major: '컴퓨터공학과'
