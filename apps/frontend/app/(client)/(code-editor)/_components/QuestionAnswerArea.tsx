@@ -1,9 +1,12 @@
 'use client'
 
 import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
+import { useSession } from '@/libs/hooks/useSession'
 import { fetcherWithAuth } from '@/libs/utils'
+import { cn } from '@/libs/utils'
 import type { MultipleQnaData, SingleQnaData } from '@/types/type'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import { FaCircleExclamation } from 'react-icons/fa6'
 import { QnaAccordion } from './QnaAccordion'
@@ -22,10 +25,14 @@ export function QuestionAnswerArea({
   contestId,
   courseId
 }: QuestionAnswerAreaProps) {
+  const session = useSession()
+  const currentUsername = session?.user?.username
   const [loading, setLoading] = useState(true)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [questionFilter, setQuestionFilter] = useState<'all' | 'mine'>('all')
   const refreshTrigger = useQnaCommentsSync((s) => s.refreshTrigger)
+  const isCourseQna = contestId === undefined && courseId !== undefined
 
   const fetchQnaData = useCallback(async () => {
     setLoading(true)
@@ -93,6 +100,49 @@ export function QuestionAnswerArea({
     fetchQnaData()
   }, [fetchQnaData, refreshTrigger])
 
+  const filteredQnaDetails =
+    questionFilter === 'mine'
+      ? qnaDetails.filter((qna) => qna.createdBy?.username === currentUsername)
+      : qnaDetails
+
+  const qnaFilterHeader = isCourseQna ? (
+    <div className="mb-1 flex items-center justify-between px-5 py-5">
+      <div className="flex items-center gap-[18px]">
+        <button
+          type="button"
+          onClick={() => setQuestionFilter('all')}
+          className={cn(
+            'text-head6_m_24 border-b-2 pb-0.5 transition-colors',
+            questionFilter === 'all'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-white'
+          )}
+        >
+          All Questions
+        </button>
+        <button
+          type="button"
+          onClick={() => setQuestionFilter('mine')}
+          className={cn(
+            'text-head6_m_24 border-b-2 pb-0.5 transition-colors',
+            questionFilter === 'mine'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-white'
+          )}
+        >
+          My Questions
+        </button>
+      </div>
+
+      <Link
+        href={`/course/${courseId}/qna`}
+        className="text-body2_m_14 text-color-cool-neutral-50 transition-colors hover:text-white"
+      >
+        See more questions &gt;
+      </Link>
+    </div>
+  ) : null
+
   if (loading) {
     return <div className="py-10 text-center">Loading...</div>
   }
@@ -107,14 +157,24 @@ export function QuestionAnswerArea({
     )
   }
 
-  if (!qnaDetails.length) {
+  if (!filteredQnaDetails.length) {
     return (
-      <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
-        <FaCircleExclamation className="h-[30px] w-[30px]" />
-        <p className="text-base">Question not registered</p>
+      <div className="flex h-full flex-col">
+        {qnaFilterHeader}
+
+        <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
+          <FaCircleExclamation className="h-[30px] w-[30px]" />
+          <p className="text-base">Question not registered</p>
+        </div>
       </div>
     )
   }
 
-  return <QnaAccordion qnaData={qnaDetails} />
+  return (
+    <div className="flex h-full flex-col">
+      {qnaFilterHeader}
+
+      <QnaAccordion qnaData={filteredQnaDetails} />
+    </div>
+  )
 }
