@@ -12,7 +12,7 @@ import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import LockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
-import type { CourseQnAItem } from '@/types/type'
+import type { CourseSingleQnaData } from '@/types/type'
 import {
   useSuspenseQuery,
   useMutation,
@@ -49,7 +49,7 @@ export function QnaDetailView() {
     queryFn: () =>
       safeFetcherWithAuth
         .get(`course/${courseId}/qna/${order}`)
-        .json<CourseQnAItem>(),
+        .json<CourseSingleQnaData>(),
     staleTime: 1000 * 60
   })
 

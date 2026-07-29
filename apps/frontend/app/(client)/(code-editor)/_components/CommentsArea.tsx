@@ -1,9 +1,9 @@
 import { cn } from '@/libs/utils'
-import type { SingleQnaData } from '@/types/type'
+import type { QnAComment } from '@/types/type'
 import { FaCircleExclamation } from 'react-icons/fa6'
 import { IoPersonCircle } from 'react-icons/io5'
 
-type BaseComment = SingleQnaData['comments'][number]
+type BaseComment = QnAComment
 
 type Comment = BaseComment & {
   isCourseStaff?: boolean

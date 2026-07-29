@@ -71,7 +71,9 @@ export function QuestionAnswerArea({
         }
 
         return (
+          'assignmentId' in item &&
           item.assignmentId === targetAssignmentId &&
+          'isExercise' in item &&
           item.isExercise === isExercise
         )
       })
