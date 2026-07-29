@@ -5,7 +5,7 @@ import type {
   CourseNoticeCommentGroup,
   CourseNoticeCommentItem
 } from '@/types/type'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NoticeCommentCard } from './NoticeCommentCard'
 import { NoticeCommentEditor } from './NoticeCommentEditor'
 
@@ -102,6 +102,8 @@ export function NoticeCommentsSection({
   onUpdateComment,
   onDeleteComment
 }: NoticeCommentsSectionProps) {
+  const editorContainerRef = useRef<HTMLDivElement>(null)
+
   const startEdit = (comment: CourseNoticeCommentItem) => {
     setEditingCommentId(comment.id)
     setEditingContent(comment.content)
@@ -113,6 +115,25 @@ export function NoticeCommentsSection({
     setEditingContent('')
     setEditingSecret(false)
   }
+
+  useEffect(() => {
+    if (editingCommentId === null) {
+      return
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        editorContainerRef.current &&
+        !editorContainerRef.current.contains(event.target as Node)
+      ) {
+        cancelEdit()
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingCommentId])
 
   const renderCommentsBody = () => {
     if (isCommentsLoading) {
@@ -151,6 +172,7 @@ export function NoticeCommentsSection({
                 instructorUsernames={instructorUsernames}
                 isReplyOpen={hasReplySection}
                 editingCommentId={editingCommentId}
+                editorContainerRef={editorContainerRef}
                 onReplyToggle={toggleReplyId}
                 onEditStart={startEdit}
                 onDelete={onDeleteComment}
@@ -205,6 +227,7 @@ export function NoticeCommentsSection({
                           instructorUsernames={instructorUsernames}
                           isReplyOpen={false}
                           editingCommentId={editingCommentId}
+                          editorContainerRef={editorContainerRef}
                           onReplyToggle={toggleReplyId}
                           onEditStart={startEdit}
                           onDelete={onDeleteComment}

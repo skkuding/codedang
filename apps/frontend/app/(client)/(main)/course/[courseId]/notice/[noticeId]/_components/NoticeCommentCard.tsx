@@ -7,6 +7,7 @@ import LockBlueIcon from '@/public/icons/lock_blue.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import TrashcanIcon from '@/public/icons/trashcan2_grey.svg'
 import type { CourseNoticeCommentItem } from '@/types/type'
+import type { RefObject } from 'react'
 
 interface NoticeCommentCardProps {
   comment: CourseNoticeCommentItem
@@ -17,6 +18,7 @@ interface NoticeCommentCardProps {
   instructorUsernames?: Set<string>
   isReplyOpen: boolean
   editingCommentId: number | null
+  editorContainerRef?: RefObject<HTMLDivElement | null>
   onReplyToggle: (commentId: number) => void
   onEditStart: (comment: CourseNoticeCommentItem) => void
   onDelete: (commentId: number) => void
@@ -32,6 +34,7 @@ export function NoticeCommentCard({
   instructorUsernames,
   isReplyOpen,
   editingCommentId,
+  editorContainerRef,
   onReplyToggle,
   onEditStart,
   onDelete,
@@ -260,7 +263,9 @@ export function NoticeCommentCard({
           )}
         </button>
 
-        {editingCommentId === comment.id && <div>{renderEditEditor()}</div>}
+        {editingCommentId === comment.id && (
+          <div ref={editorContainerRef}>{renderEditEditor()}</div>
+        )}
       </div>
     )
   }
@@ -334,7 +339,9 @@ export function NoticeCommentCard({
         {comment.content}
       </div>
 
-      {editingCommentId === comment.id && <div>{renderEditEditor()}</div>}
+      {editingCommentId === comment.id && (
+        <div ref={editorContainerRef}>{renderEditEditor()}</div>
+      )}
     </div>
   )
 }
