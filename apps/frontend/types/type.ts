@@ -590,6 +590,7 @@ interface QnaBase {
   problemId: number
   isResolved: boolean
   isPrivate?: boolean
+  isRead?: boolean
   createTime: Date
   createdBy: {
     username: string
@@ -645,6 +646,10 @@ export interface QnaFormData {
   content: string
   selectedProblem: string
   selectedProblemLabel: string
+}
+
+export interface QnAItemWithCategory extends ContestQnaListItem {
+  categoryName?: string
 }
 
 export interface ProblemOption {
