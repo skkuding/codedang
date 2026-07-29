@@ -4,10 +4,12 @@ interface UserData {
   username: string
   role: string
 }
-interface Token {
+interface AccessToken {
   accessToken: string
-  refreshToken: string
   accessTokenExpires: number
+}
+interface Token extends AccessToken {
+  refreshToken: string
   refreshTokenExpires: number
 }
 
@@ -15,7 +17,7 @@ declare module 'next-auth' {
   interface User extends DefaultUser, UserData, Token {}
   interface Session extends DefaultSession {
     user: UserData
-    token: Token
+    token: AccessToken
   }
 }
 declare module 'next-auth/jwt' {
