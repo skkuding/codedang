@@ -18,14 +18,14 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
         onPressedChange={() => editor.chain().focus().toggleBold().run()}
         className="h-9 w-9 p-2"
       >
-        <BoldIcon className="h-4 w-4" />
+        <BoldIcon className="h-5 w-5" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('italic')}
         onPressedChange={() => editor.chain().focus().toggleItalic().run()}
         className="h-9 w-9 p-2"
       >
-        <ItalicIcon className="h-4 w-4" />
+        <ItalicIcon className="h-5 w-5" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('underline')}
@@ -39,14 +39,14 @@ export function TextStyleBar({ editor }: TextStyleBarProps) {
         onPressedChange={() => editor.chain().focus().toggleStrike().run()}
         className="h-9 w-9 p-2"
       >
-        <StrikeIcon className="h-6 w-6" />
+        <StrikeIcon className="h-5 w-5" />
       </Toggle>
       <Toggle
         pressed={editor?.isActive('code')}
         onPressedChange={() => editor.chain().focus().toggleCode().run()}
         className="h-9 w-9 p-2"
       >
-        <CodeIcon className="h-6 w-6" />
+        <CodeIcon className="h-5 w-5" />
       </Toggle>
     </div>
   )

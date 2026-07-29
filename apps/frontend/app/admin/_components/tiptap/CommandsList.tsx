@@ -102,7 +102,7 @@ class CommandList extends Component<CommandListProps, CommandListState> {
             onMouseEnter={() => this.handleMouseEnter(index)}
           >
             <div className="flex h-9 w-9 items-center justify-center">
-              <item.icon className="h-4 w-4" />
+              <item.icon className="h-5 w-5" />
             </div>
             {item.element || item.title}
           </button>
