@@ -44,7 +44,6 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
 
   const [open, setOpen] = useState(false)
   const [order, setOrder] = useState('latest')
-  const [sourceCourseId, setSourceCourseId] = useState('')
 
   const [cloneCourseNotices, { loading: isCloning }] =
     useMutation(CLONE_COURSE_NOTICES)
@@ -61,49 +60,47 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
     [coursesData, courseId]
   )
 
-  const sourceCourseName = useMemo(
-    () =>
-      importableCourses.find((course) => String(course.id) === sourceCourseId)
-        ?.groupName ?? '',
-    [importableCourses, sourceCourseId]
-  )
+  const importableCourseIds = importableCourses.map((course) => course.id)
 
   const { data: noticeItems = [], isLoading } = useQuery({
-    queryKey: ['importableCourseNotices', sourceCourseId, order],
+    queryKey: ['importableCourseNotices', importableCourseIds, order],
     queryFn: async () => {
-      const sourceId = Number(sourceCourseId)
-      if (!Number.isFinite(sourceId)) {
-        return []
-      }
-
       const params = {
         take: '100',
         readFilter: 'all',
         order: getOrderParam(order)
       }
 
-      const [fixedRes, normalRes] = await Promise.all([
-        safeFetcherWithAuth
-          .get(`course/${sourceId}/notice/all`, {
-            searchParams: { ...params, fixed: 'true' }
-          })
-          .json<CourseNoticeListResponse>(),
-        safeFetcherWithAuth
-          .get(`course/${sourceId}/notice/all`, {
-            searchParams: { ...params, fixed: 'false' }
-          })
-          .json<CourseNoticeListResponse>()
-      ])
+      const coursesNotices = await Promise.all(
+        importableCourses.map(async (course) => {
+          const sourceId = Number(course.id)
 
-      return [...fixedRes.data, ...normalRes.data].map<NoticeItem>((n) => ({
-        id: n.id,
-        title: n.title,
-        date: n.createTime ?? n.updateTime ?? '',
-        course: sourceCourseName,
-        creator: n.createdBy ?? 'Unknown'
-      }))
+          const [fixedRes, normalRes] = await Promise.all([
+            safeFetcherWithAuth
+              .get(`course/${sourceId}/notice/all`, {
+                searchParams: { ...params, fixed: 'true' }
+              })
+              .json<CourseNoticeListResponse>(),
+            safeFetcherWithAuth
+              .get(`course/${sourceId}/notice/all`, {
+                searchParams: { ...params, fixed: 'false' }
+              })
+              .json<CourseNoticeListResponse>()
+          ])
+
+          return [...fixedRes.data, ...normalRes.data].map<NoticeItem>((n) => ({
+            id: n.id,
+            title: n.title,
+            date: n.createTime ?? n.updateTime ?? '',
+            course: course.groupName,
+            creator: n.createdBy ?? 'Unknown'
+          }))
+        })
+      )
+
+      return coursesNotices.flat()
     },
-    enabled: open && Boolean(sourceCourseId.trim())
+    enabled: open && importableCourses.length > 0
   })
 
   const sortedItems = useMemo(() => {
@@ -130,7 +127,6 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
       })
 
       setOpen(false)
-      setSourceCourseId('')
     } catch {
       toast.error('Failed to import notices.')
     }
@@ -151,32 +147,22 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
 
       <NoticeModal
         open={open}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) {
-            setSourceCourseId('')
-            setOpen(false)
-            return
-          }
-
-          setOpen(true)
-        }}
-        className="max-h-[85vh]"
+        onOpenChange={setOpen}
+        className="flex max-h-[85vh] flex-col overflow-hidden"
       >
         <DataTableRoot
           data={sortedItems}
           columns={importNoticeColumns}
           defaultPageSize={6}
+          className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="flex flex-col gap-2 pb-[50px] pt-10">
-            <div className="flex flex-col gap-3 px-10 py-2">
+          <div className="flex min-h-0 flex-1 flex-col gap-2 pb-[50px] pt-10">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 px-10 py-2">
               <ImportNoticeTableContent
                 order={order}
                 onOrderChange={setOrder}
                 onImportSelected={handleImportSelected}
                 isImporting={isCloning}
-                importableCourses={importableCourses}
-                sourceCourseId={sourceCourseId}
-                onSourceCourseIdChange={setSourceCourseId}
                 isLoadingNotices={isLoading}
               />
             </div>

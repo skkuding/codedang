@@ -1,22 +1,30 @@
 'use client'
 
-import { CreateNoticeModal } from '@/app/admin/course/[courseId]/notice/_components/CreateNoticeModal'
-import { DeleteNoticeModal } from '@/app/admin/course/[courseId]/notice/_components/DeleteNoticeModal'
+import {
+  DataTable,
+  DataTableFallback,
+  DataTablePagination,
+  DataTableRoot,
+  DataTableSearchBar
+} from '@/app/admin/_components/table'
+import { CreateNoticeModal } from '@/app/admin/course/[courseId]/(overview)/notice/_components/CreateNoticeModal'
+import { DeleteNoticeModal } from '@/app/admin/course/[courseId]/(overview)/notice/_components/DeleteNoticeModal'
+import { ImportNoticeModal } from '@/app/admin/course/[courseId]/(overview)/notice/_components/ImportNoticeModal'
 import {
   DELETE_COURSE_NOTICE,
   UPDATE_COURSE_NOTICE
 } from '@/graphql/course/mutation'
-import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import { safeFetcherWithAuth } from '@/libs/utils'
 import type {
   CourseNoticeDetailResponse,
   CourseNoticeListItem
 } from '@/types/type'
 import { useMutation } from '@apollo/client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { getNoticeColumns, type DataTableNotice } from './NoticeTableColumns'
 
 interface NoticeTableProps {
   groupId: string
@@ -27,24 +35,25 @@ interface CourseNoticeListResponse {
   total: number
 }
 
-const PAGE_SIZE = 10
-
 export function NoticeTableFallback() {
   return (
-    <div className="rounded-[20px] border border-[#E5E7EB] bg-white p-6 text-sm text-[#6B7280]">
-      Loading notices...
-    </div>
+    <DataTableFallback
+      columns={getNoticeColumns({
+        onEdit: () => {},
+        onDeleteRequest: () => {},
+        onTogglePin: () => {},
+        loadingEditId: null,
+        togglingPinId: null,
+        isDeleting: false
+      })}
+    />
   )
 }
-
-const getNoticeTime = (notice: CourseNoticeListItem) =>
-  new Date(notice.createTime ?? notice.updateTime ?? 0).getTime()
 
 export function NoticeTable({ groupId }: NoticeTableProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const [currentPage, setCurrentPage] = useState(1)
   const [editingNotice, setEditingNotice] = useState<{
     id: number
     title: string
@@ -54,6 +63,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
   } | null>(null)
   const [deletingNoticeId, setDeletingNoticeId] = useState<number | null>(null)
   const [loadingEditId, setLoadingEditId] = useState<number | null>(null)
+  const [togglingPinId, setTogglingPinId] = useState<number | null>(null)
 
   const { data: notices = [], isLoading } = useQuery({
     queryKey: ['adminCourseNotices', Number(groupId)],
@@ -87,41 +97,28 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
   const [deleteCourseNotice, { loading: isDeleting }] =
     useMutation(DELETE_COURSE_NOTICE)
   const [updateCourseNotice] = useMutation(UPDATE_COURSE_NOTICE)
-  const [togglingPinId, setTogglingPinId] = useState<number | null>(null)
 
-  const noticeNumberMap = useMemo(() => {
-    return new Map(
+  const tableData: DataTableNotice[] = useMemo(() => {
+    const noticeNumberMap = new Map(
       [...notices]
-        .sort((a, b) => getNoticeTime(a) - getNoticeTime(b))
+        .sort((a, b) => a.id - b.id)
         .map((notice, index) => [notice.id, index + 1])
     )
+
+    return [...notices]
+      .sort((a, b) => {
+        if (a.isFixed !== b.isFixed) {
+          return a.isFixed ? -1 : 1
+        }
+        return b.id - a.id
+      })
+      .map((notice) => ({
+        ...notice,
+        no: noticeNumberMap.get(notice.id) ?? 0
+      }))
   }, [notices])
 
-  const sortedNotices = useMemo(() => {
-    return [...notices].sort((a, b) => {
-      if (a.isFixed !== b.isFixed) {
-        return a.isFixed ? -1 : 1
-      }
-      return getNoticeTime(b) - getNoticeTime(a)
-    })
-  }, [notices])
-
-  const totalPages = Math.max(1, Math.ceil(sortedNotices.length / PAGE_SIZE))
-
-  const paginatedNotices = useMemo(() => {
-    const startIndex = (currentPage - 1) * PAGE_SIZE
-    return sortedNotices.slice(startIndex, startIndex + PAGE_SIZE)
-  }, [currentPage, sortedNotices])
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages)
-    }
-  }, [currentPage, totalPages])
-
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
-
-  const handleEditClick = async (notice: CourseNoticeListItem) => {
+  const handleEditClick = async (notice: DataTableNotice) => {
     setLoadingEditId(notice.id)
     try {
       const detail = await safeFetcherWithAuth
@@ -141,7 +138,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     }
   }
 
-  const handleTogglePin = async (notice: CourseNoticeListItem) => {
+  const handleTogglePin = async (notice: DataTableNotice) => {
     setTogglingPinId(notice.id)
     try {
       await updateCourseNotice({
@@ -176,140 +173,57 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     }
   }
 
+  const columns = useMemo(
+    () =>
+      getNoticeColumns({
+        onEdit: handleEditClick,
+        onDeleteRequest: setDeletingNoticeId,
+        onTogglePin: handleTogglePin,
+        loadingEditId,
+        togglingPinId,
+        isDeleting
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loadingEditId, togglingPinId, isDeleting, groupId]
+  )
+
   if (isLoading) {
     return <NoticeTableFallback />
   }
 
   return (
     <>
-      <div className="w-full">
-        <div className="overflow-x-auto">
-          <div className="min-w-[920px]">
-            <div className="grid grid-cols-[88px_minmax(0,1fr)_96px_96px_88px] gap-2">
-              {['No', 'Title', 'Edit', 'Delete', 'Pin'].map((label) => (
-                <div
-                  key={label}
-                  className="flex h-[32px] items-center justify-center rounded-full bg-[#F3F4F6] text-sm font-medium text-[#9CA3AF]"
-                >
-                  {label}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-3">
-              {paginatedNotices.length > 0 ? (
-                paginatedNotices.map((notice) => (
-                  <div
-                    key={notice.id}
-                    className="grid grid-cols-[88px_minmax(0,1fr)_96px_96px_88px] items-center gap-2 border-b border-[#E5E7EB] py-3"
-                  >
-                    <div className="px-4 text-sm text-[#52525B]">
-                      {noticeNumberMap.get(notice.id)}
-                    </div>
-
-                    <div className="min-w-0 px-2">
-                      <div className="truncate text-sm text-[#18181B]">
-                        {notice.title}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-center">
-                      <button
-                        type="button"
-                        aria-label={`Edit ${notice.title}`}
-                        disabled={loadingEditId === notice.id}
-                        onClick={() => handleEditClick(notice)}
-                        className="flex h-[36px] w-[40px] items-center justify-center rounded-full border border-[#D4D4D8] bg-[#F5F5F5] transition hover:bg-[#EBEBEB] disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Pencil className="h-4 w-4 text-[#A1A1AA]" />
-                      </button>
-                    </div>
-
-                    <div className="flex justify-center">
-                      <button
-                        type="button"
-                        aria-label={`Delete ${notice.title}`}
-                        disabled={isDeleting}
-                        onClick={() => setDeletingNoticeId(notice.id)}
-                        className="flex h-[36px] w-[40px] items-center justify-center rounded-full border border-[#D4D4D8] bg-[#F5F5F5] transition hover:bg-[#EBEBEB] disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Trash2 className="h-4 w-4 text-[#A1A1AA]" />
-                      </button>
-                    </div>
-
-                    <div className="flex justify-center">
-                      <input
-                        type="checkbox"
-                        aria-label={`Pin ${notice.title}`}
-                        checked={notice.isFixed}
-                        disabled={togglingPinId === notice.id}
-                        onChange={() => handleTogglePin(notice)}
-                        className="h-4 w-4 rounded border border-[#D4D4D8] disabled:cursor-not-allowed disabled:opacity-60"
-                      />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex h-[160px] items-center justify-center text-sm text-[#9CA3AF]">
-                  No notices found.
-                </div>
-              )}
-            </div>
+      <DataTableRoot data={tableData} columns={columns} defaultPageSize={10}>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <DataTableSearchBar columndId="title" sizeVariant="md" />
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <ImportNoticeModal courseId={groupId} />
+            <CreateNoticeModal courseId={groupId} />
           </div>
         </div>
-
-        {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className={cn(
-                'flex h-7 w-7 items-center justify-center rounded-full',
-                currentPage === 1
-                  ? 'bg-[#E5E7EB] text-[#A1A1AA]'
-                  : 'bg-[#3B82F6] text-white'
-              )}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            <div className="flex items-center gap-6">
-              {pageNumbers.map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => setCurrentPage(page)}
-                  className={cn(
-                    'text-sm',
-                    currentPage === page
-                      ? 'font-semibold text-[#2563EB]'
-                      : 'text-[#71717A]'
-                  )}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className={cn(
-                'flex h-7 w-7 items-center justify-center rounded-full',
-                currentPage === totalPages
-                  ? 'bg-[#E5E7EB] text-[#A1A1AA]'
-                  : 'bg-[#3B82F6] text-white'
-              )}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
+        <DataTable
+          headerStyle={{
+            no: 'w-16',
+            updateTime: 'w-[84px]',
+            edit: 'w-[84px]',
+            delete: 'w-[84px]',
+            pin: 'w-[84px]'
+          }}
+          bodyStyle={{
+            title: 'justify-start',
+            no: 'w-16',
+            updateTime: 'w-[84px]',
+            edit: 'w-[84px]',
+            delete: 'w-[84px]',
+            pin: 'w-[84px]'
+          }}
+        />
+        <div className="mt-6">
+          <DataTablePagination />
+        </div>
+      </DataTableRoot>
 
       <CreateNoticeModal
         courseId={groupId}

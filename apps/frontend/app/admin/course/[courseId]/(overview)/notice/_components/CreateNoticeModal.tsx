@@ -6,11 +6,11 @@ import {
   CREATE_COURSE_NOTICE,
   UPDATE_COURSE_NOTICE
 } from '@/graphql/course/mutation'
+import PenIcon from '@/public/icons/pen.svg'
 import { useMutation } from '@apollo/client'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { FaPen } from 'react-icons/fa6'
 import { toast } from 'sonner'
 import { NoticeModal, NoticeModalTitle } from './NoticeModal'
 
@@ -95,6 +95,11 @@ export function CreateNoticeModal({
   }
 
   const handleSubmit = async () => {
+    if (charCount > 400) {
+      toast.error('Main Text must be 400 characters or fewer.')
+      return
+    }
+
     try {
       if (isEditMode && editData) {
         await updateCourseNotice({
@@ -129,9 +134,7 @@ export function CreateNoticeModal({
       router.refresh()
       closeModal()
     } catch {
-      toast.error(
-        isEditMode ? 'Failed to update notice.' : 'Failed to create notice.'
-      )
+      toast.error('Please fill in all required fields and try again.')
     }
   }
 
@@ -143,7 +146,7 @@ export function CreateNoticeModal({
           className="bg-primary hover:bg-primary-strong h-[46px] w-[126px] rounded-full px-6 py-[10px]"
           onClick={() => setIsOpen(true)}
         >
-          <FaPen className="mr-2 h-5 w-5" />
+          <PenIcon className="mr-[6px] h-5 w-5" />
           <span className="text-sub2_m_18">Create</span>
         </Button>
       )}
@@ -164,7 +167,7 @@ export function CreateNoticeModal({
                   *
                 </span>
               </div>
-              <div className="border-color-neutral-95 flex flex-1 items-center justify-between gap-2 rounded-full border px-4 py-[11px]">
+              <div className="border-color-neutral-95 flex flex-1 items-center justify-between gap-2 rounded-[12px] border px-4 py-[11px]">
                 <input
                   id="title"
                   type="text"
@@ -193,7 +196,7 @@ export function CreateNoticeModal({
                   onChange={handleMainTextChange}
                   defaultValue={editData?.content || ''}
                 />
-                <div className="text-caption1_m_13 text-color-cool-neutral-50 absolute bottom-4 right-4">
+                <div className="text-caption1_m_13 text-color-cool-neutral-60 absolute bottom-6 right-6">
                   {charCount}/400
                 </div>
               </div>
@@ -215,8 +218,7 @@ export function CreateNoticeModal({
               disabled={
                 !title.trim() ||
                 title.length > 35 ||
-                !mainText.trim() ||
-                charCount > 400 ||
+                charCount === 0 ||
                 isPending
               }
               className="bg-primary hover:bg-primary-strong text-sub2_m_18 rounded-full px-6 pb-[11px] pt-[10px] text-white"
