@@ -14,7 +14,14 @@ interface CreateCommentsProps {
 }
 
 export function CreateComments({ qnaOrder }: CreateCommentsProps) {
-  const courseId = Number(usePathname().split('/')[2])
+  const pathname = usePathname()
+  const pathSegments = pathname.split('/').filter(Boolean)
+  const contestIndex = pathSegments.indexOf('contest')
+  const courseIndex = pathSegments.indexOf('course')
+
+  const targetType = contestIndex >= 0 ? 'contest' : 'course'
+  const targetIndex = contestIndex >= 0 ? contestIndex : courseIndex
+  const targetId = Number(pathSegments[targetIndex + 1])
   const [commentData, setCommentData] = useState('')
   const [loading, setLoading] = useState(false)
   const triggerQnaRefresh = useQnaCommentsSync((state) => state.triggerRefresh)
@@ -23,8 +30,8 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
     setLoading(true)
 
     try {
-      const response = await safeFetcherWithAuth.post(
-        `course/${courseId}/qna/${qnaOrder}/comment`,
+      await safeFetcherWithAuth.post(
+        `${targetType}/${targetId}/qna/${qnaOrder}/comment`,
         {
           body: JSON.stringify({ content: commentData }),
           headers: {
@@ -32,10 +39,6 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
           }
         }
       )
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
 
       triggerQnaRefresh()
       setCommentData('')

@@ -20,10 +20,7 @@ interface QuestionAnswerAreaProps {
 export function QuestionAnswerArea({
   problemId,
   contestId,
-  courseId,
-  assignmentId,
-  exerciseId,
-  isExercise = false
+  courseId
 }: QuestionAnswerAreaProps) {
   const [loading, setLoading] = useState(true)
   const [qnaDetails, setQnaDetails] = useState<SingleQnaData[]>([])
@@ -55,8 +52,6 @@ export function QuestionAnswerArea({
 
       const allqnaData = Array.isArray(qnaResponse) ? qnaResponse : []
 
-      const targetAssignmentId = isExercise ? exerciseId : assignmentId
-
       const filteredQnaData = allqnaData.filter((item) => {
         if (item.problemId !== problemId) {
           return false
@@ -66,16 +61,10 @@ export function QuestionAnswerArea({
           return true
         }
 
-        if (targetAssignmentId === undefined) {
-          return true
-        }
-
-        return (
-          'assignmentId' in item &&
-          item.assignmentId === targetAssignmentId &&
-          'isExercise' in item &&
-          item.isExercise === isExercise
-        )
+        // Backend maps course QnA to the latest assignment containing the problem.
+        // To avoid hiding newly created QnA in exercise/assignment pages,
+        // filter by problem only on course pages.
+        return true
       })
 
       if (filteredQnaData.length === 0) {
@@ -98,7 +87,7 @@ export function QuestionAnswerArea({
     } finally {
       setLoading(false)
     }
-  }, [contestId, courseId, problemId, assignmentId, exerciseId, isExercise])
+  }, [contestId, courseId, problemId])
 
   useEffect(() => {
     fetchQnaData()

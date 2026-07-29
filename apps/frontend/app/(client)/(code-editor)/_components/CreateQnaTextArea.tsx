@@ -39,7 +39,8 @@ export function CreateQnaTextArea({
     }))
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setLoading(true)
     let apiUrl = ''
     if (contestId) {
@@ -61,21 +62,16 @@ export function CreateQnaTextArea({
     }
 
     try {
-      const response = await safeFetcherWithAuth.post(apiUrl, {
+      await safeFetcherWithAuth.post(apiUrl, {
         body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json'
         }
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-      console.log('Success:', result)
       toast.success('Question submitted successfully')
       setQnaFormData({ title: '', content: '' })
+      triggerRefresh()
       triggerRefresh()
     } catch (error) {
       console.error('Error submitting question:', error)
@@ -87,26 +83,26 @@ export function CreateQnaTextArea({
 
   return (
     <div className="rounded-lg bg-[#222939] p-5 text-white">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Post a Question</h3>
-        <button
-          onClick={() => handleSubmit()}
-          className={cn(
-            'h-9 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
-            loading || !qnaFormdata.title || !qnaFormdata.content
-              ? 'border-1 border-[#4C5565] bg-gray-900'
-              : 'bg-primary'
-          )}
-          disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
-        >
-          <div className="flex items-center justify-center gap-1">
-            <PenIcon className="h-[18px]" />
-            <p>Post</p>
-          </div>
-        </button>
-      </div>
-
       <form onSubmit={handleSubmit}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-xl font-semibold">Post a Question</h3>
+          <button
+            type="submit"
+            className={cn(
+              'h-9 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
+              loading || !qnaFormdata.title || !qnaFormdata.content
+                ? 'border-1 border-[#4C5565] bg-gray-900'
+                : 'bg-primary'
+            )}
+            disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <PenIcon className="h-[18px]" />
+              <p>Post</p>
+            </div>
+          </button>
+        </div>
+
         <div className="mb-2">
           <Input
             type="text"
