@@ -1,32 +1,7 @@
-import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { ErrorBoundary } from '@suspensive/react'
-import { Suspense } from 'react'
-import { NoticeTable, NoticeTableFallback } from '../../_components/NoticeTable'
-import { CreateNoticeModal } from './_components/CreateNoticeModal'
-import { ImportNoticeModal } from './_components/ImportNoticeModal'
-
-export const dynamic = 'force-dynamic'
-
-export default async function Page(props: {
-  params: Promise<{ courseId: string }>
-}) {
-  const { courseId } = await props.params
-
+export default function Page() {
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-end">
-        <div className="flex gap-2">
-          <ImportNoticeModal courseId={courseId} />
-          <CreateNoticeModal courseId={courseId} />
-        </div>
-      </div>
-      <div className="mt-8">
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<NoticeTableFallback />}>
-            <NoticeTable groupId={courseId} />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-    </div>
+    <main className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+      <p className="font-medium text-slate-400">TODO: Show notice list</p>
+    </main>
   )
 }
