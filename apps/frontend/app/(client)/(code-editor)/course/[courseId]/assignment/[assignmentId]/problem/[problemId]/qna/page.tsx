@@ -1,8 +1,8 @@
+import { CreateQnaTextArea } from '@/app/(client)/(code-editor)/_components/CreateQnaTextArea'
+import { QuestionAnswerArea } from '@/app/(client)/(code-editor)/_components/QuestionAnswerArea'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
 import { Suspense } from 'react'
-import { CreateQnaTextArea } from '../../../../../../../_components/CreateQnaTextArea'
-import { QuestionAnswerArea } from '../../../../../../../_components/QuestionAnswerArea'
 
 export default async function QnaPage(props: {
   params: Promise<{ courseId: string; assignmentId: string; problemId: string }>

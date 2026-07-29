@@ -10,13 +10,17 @@ import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 interface CreateQnaTextAreaProps {
-  courseId: number
-  problemId: number
+  courseId?: number
+  problemId?: number
+  contestId?: number
+  problemOrder?: number | null
 }
 
 export function CreateQnaTextArea({
   courseId,
-  problemId
+  problemId,
+  contestId,
+  problemOrder
 }: CreateQnaTextAreaProps) {
   const [qnaFormdata, setQnaFormData] = useState({
     title: '',
@@ -37,7 +41,20 @@ export function CreateQnaTextArea({
 
   const handleSubmit = async () => {
     setLoading(true)
-    const apiUrl = `course/${courseId}/qna?problemId=${problemId}`
+    let apiUrl = ''
+    if (contestId) {
+      apiUrl =
+        problemOrder === null
+          ? `contest/${contestId}/qna`
+          : `contest/${contestId}/qna?problem-order=${problemOrder}`
+    } else if (courseId && problemId) {
+      apiUrl = `course/${courseId}/qna?problemId=${problemId}`
+    } else {
+      toast.error('Submission failed! Please try again later.')
+      setLoading(false)
+      return
+    }
+
     const requestBody = {
       title: qnaFormdata.title,
       content: qnaFormdata.content

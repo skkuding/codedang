@@ -7,13 +7,13 @@ import {
   AccordionTrigger
 } from '@/components/shadcn/accordion'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
-import type { CourseQnAItem } from '@/types/type'
+import type { SingleQnaData } from '@/types/type'
 import { useState } from 'react'
 import { CommentsArea } from './CommentsArea'
 import { CreateComments } from './CreateComments'
 
 interface QnaAccordionProps {
-  qnaData: CourseQnAItem[]
+  qnaData: SingleQnaData[]
 }
 
 export function QnaAccordion({ qnaData }: QnaAccordionProps) {

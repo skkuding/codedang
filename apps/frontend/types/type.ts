@@ -566,7 +566,11 @@ export interface Notification {
 export interface MultipleQnaData {
   id: number
   order: number
-  createdById: number
+  createdById?: number
+  assignmentId?: number
+  isExercise?: boolean
+  groupId?: number
+  isPrivate?: boolean
   title: string
   isResolved: boolean
   category: string
@@ -581,29 +585,49 @@ export interface MultipleQnaData {
 export interface SingleQnaData {
   id: number
   order: number
-  createdById: number
+  createdById?: number
   title: string
   content: string
   problemId: number | null
   category: string
   isResolved: boolean
+  isPrivate?: boolean
+  groupId?: number
+  assignmentId?: number
+  assignmentTitle?: string
+  isExercise?: boolean
   createTime: Date
   readby: number[]
-  comments: {
-    id: number
-    order: number
-    createdById: number
-    isContestStaff: false
-    content: string
-    contestQnAId: number
-    createdTime: Date
-    createdBy: {
-      username: string
-    }
-  }[]
+  comments: QnAComment[]
+  // {
+  //   id: number
+  //   order: number
+  //   createdById: number
+  //   isContestStaff: false
+  //   content: string
+  //   contestQnAId: number
+  //   createdTime: Date
+  //   createdBy: {
+  //     username: string
+  //   }
+  // }[]
   createdBy: {
     username: string
   }
+}
+
+export interface QnAComment {
+  id: string
+  order: number
+  content: string
+  createdById?: number
+  isCourseStaff: boolean
+  isContestStaff: false
+  contestQnAId?: number
+  createTime: Date
+  createdBy: {
+    username: string
+  } | null
 }
 
 export interface QnaFormData {
@@ -618,33 +642,22 @@ export interface ProblemOption {
   label: string
 }
 
-export interface CourseQnAComment {
-  id: string
-  order: number
-  content: string
-  isCourseStaff: boolean
-  createTime: Date
-  createdBy?: {
-    username: string
-  } | null
-}
-
-export interface CourseQnAItem {
-  id: number
-  order: number
-  groupId: number
-  problemId: number
-  assignmentId: number
-  assignmentTitle: string
-  isExercise: boolean
-  title: string
-  content: string
-  category: string
-  createTime: Date
-  isResolved: boolean
-  isPrivate: boolean
-  createdBy?: {
-    username: string
-  }
-  comments: CourseQnAComment[]
-}
+// export interface CourseQnAItem {
+//   id: number
+//   order: number
+//   groupId: number
+//   problemId: number
+//   assignmentId: number
+//   assignmentTitle: string
+//   isExercise: boolean
+//   title: string
+//   content: string
+//   category: string
+//   createTime: Date
+//   isResolved: boolean
+//   isPrivate: boolean
+//   createdBy?: {
+//     username: string
+//   }
+//   comments: CourseQnAComment[]
+// }
