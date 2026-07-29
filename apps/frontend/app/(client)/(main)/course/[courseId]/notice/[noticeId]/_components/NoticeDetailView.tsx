@@ -4,12 +4,18 @@ import { ArticleNavigation } from '@/app/(client)/(main)/_components/ArticleNavi
 import { profileQueries } from '@/app/(client)/_libs/queries/profile'
 import { AlertModal } from '@/components/AlertModal'
 import { safeFetcherWithAuth, dateFormatter } from '@/libs/utils'
-import type { Course, CourseNoticeDetailResponse } from '@/types/type'
+import ClockIcon from '@/public/icons/clock.svg'
+import PersonFillIcon from '@/public/icons/person-fill.svg'
+import type {
+  Course,
+  CourseNoticeDetailResponse,
+  CourseNoticeListItem,
+  CourseNoticeListResponse
+} from '@/types/type'
 import { useQuery } from '@tanstack/react-query'
 import DOMPurify from 'isomorphic-dompurify'
 import { useParams } from 'next/navigation'
-import { FaUser } from 'react-icons/fa6'
-import { IoTime } from 'react-icons/io5'
+import { useMemo } from 'react'
 import { NoticeCommentsSection } from './NoticeCommentsSection'
 import { useNoticeComments } from './useNoticeComments'
 
@@ -21,6 +27,9 @@ const profileInitialData = {
   major: '',
   email: ''
 }
+
+const getTime = (notice: CourseNoticeListItem) =>
+  new Date(notice.createTime ?? notice.updateTime ?? 0).getTime()
 
 export function NoticeDetailView() {
   const { courseId, noticeId } = useParams()
@@ -40,6 +49,19 @@ export function NoticeDetailView() {
     retry: false
   })
 
+  const { data: leaderUsernames = [] } = useQuery({
+    queryKey: ['groupLeaders', courseId],
+    queryFn: () =>
+      safeFetcherWithAuth.get(`group/${courseId}/leaders`).json<string[]>(),
+    enabled: Boolean(courseId),
+    retry: false
+  })
+
+  const instructorUsernames = useMemo(
+    () => new Set(leaderUsernames),
+    [leaderUsernames]
+  )
+
   const { data: noticeData } = useQuery({
     queryKey: ['courseNoticeDetail', courseId, currentId],
     queryFn: () =>
@@ -48,6 +70,45 @@ export function NoticeDetailView() {
         .json<CourseNoticeDetailResponse>(),
     enabled: Boolean(courseId) && Number.isFinite(currentId)
   })
+
+  const { data: courseNotices = [] } = useQuery<CourseNoticeListItem[]>({
+    queryKey: ['courseNotices', Number(courseId)],
+    queryFn: async () => {
+      const [fixedRes, normalRes] = await Promise.all([
+        safeFetcherWithAuth
+          .get(`course/${courseId}/notice/all`, {
+            searchParams: {
+              take: '100',
+              fixed: 'true',
+              readFilter: 'all',
+              order: 'createTime-desc'
+            }
+          })
+          .json<CourseNoticeListResponse>(),
+        safeFetcherWithAuth
+          .get(`course/${courseId}/notice/all`, {
+            searchParams: {
+              take: '100',
+              fixed: 'false',
+              readFilter: 'all',
+              order: 'createTime-desc'
+            }
+          })
+          .json<CourseNoticeListResponse>()
+      ])
+      return [...fixedRes.data, ...normalRes.data]
+    },
+    enabled: Boolean(courseId)
+  })
+
+  const noticeNumber = useMemo(() => {
+    const noMap = new Map(
+      [...courseNotices]
+        .sort((a, b) => getTime(a) - getTime(b))
+        .map((n, i) => [n.id, i + 1])
+    )
+    return noMap.get(currentId) ?? currentId
+  }, [courseNotices, currentId])
 
   const {
     groupedComments,
@@ -86,95 +147,96 @@ export function NoticeDetailView() {
 
   return (
     <>
-      <div className="mt-20 flex flex-col gap-[60px] pl-10 pr-[116px]">
-        <div className="flex flex-col gap-6">
-          <div className="bg-color-neutral-99 text-color-neutral-60 flex w-fit items-center gap-2 rounded-full px-4 py-[6px] text-sm">
-            No. {currentId}
-          </div>
+      <div className="flex flex-col gap-[60px] pl-10 pr-[116px] pt-24">
+        <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-[14px]">
+              <div className="bg-color-neutral-99 text-color-neutral-60 flex w-fit items-center rounded-full px-4 py-1">
+                No. {noticeNumber}
+              </div>
 
-          <div className="flex flex-col gap-4 pb-8">
-            <h1 className="text-2xl font-semibold leading-[1.4]">
-              {notice.title}
-            </h1>
+              <h1 className="text-head5_sb_24">{notice.title}</h1>
+            </div>
 
-            <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
-              <div className="flex items-center gap-[10px]">
-                <FaUser className="text-primary h-4 w-4" />
+            <div className="flex flex-col gap-[6px]">
+              <div className="text-caption3_r_13 text-color-cool-neutral-50 flex items-center gap-[10px]">
+                <PersonFillIcon className="text-primary h-4 w-4" />
                 {notice.createdBy ?? 'Unknown'}
               </div>
-              <div className="flex items-center gap-[10px]">
-                <IoTime className="text-primary h-4 w-4" />
+              <div className="text-caption3_r_13 text-color-cool-neutral-50 flex items-center gap-[10px]">
+                <ClockIcon className="text-primary h-4 w-4" />
                 {dateFormatter(notice.createTime, 'YYYY-MM-DD HH:mm:ss')}
               </div>
             </div>
-
-            <div
-              className="prose mt-4 max-w-none whitespace-pre-wrap text-[16px]"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(notice.content)
-              }}
-            />
           </div>
 
-          <ArticleNavigation
-            prev={
-              prevNotice
-                ? { id: String(prevNotice.id), title: prevNotice.title }
-                : undefined
-            }
-            next={
-              nextNotice
-                ? { id: String(nextNotice.id), title: nextNotice.title }
-                : undefined
-            }
-            basePath={basePath}
+          <div
+            className="prose text-body1_m_16 max-w-none whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(notice.content)
+            }}
           />
+
+          <div className="mt-[10px]">
+            <ArticleNavigation
+              prev={
+                prevNotice
+                  ? { id: String(prevNotice.id), title: prevNotice.title }
+                  : undefined
+              }
+              next={
+                nextNotice
+                  ? { id: String(nextNotice.id), title: nextNotice.title }
+                  : undefined
+              }
+              basePath={basePath}
+            />
+          </div>
         </div>
 
-        <div>
-          <NoticeCommentsSection
-            commentCount={commentCount}
-            isCommentsLoading={isCommentsLoading}
-            groupedComments={groupedComments}
-            profileUsername={profile?.username}
-            isInstructor={isInstructor}
-            commentContent={commentContent}
-            setCommentContent={setCommentContent}
-            commentSecret={commentSecret}
-            setCommentSecret={setCommentSecret}
-            isCreatingComment={isCreatingComment}
-            onCreateComment={() =>
-              createComment({
-                content: commentContent,
-                isSecret: commentSecret
-              })
-            }
-            openReplyIds={openReplyIds}
-            toggleReplyId={toggleReplyId}
-            onCreateReply={(commentId, content, isSecret) =>
-              createComment({
-                content,
-                isSecret,
-                replyOnId: commentId
-              })
-            }
-            editingCommentId={editingCommentId}
-            setEditingCommentId={setEditingCommentId}
-            editingContent={editingContent}
-            setEditingContent={setEditingContent}
-            editingSecret={editingSecret}
-            setEditingSecret={setEditingSecret}
-            isUpdatingComment={isUpdatingComment}
-            onUpdateComment={(commentId) =>
-              updateComment({
-                commentId,
-                content: editingContent,
-                isSecret: editingSecret
-              })
-            }
-            onDeleteComment={setDeletingCommentId}
-          />
-        </div>
+        <NoticeCommentsSection
+          commentCount={commentCount}
+          isCommentsLoading={isCommentsLoading}
+          groupedComments={groupedComments}
+          profileUsername={profile?.username}
+          isInstructor={isInstructor}
+          instructorUsernames={instructorUsernames}
+          commentContent={commentContent}
+          setCommentContent={setCommentContent}
+          commentSecret={commentSecret}
+          setCommentSecret={setCommentSecret}
+          isCreatingComment={isCreatingComment}
+          onCreateComment={() =>
+            createComment({
+              content: commentContent,
+              isSecret: commentSecret
+            })
+          }
+          openReplyIds={openReplyIds}
+          toggleReplyId={toggleReplyId}
+          onCreateReply={(commentId, content, isSecret) =>
+            createComment({
+              content,
+              isSecret,
+              replyOnId: commentId
+            })
+          }
+          editingCommentId={editingCommentId}
+          setEditingCommentId={setEditingCommentId}
+          editingContent={editingContent}
+          setEditingContent={setEditingContent}
+          editingSecret={editingSecret}
+          setEditingSecret={setEditingSecret}
+          isUpdatingComment={isUpdatingComment}
+          onUpdateComment={(commentId) =>
+            updateComment({
+              commentId,
+              content: editingContent,
+              isSecret: editingSecret
+            })
+          }
+          onDeleteComment={setDeletingCommentId}
+        />
       </div>
 
       <AlertModal

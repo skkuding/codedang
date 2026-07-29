@@ -1,5 +1,6 @@
 'use client'
 
+import ExclamationMarkIcon from '@/public/icons/exclamation_mark.svg'
 import type {
   CourseNoticeCommentGroup,
   CourseNoticeCommentItem
@@ -50,6 +51,7 @@ interface NoticeCommentsSectionProps {
   groupedComments: CourseNoticeCommentGroup[]
   profileUsername?: string
   isInstructor?: boolean
+  instructorUsernames?: Set<string>
 
   commentContent: string
   setCommentContent: (value: string) => void
@@ -80,6 +82,7 @@ export function NoticeCommentsSection({
   groupedComments,
   profileUsername,
   isInstructor = false,
+  instructorUsernames,
   commentContent,
   setCommentContent,
   commentSecret,
@@ -122,9 +125,11 @@ export function NoticeCommentsSection({
 
     if (groupedComments.length === 0) {
       return (
-        <div className="bg-color-neutral-99 text-color-neutral-60 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-          <span className="text-2xl">!</span>
-          <span>Comments not registered</span>
+        <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-[6px] rounded-[8px] px-5 pb-10 pt-[30px]">
+          <ExclamationMarkIcon className="text-color-neutral-80 h-[30px] w-[30px]" />
+          <div className="text-sub3_sb_16 text-color-neutral-80">
+            Comments not registered
+          </div>
         </div>
       )
     }
@@ -141,9 +146,9 @@ export function NoticeCommentsSection({
               <NoticeCommentCard
                 comment={group.comment}
                 replyCount={group.replys.length}
-                hasReplySection={hasReplySection || hasDeletedReplies}
                 profileUsername={profileUsername}
                 isAdmin={isInstructor}
+                instructorUsernames={instructorUsernames}
                 isReplyOpen={hasReplySection}
                 editingCommentId={editingCommentId}
                 onReplyToggle={toggleReplyId}
@@ -173,6 +178,7 @@ export function NoticeCommentsSection({
                         isReply
                         profileUsername={profileUsername}
                         isAdmin={isInstructor}
+                        instructorUsernames={instructorUsernames}
                         isReplyOpen={false}
                         editingCommentId={editingCommentId}
                         onReplyToggle={toggleReplyId}
@@ -196,6 +202,7 @@ export function NoticeCommentsSection({
                           isReply
                           profileUsername={profileUsername}
                           isAdmin={isInstructor}
+                          instructorUsernames={instructorUsernames}
                           isReplyOpen={false}
                           editingCommentId={editingCommentId}
                           onReplyToggle={toggleReplyId}
