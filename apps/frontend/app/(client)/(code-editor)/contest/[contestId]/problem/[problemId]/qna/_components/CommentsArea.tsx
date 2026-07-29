@@ -26,7 +26,7 @@ export function CommentsArea({ comments }: CommentsAreaProps) {
               <div className="text-color-neutral-70 mb-2 flex items-center justify-start gap-2 text-sm font-semibold">
                 <IoPersonCircle className="h-6 w-6" />
                 <span className="text-sm font-semibold">
-                  {comment.createdBy.username}
+                  {comment.createdBy?.username || 'Staff'}
                 </span>
               </div>
             )}
