@@ -15,10 +15,12 @@ k6 (외부)
 
 | 시나리오 | VU | 설명 |
 |----------|---:|------|
-| `normal_users` | 140 | 언어별 정답 코드 제출 (A+B) |
-| `villain_users` | 10 | 자원 소모 악성 코드 제출 (무한루프, 메모리폭탄 등) |
+| `normal_users` | 20 | 언어별 정답 코드 제출 (A+B) |
+| `villain_users` | 2 | 자원 소모 악성 코드 제출 (무한루프, 메모리폭탄 등) |
 
-**단계**: 2분 ramp-up → 10분 steady → 2분 ramp-down (총 14분)
+**기본 단계**: 30초 ramp-up → 2분 steady → 30초 ramp-down (총 3분)
+
+VU 수와 시간은 `.env` 또는 `k6 run -e`로 조정할 수 있습니다.
 
 ## 사전 준비
 
@@ -29,16 +31,54 @@ k6 (외부)
 
 ## 실행
 
+로컬 설정 파일을 만듭니다. `.env`는 git에 커밋되지 않습니다.
+
+```bash
+cd tests/load
+cp .env.example .env
+```
+
+`.env` 예시:
+
+```dotenv
+BASE_URL=https://codedang.com/api
+USERNAME=tasoo1118
+PASSWORD=your-password
+PROBLEM_ID=395
+
+NORMAL_VUS=20
+VILLAIN_VUS=2
+RAMP_UP_DURATION=30s
+STEADY_DURATION=2m
+RAMP_DOWN_DURATION=30s
+```
+
+실행:
+
 ```bash
 cd tests/load
 k6 run \
-  -e BASE_URL=https://codedang.com/api \
-  -e USERNAME=loadtest-user \
-  -e PASSWORD=your-password \
-  -e PROBLEM_ID=123 \
+  --out "json=results/$(date +%Y%m%d-%H%M%S).json" \
+  submission-load.js
+```
+
+`-e`로 넘긴 값은 `.env`보다 우선합니다.
+
+```bash
+k6 run \
+  -e NORMAL_VUS=5 \
+  -e VILLAIN_VUS=0 \
+  -e STEADY_DURATION=30s \
+  --out "json=results/$(date +%Y%m%d-%H%M%S).json" \
+  submission-load.js
+```
+
+Prometheus remote write를 함께 사용할 때:
+
+```bash
+k6 run \
   --out experimental-prometheus-rw \
   --out "json=results/$(date +%Y%m%d-%H%M%S).json" \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://prometheus.codedang.com/api/v1/write \
   submission-load.js
 ```
 
@@ -60,6 +100,11 @@ k6 run \
 | `USERNAME` | O | 로그인 사용자명 |
 | `PASSWORD` | O | 로그인 비밀번호 |
 | `PROBLEM_ID` | O | 테스트 대상 문제 ID |
+| `NORMAL_VUS` | | 일반 사용자 VU 수 (기본: `20`) |
+| `VILLAIN_VUS` | | 악성 사용자 VU 수 (기본: `2`, `0`이면 비활성화) |
+| `RAMP_UP_DURATION` | | ramp-up 시간 (기본: `30s`) |
+| `STEADY_DURATION` | | steady 시간 (기본: `2m`) |
+| `RAMP_DOWN_DURATION` | | ramp-down 시간 (기본: `30s`) |
 | `K6_PROMETHEUS_RW_SERVER_URL` | | Prometheus remote write URL (`--out` 사용 시) |
 
 ## Grafana 대시보드 가이드
