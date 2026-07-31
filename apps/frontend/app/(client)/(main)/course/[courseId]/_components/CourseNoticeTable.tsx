@@ -2,6 +2,7 @@
 
 import {
   DataTable,
+  DataTableFallback,
   DataTablePagination,
   DataTableRoot
 } from '@/app/admin/_components/table'
@@ -17,7 +18,7 @@ import type {
   CourseNoticeListItem,
   CourseNoticeListResponse
 } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import {
   courseNoticeColumns,
@@ -34,6 +35,12 @@ interface CourseNoticeTableProps {
 const getTime = (notice: CourseNoticeListItem) =>
   new Date(notice.createTime ?? notice.updateTime ?? 0).getTime()
 
+export function CourseNoticeTableFallback() {
+  return (
+    <DataTableFallback columns={courseNoticeColumns} withSearchBar={false} />
+  )
+}
+
 export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
   const [filterType, setFilterType] = useState<FilterType>('all')
   const [orderType, setOrderType] = useState<OrderType | undefined>()
@@ -46,7 +53,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
     orderLabel = 'Oldest'
   }
 
-  const { data: notices = [] } = useQuery<CourseNoticeListItem[]>({
+  const { data: notices } = useSuspenseQuery<CourseNoticeListItem[]>({
     queryKey: ['courseNotices', courseId],
     queryFn: async () => {
       const [fixedRes, normalRes] = await Promise.all([
@@ -72,15 +79,14 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
           .json<CourseNoticeListResponse>()
       ])
       return [...fixedRes.data, ...normalRes.data]
-    },
-    enabled: Boolean(courseId)
+    }
   })
 
   const tableData: CourseNoticeRow[] = useMemo(() => {
     const filtered =
       filterType === 'unread' ? notices.filter((n) => !n.isRead) : notices
     const noMap = new Map(
-      [...filtered]
+      [...notices]
         .sort((a, b) => getTime(a) - getTime(b))
         .map((n, i) => [n.id, i + 1])
     )
@@ -106,6 +112,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
 
   return (
     <DataTableRoot
+      key={`${filterType}-${orderType}`}
       data={tableData}
       columns={courseNoticeColumns}
       defaultPageSize={10}

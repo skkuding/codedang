@@ -12,7 +12,7 @@ import type {
   CourseNoticeListItem,
   CourseNoticeListResponse
 } from '@/types/type'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import DOMPurify from 'isomorphic-dompurify'
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
@@ -62,13 +62,12 @@ export function NoticeDetailView() {
     [leaderUsernames]
   )
 
-  const { data: noticeData } = useQuery({
+  const { data: noticeData } = useSuspenseQuery({
     queryKey: ['courseNoticeDetail', courseId, currentId],
     queryFn: () =>
       safeFetcherWithAuth
         .get(`course/${courseId}/notice/${currentId}`)
-        .json<CourseNoticeDetailResponse>(),
-    enabled: Boolean(courseId) && Number.isFinite(currentId)
+        .json<CourseNoticeDetailResponse>()
   })
 
   const { data: courseNotices = [] } = useQuery<CourseNoticeListItem[]>({
@@ -101,14 +100,13 @@ export function NoticeDetailView() {
     enabled: Boolean(courseId)
   })
 
-  const noticeNumber = useMemo(() => {
-    const noMap = new Map(
-      [...courseNotices]
-        .sort((a, b) => getTime(a) - getTime(b))
-        .map((n, i) => [n.id, i + 1])
-    )
-    return noMap.get(currentId) ?? currentId
-  }, [courseNotices, currentId])
+  const sortedNotices = useMemo(
+    () => [...courseNotices].sort((a, b) => getTime(a) - getTime(b)),
+    [courseNotices]
+  )
+
+  const currentIndex = sortedNotices.findIndex((n) => n.id === currentId)
+  const noticeNumber = currentIndex === -1 ? currentId : currentIndex + 1
 
   const {
     groupedComments,
@@ -136,14 +134,13 @@ export function NoticeDetailView() {
   } = useNoticeComments(currentId, courseId ?? '')
 
   const isInstructor = courseInfo?.isGroupLeader ?? false
-  const notice = noticeData?.current
-  const prevNotice = noticeData?.prev ?? null
-  const nextNotice = noticeData?.next ?? null
-  const commentCount = notice?._count?.CourseNoticeComment ?? 0
-
-  if (!notice) {
-    return null
-  }
+  const notice = noticeData.current
+  const prevNotice = currentIndex > 0 ? sortedNotices[currentIndex - 1] : null
+  const nextNotice =
+    currentIndex !== -1 && currentIndex < sortedNotices.length - 1
+      ? sortedNotices[currentIndex + 1]
+      : null
+  const commentCount = notice._count?.CourseNoticeComment ?? 0
 
   return (
     <>

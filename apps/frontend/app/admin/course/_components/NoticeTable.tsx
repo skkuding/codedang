@@ -106,12 +106,7 @@ export function NoticeTable({ groupId }: NoticeTableProps) {
     )
 
     return [...notices]
-      .sort((a, b) => {
-        if (a.isFixed !== b.isFixed) {
-          return a.isFixed ? -1 : 1
-        }
-        return b.id - a.id
-      })
+      .sort((a, b) => b.id - a.id)
       .map((notice) => ({
         ...notice,
         no: noticeNumberMap.get(notice.id) ?? 0
