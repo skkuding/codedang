@@ -8,6 +8,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/router"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -88,10 +89,10 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 
 	resultChan := make(chan []byte)
 	if message.Type == "" {
-		resultChan <- router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
+		resultChan <- response.NewJudgeResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else if message.MessageId == "" {
-		resultChan <- router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
+		resultChan <- response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else {
 		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
