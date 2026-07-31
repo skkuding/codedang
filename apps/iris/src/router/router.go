@@ -7,6 +7,7 @@ import (
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"go.opentelemetry.io/otel"
@@ -79,15 +80,15 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)
-		out <- NewResponse(id, nil, err).Marshal()
+		out <- response.NewJudgeResponse(id, nil, err).Marshal()
 	}
 
 	for result := range judgeChan {
 		r.errHandle(result.Err)
-		out <- NewResponse(id, result.Result, result.Err).Marshal()
+		out <- response.NewJudgeResponse(id, result.Result, result.Err).Marshal()
 		// break
 	}
-	// return NewResponse(id, handlerResult, err).Marshal()
+	// return response.NewJudgeResponse(id, handlerResult, err).Marshal()
 	close(out)
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
