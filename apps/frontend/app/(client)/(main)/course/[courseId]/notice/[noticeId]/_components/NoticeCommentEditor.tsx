@@ -92,7 +92,7 @@ export function NoticeCommentEditor({
               disabled={disabled}
               className="text-caption2_m_12 flex h-10 rounded-full px-6 py-3"
             >
-              <PenIcon className="mr-[6px] h-4 w-4" />
+              <PenIcon className="mr-[6px] size-4" />
               {submitText}
             </Button>
           )}
@@ -119,7 +119,7 @@ export function NoticeCommentEditor({
               disabled={disabled}
               className="text-caption2_m_12 flex h-10 flex-1 rounded-full px-6 py-3"
             >
-              <PenIcon className="mr-[6px] h-4 w-4" />
+              <PenIcon className="mr-[6px] size-4" />
               {submitText}
             </Button>
           </div>

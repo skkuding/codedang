@@ -140,7 +140,7 @@ export function ImportNoticeModal({ courseId }: ImportNoticeModalProps) {
         onClick={() => setOpen(true)}
       >
         <span className="text-sub2_m_18 flex items-center gap-[6px]">
-          <HiMiniPlusCircle className="h-5 w-5" />
+          <HiMiniPlusCircle className="size-5" />
           Import
         </span>
       </Button>

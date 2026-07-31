@@ -19,7 +19,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
         }}
         className="h-9 w-9 p-1"
       >
-        <Heading1Icon className="h-5 w-5" />
+        <Heading1Icon className="size-5" />
       </Toggle>
       <Toggle
         pressed={editor.isActive('heading', { level: 2 })}
@@ -29,7 +29,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
         }}
         className="h-9 w-9 p-1"
       >
-        <Heading2Icon className="h-5 w-5" />
+        <Heading2Icon className="size-5" />
       </Toggle>
       <Toggle
         pressed={editor.isActive('heading', { level: 3 })}
@@ -39,7 +39,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
         }}
         className="h-9 w-9 p-1"
       >
-        <Heading3Icon className="h-5 w-5" />
+        <Heading3Icon className="size-5" />
       </Toggle>
     </div>
   )

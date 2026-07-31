@@ -160,11 +160,11 @@ export function NoticeDetailView() {
 
             <div className="flex flex-col gap-[6px]">
               <div className="text-caption3_r_13 text-color-cool-neutral-50 flex items-center gap-[10px]">
-                <PersonFillIcon className="text-primary h-4 w-4" />
+                <PersonFillIcon className="text-primary size-4" />
                 {notice.createdBy ?? 'Unknown'}
               </div>
               <div className="text-caption3_r_13 text-color-cool-neutral-50 flex items-center gap-[10px]">
-                <ClockIcon className="text-primary h-4 w-4" />
+                <ClockIcon className="text-primary size-4" />
                 {dateFormatter(notice.createTime, 'YYYY-MM-DD HH:mm:ss')}
               </div>
             </div>

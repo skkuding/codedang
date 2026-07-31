@@ -21,7 +21,7 @@ export function UndoRedoBar({ editor }: UndoRedoBarProps) {
         }}
         className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md align-middle hover:bg-gray-100"
       >
-        <UndoIcon className="h-5 w-5" />
+        <UndoIcon className="size-5" />
       </button>
       <button
         type="button"
@@ -32,7 +32,7 @@ export function UndoRedoBar({ editor }: UndoRedoBarProps) {
         }}
         className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md align-middle hover:bg-gray-100"
       >
-        <RedoIcon className="h-5 w-5" />
+        <RedoIcon className="size-5" />
       </button>
     </div>
   )

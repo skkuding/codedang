@@ -65,7 +65,7 @@ export function ImportNoticeTableContent({
                 className="text-label4_r_12 h-9 rounded-full px-5 py-2"
               >
                 Order
-                <ArrowBottomThinIcon className="text-color-neutral-40 ml-[6px] h-4 w-4" />
+                <ArrowBottomThinIcon className="text-color-neutral-40 ml-[6px] size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
@@ -96,7 +96,7 @@ export function ImportNoticeTableContent({
           disabled={selectedRows.length === 0 || isImporting}
           className="bg-primary hover:bg-primary-strong text-caption3_r_13 h-[34px] rounded-full px-[18px] text-white"
         >
-          <CheckBoxIcon className="mr-1 h-4 w-4" />
+          <CheckBoxIcon className="mr-1 size-4" />
           Import
         </Button>
       </div>
@@ -123,7 +123,7 @@ export function ImportNoticeTableContent({
                 className="w-25 flex items-center justify-center gap-2 pl-5 pr-4"
               >
                 Date
-                <SortIcon className="h-3 w-3" />
+                <SortIcon className="size-3" />
               </button>
               <div className="flex w-40 justify-center px-10">Course</div>
               <button
@@ -134,7 +134,7 @@ export function ImportNoticeTableContent({
                 className="flex w-[110px] items-center gap-2 pl-5 pr-4"
               >
                 Creator
-                <SortIcon className="h-3 w-3" />
+                <SortIcon className="size-3" />
               </button>
             </div>
           </div>
@@ -166,12 +166,12 @@ export function ImportNoticeTableContent({
                             e.stopPropagation()
                             row.toggleSelected(!row.getIsSelected())
                           }}
-                          className="flex h-10 w-10 shrink-0 items-center justify-center"
+                          className="flex size-10 shrink-0 items-center justify-center"
                         >
                           {row.getIsSelected() ? (
-                            <CheckBoxIcon className="text-primary h-6 w-6" />
+                            <CheckBoxIcon className="text-primary size-6" />
                           ) : (
-                            <span className="border-color-neutral-70 h-5 w-5 rounded-[4px] border bg-white" />
+                            <span className="border-color-neutral-70 size-5 rounded-[4px] border bg-white" />
                           )}
                         </button>
                         <span className="truncate text-black">

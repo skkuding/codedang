@@ -124,7 +124,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
                 className="text-color-neutral-50 w-30 border-line flex h-[46px] items-center justify-center gap-2 rounded-full border bg-white text-sm font-medium leading-[22.4px] tracking-[-0.48px] outline-none"
               >
                 <span>{orderLabel}</span>
-                <ArrowDownIcon className="h-4 w-4" />
+                <ArrowDownIcon className="size-4" />
               </button>
             </DropdownMenuTrigger>
 

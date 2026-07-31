@@ -146,7 +146,7 @@ export function CreateNoticeModal({
           className="bg-primary hover:bg-primary-strong h-[46px] w-[126px] rounded-full px-6 py-[10px]"
           onClick={() => setIsOpen(true)}
         >
-          <PenIcon className="mr-[6px] h-5 w-5" />
+          <PenIcon className="mr-[6px] size-5" />
           <span className="text-sub2_m_18">Create</span>
         </Button>
       )}

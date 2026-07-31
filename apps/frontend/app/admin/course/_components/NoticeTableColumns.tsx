@@ -101,7 +101,7 @@ export function getNoticeColumns({
           }}
           className="border-color-neutral-90 bg-color-neutral-99 hover:color-neutral-95 w-13 flex h-10 items-center justify-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <PenIcon className="text-color-neutral-70 h-5 w-5" />
+          <PenIcon className="text-color-neutral-70 size-5" />
         </button>
       ),
       enableSorting: false
@@ -126,7 +126,7 @@ export function getNoticeColumns({
           }}
           className="border-color-neutral-90 bg-color-neutral-99 hover:color-neutral-95 w-13 flex h-10 items-center justify-center rounded-full border transition disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <TrashcanGrayIcon className="text-color-neutral-70 h-5 w-5" />
+          <TrashcanGrayIcon className="text-color-neutral-70 size-5" />
         </button>
       ),
       enableSorting: false
@@ -148,7 +148,7 @@ export function getNoticeColumns({
           disabled={togglingPinId === row.original.id}
           onClick={(e) => e.stopPropagation()}
           onChange={() => onTogglePin(row.original)}
-          className="h-4 w-4 rounded border border-[#D4D4D8] disabled:cursor-not-allowed disabled:opacity-60"
+          className="size-4 rounded border border-[#D4D4D8] disabled:cursor-not-allowed disabled:opacity-60"
         />
       ),
       enableSorting: false

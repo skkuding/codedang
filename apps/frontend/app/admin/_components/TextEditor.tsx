@@ -247,7 +247,7 @@ export function TextEditor({
                 className="h-9 w-9 p-1"
                 onClick={() => onShrink?.(editor?.getHTML())}
               >
-                <ShrinkIcon className="h-5 w-5" />
+                <ShrinkIcon className="size-5" />
               </Button>
             )}
           </div>

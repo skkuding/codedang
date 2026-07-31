@@ -108,7 +108,7 @@ export function NoticeCommentCard({
   if (isReply && isDeleted) {
     return (
       <div className="bg-color-neutral-95 flex items-center gap-1 px-6 py-4">
-        <ExclamationMarkIcon className="text-color-neutral-80 h-6 w-6" />
+        <ExclamationMarkIcon className="text-color-neutral-80 size-6" />
         <span className="text-sub2_m_18 text-color-neutral-50">
           This is a Deleted Reply
         </span>
@@ -131,7 +131,7 @@ export function NoticeCommentCard({
         </div>
 
         <div className="bg-color-neutral-95 flex items-center justify-start gap-1 rounded-[12px] px-6 py-4">
-          <ExclamationMarkIcon className="text-color-neutral-80 h-6 w-6" />
+          <ExclamationMarkIcon className="text-color-neutral-80 size-6" />
           <span className="text-sub2_m_18 text-color-neutral-60">
             {displayContent}
           </span>
@@ -149,7 +149,7 @@ export function NoticeCommentCard({
         )}
       >
         <div className="flex items-center justify-start gap-1">
-          <ExclamationMarkIcon className="text-color-neutral-70 h-6 w-6" />
+          <ExclamationMarkIcon className="text-color-neutral-70 size-6" />
           <span className="text-sub2_m_18 text-color-neutral-50">
             This is a Deleted Comment
           </span>
@@ -178,7 +178,7 @@ export function NoticeCommentCard({
 
           {showHiddenBadge && (
             <span className="bg-color-blue-90 text-primary text-caption3_r_13 flex items-center gap-1 rounded-[4px] px-2 py-1">
-              <LockBlueIcon className="text-primary h-4 w-4" />
+              <LockBlueIcon className="text-primary size-4" />
               Hidden
             </span>
           )}
@@ -230,7 +230,7 @@ export function NoticeCommentCard({
                   onClick={() => onDelete(comment.id)}
                   className="border-color-neutral-90 bg-color-neutral-99 flex h-10 items-center justify-center rounded-full border px-4 py-[10px]"
                 >
-                  <TrashcanIcon className="text-color-neutral-70 h-5 w-5" />
+                  <TrashcanIcon className="text-color-neutral-70 size-5" />
                 </button>
               )}
             </div>
@@ -241,7 +241,7 @@ export function NoticeCommentCard({
 
         {isHiddenMasked ? (
           <div className="bg-color-neutral-99 flex items-center justify-start gap-1 rounded-[12px] px-6 py-4">
-            <ExclamationMarkIcon className="text-color-neutral-80 h-6 w-6" />
+            <ExclamationMarkIcon className="text-color-neutral-80 size-6" />
             <span className="text-sub2_m_18 text-color-neutral-60">
               This is a Hidden Comment
             </span>
@@ -279,7 +279,7 @@ export function NoticeCommentCard({
 
         {showHiddenBadge && (
           <span className="bg-color-blue-90 text-primary text-caption3_r_13 flex items-center gap-1 rounded-[4px] px-2 py-1">
-            <LockBlueIcon className="text-primary h-4 w-4" />
+            <LockBlueIcon className="text-primary size-4" />
             Hidden
           </span>
         )}
@@ -326,7 +326,7 @@ export function NoticeCommentCard({
                 onClick={() => onDelete(comment.id)}
                 className="border-color-neutral-90 flex h-10 items-center justify-center rounded-full border bg-white px-4 py-[10px]"
               >
-                <TrashcanIcon className="text-color-neutral-70 h-5 w-5" />
+                <TrashcanIcon className="text-color-neutral-70 size-5" />
               </button>
             )}
           </div>
