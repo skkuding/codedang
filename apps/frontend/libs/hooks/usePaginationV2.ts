@@ -57,9 +57,11 @@ export const usePagination = <T extends Item>({
   const gotoSlot = (direction: 'prev' | 'next') => {
     const newPage = direction === 'prev' ? page - 1 : page + 1
     setPage(newPage)
-    setSlot(Math.floor((newPage - 1) / pagesPerSlot))
+    const newSlot = Math.floor((newPage - 1) / pagesPerSlot)
+    const slotChanged = slot !== newSlot
+    setSlot(newSlot)
 
-    if (updateQueryParams) {
+    if (slotChanged && updateQueryParams) {
       if (direction === 'prev') {
         updateQueryParams(({ take }) => ({
           cursor: data.at(0)?.id,

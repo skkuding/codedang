@@ -6,3 +6,5 @@ metadata:
 data:
   MINIO_ENDPOINT_URL: 'https://minio.stage.codedang.com'
   KAKAO_CALLBACK_URL: 'https://stage.codedang.com/api/auth/kakao-callback'
+  KAKAO_LINK_CALLBACK_URL: 'https://stage.codedang.com/api/auth/kakao-link-callback'
+  FRONTEND_URL: 'https://stage.codedang.com'
