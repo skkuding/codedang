@@ -12,6 +12,7 @@ type JudgeResponse struct {
 	SubmissionId    int                `json:"submissionId"`
 	JudgeResultCode handler.ResultCode `json:"resultCode"`
 	JudgeResult     json.RawMessage    `json:"judgeResult"`
+	Finished        bool               `json:"finished"`
 	Error           string             `json:"error"`
 }
 
@@ -34,6 +35,7 @@ func NewJudgeResponse(id string, data json.RawMessage, err error) *JudgeResponse
 		JudgeResultCode: resultCode,
 		JudgeResult:     data,
 		Error:           errMessage,
+		Finished:        false,
 	}
 }
 
