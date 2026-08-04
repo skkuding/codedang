@@ -288,7 +288,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       result: status,
       cpuTime: BigInt(msg.judgeResult.cpuTime),
       memoryUsage: msg.judgeResult.memory,
-      output: msg.judgeResult.output
+      output: msg.judgeResult.output,
+      finished: msg.finished
     }
 
     await this.updateTestcaseJudgeResult(submissionResult)
@@ -353,7 +354,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   @Span()
   async updateTestcaseJudgeResult(
     submissionResult: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>
+      Pick<
+        SubmissionResult,
+        'result' | 'submissionId' | 'problemTestcaseId'
+      > & {
+        finished?: boolean
+      }
   ): Promise<void> {
     await this.prisma.submissionResult.update({
       where: {
@@ -382,13 +388,15 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         (result) => result !== submissionResult.result
       )
     ) {
-      this.updateTestcaseStats(
+      await this.updateTestcaseStats(
         submissionResult.problemTestcaseId,
         submissionResult.result === ResultStatus.Accepted
       )
     }
 
-    await this.updateSubmissionResult(submissionResult.submissionId)
+    if (submissionResult.finished) {
+      await this.updateSubmissionResult(submissionResult.submissionId)
+    }
   }
 
   /**
