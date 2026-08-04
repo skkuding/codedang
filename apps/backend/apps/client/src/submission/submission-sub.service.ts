@@ -380,7 +380,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    *   - 업데이트할 테스트케이스 결과 데이터 (필수: result, submissionId, problemTestcaseId)
    * @returns {Promise<void>}
    *    */
-  // TODO:
+  // TODO: Change update query to prisma.$transaction
   @Span()
   async updateTestcaseJudgeResult(
     submissionResults: (Partial<SubmissionResult> &
@@ -391,7 +391,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         finished?: boolean
       })[]
   ): Promise<void> {}
-  // await this.prisma.submissionResult.updateMany({
+  // await this.prisma.submissionResult.update({
   //   where: {
   //     // eslint-disable-next-line @typescript-eslint/naming-convention
   //     submissionId_problemTestcaseId: {
