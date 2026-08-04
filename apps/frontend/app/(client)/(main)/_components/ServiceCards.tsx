@@ -61,7 +61,7 @@ interface ServiceTabsProps {
 
 function ServiceTabs({ selectedTab, onTabChange }: ServiceTabsProps) {
   return (
-    <div className="flex h-[58px] w-full items-center overflow-x-auto rounded-full bg-white p-1.5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)] md:w-auto">
+    <div className="flex h-[72px] w-full items-center overflow-x-auto overflow-y-hidden rounded-full bg-white p-1.5 shadow-[0_4px_20px_0_rgba(53,78,116,0.1)] md:h-[58px] md:w-auto">
       <div className="flex w-max items-center">
         {SERVICE_TABS.map((tab) => (
           <button
