@@ -150,3 +150,6 @@ coverage
 .idea
 .codex
 .claude/settings.local.json
+docker-compose.override.yml
+phase0-*
+.devcontainer/devcontainer-lock.json

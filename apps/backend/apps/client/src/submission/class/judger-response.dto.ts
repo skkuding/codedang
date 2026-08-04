@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer'
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -35,4 +36,8 @@ export class JudgerResponse {
   @Type(() => JudgeResult)
   @IsOptional()
   judgeResult?: JudgeResult
+
+  @IsBoolean()
+  @IsOptional()
+  finished?: boolean
 }
