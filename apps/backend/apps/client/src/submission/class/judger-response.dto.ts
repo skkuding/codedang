@@ -6,7 +6,8 @@ import {
   IsOptional,
   IsString,
   Max,
-  Min
+  Min,
+  ValidateNested
 } from 'class-validator'
 
 class JudgeResult {
@@ -40,4 +41,14 @@ export class JudgerResponse {
   @IsBoolean()
   @IsOptional()
   finished?: boolean
+}
+
+export class SubmissionResponse {
+  @IsNumber()
+  @IsNotEmpty()
+  submissionId: number
+
+  @ValidateNested({ each: true })
+  @Type(() => JudgerResponse)
+  judgeResults: JudgerResponse[]
 }
