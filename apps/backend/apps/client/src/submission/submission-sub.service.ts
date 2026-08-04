@@ -25,7 +25,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { JudgerResponse } from './class/judger-response.dto'
+import { JudgerResponse, SubmissionResponse } from './class/judger-response.dto'
 
 @Injectable()
 export class SubmissionSubscriptionService implements OnModuleInit {
@@ -43,6 +43,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
           const res = await this.validateJudgerResponse(msg)
+          if (res instanceof SubmissionResponse) {
+            return // Ack
+          }
           await this.handleRunMessage(res, res.submissionId, isUserTest)
         } catch (error) {
           if (
@@ -62,8 +65,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.validateJudgerResponse(msg)
 
-          const isOudated = await this.isOutdatedTestcase(res)
-          if (isOudated) return
+          // TODO: Change to SubmissionReponse
+          if (res instanceof JudgerResponse) {
+            const isOudated = await this.isOutdatedTestcase(res)
+            if (isOudated) return
+            return
+          }
 
           await this.handleJudgerMessage(res)
         } catch (error) {
@@ -216,7 +223,16 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @throws {ValidationError[]} 유효성 검사 실패 시 발생
    */
   @Span()
-  async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
+  async validateJudgerResponse(
+    msg: object
+  ): Promise<JudgerResponse | SubmissionResponse> {
+    const isSubmissionResult = Boolean(msg['finished'])
+    if (isSubmissionResult) {
+      const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
+      await validateOrReject(res)
+
+      return res
+    }
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
     await validateOrReject(res)
 
@@ -253,7 +269,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * 채점 서버로부터 수신한 개별 테스트케이스의 채점 결과 메시지를 처리합니다.
+   * 채점 서버로부터 수신한 채점 결과 메시지를 처리합니다.
    *
    * 1. 메시지의 상태 코드(`resultCode`)를 파싱하여 `ResultStatus`를 결정합니다.
    * 2. 에러 상태(ServerError, CompileError)인 경우, `handleJudgeError`를 호출하여 예외 처리를 수행하고 종료합니다.
@@ -265,34 +281,47 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @throws {UnprocessableDataException} 정상 결과(`judgeResult`)가 누락된 경우 예외 발생
    */
   @Span()
-  async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
-    const status = Status(msg.resultCode)
+  async handleJudgerMessage(msg: SubmissionResponse): Promise<void> {
+    const submissionResults: {
+      submissionId: number
+      problemTestcaseId: number
+      result: ResultStatus
+      cpuTime: bigint
+      memoryUsage: number
+      output: string | undefined
+    }[] = []
 
-    if (
-      status === ResultStatus.ServerError ||
-      status === ResultStatus.CompileError
-    ) {
-      await this.handleJudgeError(status, msg)
-      return
-    }
+    msg.judgeResults.map(async (value) => {
+      const status = Status(value.resultCode)
 
-    if (!msg.judgeResult) {
-      throw new UnprocessableDataException(
-        'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
-      )
-    }
+      if (
+        status === ResultStatus.ServerError ||
+        status === ResultStatus.CompileError
+      ) {
+        await this.handleJudgeError(status, value)
+        return
+      }
 
-    const submissionResult = {
-      submissionId: msg.submissionId,
-      problemTestcaseId: msg.judgeResult.testcaseId,
-      result: status,
-      cpuTime: BigInt(msg.judgeResult.cpuTime),
-      memoryUsage: msg.judgeResult.memory,
-      output: msg.judgeResult.output,
-      finished: msg.finished
-    }
+      if (!value.judgeResult) {
+        throw new UnprocessableDataException(
+          'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
+        )
+      }
 
-    await this.updateTestcaseJudgeResult(submissionResult)
+      const submissionResult = {
+        submissionId: value.submissionId,
+        problemTestcaseId: value.judgeResult.testcaseId,
+        result: status,
+        cpuTime: BigInt(value.judgeResult.cpuTime),
+        memoryUsage: value.judgeResult.memory,
+        output: value.judgeResult.output,
+        finished: value.finished!
+      }
+
+      submissionResults.push(submissionResult)
+    })
+
+    await this.updateTestcaseJudgeResult(submissionResults)
   }
 
   /**
@@ -351,53 +380,54 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    *   - 업데이트할 테스트케이스 결과 데이터 (필수: result, submissionId, problemTestcaseId)
    * @returns {Promise<void>}
    *    */
+  // TODO:
   @Span()
   async updateTestcaseJudgeResult(
-    submissionResult: Partial<SubmissionResult> &
+    submissionResults: (Partial<SubmissionResult> &
       Pick<
         SubmissionResult,
         'result' | 'submissionId' | 'problemTestcaseId'
       > & {
         finished?: boolean
-      }
-  ): Promise<void> {
-    await this.prisma.submissionResult.update({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        submissionId_problemTestcaseId: {
-          submissionId: submissionResult.submissionId,
-          problemTestcaseId: submissionResult.problemTestcaseId
-        }
-      },
-      data: {
-        result: submissionResult.result,
-        cpuTime: submissionResult.cpuTime,
-        memoryUsage: submissionResult.memoryUsage,
-        output: submissionResult.output
-      }
-    })
+      })[]
+  ): Promise<void> {}
+  // await this.prisma.submissionResult.updateMany({
+  //   where: {
+  //     // eslint-disable-next-line @typescript-eslint/naming-convention
+  //     submissionId_problemTestcaseId: {
+  //       submissionId: submissionResult.submissionId,
+  //       problemTestcaseId: submissionResult.problemTestcaseId
+  //     }
+  //   },
+  //   data: {
+  //     result: submissionResult.result,
+  //     cpuTime: submissionResult.cpuTime,
+  //     memoryUsage: submissionResult.memoryUsage,
+  //     output: submissionResult.output
+  //   }
+  // })
 
-    const invalidSubmissionStatuses: Array<ResultStatus> = [
-      ResultStatus.Judging,
-      ResultStatus.ServerError,
-      ResultStatus.Blind,
-      ResultStatus.Canceled
-    ]
-    if (
-      invalidSubmissionStatuses.every(
-        (result) => result !== submissionResult.result
-      )
-    ) {
-      await this.updateTestcaseStats(
-        submissionResult.problemTestcaseId,
-        submissionResult.result === ResultStatus.Accepted
-      )
-    }
+  //   const invalidSubmissionStatuses: Array<ResultStatus> = [
+  //     ResultStatus.Judging,
+  //     ResultStatus.ServerError,
+  //     ResultStatus.Blind,
+  //     ResultStatus.Canceled
+  //   ]
+  //   if (
+  //     invalidSubmissionStatuses.every(
+  //       (result) => result !== submissionResult.result
+  //     )
+  //   ) {
+  //     await this.updateTestcaseStats(
+  //       submissionResult.problemTestcaseId,
+  //       submissionResult.result === ResultStatus.Accepted
+  //     )
+  //   }
 
-    if (submissionResult.finished) {
-      await this.updateSubmissionResult(submissionResult.submissionId)
-    }
-  }
+  //   if (submissionResult.finished) {
+  //     await this.updateSubmissionResult(submissionResult.submissionId)
+  //   }
+  // }
 
   /**
    * 개별 테스트케이스의 실행 통계를 업데이트합니다.
