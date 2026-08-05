@@ -83,11 +83,18 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 		out <- response.NewJudgeResponse(id, nil, err).Marshal()
 	}
 
+	var judgeResult []*response.JudgeResponse
+
 	for result := range judgeChan {
 		r.errHandle(result.Err)
-		out <- response.NewJudgeResponse(id, result.Result, result.Err).Marshal()
+		res := response.NewJudgeResponse(id, result.Result, result.Err)
+		out <- res.Marshal()
+		judgeResult = append(judgeResult, res)
 		// break
 	}
+
+	out <- response.NewSubmissionResponse(id, judgeResult).Marshal()
+
 	// return response.NewJudgeResponse(id, handlerResult, err).Marshal()
 	close(out)
 	r.logger.Log(logger.DEBUG, "Router done...")
