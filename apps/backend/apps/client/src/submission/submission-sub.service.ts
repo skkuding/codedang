@@ -373,14 +373,13 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * 개별 테스트케이스의 채점 결과를 DB에 반영하고, 후속 처리를 수행합니다.
    *
    * 1. `SubmissionResult` 테이블에 해당 테스트케이스의 채점 결과(성공 여부, 시간, 메모리, 출력 등)를 업데이트합니다.
-   * 2. 유효한 채점 결과(Judging, ServerError 등이 아닌 확정된 상태)라면, `updateTestcaseStats`를 호출하여 테스트케이스별 통계를 갱신합니다.
+   * 2. 유효한 채점 결과(Judging, ServerError 등이 아닌 확정된 상태)라면, 테스트케이스별 통계를 갱신합니다.
    * 3. `updateSubmissionResult`를 호출하여, 해당 제출(Submission)의 전체 채점 완료 여부를 확인하고 최종 결과를 갱신합니다.
    *
    * @param {Partial<SubmissionResult> & Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>} submissionResult
    *   - 업데이트할 테스트케이스 결과 데이터 (필수: result, submissionId, problemTestcaseId)
    * @returns {Promise<void>}
    *    */
-  // TODO: Change update query to prisma.$transaction
   @Span()
   async updateTestcaseJudgeResult(
     submissionResults: (Partial<SubmissionResult> &
@@ -390,75 +389,70 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       > & {
         finished?: boolean
       })[]
-  ): Promise<void> {}
-  // await this.prisma.submissionResult.update({
-  //   where: {
-  //     // eslint-disable-next-line @typescript-eslint/naming-convention
-  //     submissionId_problemTestcaseId: {
-  //       submissionId: submissionResult.submissionId,
-  //       problemTestcaseId: submissionResult.problemTestcaseId
-  //     }
-  //   },
-  //   data: {
-  //     result: submissionResult.result,
-  //     cpuTime: submissionResult.cpuTime,
-  //     memoryUsage: submissionResult.memoryUsage,
-  //     output: submissionResult.output
-  //   }
-  // })
-
-  //   const invalidSubmissionStatuses: Array<ResultStatus> = [
-  //     ResultStatus.Judging,
-  //     ResultStatus.ServerError,
-  //     ResultStatus.Blind,
-  //     ResultStatus.Canceled
-  //   ]
-  //   if (
-  //     invalidSubmissionStatuses.every(
-  //       (result) => result !== submissionResult.result
-  //     )
-  //   ) {
-  //     await this.updateTestcaseStats(
-  //       submissionResult.problemTestcaseId,
-  //       submissionResult.result === ResultStatus.Accepted
-  //     )
-  //   }
-
-  //   if (submissionResult.finished) {
-  //     await this.updateSubmissionResult(submissionResult.submissionId)
-  //   }
-  // }
-
-  /**
-   * 개별 테스트케이스의 실행 통계를 업데이트합니다.
-   *
-   * 매 실행 시마다 `submissionCount`를 1씩 증가시키며,
-   * 결과가 `Accepted`인 경우 `acceptedCount`도 1씩 증가시킵니다.
-   *
-   * @param {number} testcaseId 통계를 업데이트할 테스트케이스 ID
-   * @param {boolean} isAccepted 채점 결과가 정답(Accepted)인지 여부
-   * @returns {Promise<void>}
-   */
-  @Span()
-  async updateTestcaseStats(
-    testcaseId: number,
-    isAccepted: boolean
   ): Promise<void> {
-    const testcaseStats = {
-      where: {
-        id: testcaseId
-      },
-      data: {
-        submissionCount: {
-          increment: 1
-        },
-        acceptedCount: {
-          increment: isAccepted ? 1 : 0
-        }
-      }
-    }
+    if (submissionResults.length === 0) return
 
-    await this.prisma.problemTestcase.update(testcaseStats)
+    const submissionId = submissionResults[0].submissionId
+
+    const invalidSubmissionStatuses: Array<ResultStatus> = [
+      ResultStatus.Judging,
+      ResultStatus.ServerError,
+      ResultStatus.Blind,
+      ResultStatus.Canceled
+    ]
+
+    const statsTargets = submissionResults.filter(
+      (submissionResult) =>
+        !invalidSubmissionStatuses.includes(submissionResult.result)
+    )
+
+    await this.prisma.$transaction([
+      this.prisma.$executeRaw`
+        UPDATE "submission_result" AS sr
+        SET "result" = v.result::"ResultStatus",
+            "cpu_time" = v.cpu_time,
+            "memory_usage" = v.memory_usage,
+            "output" = v.output,
+            "update_time" = NOW()
+        FROM (
+          VALUES ${Prisma.join(
+            submissionResults.map(
+              (r) => Prisma.sql`(
+                ${r.problemTestcaseId}::int,
+                ${r.result}::text,
+                ${r.cpuTime ?? null}::bigint,
+                ${r.memoryUsage ?? null}::int,
+                ${r.output ?? null}::text
+              )`
+            )
+          )}
+        ) AS v(problem_test_case_id, result, cpu_time, memory_usage, output)
+        WHERE sr."submission_id" = ${submissionId}
+          AND sr."problem_test_case_id" = v.problem_test_case_id;
+      `,
+      ...(statsTargets.length > 0
+        ? [
+            this.prisma.$executeRaw`
+            UPDATE "problem_testcase" as pt
+            SET "submission_count" = pt."submission_count" + 1,
+                "accepted_count" = pt."accepted_count" + v.accepted
+            FROM (
+              VALUES ${Prisma.join(
+                statsTargets.map(
+                  (r) => Prisma.sql`(
+                    ${r.problemTestcaseId}::int,
+                    ${r.result === ResultStatus.Accepted ? 1 : 0}::int
+                  )`
+                )
+              )}
+            ) AS v(problem_test_case_id, accepted)
+            WHERE pt."id" = v.problem_test_case_id
+          `
+          ]
+        : [])
+    ])
+
+    await this.updateSubmissionResult(submissionId)
   }
 
   /**
