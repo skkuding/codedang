@@ -9,7 +9,13 @@ const withBundleAnalyzer = bundleAnalyzer({
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   register: true,
-  disable: process.env.NODE_ENV === 'development',
+  // TEMPORARY (demo mocks): next-pwa registers /sw.js at scope '/', the same
+  // scope MSW's /mockServiceWorker.js needs. Only one service worker can
+  // control a page, so the PWA worker wins in production builds and the
+  // enrollment mocks never intercept. Disabled outright so the preview
+  // deployment can demo the flow. Restore the NODE_ENV check together with
+  // the mocks/enrollment-demo-* removal once the backend ships.
+  disable: true,
   customWorkerDir: 'worker',
   skipWaiting: true,
   workboxOptions: {
