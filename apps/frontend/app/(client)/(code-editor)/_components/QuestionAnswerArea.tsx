@@ -174,7 +174,7 @@ export function QuestionAnswerArea({
     <div className="flex h-full flex-col">
       {qnaFilterHeader}
 
-      <QnaAccordion qnaData={filteredQnaDetails} />
+      <QnaAccordion key={questionFilter} qnaData={filteredQnaDetails} />
     </div>
   )
 }
