@@ -11,8 +11,8 @@ const SERVICE_TABS = [
   'NOTICE',
   'CONTEST',
   'PROBLEM',
-  'COURSE',
-  'STUDY'
+  'COURSE'
+  // 'STUDY'
 ] as const
 
 type ServiceTab = (typeof SERVICE_TABS)[number]
@@ -51,8 +51,8 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
       desc: '강의와 연계된 과제 및 실습으로 체계적으로 학습해보세요.',
       icon: <GraduationIcon />
     }
-  ],
-  STUDY: []
+  ]
+  // STUDY: []
 }
 interface ServiceTabsProps {
   selectedTab: ServiceTab
@@ -71,7 +71,7 @@ function ServiceTabs({ selectedTab, onTabChange }: ServiceTabsProps) {
               'text-body1_m_16 flex h-[46px] w-[115px] shrink-0 items-center justify-center rounded-full px-4 py-2.5 transition-colors',
               selectedTab === tab
                 ? 'bg-color-cool-neutral-15 text-white'
-                : 'text-color-cool-neutral-70 hover:bg-[#F1F4F6]'
+                : 'text-black hover:bg-[#F1F4F6]'
             )}
             onClick={() => onTabChange(tab)}
           >
@@ -86,7 +86,7 @@ function ServiceTabs({ selectedTab, onTabChange }: ServiceTabsProps) {
 // const features = SERVICE_TABS.flatMap((tab) => FEATURE_LIST[tab])
 
 export function ServiceCards() {
-  const [selectedTab, setSelectedTab] = useState<ServiceTab>('CONTEST')
+  const [selectedTab, setSelectedTab] = useState<ServiceTab>('NOTICE')
   // const features = FEATURE_LIST[selectedTab]
   const features = SERVICE_TABS.flatMap((tab) => FEATURE_LIST[tab])
 
