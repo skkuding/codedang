@@ -11,7 +11,7 @@ const SERVICE_TABS = [
   'NOTICE',
   'CONTEST',
   'PROBLEM',
-  'COURSE'
+  'COURSE',
   // 'STUDY'
 ] as const
 
@@ -51,7 +51,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
       desc: '강의와 연계된 과제 및 실습으로 체계적으로 학습해보세요.',
       icon: <GraduationIcon />
     }
-  ]
+  ],
   // STUDY: []
 }
 interface ServiceTabsProps {
