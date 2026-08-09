@@ -65,12 +65,17 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.validateJudgerResponse(msg)
 
-          // TODO: Change to SubmissionReponse
           if (res instanceof JudgerResponse) {
-            const isOudated = await this.isOutdatedTestcase(res)
-            if (isOudated) return
-            return
+            // JudgerResponse 메시지는 처리하지 않습니다.
+            return // Ack
           }
+
+          const validResponse = await this.filterOutdatedTestcases(
+            res.submissionId,
+            res.judgeResults
+          )
+
+          res.judgeResults = validResponse
 
           await this.handleJudgerMessage(res)
         } catch (error) {
@@ -227,6 +232,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     msg: object
   ): Promise<JudgerResponse | SubmissionResponse> {
     const isSubmissionResult = Boolean(msg['finished'])
+    console.log(isSubmissionResult)
     if (isSubmissionResult) {
       const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
       await validateOrReject(res)
@@ -240,32 +246,46 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * 채점 결과가 도착한 테스트케이스가 최신 상태인지(유효한지) 확인합니다.
+   * 도착한 테스트케이스들이 최신 상태인지(유효한지) 확인합니다.
    *
    * 문제 출제자가 테스트케이스를 수정하거나 새로 업로드하면(`uploadTestcaseZip` 등),
    * 기존 테스트케이스들은 모두 `isOutdated: true`로 설정됩니다.
    *
    * 1. 응답에 포함된 `testcaseId`가 현재 유효한지(`isOutdated: false`) 확인합니다.
-   * 2. 해당 테스트케이스가 존재하지 않으면(즉, Outdated 되었거나 삭제된 경우), `true`를 반환합니다.
+   * 2. 해당 테스트케이스가 존재하지 않으면(즉, Outdated 되었거나 삭제된 경우), 반환값에서 제외합니다.
    *
-   * @param {JudgerResponse} res 채점 서버로부터 수신한 응답 메시지 객체
-   * @returns {Promise<boolean>} 테스트케이스가 만료(Outdated)되었으면 `true`, 유효하면 `false`
+   * @param {number} submissionId 보내진 응답의 제출 ID
+   * @param {JudgerResponse[]} res 채점 서버로부터 수신한 채점 결과 배열
+   * @returns {Promise<JudgerResponse[]>} 유효한 채점 결과만 담은 배열
    */
   @Span()
-  async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
-    const testcase = await this.prisma.problemTestcase.count({
+  async filterOutdatedTestcases(
+    submissionId: number,
+    res: JudgerResponse[]
+  ): Promise<JudgerResponse[]> {
+    const testCaseIds = res
+      .map((v) => v.judgeResult?.testcaseId)
+      .filter((v) => v !== undefined)
+
+    const validTestcases = await this.prisma.problemTestcase.findMany({
+      select: { id: true },
       where: {
-        id: res.judgeResult?.testcaseId,
+        id: { in: testCaseIds },
         isOutdated: false,
         problem: {
           submission: {
-            some: { id: res.submissionId }
+            some: { id: submissionId }
           }
         }
       }
     })
 
-    return testcase === 0
+    const validIds = new Set(validTestcases.map((v) => v.id))
+
+    return res.filter((v) => {
+      const id = v.judgeResult?.testcaseId
+      return id !== undefined && validIds.has(id)
+    })
   }
 
   /**
