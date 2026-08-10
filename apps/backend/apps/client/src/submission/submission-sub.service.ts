@@ -311,7 +311,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       output: string | undefined
     }[] = []
 
-    msg.judgeResults.map(async (value) => {
+    for (const value of msg.judgeResults) {
       const status = Status(value.resultCode)
 
       if (
@@ -324,7 +324,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
 
       if (!value.judgeResult) {
         throw new UnprocessableDataException(
-          'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
+          `JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response`
         )
       }
 
@@ -339,7 +339,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
 
       submissionResults.push(submissionResult)
-    })
+    }
 
     await this.updateTestcaseJudgeResult(submissionResults)
   }
