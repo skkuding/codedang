@@ -15,7 +15,6 @@ import FileGrayIcon from '@/public/icons/file_gray.svg'
 import GrayUploadIcon from '@/public/icons/upload-gray.svg'
 import WhiteUploadIcon from '@/public/icons/upload-white.svg'
 import XIcon from '@/public/icons/x.svg'
-import styles from '../style.module.css'
 
 export function UploadButton({
   disabled,
@@ -72,12 +71,7 @@ export function UploadButton({
         <div className="flex flex-col gap-2">
           <p className="text-sub1_sb_18">최종 업로드 대상</p>
           <div className="border-1 border-color-cool-neutral-90 bg-color-neutral-99 h-[190px] rounded-lg px-4">
-            <div
-              className={cn(
-                styles.container,
-                'flex max-h-full flex-col gap-2 overflow-auto py-4'
-              )}
-            >
+            <div className="flex max-h-full flex-col gap-2 overflow-auto py-4">
               {upload_target_texts.map((v, idx) => (
                 <div className="flex items-center gap-2" key={idx}>
                   <FileGrayIcon height={20} width={20} />

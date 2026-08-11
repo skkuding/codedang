@@ -4,11 +4,11 @@ export function ProblemCreateContainerSkeleton() {
       <div className="flex flex-col gap-4">
         <div className="h-[52px] w-80 rounded-lg bg-gray-200" />
         <div className="flex items-center gap-3">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="size-6 rounded-full bg-gray-200" />
               <div className="h-6 w-24 rounded bg-gray-200" />
-              {i < 3 && <div className="ml-1 h-0.5 w-4 rounded bg-gray-200" />}
+              {i < 4 && <div className="ml-1 h-0.5 w-4 rounded bg-gray-200" />}
             </div>
           ))}
         </div>
@@ -22,7 +22,7 @@ export function ProblemCreateContainerSkeleton() {
         <div className="flex w-72 flex-col gap-6 rounded-2xl bg-white p-6">
           <div className="h-8 w-40 rounded bg-gray-200" />
           <div className="flex flex-col gap-5">
-            {[...Array(4)].map((_, i) => (
+            {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <div className="size-5 rounded bg-gray-200" />

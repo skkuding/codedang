@@ -2,20 +2,20 @@
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
-import ArrowRightNarrowIcon from '@/public/icons/arrow-right-narrow.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useState } from 'react'
 import { AiFillFile } from 'react-icons/ai'
 import { BsPeopleFill } from 'react-icons/bs'
 import { FaBook } from 'react-icons/fa'
-import { FaSquareCheck } from 'react-icons/fa6'
+import { FaCheck, FaSquareCheck } from 'react-icons/fa6'
 import { CheckerPage } from './CheckerPage'
 import { CollaborationPage } from './CollaborationPage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
 import { SolutionPage } from './SolutionPage'
 import { StatementPage } from './StatementPage'
 import { TestCasePage } from './TestCasePage'
+import { UploadButton } from './UploadButton'
 
 export function ProblemCreateContainer() {
   const BASIC_TAB_INFO = [
@@ -90,10 +90,18 @@ export function ProblemCreateContainer() {
   // TODO: isSpecialJudgeEnabled를 useSuspenseQuery로 받아오는 데이터로 변경하기
   const isSpecialJudgeEnabled = true
   const TAB_INFO = isSpecialJudgeEnabled ? SPECIAL_TAB_INFO : BASIC_TAB_INFO
+  const uploadTargetTexts = [
+    'meta.json// 제한시간, 메모리, 권한',
+    'statement.md// 문제 본문',
+    'solution.cpp// 솔루션',
+    'testcase.zip// 테스트 케이스',
+    ...(isSpecialJudgeEnabled ? ['checker.cpp// 특수 채점'] : [])
+  ]
 
   // ---- TODO END ----
 
   const [tab, setTab] = useState('Statement')
+  const currentTabIdx = TAB_INFO.findIndex(({ label }) => label === tab)
 
   return (
     <div className="px-29 mt-30 flex w-[1208px] flex-col gap-12">
@@ -133,7 +141,7 @@ export function ProblemCreateContainer() {
                     {text}
                   </p>
                 </button>
-                {idx < SPECIAL_TAB_INFO.length - 1 && (
+                {idx < TAB_INFO.length - 1 && (
                   <div className="bg-color-cool-neutral-60 h-0.5 w-4" />
                 )}
               </div>
@@ -141,65 +149,89 @@ export function ProblemCreateContainer() {
           })}
         </div>
       </div>
-      <div className="flex gap-10">
-        <div className="border-1 border-color-cool-neutral-90 flex h-fit w-72 flex-col rounded-xl bg-white p-2">
-          {TAB_INFO.map(({ Icon, label, text, subText }) => {
-            const curTab = tab === label
-
-            return (
-              <div
-                className={cn(
-                  'flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-4',
-                  {
-                    'bg-color-neutral-99': curTab,
-                    'hover:bg-color-neutral-99/40': !curTab
-                  }
-                )}
-                key={label}
-                onClick={() => setTab(label)}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="grid size-5 place-items-center">
-                    <Icon
-                      height={15}
-                      className={cn({
-                        'scale-x-[-1]': label === 'Collaboration',
-                        'text-color-cool-neutral-40': curTab,
-                        'text-color-cool-neutral-70': !curTab
-                      })}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-[2px]">
-                    <p
-                      className={cn('text-sub3_sb_16', {
-                        'text-color-common-0': curTab,
-                        'text-color-cool-neutral-30': !curTab
-                      })}
-                    >
-                      {text}
-                    </p>
-                    <p className="text-caption3_r_13 text-color-cool-neutral-40">
-                      {subText}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRightNarrowIcon
-                  alt="arrow right dimgray"
-                  className="text-color-cool-neutral-30 h-5"
-                />
-              </div>
-            )
-          })}
+      <div className="flex items-start gap-5 self-stretch">
+        <div className="w-[900px]">
+          {TAB_INFO.map(({ label, Component }) => (
+            <div
+              key={label}
+              className={cn('w-full', { hidden: tab !== label })}
+            >
+              <ErrorBoundary fallback={FetchErrorFallback}>
+                <Suspense fallback={<ProblemCreateContentSkeleton />}>
+                  <Component />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+          ))}
         </div>
-        {TAB_INFO.map(({ label, Component }) => (
-          <div key={label} className={cn('flex-1', { hidden: tab !== label })}>
-            <ErrorBoundary fallback={FetchErrorFallback}>
-              <Suspense fallback={<ProblemCreateContentSkeleton />}>
-                <Component />
-              </Suspense>
-            </ErrorBoundary>
+
+        <div className="flex w-72 flex-col items-start gap-7 rounded-xl bg-white px-5 py-6">
+          <div className="flex flex-col gap-6 self-stretch">
+            <p className="text-head3_sb_28">발행 체크리스트</p>
+
+            <div className="flex flex-col gap-6 self-stretch">
+              {TAB_INFO.map(({ Icon, label, text, subText }, idx) => {
+                const isDone = idx < currentTabIdx
+
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    className="flex w-full items-center justify-between gap-3 text-left"
+                    onClick={() => setTab(label)}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <div className="grid size-6 shrink-0 place-items-center">
+                        <Icon
+                          height={20}
+                          className={cn({
+                            'scale-x-[-1]': label === 'Collaboration',
+                            'text-color-common-0': isDone,
+                            'text-color-cool-neutral-50': !isDone
+                          })}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <p
+                          className={cn('text-sub3_sb_16', {
+                            'text-color-common-0': isDone,
+                            'text-color-cool-neutral-50': !isDone
+                          })}
+                        >
+                          {text}
+                        </p>
+                        <p
+                          className={cn('text-caption2_r_12', {
+                            'text-color-cool-neutral-40': isDone,
+                            'text-color-cool-neutral-60': !isDone
+                          })}
+                        >
+                          {subText}
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      className={cn(
+                        'grid size-6 shrink-0 place-items-center rounded-full',
+                        {
+                          'bg-primary': isDone,
+                          'bg-color-cool-neutral-80': !isDone
+                        }
+                      )}
+                    >
+                      <FaCheck className="size-3 text-white" />
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        ))}
+
+          <UploadButton
+            disabled={false}
+            upload_target_texts={uploadTargetTexts}
+          />
+        </div>
       </div>
     </div>
   )
