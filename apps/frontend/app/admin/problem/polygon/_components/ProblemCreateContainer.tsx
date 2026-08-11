@@ -2,13 +2,14 @@
 
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
+import CheckIcon from '@/public/icons/check-circle.svg'
+import FileIcon from '@/public/icons/file-thin.svg'
+import ListBoxIcon from '@/public/icons/list-box.svg'
 import PenIcon from '@/public/icons/pen.svg'
+import PeopleIcon from '@/public/icons/people.svg'
+import UploadIcon from '@/public/icons/upload.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useState } from 'react'
-import { AiFillFile } from 'react-icons/ai'
-import { BsPeopleFill } from 'react-icons/bs'
-import { FaBook } from 'react-icons/fa'
-import { FaCheck, FaSquareCheck } from 'react-icons/fa6'
 import { CheckerPage } from './CheckerPage'
 import { CollaborationPage } from './CollaborationPage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
@@ -20,28 +21,28 @@ import { UploadButton } from './UploadButton'
 export function ProblemCreateContainer() {
   const BASIC_TAB_INFO = [
     {
-      Icon: AiFillFile,
+      Icon: FileIcon,
       label: 'Statement',
       text: '문제 본문',
       subText: '문제의 세부 설명 작성',
       Component: StatementPage
     },
     {
-      Icon: PenIcon,
+      Icon: UploadIcon,
       label: 'Solution',
       text: '솔루션 업로드',
       subText: '솔루션 업로드 및 테스트 검증',
       Component: SolutionPage
     },
     {
-      Icon: FaBook,
+      Icon: ListBoxIcon,
       label: 'Tests',
       text: '테스트 케이스 관리',
       subText: 'Input · Output 생성 및 입력 검증',
       Component: TestCasePage
     },
     {
-      Icon: BsPeopleFill,
+      Icon: PeopleIcon,
       label: 'Collaboration',
       text: '협업자 초대',
       subText: '협업자 초대 및 요청 승인',
@@ -51,35 +52,35 @@ export function ProblemCreateContainer() {
 
   const SPECIAL_TAB_INFO = [
     {
-      Icon: AiFillFile,
+      Icon: FileIcon,
       label: 'Statement',
       text: '문제 본문',
       subText: '문제의 세부 설명 작성',
       Component: StatementPage
     },
     {
-      Icon: PenIcon,
+      Icon: UploadIcon,
       label: 'Solution',
       text: '솔루션 업로드',
       subText: '솔루션 업로드 및 테스트 검증',
       Component: SolutionPage
     },
     {
-      Icon: FaBook,
+      Icon: ListBoxIcon,
       label: 'Tests',
       text: '테스트 케이스 관리',
       subText: 'Input · Output 생성 및 입력 검증',
       Component: TestCasePage
     },
     {
-      Icon: FaSquareCheck,
+      Icon: PenIcon,
       label: 'Checker',
       text: '특수 채점 설정',
       subText: '고급 채점 로직 설정',
       Component: CheckerPage
     },
     {
-      Icon: BsPeopleFill,
+      Icon: PeopleIcon,
       label: 'Collaboration',
       text: '협업자 초대',
       subText: '협업자 초대 및 요청 승인',
@@ -104,7 +105,7 @@ export function ProblemCreateContainer() {
   const currentTabIdx = TAB_INFO.findIndex(({ label }) => label === tab)
 
   return (
-    <div className="px-29 mt-30 flex w-[1208px] flex-col gap-12">
+    <div className="px-29 mt-30 flex w-[1440px] flex-col gap-12">
       <div className="flex h-24 flex-col items-start justify-start gap-4 self-stretch">
         <p className="text-head1_b_40">PROBLEM CREATE</p>
 
@@ -190,8 +191,8 @@ export function ProblemCreateContainer() {
                       <div className="grid size-6 shrink-0 place-items-center">
                         <Icon
                           height={24}
+                          width={24}
                           className={cn({
-                            'scale-x-[-1]': label === 'Collaboration',
                             'text-color-common-0': isDone,
                             'text-color-cool-neutral-50': !isDone
                           })}
@@ -216,17 +217,17 @@ export function ProblemCreateContainer() {
                         </p>
                       </div>
                     </div>
-                    <div
+                    <CheckIcon
+                      width={24}
+                      height={24}
                       className={cn(
                         'grid size-6 shrink-0 place-items-center rounded-full',
                         {
-                          'bg-primary': isDone,
-                          'bg-color-cool-neutral-80': !isDone
+                          'text-primary-strong': isDone,
+                          'text-color-cool-neutral-80': !isDone
                         }
                       )}
-                    >
-                      <FaCheck className="size-3 text-white" />
-                    </div>
+                    />
                   </button>
                 )
               })}

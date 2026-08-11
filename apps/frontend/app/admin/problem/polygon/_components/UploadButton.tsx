@@ -12,8 +12,7 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
 import FileGrayIcon from '@/public/icons/file_gray.svg'
-import GrayUploadIcon from '@/public/icons/upload-gray.svg'
-import WhiteUploadIcon from '@/public/icons/upload-white.svg'
+import UploadIcon from '@/public/icons/upload.svg'
 import XIcon from '@/public/icons/x.svg'
 
 export function UploadButton({
@@ -29,12 +28,20 @@ export function UploadButton({
         <Button
           type="button"
           disabled={!disabled}
-          className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+          className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! w-62 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
         >
           {disabled ? (
-            <WhiteUploadIcon width={20} height={20} />
+            <UploadIcon
+              width={20}
+              height={20}
+              className="text-color-common-100"
+            />
           ) : (
-            <GrayUploadIcon width={20} height={20} />
+            <UploadIcon
+              width={20}
+              height={20}
+              className="text-color-neutral-60"
+            />
           )}
           <p
             className={cn(
