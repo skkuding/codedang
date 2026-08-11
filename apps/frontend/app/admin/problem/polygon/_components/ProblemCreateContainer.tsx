@@ -128,15 +128,21 @@ export function ProblemCreateContainer() {
                       }
                     )}
                   >
-                    <p className="text-caption1_sb_14 text-color-common-100">
+                    <p className="text-sub4_sb_14 text-color-common-100">
                       {idx + 1}
                     </p>
                   </div>
+                  {
+                    // Todo: p태그 글꼴이 없어서 결정되면 변경
+                  }
                   <p
-                    className={cn('text-body1_m_18', {
-                      'text-primary': curTab,
-                      'text-color-cool-neutral-30': !curTab
-                    })}
+                    className={cn(
+                      'font-["Pretendard"] text-lg font-medium leading-6',
+                      {
+                        'text-primary': curTab,
+                        'text-color-cool-neutral-30': !curTab
+                      }
+                    )}
                   >
                     {text}
                   </p>
@@ -167,7 +173,7 @@ export function ProblemCreateContainer() {
 
         <div className="flex w-72 flex-col items-start gap-7 rounded-xl bg-white px-5 py-6">
           <div className="flex flex-col gap-6 self-stretch">
-            <p className="text-head3_sb_28">발행 체크리스트</p>
+            <p className="text-head5_sb_24">발행 체크리스트</p>
 
             <div className="flex flex-col gap-6 self-stretch">
               {TAB_INFO.map(({ Icon, label, text, subText }, idx) => {
@@ -183,7 +189,7 @@ export function ProblemCreateContainer() {
                     <div className="flex items-start gap-2.5">
                       <div className="grid size-6 shrink-0 place-items-center">
                         <Icon
-                          height={20}
+                          height={24}
                           className={cn({
                             'scale-x-[-1]': label === 'Collaboration',
                             'text-color-common-0': isDone,
@@ -201,7 +207,7 @@ export function ProblemCreateContainer() {
                           {text}
                         </p>
                         <p
-                          className={cn('text-caption2_r_12', {
+                          className={cn('text-caption3_r_13', {
                             'text-color-cool-neutral-40': isDone,
                             'text-color-cool-neutral-60': !isDone
                           })}
