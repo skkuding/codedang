@@ -42,15 +42,9 @@ export function RenderProblemList({
     if (problemData.total === 0) {
       return <div>No result.</div>
     } else {
-      const transformedProblemData = problemData.data.map((problem) => {
-        return {
-          ...problem,
-          id: `/problem/${problem.id}`
-        }
-      })
       return (
         <DataTable
-          data={transformedProblemData}
+          data={problemData.data}
           columns={RenderProblemColumn}
           headerStyle={{
             order: 'text-[#8A8A8A] w-[10px] p-0 md:w-16 px-4',
@@ -58,6 +52,7 @@ export function RenderProblemList({
             score: 'text-[#8A8A8A] w-4/10 p-0 md:w-[296px] px-4'
           }}
           linked={linked}
+          pathSegment="problem"
         />
       )
     }
