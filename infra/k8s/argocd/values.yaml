@@ -66,13 +66,22 @@ server:
         release: prometheus
 
   ingress:
-    enabled: true
+    # migrate ingress to gateway, disabled ingress
+    enabled: false
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-dns01
       traefik.ingress.kubernetes.io/redirect-entry-point: https
     ingressClassName: traefik
     # TLS termination at Traefik, backend uses HTTP (server.insecure: true)
     tls: true
+
+  # migrate ingress to gateway
+  httproute:
+    enabled: true
+    parentRefs:
+      - name: main-gateway
+        namespace: kube-system
+        sectionName: http
 
   extraArgs:
     - --insecure
