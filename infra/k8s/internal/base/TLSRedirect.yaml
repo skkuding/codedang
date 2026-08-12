@@ -9,7 +9,8 @@ spec:
     namespace: kube-system
     sectionName: http
   hostnames:
-  - stage.codedang.com
+  - "*.codedang.com"
+  - codedang.com
   rules:
   - filters:
     - type: RequestRedirect

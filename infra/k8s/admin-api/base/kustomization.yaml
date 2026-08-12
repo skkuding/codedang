@@ -11,4 +11,3 @@ resources:
   - redis-credentials.yaml
   - service.yaml
   - HTTPRoutes.yaml
-  - TLSRedirect.yaml
