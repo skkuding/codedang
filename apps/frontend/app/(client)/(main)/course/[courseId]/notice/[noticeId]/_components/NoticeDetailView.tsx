@@ -1,17 +1,13 @@
 'use client'
 
 import { ArticleNavigation } from '@/app/(client)/(main)/_components/ArticleNavigation'
+import { courseNoticeQueries } from '@/app/(client)/_libs/queries/courseNotice'
 import { profileQueries } from '@/app/(client)/_libs/queries/profile'
 import { AlertModal } from '@/components/AlertModal'
 import { safeFetcherWithAuth, dateFormatter } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
-import type {
-  Course,
-  CourseNoticeDetailResponse,
-  CourseNoticeListItem,
-  CourseNoticeListResponse
-} from '@/types/type'
+import type { Course, CourseNoticeListItem } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import DOMPurify from 'isomorphic-dompurify'
 import { useParams } from 'next/navigation'
@@ -62,41 +58,15 @@ export function NoticeDetailView() {
     [leaderUsernames]
   )
 
-  const { data: noticeData } = useSuspenseQuery({
-    queryKey: ['courseNoticeDetail', courseId, currentId],
-    queryFn: () =>
-      safeFetcherWithAuth
-        .get(`course/${courseId}/notice/${currentId}`)
-        .json<CourseNoticeDetailResponse>()
-  })
+  const { data: noticeData } = useSuspenseQuery(
+    courseNoticeQueries.detail({
+      courseId: Number(courseId),
+      noticeId: currentId
+    })
+  )
 
-  const { data: courseNotices = [] } = useQuery<CourseNoticeListItem[]>({
-    queryKey: ['courseNotices', Number(courseId)],
-    queryFn: async () => {
-      const [fixedRes, normalRes] = await Promise.all([
-        safeFetcherWithAuth
-          .get(`course/${courseId}/notice/all`, {
-            searchParams: {
-              take: '100',
-              fixed: 'true',
-              readFilter: 'all',
-              order: 'createTime-desc'
-            }
-          })
-          .json<CourseNoticeListResponse>(),
-        safeFetcherWithAuth
-          .get(`course/${courseId}/notice/all`, {
-            searchParams: {
-              take: '100',
-              fixed: 'false',
-              readFilter: 'all',
-              order: 'createTime-desc'
-            }
-          })
-          .json<CourseNoticeListResponse>()
-      ])
-      return [...fixedRes.data, ...normalRes.data]
-    },
+  const { data: courseNotices = [] } = useQuery({
+    ...courseNoticeQueries.list({ courseId: Number(courseId) }),
     enabled: Boolean(courseId)
   })
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { courseNoticeQueries } from '@/app/(client)/_libs/queries/courseNotice'
 import {
   DataTable,
   DataTableFallback,
@@ -12,12 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
-import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import { cn } from '@/libs/utils'
 import ArrowDownIcon from '@/public/icons/arrow-down.svg'
-import type {
-  CourseNoticeListItem,
-  CourseNoticeListResponse
-} from '@/types/type'
+import type { CourseNoticeListItem } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import {
@@ -37,7 +35,16 @@ const getTime = (notice: CourseNoticeListItem) =>
 
 export function CourseNoticeTableFallback() {
   return (
-    <DataTableFallback columns={courseNoticeColumns} withSearchBar={false} />
+    <DataTableFallback
+      columns={courseNoticeColumns}
+      withSearchBar={false}
+      headerStyle={{
+        no: 'w-[80px]',
+        title: '',
+        date: 'w-[180px]',
+        createdBy: 'w-[110px]'
+      }}
+    />
   )
 }
 
@@ -53,34 +60,9 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
     orderLabel = 'Oldest'
   }
 
-  const { data: notices } = useSuspenseQuery<CourseNoticeListItem[]>({
-    queryKey: ['courseNotices', courseId],
-    queryFn: async () => {
-      const [fixedRes, normalRes] = await Promise.all([
-        safeFetcherWithAuth
-          .get(`course/${courseId}/notice/all`, {
-            searchParams: {
-              take: '100',
-              fixed: 'true',
-              readFilter: 'all',
-              order: 'createTime-desc'
-            }
-          })
-          .json<CourseNoticeListResponse>(),
-        safeFetcherWithAuth
-          .get(`course/${courseId}/notice/all`, {
-            searchParams: {
-              take: '100',
-              fixed: 'false',
-              readFilter: 'all',
-              order: 'createTime-desc'
-            }
-          })
-          .json<CourseNoticeListResponse>()
-      ])
-      return [...fixedRes.data, ...normalRes.data]
-    }
-  })
+  const { data: notices } = useSuspenseQuery(
+    courseNoticeQueries.list({ courseId })
+  )
 
   const tableData: CourseNoticeRow[] = useMemo(() => {
     const filtered =
@@ -106,7 +88,8 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
         createdBy: n.createdBy ?? 'Unknown',
         date: n.updateTime ?? n.createTime ?? '',
         isRead: n.isRead,
-        isFixed: n.isFixed
+        isFixed: n.isFixed,
+        commentCount: n.commentCount
       }))
   }, [notices, filterType, orderType])
 

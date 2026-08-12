@@ -1,16 +1,16 @@
 'use client'
 
 import { cn, dateFormatter } from '@/libs/utils'
+import type { CourseNoticeListItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
-export interface CourseNoticeRow {
-  id: number
+export type CourseNoticeRow = Pick<
+  CourseNoticeListItem,
+  'id' | 'title' | 'isRead' | 'isFixed' | 'commentCount'
+> & {
   no: string
-  title: string
-  createdBy: string
+  createdBy: NonNullable<CourseNoticeListItem['createdBy']>
   date: string
-  isRead: boolean
-  isFixed: boolean
 }
 
 export const courseNoticeColumns: ColumnDef<CourseNoticeRow>[] = [
@@ -35,7 +35,9 @@ export const courseNoticeColumns: ColumnDef<CourseNoticeRow>[] = [
     header: 'Title',
     cell: ({ row }) => (
       <div className="flex items-center justify-start gap-2 overflow-hidden text-sm text-black">
-        <span className="line-clamp-1">{row.original.title}</span>
+        <span className="line-clamp-1">
+          {row.original.title} ({row.original.commentCount})
+        </span>
         {!row.original.isRead && (
           <span className="bg-primary h-[6px] w-[6px] shrink-0 rounded-full" />
         )}

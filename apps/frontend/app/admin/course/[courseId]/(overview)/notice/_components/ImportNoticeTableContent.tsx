@@ -6,22 +6,13 @@ import {
 } from '@/app/admin/_components/table'
 import { useDataTable } from '@/app/admin/_components/table/context'
 import { Button } from '@/components/shadcn/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/shadcn/dropdown-menu'
 import { cn } from '@/libs/utils'
-import ArrowBottomThinIcon from '@/public/icons/arrow_bottom_thin.svg'
 import CheckBoxIcon from '@/public/icons/check-box.svg'
 import SortIcon from '@/public/icons/sort.svg'
 import { NoticeModalTitle } from './NoticeModal'
 import type { NoticeItem } from './importNoticeTableColumns'
 
 interface ImportNoticeTableContentProps {
-  order: string
-  onOrderChange: (order: string) => void
   onImportSelected: (ids: number[]) => void
   isImporting: boolean
   isLoadingNotices: boolean
@@ -30,14 +21,12 @@ interface ImportNoticeTableContentProps {
 const gridTemplate = 'grid-cols-[minmax(0,1fr)_100px_160px_110px]'
 
 export function ImportNoticeTableContent({
-  order,
-  onOrderChange,
   onImportSelected,
   isImporting,
   isLoadingNotices
 }: ImportNoticeTableContentProps) {
   const { table } = useDataTable<NoticeItem>()
-  const selectedRows = table.getFilteredSelectedRowModel().rows
+  const selectedRows = table.getSelectedRowModel().rows
   const rows = table.getRowModel().rows
   const dateColumn = table.getColumn('date')
   const dateSort = dateColumn?.getIsSorted()
@@ -51,43 +40,11 @@ export function ImportNoticeTableContent({
       </NoticeModalTitle>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <DataTableSearchBar
-            columndId="title"
-            sizeVariant="sm"
-            className="w-[400px]! rounded-full"
-          />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="text-label4_r_12 h-9 rounded-full px-5 py-2"
-              >
-                Order
-                <ArrowBottomThinIcon className="text-color-neutral-40 ml-[6px] size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={() => onOrderChange('latest')}
-                className={
-                  order === 'latest' ? 'text-label4_r_12 font-semibold' : ''
-                }
-              >
-                Asc
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onOrderChange('oldest')}
-                className={
-                  order === 'oldest' ? 'text-label4_r_12 font-semibold' : ''
-                }
-              >
-                Desc
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <DataTableSearchBar
+          columndId="title"
+          sizeVariant="sm"
+          className="w-[400px]! rounded-full"
+        />
 
         <Button
           onClick={() =>

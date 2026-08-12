@@ -1,5 +1,3 @@
-'use client'
-
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { ErrorBoundary, Suspense } from '@suspensive/react'

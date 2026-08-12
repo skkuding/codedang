@@ -1,3 +1,4 @@
+import { courseNoticeQueries } from '@/app/(client)/_libs/queries/courseNotice'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { CourseNoticeCommentGroup } from '@/types/type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -9,6 +10,10 @@ export function useNoticeComments(
   courseId: string | string[]
 ) {
   const queryClient = useQueryClient()
+  const numericCourseId = Number(courseId)
+  const commentsQueryKey = courseNoticeQueries.comments({
+    noticeId: currentId
+  }).queryKey
 
   const [commentContent, setCommentContent] = useState('')
   const [commentSecret, setCommentSecret] = useState(false)
@@ -34,45 +39,50 @@ export function useNoticeComments(
 
   const { data: groupedComments = [], isLoading: isCommentsLoading } = useQuery(
     {
-      queryKey: ['courseNoticeComments', currentId],
-      queryFn: () =>
-        safeFetcherWithAuth
-          .get(`course/notice/${currentId}/comment`, {
-            searchParams: { take: '100', includeDeleted: 'true' }
-          })
-          .json<CourseNoticeCommentGroup[]>(),
+      ...courseNoticeQueries.comments({ noticeId: currentId }),
       enabled: Number.isFinite(currentId)
     }
   )
 
   const invalidateNoticeDetail = () => {
     queryClient.invalidateQueries({
-      queryKey: ['courseNoticeDetail', currentId]
+      queryKey: courseNoticeQueries.detail({
+        courseId: numericCourseId,
+        noticeId: currentId
+      }).queryKey
     })
-    queryClient.invalidateQueries({ queryKey: ['courseNotices', courseId] })
+    queryClient.invalidateQueries({
+      queryKey: courseNoticeQueries.list({ courseId: numericCourseId }).queryKey
+    })
   }
 
   const invalidateComments = () => {
-    queryClient.invalidateQueries({
-      queryKey: ['courseNoticeComments', currentId]
-    })
+    queryClient.invalidateQueries({ queryKey: commentsQueryKey })
   }
 
   const markDeletedInGroups = (
     groups: CourseNoticeCommentGroup[],
     commentId: number
   ): CourseNoticeCommentGroup[] =>
-    groups.map((group) => {
-      if (group.comment.id === commentId) {
-        return { ...group, comment: { ...group.comment, isDeleted: true } }
-      }
-      return {
-        ...group,
-        replys: group.replys.map((reply) =>
-          reply.id === commentId ? { ...reply, isDeleted: true } : reply
-        )
-      }
-    })
+    groups
+      .map((group) => {
+        if (group.comment.id === commentId) {
+          return group.replys.length > 0
+            ? { ...group, comment: { ...group.comment, isDeleted: true } }
+            : null
+        }
+
+        const replys = group.replys.filter((reply) => reply.id !== commentId)
+        if (replys.length === group.replys.length) {
+          return group
+        }
+        // 이미 삭제된 원댓글의 마지막 답글이 지워지면 원댓글도 함께 사라진다(cascade).
+        if (replys.length === 0 && group.comment.isDeleted) {
+          return null
+        }
+        return { ...group, replys }
+      })
+      .filter((group): group is CourseNoticeCommentGroup => group !== null)
 
   const resetCreateState = () => {
     setCommentContent('')
@@ -127,14 +137,11 @@ export function useNoticeComments(
         `course/notice/${currentId}/comment/${commentId}`
       ),
     onMutate: async (commentId: number) => {
-      await queryClient.cancelQueries({
-        queryKey: ['courseNoticeComments', currentId]
-      })
-      const previousComments = queryClient.getQueryData<
-        CourseNoticeCommentGroup[]
-      >(['courseNoticeComments', currentId])
+      await queryClient.cancelQueries({ queryKey: commentsQueryKey })
+      const previousComments =
+        queryClient.getQueryData<CourseNoticeCommentGroup[]>(commentsQueryKey)
       queryClient.setQueryData<CourseNoticeCommentGroup[]>(
-        ['courseNoticeComments', currentId],
+        commentsQueryKey,
         (old) => markDeletedInGroups(old ?? [], commentId)
       )
       setDeletingCommentId(null)
@@ -146,10 +153,7 @@ export function useNoticeComments(
     },
     onError: (_error, _commentId, context) => {
       if (context?.previousComments) {
-        queryClient.setQueryData(
-          ['courseNoticeComments', currentId],
-          context.previousComments
-        )
+        queryClient.setQueryData(commentsQueryKey, context.previousComments)
       }
       toast.error('Failed to delete comment.')
     }
