@@ -1495,23 +1495,32 @@ export class CourseService {
   /**
    * 강좌 내 Q&A 게시글을 생성합니다.
    *
-   * @param userId - 작성자 ID
-   * @param courseId - 강좌 ID
-   * @param data - 게시글 제목, 내용 등 생성 데이터
-   * @param problemId - (선택) 질문과 연관된 문제 ID
-   * @returns 생성된 Q&A 정보 (연관된 과제 정보 포함)
+   * @param {number} userId 작성자 아이디
+   * @param {number} courseId 강좌 아이디
+   * @param {CreateCourseQnADto} data 게시글 생성 데이터
+   * @param {number} [problemId] 질문과 연관된 문제 아이디
+   * @param {number} [assignmentId] 연관된 과제 아이디
+   * @returns 생성된 Q&A 게시글 정보(과제 및 문제 연관 정보 포함)를 반환합니다.
    *
-   * @remarks
-   * - `isExercise` 필드를 포함하여 과제 유형을 반환합니다.
-   * - 문제가 여러 과제에 포함된 경우, 가장 최근 과제(assignmentId desc) 정보를 기준으로 매핑합니다.
+   * @throws {UnprocessableDataException} `problemId`와 `assignmentId` 중 하나만 전달된 경우
+   * @throws {EntityNotExistException} 해당 강좌(Course)가 존재하지 않거나 과제-문제 연관 관계가 올바르지 않은 경우
+   * @throws {ForbiddenAccessException} 질문 작성자가 해당 강좌의 수강생/멤버가 아닌 경우
+   *
    */
   async createCourseQnA(
     userId: number,
     courseId: number,
     data: CreateCourseQnADto,
-    problemId?: number
+    problemId?: number,
+    assignmentId?: number
   ) {
     const groupId = courseId
+
+    if ((problemId == null) !== (assignmentId == null)) {
+      throw new UnprocessableDataException(
+        'problemId and assignmentId must be provided together'
+      )
+    }
 
     const group = await this.prisma.group.findUnique({
       where: { id: groupId, courseInfo: { isNot: null } }
@@ -1527,12 +1536,21 @@ export class CourseService {
       throw new ForbiddenAccessException('Not a member of this course')
     }
 
-    if (problemId) {
-      const problem = await this.prisma.problem.findUnique({
-        where: { id: problemId }
+    if (problemId && assignmentId) {
+      const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: { assignmentId, problemId }
+        },
+        select: {
+          assignment: { select: { groupId: true } }
+        }
       })
-      if (!problem) {
-        throw new EntityNotExistException('Problem')
+      if (
+        !assignmentProblem ||
+        assignmentProblem.assignment.groupId !== groupId
+      ) {
+        throw new EntityNotExistException('AssignmentProblem')
       }
     }
 
@@ -1551,10 +1569,11 @@ export class CourseService {
           group: { connect: { id: group.id } },
           order: newOrder,
           readBy: [userId],
-          ...(problemId
+          ...(problemId && assignmentId
             ? {
                 category: QnACategory.Problem,
-                problem: { connect: { id: problemId } }
+                problem: { connect: { id: problemId } },
+                assignment: { connect: { id: assignmentId } }
               }
             : {
                 category: QnACategory.General
@@ -1572,34 +1591,19 @@ export class CourseService {
           createTime: true,
           readBy: true,
           createdBy: { select: { username: true } },
-          problem: {
+          assignment: {
             select: {
-              assignmentProblem: {
-                where: {
-                  assignment: {
-                    groupId: group.id
-                  }
-                },
-                orderBy: { assignmentId: 'desc' },
-                take: 1,
-                select: {
-                  assignment: {
-                    select: {
-                      id: true,
-                      title: true,
-                      isExercise: true
-                    }
-                  }
-                }
-              }
+              id: true,
+              title: true,
+              isExercise: true
             }
           }
         }
       })
 
-      const assignment = newQnA.problem?.assignmentProblem?.[0]?.assignment
+      const assignment = newQnA.assignment
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { problem, ...rest } = newQnA
+      const { assignment: _, ...rest } = newQnA
 
       return {
         ...rest,
