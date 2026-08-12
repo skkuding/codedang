@@ -42,6 +42,7 @@ export function RegisterCourseButton() {
   const [foundCourseId, setFoundCourseId] = useState<number | null>(null)
 
   const [manualStudentId, setManualStudentId] = useState('')
+  const [sidErrorTitle, setSidErrorTitle] = useState('')
   const [sidError, setSidError] = useState('')
   const [sidShakeKey, setSidShakeKey] = useState(0)
 
@@ -56,7 +57,18 @@ export function RegisterCourseButton() {
     setCodeError('')
     setFoundCourseId(null)
     setManualStudentId('')
+    clearSidError()
+  }
+
+  const clearSidError = () => {
+    setSidErrorTitle('')
     setSidError('')
+  }
+
+  const showSidError = (title: string, detail: string) => {
+    setSidErrorTitle(title)
+    setSidError(detail)
+    setSidShakeKey((k) => k + 1)
   }
 
   const handleOpenChange = (open: boolean) => {
@@ -110,7 +122,7 @@ export function RegisterCourseButton() {
   ) =>
     safeFetcherWithAuth.post(`course/${groupId}/join`, {
       searchParams: {
-        invitation: invitationCode,
+        invitation: invitationCode.trim(),
         stage,
         ...(studentId ? { studentId } : {})
       }
@@ -130,10 +142,17 @@ export function RegisterCourseButton() {
   }
 
   const handleSubmitCode = async () => {
+    const trimmedCode = invitationCode.trim()
+    if (!trimmedCode) {
+      setCodeError('Please enter an invitation code.')
+      setCodeShakeKey((k) => k + 1)
+      return
+    }
+
     let groupId: number
     try {
       const data = await safeFetcherWithAuth
-        .get('course/invite', { searchParams: { invitation: invitationCode } })
+        .get('course/invite', { searchParams: { invitation: trimmedCode } })
         .json<Course>()
       groupId = data.id
       setFoundCourseId(groupId)
@@ -157,7 +176,7 @@ export function RegisterCourseButton() {
       }
       if (body?.reason === 'WHITELIST_VIOLATION') {
         setManualStudentId('')
-        setSidError('')
+        clearSidError()
         setStep('verify')
         return
       }
@@ -169,8 +188,21 @@ export function RegisterCourseButton() {
     if (!foundCourseId) {
       return
     }
+
+    // Guarded before sending: the backend counts every manual attempt toward the
+    // lockout, so a blank or padded ID would burn one without the student ever
+    // having typed a wrong digit.
+    const trimmedStudentId = manualStudentId.trim()
+    if (!trimmedStudentId) {
+      showSidError(
+        'Please enter your Student ID.',
+        'Enter the Student ID your instructor registered for this course.'
+      )
+      return
+    }
+
     try {
-      await joinCourse(foundCourseId, 'manual', manualStudentId)
+      await joinCourse(foundCourseId, 'manual', trimmedStudentId)
       onJoinSuccess()
     } catch (error) {
       const body = await readJoinErrorBody(error)
@@ -180,12 +212,12 @@ export function RegisterCourseButton() {
       }
       if (body?.reason === 'WHITELIST_VIOLATION') {
         const remaining = body.attemptsRemaining
-        setSidError(
+        showSidError(
+          "Student ID not found on this course's roster.",
           remaining === 1
             ? 'This is your last attempt before access is locked.'
             : `Please check your ID and try again. ${remaining} attempts remaining.`
         )
-        setSidShakeKey((k) => k + 1)
         return
       }
       handleGenericJoinError(error)
@@ -279,7 +311,7 @@ export function RegisterCourseButton() {
                   </span>
                   <div>
                     <p className="m-0 text-[14.5px] font-semibold text-[#dc2626]">
-                      Student ID not found on this course&apos;s roster.
+                      {sidErrorTitle}
                     </p>
                     <p className="mt-[5px] text-[13.5px] text-[#e07a7a]">
                       {sidError}

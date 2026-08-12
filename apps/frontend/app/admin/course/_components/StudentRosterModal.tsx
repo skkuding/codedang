@@ -21,6 +21,22 @@ interface StudentRosterModalProps {
   onOpenChange: (open: boolean) => void
 }
 
+/** Trims every cell, drops rows without a Student ID, and keeps only the first
+ *  of each duplicate ID. The backend keys the whitelist on (groupId, studentId),
+ *  so a single repeated ID rejects the whole batch. */
+export function normalizeRoster(rows: RosterRow[]): RosterRow[] {
+  const seen = new Set<string>()
+  return rows
+    .map((row) => ({ studentId: row.studentId.trim(), name: row.name.trim() }))
+    .filter((row) => {
+      if (!row.studentId || seen.has(row.studentId)) {
+        return false
+      }
+      seen.add(row.studentId)
+      return true
+    })
+}
+
 /** Parses clipboard text pasted from Excel/Sheets (tab/newline-delimited)
  *  and fills rows starting at the pasted-into cell. */
 function applyPaste(
@@ -104,7 +120,7 @@ export function StudentRosterModal({
   const clearAll = () =>
     setDraft(Array.from({ length: INITIAL_ROW_COUNT }, emptyRow))
 
-  const nonEmptyCount = draft.filter((row) => row.studentId.trim()).length
+  const savedRows = normalizeRoster(draft)
 
   return (
     <Modal
@@ -118,7 +134,7 @@ export function StudentRosterModal({
       primaryButton={{
         text: 'Save roster',
         onClick: () => {
-          onSave(draft.filter((row) => row.studentId.trim()))
+          onSave(savedRows)
           onOpenChange(false)
         }
       }}
@@ -130,7 +146,9 @@ export function StudentRosterModal({
     >
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">{nonEmptyCount} students</span>
+          <span className="text-sm font-medium">
+            {savedRows.length} students
+          </span>
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={addRow}>
               + Add row
