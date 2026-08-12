@@ -105,11 +105,11 @@ export function ProblemCreateContainer() {
   const currentTabIdx = TAB_INFO.findIndex(({ label }) => label === tab)
 
   return (
-    <div className="px-29 flex w-[1440px] flex-col gap-12 sm:px-2 md:px-4 lg:px-6 xl:px-10 2xl:px-20">
+    <div className="flex w-full min-w-[1160px] max-w-[1440px] flex-col gap-12 px-10">
       <div className="flex h-24 flex-col items-start justify-start gap-4 self-stretch">
         <p className="text-head1_b_40">PROBLEM CREATE</p>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
           {TAB_INFO.map(({ label, text }, idx) => {
             const curTab = tab === label
 
@@ -157,7 +157,7 @@ export function ProblemCreateContainer() {
         </div>
       </div>
       <div className="flex items-start gap-5 self-stretch">
-        <div className="w-[900px]">
+        <div className="min-w-[760px] flex-1">
           {TAB_INFO.map(({ label, Component }) => (
             <div
               key={label}
@@ -172,7 +172,7 @@ export function ProblemCreateContainer() {
           ))}
         </div>
 
-        <div className="flex w-72 flex-col items-start gap-7 rounded-xl bg-white px-5 py-6">
+        <div className="flex w-72 shrink-0 flex-col items-start gap-7 rounded-xl bg-white px-5 py-6">
           <div className="flex flex-col gap-6 self-stretch">
             <p className="text-head5_sb_24">발행 체크리스트</p>
 

@@ -1,9 +1,9 @@
 export function ProblemCreateContainerSkeleton() {
   return (
-    <div className="flex w-[1208px] animate-pulse flex-col gap-12">
+    <div className="flex w-full min-w-[1080px] max-w-[1208px] animate-pulse flex-col gap-12">
       <div className="flex flex-col gap-4">
         <div className="h-[52px] w-80 rounded-lg bg-gray-200" />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="size-6 rounded-full bg-gray-200" />
@@ -15,11 +15,11 @@ export function ProblemCreateContainerSkeleton() {
       </div>
 
       <div className="flex items-start gap-5">
-        <div className="w-[900px]">
+        <div className="min-w-[760px] flex-1">
           <ProblemCreateContentSkeleton />
         </div>
 
-        <div className="flex w-72 flex-col gap-6 rounded-2xl bg-white p-6">
+        <div className="flex w-72 shrink-0 flex-col gap-6 rounded-2xl bg-white p-6">
           <div className="h-8 w-40 rounded bg-gray-200" />
           <div className="flex flex-col gap-5">
             {[...Array(5)].map((_, i) => (
