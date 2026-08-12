@@ -7,16 +7,16 @@ import { ProblemTabs } from '../_components/ProblemTabs'
 import {
   SharedProblemTable,
   SharedProblemTableFallback
-} from './_components/SharedProblemTable'
+} from './_components/CreatingProblemTable'
 
 export default function Page() {
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between">
         <div>
-          <p className="text-4xl font-bold">SHARED PROBLEM LIST</p>
+          <p className="text-4xl font-bold">CREATING PROBLEM LIST</p>
           <p className="flex text-lg text-slate-500">
-            Here&apos;s a problem list shared in other courses.
+            Here&apos;s a problem list creating on the way.
           </p>
         </div>
       </div>

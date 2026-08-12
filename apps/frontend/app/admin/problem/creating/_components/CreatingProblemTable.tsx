@@ -11,7 +11,7 @@ import {
   DataTableSearchBar
 } from '../../../_components/table'
 import { ProblemsDownload } from '../../_components/ProblemsDownload'
-import { columns } from '../_components/SharedProblemTableColumns'
+import { columns } from './CreatingProblemTableColumns'
 
 export function SharedProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
