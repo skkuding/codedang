@@ -21,22 +21,32 @@ export function ProblemTabs() {
         <Link
           href={'/admin/problem' as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-center text-lg',
+            'flex w-1/3 justify-center p-[18px] py-[22.5px] text-center text-lg',
             isCurrentTab('') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          MY PROBLEM
+          내가 만든 문제
+        </Link>
+        <Link
+          href={'/admin/problem/creating' as Route}
+          className={cn(
+            'flex w-1/3 justify-center p-[18px] py-[22.5px] text-center text-lg',
+            isCurrentTab('creating') &&
+              'text-primary border-b-primary border-b-4 font-semibold'
+          )}
+        >
+          제작 중인 문제
         </Link>
         <Link
           href={'/admin/problem/shared' as Route}
           className={cn(
-            'flex w-1/2 justify-center p-[18px] py-[22.5px] text-center text-lg',
+            'flex w-1/3 justify-center p-[18px] py-[22.5px] text-center text-lg',
             isCurrentTab('shared') &&
               'text-primary border-b-primary border-b-4 font-semibold'
           )}
         >
-          SHARED PROBLEM
+          공유된 문제
         </Link>
       </div>
     </div>
