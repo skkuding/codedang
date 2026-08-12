@@ -105,7 +105,7 @@ export function ProblemCreateContainer() {
   const currentTabIdx = TAB_INFO.findIndex(({ label }) => label === tab)
 
   return (
-    <div className="px-29 mt-30 flex w-[1440px] flex-col gap-12">
+    <div className="px-29 mt-8 flex w-[1440px] flex-col gap-12 sm:px-2 md:px-4 lg:px-6 xl:px-10 2xl:px-20">
       <div className="flex h-24 flex-col items-start justify-start gap-4 self-stretch">
         <p className="text-head1_b_40">PROBLEM CREATE</p>
 

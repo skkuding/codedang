@@ -5,7 +5,7 @@ import { ProblemCreateContainerSkeleton } from './_components/ProblemCreateSkele
 
 export default function ProblemCreatePage() {
   return (
-    <div className="mt-15 flex w-full justify-center leading-6 tracking-[-0.03em]">
+    <div className="mt-15 flex min-w-[1440px] justify-center leading-6 tracking-[-0.03em]">
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<ProblemCreateContainerSkeleton />}>
           <ProblemCreateContainer />
