@@ -3,7 +3,7 @@ export function ProblemCreateContainerSkeleton() {
     <div className="flex w-full min-w-[1080px] max-w-[1208px] animate-pulse flex-col gap-12">
       <div className="flex flex-col gap-4">
         <div className="h-[52px] w-80 rounded-lg bg-gray-200" />
-        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
+        <div className="flex items-center gap-3 whitespace-nowrap">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="size-6 rounded-full bg-gray-200" />

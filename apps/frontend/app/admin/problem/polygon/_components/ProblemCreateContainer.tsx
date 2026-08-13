@@ -109,7 +109,7 @@ export function ProblemCreateContainer() {
       <div className="flex h-24 flex-col items-start justify-start gap-4 self-stretch">
         <p className="text-head1_b_40">PROBLEM CREATE</p>
 
-        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
+        <div className="flex items-center gap-3 whitespace-nowrap">
           {TAB_INFO.map(({ label, text }, idx) => {
             const curTab = tab === label
 
