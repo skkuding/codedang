@@ -29,7 +29,9 @@ interface ProblemDataTableProps<TData, TValue> {
   data: TData[]
   total: number
   itemsPerPage: number
+  pagesPerSlot: number
   currentPage: number
+  currentSlot: number
   headerStyle: {
     [key: string]: string
   }
@@ -43,7 +45,9 @@ export function ProblemDataTable<TData extends Item, TValue>({
   data,
   total,
   itemsPerPage,
+  pagesPerSlot,
   currentPage,
+  currentSlot,
   headerStyle,
   search,
   linked = false,
@@ -57,7 +61,8 @@ export function ProblemDataTable<TData extends Item, TValue>({
   const router = useRouter()
   const currentPath = usePathname()
 
-  const startIndex = (currentPage - 1) * itemsPerPage
+  const startIndex =
+    (currentPage - currentSlot * pagesPerSlot - 1) * itemsPerPage
   const paginatedItems = table
     .getRowModel()
     .rows.slice(startIndex, startIndex + itemsPerPage)

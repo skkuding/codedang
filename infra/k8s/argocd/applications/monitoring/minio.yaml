@@ -29,9 +29,6 @@ spec:
         path: infra/k8s/monitoring/minio/overlays/{{.env}}
         repoURL: https://github.com/skkuding/codedang
         targetRevision: '{{.branch}}'
-        directory:
-          # kustomization.yaml is ignored if recurse is true
-          recurse: false
       destination:
         namespace: monitoring-minio
         name: '{{.env}}'
