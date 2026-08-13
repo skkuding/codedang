@@ -8,11 +8,11 @@ spec:
     namespace: kube-system
     sectionName: https
   hostnames:
-  - stage.codedang.com
+  - codedang.com
   rules:
   - matches:
     - path:
-        type: Prefix
+        type: PathPrefix
         value: /graphql
     backendRefs:
     - name: admin-api-server
@@ -20,7 +20,7 @@ spec:
 
   - matches:
     - path:
-        type: Prefix
+        type: PathPrefix
         value: /admin-api
     backendRefs:
     - name: admin-api-server

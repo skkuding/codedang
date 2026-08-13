@@ -8,32 +8,32 @@ spec:
     namespace: kube-system
     sectionName: https
   hostnames:
-  - codedang.com
+  - stage.codedang.com
   rules:
   - matches:
     - path:
-        type: Prefix
+        type: PathPrefix
         value: /graphql
     filters:
     - type: ExtensionRef
       extensionRef:
         group: traefik.io
         kind: Middleware
-        name: admin-api-cors
+        name: cors
     backendRefs:
     - name: admin-api-server
       port: 3000
 
   - matches:
     - path:
-        type: Prefix
+        type: PathPrefix
         value: /admin-api
     filters:
     - type: ExtensionRef
       extensionRef:
         group: traefik.io
         kind: Middleware
-        name: admin-api-cors
+        name: cors
     backendRefs:
     - name: admin-api-server
       port: 3000

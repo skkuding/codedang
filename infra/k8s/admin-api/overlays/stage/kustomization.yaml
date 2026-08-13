@@ -18,10 +18,6 @@ patches:
     target:
       kind: HTTPRoute
       name: admin-api-server-gateway
-  - path: TLSRedirect.yaml
-    target:
-        kind: HTTPRoute
-        name: admin-api-tls-redirect
   - path: deployment-patch.yaml
     target:
       kind: Deployment
