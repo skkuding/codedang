@@ -1761,10 +1761,10 @@ export class CourseService {
   /**
    * 특정 Q&A 게시글의 상세 정보를 조회합니다.
    *
-   * @param userId - 조회하는 사용자 ID
-   * @param courseId - 강좌 ID
-   * @param order - 게시글 순서 번호
-   * @returns Q&A 상세 정보 (댓글, 연관 과제 정보 포함)
+   * @param {number | null} userId - 조회하는 사용자 ID
+   * @param {number} courseId - 강좌 ID
+   * @param {number} order - 게시글 순서 번호
+   * @returns Q&A 상세 정보 (댓글, 연관 과제 정보 포함, 연관 과제가 없을 경우 해당 필드들은 null 반환)
    *
    * @throws EntityNotExistException - 게시글이 존재하지 않는 경우
    * @throws ForbiddenAccessException - 비공개 게시글에 대한 접근 권한이 없는 경우
@@ -1806,6 +1806,13 @@ export class CourseService {
         comments: {
           include: { createdBy: { select: { username: true } } },
           orderBy: { order: 'asc' }
+        },
+        assignment: {
+          select: {
+            id: true,
+            title: true,
+            isExercise: true
+          }
         },
         problem: {
           select: {
@@ -1857,15 +1864,16 @@ export class CourseService {
       })
     }
 
-    const assignment = qna.problem?.assignmentProblem?.[0]?.assignment
+    const assignment =
+      qna.assignment ?? qna.problem?.assignmentProblem?.[0]?.assignment
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { problem, readBy, ...rest } = qna
+    const { problem, assignment: _, readBy, ...rest } = qna
 
     return {
       ...rest,
-      assignmentId: assignment?.id,
-      assignmentTitle: assignment?.title,
-      isExercise: assignment?.isExercise
+      assignmentId: assignment?.id ?? null,
+      assignmentTitle: assignment?.title ?? null,
+      isExercise: assignment?.isExercise ?? null
     }
   }
 
