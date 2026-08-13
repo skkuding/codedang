@@ -1617,12 +1617,12 @@ export class CourseService {
   /**
    * 강좌의 Q&A 목록을 조회합니다.
    *
-   * @param userId - 조회하는 사용자 ID (읽음 여부 확인용)
-   * @param courseId - 강좌 ID
-   * @param filter - 검색어, 카테고리, 답변 여부 등 필터 옵션
-   * @param cursor - 페이지네이션 커서 (마지막으로 로드된 QnA ID)
-   * @param take - 한 번에 가져올 개수
-   * @returns Q&A 목록 (연관된 과제 정보 및 읽음 여부 포함)
+   * @param {number | null} userId - 조회하는 사용자 ID (읽음 여부 확인용)
+   * @param {number} courseId - 강좌 ID
+   * @param {GetCourseQnAsFilterDto} filter - 검색어, 카테고리, 답변 여부 등 필터 옵션
+   * @param {number | null} cursor - 페이지네이션 커서 (마지막으로 로드된 QnA ID)
+   * @param {number} take - 한 번에 가져올 개수
+   * @returns Q&A 목록 (연관된 과제 정보 및 읽음 여부 포함, 연관 과제가 없을 경우 해당 필드들은 null 반환)
    *
    */
   async getCourseQnAs(
@@ -1707,6 +1707,13 @@ export class CourseService {
         createdBy: { select: { username: true } },
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: { select: { comments: true } },
+        assignment: {
+          select: {
+            id: true,
+            title: true,
+            isExercise: true
+          }
+        },
         problem: {
           select: {
             assignmentProblem: {
@@ -1736,16 +1743,19 @@ export class CourseService {
       }
     })
 
-    return qnas.map(({ readBy, problem, ...rest }) => {
-      const assignment = problem?.assignmentProblem?.[0]?.assignment
-      return {
-        ...rest,
-        isRead: userId == null || readBy.includes(userId),
-        assignmentId: assignment?.id,
-        assignmentTitle: assignment?.title,
-        isExercise: assignment?.isExercise
+    return qnas.map(
+      ({ readBy, problem, assignment: directAssignment, ...rest }) => {
+        const assignment =
+          directAssignment ?? problem?.assignmentProblem?.[0]?.assignment
+        return {
+          ...rest,
+          isRead: userId == null || readBy.includes(userId),
+          assignmentId: assignment?.id ?? null,
+          assignmentTitle: assignment?.title ?? null,
+          isExercise: assignment?.isExercise ?? null
+        }
       }
-    })
+    )
   }
 
   /**
