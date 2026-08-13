@@ -80,6 +80,33 @@ export class UserService {
   }
 
   /**
+   * 사용자 이름에 해당하는 사용자 정보를 조회합니다.
+   *
+   * @param {string} username 사용자 이름
+   * @returns 조회한 사용자 정보
+   */
+  async getUserByUsername({ username }: UsernameDto) {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        username
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        userProfile: {
+          select: {
+            realName: true
+          }
+        }
+      }
+    })
+
+    this.logger.debug(user, 'getUserByUsername')
+    return user
+  }
+
+  /**
    * 사용자의 마지막 로그인 시간을 현재 시점으로 업데이트 합니다.
    *
    * @param {string} username 사용자 이름

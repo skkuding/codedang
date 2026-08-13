@@ -158,6 +158,50 @@ describe('UserService', () => {
     })
   })
 
+  describe('getUserByUsername', () => {
+    const result = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      userProfile: {
+        realName: profile.realName
+      }
+    }
+
+    it('return user information', async () => {
+      db.user.findUniqueOrThrow.resolves(result)
+
+      expect(await service.getUserByUsername(usernameDto)).to.be.deep.equal(
+        result
+      )
+      expect(
+        db.user.findUniqueOrThrow.calledWith({
+          where: {
+            username: usernameDto.username
+          },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            userProfile: {
+              select: {
+                realName: true
+              }
+            }
+          }
+        })
+      ).to.be.true
+    })
+
+    it('should not return user information', async () => {
+      db.user.findUniqueOrThrow.throws(new EntityNotExistException('user'))
+
+      await expect(service.getUserByUsername(usernameDto)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+    })
+  })
+
   describe('sendPinForRegisterNewEmail', () => {
     let createPinAndSendEmailSpy: SinonStub
     beforeEach(() => {
