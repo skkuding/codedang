@@ -32,6 +32,13 @@ tests {
       expect(question).to.have.property('createdBy');
       expect(question.createdBy).to.have.property('username');
     }
+
+    const generalQnA = data.find((question) => question.order === 2);
+    expect(generalQnA).to.not.equal(undefined);
+    expect(generalQnA.problemId).to.equal(null);
+    expect(generalQnA.assignmentId).to.equal(null);
+    expect(generalQnA.assignmentTitle).to.equal(null);
+    expect(generalQnA.isExercise).to.equal(null);
   });
 }
 
@@ -86,16 +93,23 @@ docs {
     {
       "id": 1,
       "order": 1,
-      "createdById": 7,
-      "title": "강의 전반에 대한 질문입니다",
-      "category": "general",
+      "title": "질문 제목",
+      "isPrivate": true,
+      "category": "General",
       "isResolved": false,
       "isRead": true,
       "problemId": null,
-      "createTime": "2025-01-15T10:30:00.000Z",
+      "createTime": "2026-08-13T13:09:38.454Z",
       "createdBy": {
-        "username": "user01"
-      }
+        "username": "user02"
+      },
+      "_count": {
+        "comments": 1
+      },
+      "assignmentId": null,
+      "assignmentTitle": null,
+      "isExercise": null
     }
   ]
+```
 }
