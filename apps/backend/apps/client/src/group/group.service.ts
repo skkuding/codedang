@@ -1500,7 +1500,7 @@ export class CourseService {
    * @param {CreateCourseQnADto} data 게시글 생성 데이터
    * @param {number} [problemId] 질문과 연관된 문제 아이디
    * @param {number} [assignmentId] 연관된 과제 아이디
-   * @returns 생성된 Q&A 게시글 정보(과제 및 문제 연관 정보 포함)를 반환합니다.
+   * @returns 생성된 Q&A 게시글 정보(과제 및 문제 연관 정보 포함)를 반환, 연관 과제가 없을 경우 해당 필드들은 null 반환
    *
    * @throws {UnprocessableDataException} `problemId`와 `assignmentId` 중 하나만 전달된 경우
    * @throws {EntityNotExistException} 해당 강좌(Course)가 존재하지 않거나 과제-문제 연관 관계가 올바르지 않은 경우
@@ -1607,9 +1607,9 @@ export class CourseService {
 
       return {
         ...rest,
-        assignmentId: assignment?.id,
-        assignmentTitle: assignment?.title,
-        isExercise: assignment?.isExercise
+        assignmentId: assignment?.id ?? null,
+        assignmentTitle: assignment?.title ?? null,
+        isExercise: assignment?.isExercise ?? null
       }
     })
   }
