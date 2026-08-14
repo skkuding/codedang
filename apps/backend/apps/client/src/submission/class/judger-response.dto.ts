@@ -48,7 +48,12 @@ export class SubmissionResponse {
   @IsNotEmpty()
   submissionId: number
 
+  @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => JudgerResponse)
   judgeResults: JudgerResponse[]
+
+  @IsBoolean()
+  @IsNotEmpty()
+  finished: boolean
 }
