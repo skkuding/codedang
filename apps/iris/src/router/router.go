@@ -83,7 +83,7 @@ func (r *router[C, E]) Route(path string, id string, data []byte, out chan []byt
 		out <- response.NewJudgeResponse(id, nil, err).Marshal()
 	}
 
-	var judgeResult []*response.JudgeResponse
+	judgeResult := make([]*response.JudgeResponse, 0)
 
 	for result := range judgeChan {
 		r.errHandle(result.Err)
