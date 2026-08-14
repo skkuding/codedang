@@ -232,7 +232,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     msg: object
   ): Promise<JudgerResponse | SubmissionResponse> {
     const isSubmissionResult = Boolean(msg['finished'])
-    console.log(isSubmissionResult)
     if (isSubmissionResult) {
       const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
       await validateOrReject(res)
