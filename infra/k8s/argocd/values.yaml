@@ -66,8 +66,8 @@ server:
         release: prometheus
 
   ingress:
-    # migrate ingress to gateway, disabled ingress
-    enabled: false
+    # migrate ingress to gateway, do not disable ingress before production Gateway is ready
+    enabled: true
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-dns01
       traefik.ingress.kubernetes.io/redirect-entry-point: https
@@ -78,10 +78,12 @@ server:
   # migrate ingress to gateway
   httproute:
     enabled: true
+    hostnames:
+      - argocd.codedang.com
     parentRefs:
       - name: main-gateway
         namespace: kube-system
-        sectionName: http
+        sectionName: https
 
   extraArgs:
     - --insecure

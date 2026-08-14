@@ -25,3 +25,15 @@ spec:
     allowedRoutes:
       namespaces:
         from: All
+    # apex domain listener
+  - name: https-apex
+    protocol: HTTPS
+    port: 8443
+    hostname: "codedang.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: codedang-apex-tls
+    allowedRoutes:
+      namespaces:
+        from: All
