@@ -165,6 +165,5 @@
     "typescript": "5.9.2",
     "uuidv7": "^1.0.2",
     "vitest": "^3.2.4"
-  },
-  "packageManager": "pnpm@10.14.0"
+  }
 }
