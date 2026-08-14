@@ -24,4 +24,4 @@ spec:
       volumes:
         - name: cloud-beaver-data
           persistentVolumeClaim:
-            claimName: cloud-beaver-pvc
+            claimName: cloud-beaver-pvc-longhorn
