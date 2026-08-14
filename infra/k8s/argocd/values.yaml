@@ -83,7 +83,7 @@ server:
     parentRefs:
       - name: main-gateway
         namespace: kube-system
-        sectionName: https
+        sectionName: https-wildcard
 
   extraArgs:
     - --insecure

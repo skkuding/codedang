@@ -6,7 +6,7 @@ spec:
   parentRefs:
   - name: main-gateway
     namespace: kube-system
-    sectionName: https
+    sectionName: https-wildcard
   hostnames:
   - stage.codedang.com
   rules:

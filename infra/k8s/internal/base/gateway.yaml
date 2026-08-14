@@ -14,7 +14,7 @@ spec:
     allowedRoutes:
       namespaces:
         from: All
-  - name: https
+  - name: https-wildcard
     protocol: HTTPS
     port: 8443
     hostname: "*.codedang.com"
@@ -33,7 +33,7 @@ spec:
     tls:
       mode: Terminate
       certificateRefs:
-        - name: codedang-apex-tls
+        - name: apex-tls-secret
     allowedRoutes:
       namespaces:
         from: All
