@@ -42,7 +42,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     this.amqpService.setMessageHandlers({
       onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
-          const res = await this.validateJudgerResponse(msg)
+          const res = await this.parseResponse(msg)
           if (res instanceof SubmissionResponse) {
             return // Ack
           }
@@ -63,7 +63,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       },
       onJudgeMessage: async (msg: object) => {
         try {
-          const res = await this.validateJudgerResponse(msg)
+          const res = await this.parseResponse(msg)
 
           if (res instanceof JudgerResponse) {
             // JudgerResponse 메시지는 처리하지 않습니다.
@@ -228,16 +228,18 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @throws {ValidationError[]} 유효성 검사 실패 시 발생
    */
   @Span()
-  async validateJudgerResponse(
+  async parseResponse(
     msg: object
   ): Promise<JudgerResponse | SubmissionResponse> {
     const isSubmissionResult = Boolean(msg['finished'])
+
     if (isSubmissionResult) {
       const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
       await validateOrReject(res)
 
       return res
     }
+
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
     await validateOrReject(res)
 
