@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/libs/utils'
 import type { Assignment } from '@/types/type'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -8,12 +9,14 @@ interface AssignmentLinkProps {
   assignment: Assignment
   courseId: number
   isExercise?: boolean
+  className?: string
 }
 
 export function AssignmentLink({
   assignment,
   courseId,
-  isExercise = false
+  isExercise = false,
+  className
 }: AssignmentLinkProps) {
   const router = useRouter()
   const type = isExercise ? 'exercise' : 'assignment'
@@ -31,7 +34,7 @@ export function AssignmentLink({
   return (
     <div
       onClick={handleClick}
-      className="pointer-events-auto w-fit cursor-pointer"
+      className={cn('pointer-events-auto w-fit cursor-pointer', className)}
       role="button"
       tabIndex={0}
     >

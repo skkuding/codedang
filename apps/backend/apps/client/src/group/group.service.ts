@@ -935,38 +935,40 @@ export class GroupService {
     order?: CourseNoticeOrder
   }) {
     const paginator = this.prisma.getPaginator(cursor)
-    const courseNotices = await this.prisma.courseNotice.findMany({
-      ...paginator,
-      where: {
-        isFixed: fixed,
-        NOT:
-          readFilter == 'unread'
-            ? {
-                readBy: {
-                  has: userId
-                }
-              }
-            : undefined,
-        title: {
-          contains: search,
-          mode: 'insensitive'
-        },
-        groupId,
-        OR: [
-          {
-            group: {
-              userGroup: {
-                some: {
-                  userId
-                }
+    const where: Prisma.CourseNoticeWhereInput = {
+      isFixed: fixed,
+      NOT:
+        readFilter == 'unread'
+          ? {
+              readBy: {
+                has: userId
               }
             }
-          },
-          {
-            isPublic: true
-          }
-        ]
+          : undefined,
+      title: {
+        contains: search,
+        mode: 'insensitive'
       },
+      groupId,
+      OR: [
+        {
+          group: {
+            userGroup: {
+              some: {
+                userId
+              }
+            }
+          }
+        },
+        {
+          isPublic: true
+        }
+      ]
+    }
+
+    const courseNotices = await this.prisma.courseNotice.findMany({
+      ...paginator,
+      where,
       take,
       select: {
         id: true,
@@ -1002,13 +1004,7 @@ export class GroupService {
     })
 
     const total = await this.prisma.courseNotice.count({
-      where: {
-        isFixed: fixed,
-        title: {
-          contains: search,
-          mode: 'insensitive'
-        }
-      }
+      where
     })
 
     return { data, total }
@@ -1021,7 +1017,15 @@ export class GroupService {
    * @param {number} id 강의 공지의 아이디
    * @returns 현재 공지사항의 내용과 이전/이후 공지의 아이디
    */
-  async getCourseNoticeByID({ userId, id }: { userId: number; id: number }) {
+  async getCourseNoticeByID({
+    userId,
+    groupId,
+    id
+  }: {
+    userId: number
+    groupId: number
+    id: number
+  }) {
     const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
         id
@@ -1047,7 +1051,7 @@ export class GroupService {
       }
     })
 
-    if (!courseNotice) {
+    if (!courseNotice || courseNotice.groupId !== groupId) {
       throw new EntityNotExistException('CourseNotice')
     }
 
@@ -1079,6 +1083,7 @@ export class GroupService {
       return {
         where: {
           id: options.compare,
+          groupId,
           isPublic: true
         },
         orderBy: {
@@ -1225,19 +1230,31 @@ export class GroupService {
     const isVisibleSecretComment =
       userRole != Role.User || myRoleInCourse?.isGroupLeader
 
+    const maskStudentId = (studentId: string) =>
+      `${studentId.slice(0, 4)}${'#'.repeat(Math.max(studentId.length - 4, 0))}`
+
     type Comment = (typeof comments)[number]
     const commentDatas = comments.reduce(
       (acc, comment) => {
+        if (comment.createdBy?.studentId) {
+          comment = {
+            ...comment,
+            createdBy: {
+              ...comment.createdBy,
+              studentId: maskStudentId(comment.createdBy.studentId)
+            }
+          }
+        }
+
         if (
           !isVisibleSecretComment &&
           userId != comment.createdById &&
           comment.isSecret
         ) {
+          // 비밀 댓글이어도 작성자(username, 마스킹된 studentId)는 그대로 노출한다.
           comment = {
             ...comment,
-            content: '',
-            createdBy: null,
-            createdById: null
+            content: ''
           }
         }
         if (!comment.replyOnId) {

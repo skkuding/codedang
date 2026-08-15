@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy RabbitMQ topology in Amazon MQ is no longer used.
 resource "rabbitmq_vhost" "vh" {
   name = "vh"
 }
@@ -57,3 +58,4 @@ resource "rabbitmq_binding" "submission_binding" {
   destination_type = "queue"
   routing_key      = "judge.submission"
 }
+*/
