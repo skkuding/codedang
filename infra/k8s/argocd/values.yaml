@@ -75,9 +75,9 @@ server:
     # TLS termination at Traefik, backend uses HTTP (server.insecure: true)
     tls: true
 
-  # migrate ingress to gateway
+  # migrate ingress to gateway, enable after every migration
   httproute:
-    enabled: true
+    enabled: false
     hostnames:
       - argocd.codedang.com
     parentRefs:
