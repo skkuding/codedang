@@ -6,7 +6,7 @@ configs:
     # Don't create argocd-secret - managed by SealedSecret in extraObjects
     createSecret: false
   params:
-    # Run server in insecure mode (TLS termination at Traefik ingress)
+    # Run server in insecure mode (TLS termination at Traefik gateway)
     server.insecure: 'true'
   cm:
     url: https://argocd.codedang.com
@@ -55,7 +55,7 @@ dex:
 
 server:
   service:
-    # HTTP port for Traefik ingress (TLS termination at ingress)
+    # HTTP port for Traefik gateway (TLS termination at gateway)
     servicePortHttp: 80
 
   metrics:
@@ -66,6 +66,7 @@ server:
         release: prometheus
 
   ingress:
+    # migrate ingress to gateway, do not disable ingress before production Gateway is ready
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -73,6 +74,16 @@ server:
     ingressClassName: traefik
     # TLS termination at Traefik, backend uses HTTP (server.insecure: true)
     tls: true
+
+  # migrate ingress to gateway, enable after every migration
+  httproute:
+    enabled: false
+    hostnames:
+      - argocd.codedang.com
+    parentRefs:
+      - name: main-gateway
+        namespace: kube-system
+        sectionName: https-wildcard
 
   extraArgs:
     - --insecure
