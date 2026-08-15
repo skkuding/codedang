@@ -642,20 +642,33 @@ export class SubmissionService {
 
   /**
    * 주어진 사용자가 해당 과제의 group leader인지 확인합니다.
+   * 확인 후 사용자가 해당 과제의 group leader이면 assignment를 반환하고, 그렇지 않으면 null을 반환합니다.
    *
    * @param {number} assignmentId - 과제 ID
    * @param {number} userId - 사용자 ID
-   * @returns {Promise<boolean>} group leader 여부
+   * @returns {Promise<{ groupId: number, startTime: Date, endTime: Date, isJudgeResultVisible: boolean } | null>}
+   * - group leader이면 assignment, 아니면 null
    */
-  async isGroupLeader(assignmentId: number, userId: number): Promise<boolean> {
+  async findLeaderAssignment(
+    assignmentId: number,
+    userId: number
+  ): Promise<{
+    groupId: number
+    startTime: Date
+    endTime: Date
+    isJudgeResultVisible: boolean
+  } | null> {
     const assignment = await this.prisma.assignment.findUnique({
-      where: {
-        id: assignmentId
-      },
-      select: { groupId: true }
+      where: { id: assignmentId },
+      select: {
+        groupId: true,
+        startTime: true,
+        endTime: true,
+        isJudgeResultVisible: true
+      }
     })
     if (!assignment) {
-      return false
+      return null
     }
     const leader = await this.prisma.userGroup.findFirst({
       where: {
@@ -665,7 +678,10 @@ export class SubmissionService {
       },
       select: { userId: true }
     })
-    return !!leader
+    if (!leader) {
+      return null
+    }
+    return assignment
   }
 
   /**
@@ -1095,6 +1111,7 @@ export class SubmissionService {
     let isJudgeResultVisible: boolean | null = null
     let isHiddenTestcaseVisible: boolean | null = null
     let isStaff = false
+    let isGroupLeader = false
 
     if (contestId) {
       isStaff = await this.isContestStaff(contestId, userId)
@@ -1138,20 +1155,12 @@ export class SubmissionService {
         isJudgeResultVisible = contest.isJudgeResultVisible
       }
     } else if (assignmentId) {
-      isStaff = await this.isGroupLeader(assignmentId, userId)
-      if (isStaff) {
-        const assignmentData = await this.prisma.assignment.findUnique({
-          where: { id: assignmentId },
-          select: {
-            groupId: true,
-            startTime: true,
-            endTime: true,
-            isJudgeResultVisible: true
-          }
-        })
-        if (!assignmentData) {
-          throw new EntityNotExistException('Assignment')
-        }
+      const assignmentData = await this.findLeaderAssignment(
+        assignmentId,
+        userId
+      )
+      if (assignmentData) {
+        isGroupLeader = true
         assignment = assignmentData
         isHiddenTestcaseVisible = assignment.isJudgeResultVisible
       } else {
@@ -1238,12 +1247,13 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
-    // 본인이나 관리자, contest staff가 아닐 경우
+    // 본인이나 관리자, contest staff, group leader가 아닐 경우
     if (
       submission.userId !== userId &&
       userRole !== Role.Admin &&
       userRole !== Role.SuperAdmin &&
-      !isStaff
+      !isStaff &&
+      !isGroupLeader
     ) {
       if (
         contest &&
