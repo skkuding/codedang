@@ -49,6 +49,10 @@ const db = {
     findFirst: stub()
   },
   assignment: {
+    findFirst: stub(),
+    findUnique: stub()
+  },
+  userGroup: {
     findFirst: stub()
   },
   contestProblem: {
@@ -195,6 +199,8 @@ describe('SubmissionService', () => {
     db.contestProblem.findUnique.resetHistory()
     db.contestProblem.findFirst.resetHistory()
     db.assignment.findFirst.resetHistory()
+    db.assignment.findUnique.resetHistory()
+    db.userGroup.findFirst.resetHistory()
     db.assignmentProblem.findUnique.resetHistory()
     db.assignmentProblem.findFirst.resetHistory()
     db.assignmentProblem.findMany.resetHistory()
@@ -606,6 +612,35 @@ describe('SubmissionService', () => {
           assignmentId: null
         })
       ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should return submission for group leader without assignment record', async () => {
+      db.assignment.findUnique.resolves({
+        groupId: mockAssignment.groupId,
+        startTime: mockAssignment.startTime,
+        endTime: mockAssignment.endTime,
+        isJudgeResultVisible: mockAssignment.isJudgeResultVisible
+      })
+      db.userGroup.findFirst.resolves({ userId: 1 })
+      db.problem.findFirst.resolves(problems[0])
+      db.submission.findFirst.resolves({
+        ...submissions[0],
+        userId: 2,
+        user: { username: 'student' },
+        submissionResult: []
+      })
+
+      const result = await service.getSubmission({
+        id: submissions[0].id,
+        problemId: problems[0].id,
+        userId: 1,
+        userRole: Role.User,
+        contestId: null,
+        assignmentId: ASSIGNMENT_ID
+      })
+
+      expect(result.username).to.equal('student')
+      expect(db.assignmentRecord.findUnique.called).to.be.false
     })
   })
 
