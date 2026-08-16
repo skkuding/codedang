@@ -39,7 +39,7 @@ import {
 import type {
   GeneratorRequest,
   ValidatorRequest
-} from '@admin/Mandeuldang/model/polygon-tool-request.interface'
+} from '@admin/mandeuldang/model/mandeuldang-tool-request.interface'
 
 @Injectable()
 export class JudgeAMQPService {
