@@ -4,7 +4,7 @@ import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { UseDisableAdminGuard } from '@libs/auth'
 import { MandeuldangProblem, MandeuldangTool } from '@admin/@generated'
-import { MandeuldangService } from './Mandeuldang.service'
+import { MandeuldangService } from './mandeuldang.service'
 
 @Resolver(() => MandeuldangProblem)
 @UseDisableAdminGuard()
