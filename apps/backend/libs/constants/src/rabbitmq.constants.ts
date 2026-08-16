@@ -37,22 +37,24 @@ export const CHECK_RESULT_QUEUE = 'plag.q.check.result'
 export const CHECK_MESSAGE_TYPE = 'check'
 
 /**
- * Polygon Tool 업로드 -> Queue
+ * Mandeuldang Tool 업로드 -> Queue
  */
 
-export const POLYGON_EXCHANGE = 'iris.e.direct.polygon'
+export const MANDEULDANG_EXCHANGE = 'iris.e.direct.polygon'
 
-export const POLYGON_GENERATOR_KEY = 'polygon.generator'
-export const POLYGON_GENERATOR_MESSAGE_TYPE = 'generate'
+export const MANDEULDANG_GENERATOR_KEY = 'polygon.generator'
+export const MANDEULDANG_GENERATOR_MESSAGE_TYPE = 'generate'
 
-export const POLYGON_VALIDATOR_KEY = 'polygon.validator'
-export const POLYGON_VALIDATOR_MESSAGE_TYPE = 'validator'
+export const MANDEULDANG_VALIDATOR_KEY = 'polygon.validator'
+export const MANDEULDANG_VALIDATOR_MESSAGE_TYPE = 'validator'
 
-export const POLYGON_CHECKER_KEY = 'polygon.checker'
-export const POLYGON_CHECKER_MESSAGE_TYPE = 'checker'
+export const MANDEULDANG_CHECKER_KEY = 'polygon.checker'
+export const MANDEULDANG_CHECKER_MESSAGE_TYPE = 'checker'
 
-export const POLYGON_GENERATOR_RESULT_KEY = 'polygon.generate.result'
-export const POLYGON_GENERATOR_RESULT_QUEUE = 'iris.q.polygon.generate.result'
+export const MANDEULDANG_GENERATOR_RESULT_KEY = 'polygon.generate.result'
+export const MANDEULDANG_GENERATOR_RESULT_QUEUE =
+  'iris.q.polygon.generate.result'
 
-export const POLYGON_VALIDATOR_RESULT_KEY = 'polygon.validate.result'
-export const POLYGON_VALIDATOR_RESULT_QUEUE = 'iris.q.polygon.validate.result'
+export const MANDEULDANG_VALIDATOR_RESULT_KEY = 'polygon.validate.result'
+export const MANDEULDANG_VALIDATOR_RESULT_QUEUE =
+  'iris.q.polygon.validate.result'

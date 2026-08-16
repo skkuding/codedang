@@ -2,28 +2,31 @@ import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
-import { PolygonAMQPService } from '@libs/amqp'
+import { MandeuldangAMQPService } from '@libs/amqp'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
   GeneratorResultDto,
   ValidatorResultDto
-} from './model/polygon-tool-result.dto'
+} from './model/Mandeuldang-tool-result.dto'
 
 @Injectable()
-export class PolygonSubscriptionService implements OnModuleInit {
-  private readonly logger = new Logger(PolygonSubscriptionService.name)
+export class MandeuldangSubscriptionService implements OnModuleInit {
+  private readonly logger = new Logger(MandeuldangSubscriptionService.name)
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: PolygonAMQPService
+    private readonly amqpService: MandeuldangAMQPService
   ) {}
 
   onModuleInit() {
     this.amqpService.setMessageHandlers({
       onGenerateResult: async (msg: object) => {
         try {
-          this.logger.debug(msg, 'Received Polygon Generator Result Message')
+          this.logger.debug(
+            msg,
+            'Received Mandeuldang Generator Result Message'
+          )
           const res = await this.validateGeneratorResultMessage(msg)
           await this.handleGeneratorResult(res)
         } catch (error) {
@@ -33,7 +36,10 @@ export class PolygonSubscriptionService implements OnModuleInit {
       },
       onValidateResult: async (msg: object) => {
         try {
-          this.logger.debug(msg, 'Received Polygon Validator Result Message')
+          this.logger.debug(
+            msg,
+            'Received Mandeuldang Validator Result Message'
+          )
           const res = await this.validateValidatorResultMessage(msg)
           await this.handleValidatorResult(res)
         } catch (error) {
@@ -98,7 +104,7 @@ export class PolygonSubscriptionService implements OnModuleInit {
 
     const lastRunPass = msg.resultCode === 0
 
-    await this.prisma.polygonProblem.update({
+    await this.prisma.MandeuldangProblem.update({
       where: { id: problemId },
       data: { lastRunPass }
     })
@@ -112,7 +118,7 @@ export class PolygonSubscriptionService implements OnModuleInit {
         generatedTestCases: msg.judgeResult.generatedTestCases,
         totalTestCases: msg.judgeResult.totalTestCases
       },
-      'Handled Polygon Generator Result Message'
+      'Handled Mandeuldang Generator Result Message'
     )
   }
 
@@ -127,7 +133,7 @@ export class PolygonSubscriptionService implements OnModuleInit {
 
     const lastRunPass = msg.resultCode === 0
 
-    await this.prisma.polygonProblem.update({
+    await this.prisma.MandeuldangProblem.update({
       where: { id: problemId },
       data: { lastRunPass }
     })
@@ -139,7 +145,7 @@ export class PolygonSubscriptionService implements OnModuleInit {
         isValid: msg.judgeResult.isValid,
         testcaseCount: msg.judgeResult.testcaseCount
       },
-      'Handled Polygon Validator Result Message'
+      'Handled Mandeuldang Validator Result Message'
     )
 
     // TODO: Validator 실행 결과 수신 후 백엔드 서비스 로직
