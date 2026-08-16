@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { PrismaService } from '@libs/prisma'
-import { MandeuldangPublicationService } from './Mandeuldang-pub.service'
+import { MandeuldangPublicationService } from './mandeuldang-pub.service'
 import { FileService } from './file/file.service'
 
 @Injectable()
