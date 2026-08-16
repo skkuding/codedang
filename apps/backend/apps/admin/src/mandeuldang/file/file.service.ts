@@ -34,7 +34,7 @@ export class FileService {
     const fileContent = Buffer.concat(chunks).toString('utf-8')
 
     // (problemId, toolType) unique — 재업로드 시 갱신
-    const tool = await this.prisma.MandeuldangTool.upsert({
+    const tool = await this.prisma.mandeuldangTool.upsert({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_toolType: { problemId, toolType } },
       update: { fileName: filename, fileContent },
@@ -45,7 +45,7 @@ export class FileService {
 
   async deleteMandeuldangFile(problemId: number, toolType: ToolType) {
     try {
-      return await this.prisma.MandeuldangTool.delete({
+      return await this.prisma.mandeuldangTool.delete({
         // eslint-disable-next-line @typescript-eslint/naming-convention
         where: { problemId_toolType: { problemId, toolType } }
       })
