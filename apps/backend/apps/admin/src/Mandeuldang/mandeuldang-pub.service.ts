@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { Language, ToolType } from '@prisma/client'
-import { PolygonAMQPService } from '@libs/amqp'
+import { MandeuldangAMQPService } from '@libs/amqp'
 import { PrismaService } from '@libs/prisma'
 
 @Injectable()
-export class PolygonPublicationService {
+export class MandeuldangPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: PolygonAMQPService
+    private readonly amqpService: MandeuldangAMQPService
   ) {}
 
   async publishGeneratorMessage(
@@ -17,13 +17,13 @@ export class PolygonPublicationService {
   ) {
     //DB에서 generator, solution 조회
     const [generator, solution] = await Promise.all([
-      this.prisma.polygonTool.findUniqueOrThrow({
+      this.prisma.MandeuldangTool.findUniqueOrThrow({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           problemId_toolType: { problemId, toolType: ToolType.Generator }
         }
       }),
-      this.prisma.polygonSolution.findUniqueOrThrow({
+      this.prisma.MandeuldangSolution.findUniqueOrThrow({
         where: { problemId }
       })
     ])
@@ -41,7 +41,7 @@ export class PolygonPublicationService {
   }
 
   async publishValidatorMessage(problemId: number) {
-    const validator = await this.prisma.polygonTool.findUniqueOrThrow({
+    const validator = await this.prisma.MandeuldangTool.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         problemId_toolType: { problemId, toolType: ToolType.Validator }

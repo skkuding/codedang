@@ -3,32 +3,32 @@ import { ToolType } from '@prisma/client'
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { UseDisableAdminGuard } from '@libs/auth'
-import { PolygonProblem, PolygonTool } from '@admin/@generated'
-import { PolygonService } from './polygon.service'
+import { MandeuldangProblem, MandeuldangTool } from '@admin/@generated'
+import { MandeuldangService } from './Mandeuldang.service'
 
-@Resolver(() => PolygonProblem)
+@Resolver(() => MandeuldangProblem)
 @UseDisableAdminGuard()
-export class PolygonResolver {
-  constructor(private readonly polygonService: PolygonService) {}
+export class MandeuldangResolver {
+  constructor(private readonly mandeuldangService: MandeuldangService) {}
 
-  @Mutation(() => PolygonTool)
-  async uploadPolygonTool(
+  @Mutation(() => MandeuldangTool)
+  async uploadMandeuldangTool(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('toolType', { type: () => ToolType }) toolType: ToolType,
     @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>
   ) {
-    return this.polygonService.uploadPolygonTool(
+    return this.mandeuldangService.uploadMandeuldangTool(
       problemId,
       toolType,
       await file
     )
   }
 
-  @Mutation(() => PolygonTool)
-  async deletePolygonTool(
+  @Mutation(() => MandeuldangTool)
+  async deleteMandeuldangTool(
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('toolType', { type: () => ToolType }) toolType: ToolType
   ) {
-    return this.polygonService.deletePolygonTool(problemId, toolType)
+    return this.mandeuldangService.deleteMandeuldangTool(problemId, toolType)
   }
 }

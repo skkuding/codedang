@@ -13,7 +13,7 @@ const MAX_TOOL_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 export class FileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async uploadPolygonToolFile(
+  async uploadMandeuldangToolFile(
     problemId: number,
     toolType: ToolType,
     file: FileUpload
@@ -34,7 +34,7 @@ export class FileService {
     const fileContent = Buffer.concat(chunks).toString('utf-8')
 
     // (problemId, toolType) unique — 재업로드 시 갱신
-    const tool = await this.prisma.polygonTool.upsert({
+    const tool = await this.prisma.MandeuldangTool.upsert({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_toolType: { problemId, toolType } },
       update: { fileName: filename, fileContent },
@@ -43,9 +43,9 @@ export class FileService {
     return tool
   }
 
-  async deletePolygonFile(problemId: number, toolType: ToolType) {
+  async deleteMandeuldangFile(problemId: number, toolType: ToolType) {
     try {
-      return await this.prisma.polygonTool.delete({
+      return await this.prisma.MandeuldangTool.delete({
         // eslint-disable-next-line @typescript-eslint/naming-convention
         where: { problemId_toolType: { problemId, toolType } }
       })
@@ -54,7 +54,7 @@ export class FileService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new EntityNotExistException('PolygonTool')
+        throw new EntityNotExistException('MandeuldangTool')
       }
       throw error
     }
