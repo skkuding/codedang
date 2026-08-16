@@ -1098,15 +1098,15 @@ model MandeuldangProblem {
 
   createTime                  DateTime                     @default(now()) @map("create_time")
   updateTime                  DateTime                     @updatedAt @map("update_time")
-  MandeuldangSamples          MandeuldangSample[]
-  MandeuldangTestFiles        MandeuldangTestFile[]
-  MandeuldangSolution         MandeuldangSolution?
-  MandeuldangTools            MandeuldangTool[]
-  MandeuldangCollaborators    MandeuldangCollaborator[]
-  MandeuldangApprovalRequests MandeuldangApprovalRequest[]
+  mandeuldangSamples          MandeuldangSample[]
+  mandeuldangTestFiles        MandeuldangTestFile[]
+  mandeuldangSolution         MandeuldangSolution?
+  mandeuldangTools            MandeuldangTool[]
+  mandeuldangCollaborators    MandeuldangCollaborator[]
+  mandeuldangApprovalRequests MandeuldangApprovalRequest[]
   mandeuldangRunRequests      MandeuldangRunRequest[]
 
-  @@map("Mandeuldang_problem")
+  @@map("mandeuldang_problem")
 }
 
 model MandeuldangSample {
@@ -1120,7 +1120,7 @@ model MandeuldangSample {
 
   createTime DateTime @default(now()) @map("create_time")
 
-  @@map("Mandeuldang_sample")
+  @@map("mandeuldang_sample")
 }
 
 model MandeuldangTestFile {
@@ -1137,7 +1137,7 @@ model MandeuldangTestFile {
   createTime DateTime @default(now()) @map("create_time")
 
   @@index([problemId, baseName])
-  @@map("Mandeuldang_test_file")
+  @@map("mandeuldang_test_file")
 }
 
 model MandeuldangSolution {
@@ -1152,7 +1152,7 @@ model MandeuldangSolution {
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@map("Mandeuldang_solution")
+  @@map("mandeuldang_solution")
 }
 
 model MandeuldangTool {
@@ -1168,7 +1168,7 @@ model MandeuldangTool {
   updateTime DateTime @updatedAt @map("update_time")
 
   @@unique([problemId, toolType])
-  @@map("Mandeuldang_tool")
+  @@map("mandeuldang_tool")
 }
 
 model MandeuldangCollaborator {
@@ -1185,7 +1185,7 @@ model MandeuldangCollaborator {
   createTime DateTime @default(now()) @map("create_time")
 
   @@unique([problemId, userId])
-  @@map("Mandeuldang_collaborator")
+  @@map("mandeuldang_collaborator")
 }
 
 model MandeuldangApprovalRequest {
@@ -1206,7 +1206,7 @@ model MandeuldangApprovalRequest {
 
   rejectionReason String? @map("rejection_reason")
 
-  @@map("Mandeuldang_approval_request")
+  @@map("mandeuldang_approval_request")
 }
 
 model MandeuldangRunRequest {
