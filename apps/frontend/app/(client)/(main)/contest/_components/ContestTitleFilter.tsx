@@ -15,7 +15,7 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import type { Column } from '@tanstack/react-table'
 import React, { type ReactNode } from 'react'
-import { IoFilter } from 'react-icons/io5'
+import { IoFilterOutline } from 'react-icons/io5'
 
 interface ContestTableMultiSelectFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -52,11 +52,10 @@ export function ContestTitleFilter<TData, TValue>({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size={'sm'}
-          className="h-9 rounded-full border border-neutral-200 px-4 font-semibold text-black hover:bg-gray-50"
+          className="h-auto rounded-full border border-neutral-200 px-5 py-[11px] font-semibold text-black hover:bg-gray-50"
         >
-          <IoFilter className="mr-2 h-4 w-4" />
-          <p className="font-bold">{title}</p>
+          <IoFilterOutline className="mr-2 h-4 w-4" />
+          <p className="text-base font-medium">{title}</p>
           {selectedValues.size > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />

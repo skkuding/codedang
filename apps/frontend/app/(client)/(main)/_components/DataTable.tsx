@@ -99,7 +99,7 @@ export function DataTable<TData extends Item, TValue>({
                 <TableHead
                   key={header.id}
                   className={cn(
-                    'whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center text-sm font-normal md:text-base',
+                    'whitespace-nowrap border-b-[1.5px] border-[#80808040] text-center text-base font-medium',
                     headerStyle[header.id]
                   )}
                 >
@@ -119,8 +119,8 @@ export function DataTable<TData extends Item, TValue>({
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => {
             const href = pathSegment
-              ? `${currentPath}/${pathSegment}/${row.original.id}`
-              : `${currentPath}/${row.original.id}`
+              ? `${currentPath.replace(/\/$/, '')}/${pathSegment}/${row.original.id}`
+              : `${currentPath.replace(/\/$/, '')}/${row.original.id}`
 
             return (
               <TableRow

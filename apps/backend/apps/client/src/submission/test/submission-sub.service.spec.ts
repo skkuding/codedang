@@ -119,6 +119,9 @@ const db = {
   contestProblemFirstSolver: {
     create: mockFunc
   },
+  userContest: {
+    findFirst: mockFunc
+  },
   testSubmission: {
     findUnique: mockFunc,
     update: mockFunc
@@ -687,6 +690,9 @@ describe('SubmissionSubscriptionService', () => {
 
   describe('updateContestRecord', () => {
     it('should update records when new accepted submission', async () => {
+      // 일반 참가자 제출 → staff가 아님
+      sandbox.stub(db.userContest, 'findFirst').resolves(null)
+
       const submissionCountSpy = sandbox
         .stub(db.submission, 'count')
         .resolves(0)

@@ -14,11 +14,14 @@ resource "random_password" "postgres_password" {
 resource "aws_db_instance" "postgres" {
   identifier = "terraform-20250506182211604800000001"
 
-  db_name           = "codedang_db"
-  engine            = "postgres"
-  engine_version    = "14"
-  allocated_storage = 5
-  instance_class    = "db.t4g.small"
+  db_name = "codedang_db"
+  engine  = "postgres"
+  # Pinned version — check for updates quarterly: https://docs.aws.amazon.com/AmazonRDS/latest/PostgreSQLReleaseNotes/
+  engine_version             = "14.22"
+  auto_minor_version_upgrade = false
+  allocated_storage          = 10
+  max_allocated_storage      = 25
+  instance_class             = "db.t4g.small"
 
   username = var.postgres_username
   password = random_password.postgres_password.result
@@ -31,6 +34,13 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [local.vpc.security_group_ids["sg_db"]]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name #currently using public subnet group
   availability_zone      = "ap-northeast-2b"
+
+  # Backup
+  backup_retention_period = 7
+  backup_window           = "16:00-17:00" # KST 01:00-02:00
+
+  # Monitoring
+  performance_insights_enabled = true
 
   # Take a snapshot before deleting the instance
   skip_final_snapshot       = false
@@ -59,6 +69,6 @@ resource "aws_secretsmanager_secret" "database" {
 resource "aws_secretsmanager_secret_version" "database" {
   secret_id = aws_secretsmanager_secret.database.id
   secret_string = jsonencode({
-    url = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public"
+    url = local.database_url
   })
 }

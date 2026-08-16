@@ -1,9 +1,8 @@
 import { dateFormatter } from '@/libs/utils'
-import clockRedIcon from '@/public/icons/clock_red.svg'
-import inivisbleOrangeIcon from '@/public/icons/invisible-orange.svg'
-import subtractIcon from '@/public/icons/subtract.svg'
+import ClockIcon from '@/public/icons/clock.svg'
+import InvisibleOrangeIcon from '@/public/icons/invisible-orange.svg'
+import SubtractIcon from '@/public/icons/subtract.svg'
 import dayjs from 'dayjs'
-import Image from 'next/image'
 import { TimeStatusBadge } from './TimeStatusBadge'
 
 interface DurationDisplayProps {
@@ -20,11 +19,13 @@ export function DurationDisplay({
   const currentTime = dayjs()
 
   const titleIcons = {
-    duration: clockRedIcon,
-    visible: inivisbleOrangeIcon,
-    registration: subtractIcon
+    duration: <ClockIcon className="text-flowkit-red h-5" />,
+    visible: <InvisibleOrangeIcon className="w-5" />,
+    registration: <SubtractIcon className="w-5" />
   }
-  const titleIcon = titleIcons[title as keyof typeof titleIcons] || clockRedIcon
+  const titleIcon = titleIcons[title as keyof typeof titleIcons] || (
+    <ClockIcon className="text-flowkit-red h-5" />
+  )
 
   const titleDesigns = {
     duration: 'text-error text-base font-medium capitalize',
@@ -39,7 +40,7 @@ export function DurationDisplay({
   return (
     <div className="flex items-center gap-2 whitespace-nowrap">
       <div className="flex shrink-0 items-center gap-[6px]">
-        <Image src={titleIcon} alt="Icon" width={20} />
+        {titleIcon}
         <span className={titleStyle}>{title} :</span>
       </div>
       <span className="text-color-neutral-30 shrink-0 text-base">

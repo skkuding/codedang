@@ -74,7 +74,7 @@ model User {
   contestRecord                ContestRecord[]
   workbook                     Workbook[]
   submission                   Submission[]
-  useroauth                    UserOAuth?
+  useroauth                    UserOAuth[]
   file                         File[]
   testSubmission               TestSubmission[]
   UpdateHistory                UpdateHistory[]
@@ -85,11 +85,11 @@ model User {
   CourseNotice                 CourseNotice[]
   CourseNoticeComment          CourseNoticeComment[]
   CheckRequest                 CheckRequest[]
-  MandeuldangProblems          MandeuldangProblem[]         @relation("MandeuldangProblemOwner")
-  MandeuldangCollaborations    MandeuldangCollaborator[]    @relation("MandeuldangCollaborator")
-  MandeuldangApprovalRequests  MandeuldangApprovalRequest[] @relation("MandeuldangApprovalRequester")
-  MandeuldangReviewedApprovals MandeuldangApprovalRequest[] @relation("MandeuldangApprovalReviewer")
-  MandeuldangRunRequests       MandeuldangRunRequest[]      @relation("MandeuldangRunRequester")
+  mandeuldangProblems          MandeuldangProblem[]         @relation("MandeuldangProblemOwner")
+  mandeuldangCollaborations    MandeuldangCollaborator[]    @relation("MandeuldangCollaborator")
+  mandeuldangApprovalRequests  MandeuldangApprovalRequest[] @relation("MandeuldangApprovalRequester")
+  mandeuldangReviewedApprovals MandeuldangApprovalRequest[] @relation("MandeuldangApprovalReviewer")
+  mandeuldangRunRequests       MandeuldangRunRequest[]      @relation("MandeuldangRunRequester")
 
   @@map("user")
 }
@@ -97,12 +97,13 @@ model User {
 model UserOAuth {
   id         String // social ID (OAuth 서비스로부터 제공받는 id)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int      @unique @map("user_id")
+  userId     Int      @map("user_id")
   provider   Provider
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
   @@id([id, provider])
+  @@unique([userId, provider])
   @@map("user_oauth")
 }
 
@@ -159,6 +160,9 @@ model Group {
   sharedProblems Problem[]
   courseQnA      CourseQnA[]
   CourseNotice   CourseNotice[]
+  groupTag       GroupTag[]
+
+  studyInfo StudyInfo?
 
   @@map("group")
 }
@@ -396,6 +400,16 @@ model ProblemTag {
   @@map("problem_tag")
 }
 
+model GroupTag {
+  id      Int   @id @default(autoincrement())
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  groupId Int   @map("group_id")
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tagId   Int   @map("tag_id")
+
+  @@map("group_tag")
+}
+
 model Tag {
   id         Int      @id @default(autoincrement())
   name       String   @unique
@@ -403,6 +417,7 @@ model Tag {
   updateTime DateTime @updatedAt @map("update_time")
 
   problemTag ProblemTag[]
+  groupTag   GroupTag[]
 
   @@map("tag")
 }
@@ -1214,4 +1229,15 @@ model MandeuldangRunRequest {
 
   @@index([problemId, toolType])
   @@map("mandeuldang_run_request")
+}
+
+model StudyInfo {
+  groupId        Int      @id @map("group_id")
+  capacity       Int      @default(10)
+  invitationCode String?  @map("invitation_code")
+  endTime        DateTime @map("end_time")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("study_info")
 }

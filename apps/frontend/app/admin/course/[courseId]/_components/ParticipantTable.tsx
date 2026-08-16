@@ -12,9 +12,8 @@ import {
   GET_ASSIGNMENTS
 } from '@/graphql/assignment/queries'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import excelIcon from '@/public/icons/excel.svg'
+import ExcelIcon from '@/public/icons/excel.svg'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { CSVLink } from 'react-csv'
 import { createColumns } from './ParticipationColumns'
@@ -188,13 +187,7 @@ export function ParticipantTable({ isExercise }: ParticipantTableProps) {
             className="bg-primary flex items-center gap-2 rounded-full px-[12px] py-[8px] text-lg font-semibold text-white transition-opacity hover:opacity-85"
           >
             Export
-            <Image
-              src={excelIcon}
-              alt="Excel Icon"
-              width={20}
-              height={20}
-              className="ml-1"
-            />
+            <ExcelIcon width={20} height={20} className="ml-1" />
           </CSVLink>
         </div>
         <DataTable

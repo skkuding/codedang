@@ -12,7 +12,13 @@ post {
 
 body:graphql {
   mutation {
-    duplicateCourse(groupId: 2) {
+    duplicateCourse(
+      groupId: 2,
+      input: {
+        courseNum: "SWE2002",
+        semester: "2026 Spring",
+        classNum: 15
+      }) {
       duplicatedCourse {
         id
         groupName
@@ -34,11 +40,11 @@ body:graphql {
       copiedAssignments
     }
   }
-  
+
 }
 
 docs {
   # Duplicate Group
   ---
-  - `groupId`에 해당하는 Group을 복제합니다.
+  - `groupId`에 해당하는 Group을 입력한 학수 번호와 학기, 분반 정보를 가지도록 복제합니다.
 }

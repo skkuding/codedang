@@ -3,3 +3,18 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rabbitmq
+spec:
+  service:
+    annotations:
+      traefik.ingress.kubernetes.io/service.serversscheme: https
+      traefik.ingress.kubernetes.io/service.serverstransport: rabbitmq-rabbitmq-console-transport@kubernetescrd
+  tls:
+    secretName: rabbitmq-server-certs
+    disableNonTLSListeners: true
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_prometheus
+    additionalConfig: |
+      management.ssl.port = 15671
+      management.ssl.certfile = /etc/rabbitmq-tls/tls.crt
+      management.ssl.keyfile = /etc/rabbitmq-tls/tls.key

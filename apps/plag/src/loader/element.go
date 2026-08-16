@@ -15,5 +15,5 @@ type CodePiece struct {
 
 type TemplateItem struct {
 	Code     []CodePiece `json:"code"`
-	Language string     `json:"language"`
+	Language string      `json:"language"`
 }

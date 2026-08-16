@@ -67,7 +67,7 @@ export const columns: ColumnDef<ContestProblem>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="w-[150px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
+        <div className="w-[120px] flex-col overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium">
           {row.getValue('title')}
         </div>
       )
@@ -90,7 +90,11 @@ export const columns: ColumnDef<ContestProblem>[] = [
     },
     cell: ({ row }) => {
       const languages: string[] = row.getValue('languages') || []
-      return <div className="text-primary">{languages.join(', ')}</div>
+      return (
+        <div className="text-primary mx-auto flex max-w-[130px] flex-wrap justify-center gap-x-1 text-center">
+          {languages.join(', ')}
+        </div>
+      )
     },
     enableSorting: false
   },

@@ -210,6 +210,9 @@ export default {
             1: '#282D3D'
           }
         },
+        dimmed: {
+          DEFAULT: 'rgba(0, 0, 0, 0.6)'
+        },
         flowkit: {
           red: '#FC5555',
           purple: '#7B61FF',
@@ -219,7 +222,7 @@ export default {
           white: '#FFFFFF'
         },
         color: {
-          commmon: {
+          common: {
             100: '#FFF',
             0: '#000'
           },
@@ -237,6 +240,21 @@ export default {
             15: '#1C1C1C',
             10: '#171717',
             5: '#0F0F0F'
+          },
+          'cool-neutral': {
+            99: '#F2F6F7',
+            95: '#E9EEF0',
+            90: '#DCE3E5',
+            80: '#C4CACC',
+            70: '#AAB1B2',
+            60: '#909799',
+            50: '#787E80',
+            40: '#5F6566',
+            30: '#484C4D',
+            20: '#303333',
+            15: '#242626',
+            10: '#191A1A',
+            5: '#141414'
           },
           red: {
             95: '#FFECEA',

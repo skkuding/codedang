@@ -6,3 +6,13 @@ resources:
   - ../../base
   - aws-credentials.yaml
   - database-credentials.yaml
+
+patches:
+  - path: configmap-patch.yaml
+    target:
+      kind: ConfigMap
+      name: iris-env
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris

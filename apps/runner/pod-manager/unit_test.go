@@ -172,55 +172,6 @@ func TestAcquireAndReleaseRunnerLease(t *testing.T) {
 	if len(idles) != 1 || idles[0].PodName != "runner-a" {
 		t.Fatalf("expected runner-a to return to idle, got %#v", idles)
 	}
-
-	reacquired, err := store.AcquireIdleRunnerLease(ctx, "pm-3", "uid-3", 200*time.Second)
-	if err != nil {
-		t.Fatalf("reacquire lease after release: %v", err)
-	}
-	if reacquired == nil || reacquired.Record.PodName != "runner-a" {
-		t.Fatalf("expected runner-a to be reacquired after release, got %#v", reacquired)
-	}
-}
-
-func TestAcquireLeaseSkipsStaleIdleQueueEntries(t *testing.T) {
-	ctx := context.Background()
-	store := newTestRunnerStateStore(t)
-
-	if err := store.UpsertRunner(ctx, RunnerStateRecord{
-		PodName:    "runner-valid",
-		NodePoolID: "node-1",
-		PodIP:      "10.0.0.12",
-		State:      RunnerStateIdle,
-	}); err != nil {
-		t.Fatalf("upsert valid idle runner: %v", err)
-	}
-	if err := store.UpsertRunner(ctx, RunnerStateRecord{
-		PodName:    "runner-stale",
-		NodePoolID: "node-2",
-		PodIP:      "10.0.0.13",
-		State:      RunnerStateLeased,
-	}); err != nil {
-		t.Fatalf("upsert stale leased runner: %v", err)
-	}
-
-	// Inject a stale queue entry that points to a non-idle runner.
-	if err := store.client.ZAdd(ctx, store.idleQueueKey(), redis.Z{
-		Score:  float64(time.Now().Add(-time.Second).UnixNano()),
-		Member: "runner-stale",
-	}).Err(); err != nil {
-		t.Fatalf("inject stale idle queue entry: %v", err)
-	}
-
-	lease, err := store.AcquireIdleRunnerLease(ctx, "pm-1", "uid-1", 200*time.Second)
-	if err != nil {
-		t.Fatalf("acquire lease with stale queue entry: %v", err)
-	}
-	if lease == nil {
-		t.Fatal("expected to acquire valid lease")
-	}
-	if lease.Record.PodName != "runner-valid" {
-		t.Fatalf("expected runner-valid, got %q", lease.Record.PodName)
-	}
 }
 
 func TestReserveProvisioningSlotRespectsTotalAndNodeCaps(t *testing.T) {

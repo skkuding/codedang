@@ -18,4 +18,4 @@ spec:
               service:
                 name: rabbitmq
                 port:
-                  number: 15672
+                  number: 15671

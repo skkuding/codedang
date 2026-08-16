@@ -1,12 +1,11 @@
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { useSession } from '@/libs/hooks/useSession'
 import { cn, convertToLetter } from '@/libs/utils'
-import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
-import goldMedalIcon from '@/public/icons/medal-gold.svg'
-import silverMedalIcon from '@/public/icons/medal-silver.svg'
+import MedalBronzeIcon from '@/public/icons/medal-bronze.svg'
+import MedalGoldIcon from '@/public/icons/medal-gold.svg'
+import MedalSilverIcon from '@/public/icons/medal-silver.svg'
 import { useUserSelectionStore } from '@/stores/selectUserStore'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import type { UserData, ContestProblemforStatistics } from './_libs/types/type'
 
@@ -171,28 +170,13 @@ export function LeaderBoardTable({ users, problems }: LeaderBoardTableProps) {
                   </div>
                   <div className="flex gap-1 truncate px-5 py-5">
                     {user.userRank === 1 && (
-                      <Image
-                        src={goldMedalIcon}
-                        alt="medal"
-                        width={15}
-                        height={20}
-                      />
+                      <MedalGoldIcon width={15} height={20} />
                     )}
                     {user.userRank === 2 && (
-                      <Image
-                        src={silverMedalIcon}
-                        alt="medal"
-                        width={15}
-                        height={20}
-                      />
+                      <MedalSilverIcon width={15} height={20} />
                     )}
                     {user.userRank === 3 && (
-                      <Image
-                        src={bronzeMedalIcon}
-                        alt="medal"
-                        width={15}
-                        height={20}
-                      />
+                      <MedalBronzeIcon width={15} height={20} />
                     )}
                     <div className="truncate text-left text-base">
                       {user.userName}

@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
+  ContestRole,
   Language,
   Prisma,
   Problem,
@@ -147,47 +148,46 @@ export class SubmissionService {
     // 진행 중인 대회인지 확인합니다.
     const contest = await this.prisma.contest.findFirst({
       where: {
-        id: contestId,
-        startTime: {
-          lte: now
-        },
-        endTime: {
-          gt: now
-        }
+        id: contestId
       }
     })
     if (!contest) {
       throw new EntityNotExistException('Contest')
     }
 
-    // 대회에 등록되어 있는지 확인합니다.
-    const contestRecord = await this.prisma.contestRecord.findUnique({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        contestId_userId: {
-          contestId,
-          userId
-        }
-      },
-      select: {
-        contest: {
-          select: {
-            startTime: true,
-            endTime: true
+    // 대회 관리자면 진행 여부와 관계없이 bypass합니다
+    const isStaff = await this.isContestStaff(contestId, userId)
+
+    if (!isStaff) {
+      // 대회에 등록되어 있는지 확인합니다.
+      const contestRecord = await this.prisma.contestRecord.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          contestId_userId: {
+            contestId,
+            userId
+          }
+        },
+        select: {
+          contest: {
+            select: {
+              startTime: true,
+              endTime: true
+            }
           }
         }
+      })
+      if (!contestRecord) {
+        throw new EntityNotExistException('ContestRecord')
       }
-    })
-    if (!contestRecord) {
-      throw new EntityNotExistException('ContestRecord')
-    }
-    if (
-      contestRecord.contest.startTime > now ||
-      contestRecord.contest.endTime <= now
-    ) {
-      throw new ConflictFoundException(
-        'Submission is only allowed to ongoing contests'
-      )
+      if (
+        contestRecord.contest.startTime > now ||
+        contestRecord.contest.endTime <= now
+      ) {
+        throw new ConflictFoundException(
+          'Submission is only allowed to ongoing contests'
+        )
+      }
     }
 
     const contestProblem = await this.prisma.contestProblem.findUnique({
@@ -620,6 +620,71 @@ export class SubmissionService {
   }
 
   /**
+   * 주어진 사용자가 해당 대회의 staff(Admin/Manager/Reviewer)인지 확인합니다.
+   *
+   * @param {number} contestId - 대회 ID
+   * @param {number} userId - 사용자 ID
+   * @returns {Promise<boolean>} staff 여부
+   */
+  async isContestStaff(contestId: number, userId: number): Promise<boolean> {
+    const staff = await this.prisma.userContest.findFirst({
+      where: {
+        contestId,
+        userId,
+        role: {
+          in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
+        }
+      },
+      select: { id: true }
+    })
+    return !!staff
+  }
+
+  /**
+   * 주어진 사용자가 해당 과제의 group leader인지 확인합니다.
+   * 확인 후 사용자가 해당 과제의 group leader이면 assignment를 반환하고, 그렇지 않으면 null을 반환합니다.
+   *
+   * @param {number} assignmentId - 과제 ID
+   * @param {number} userId - 사용자 ID
+   * @returns {Promise<{ groupId: number, startTime: Date, endTime: Date, isJudgeResultVisible: boolean } | null>}
+   * - group leader이면 assignment, 아니면 null
+   */
+  async findLeaderAssignment(
+    assignmentId: number,
+    userId: number
+  ): Promise<{
+    groupId: number
+    startTime: Date
+    endTime: Date
+    isJudgeResultVisible: boolean
+  } | null> {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: {
+        groupId: true,
+        startTime: true,
+        endTime: true,
+        isJudgeResultVisible: true
+      }
+    })
+    if (!assignment) {
+      return null
+    }
+    const leader = await this.prisma.userGroup.findFirst({
+      where: {
+        userId,
+        groupId: assignment.groupId,
+        isGroupLeader: true
+      },
+      select: { userId: true }
+    })
+    if (!leader) {
+      return null
+    }
+    return assignment
+  }
+
+  /**
    * 임의의 6자리 16진수 문자열을 생성합니다.
    *
    * @returns {string} 생성된 6자리 16진수 문자열
@@ -1045,56 +1110,85 @@ export class SubmissionService {
     } | null = null
     let isJudgeResultVisible: boolean | null = null
     let isHiddenTestcaseVisible: boolean | null = null
+    let isStaff = false
+    let isGroupLeader = false
 
     if (contestId) {
-      const contestRecord = await this.prisma.contestRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
+      isStaff = await this.isContestStaff(contestId, userId)
+      if (isStaff) {
+        const contestData = await this.prisma.contest.findUnique({
+          where: { id: contestId },
+          select: {
+            startTime: true,
+            endTime: true,
+            isJudgeResultVisible: true
           }
-        },
-        select: {
-          contest: {
-            select: {
-              startTime: true,
-              endTime: true,
-              isJudgeResultVisible: true
+        })
+        if (!contestData) {
+          throw new EntityNotExistException('Contest')
+        }
+        contest = contestData
+        isJudgeResultVisible = contest.isJudgeResultVisible
+      } else {
+        const contestRecord = await this.prisma.contestRecord.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: {
+              contestId,
+              userId
+            }
+          },
+          select: {
+            contest: {
+              select: {
+                startTime: true,
+                endTime: true,
+                isJudgeResultVisible: true
+              }
             }
           }
+        })
+        if (!contestRecord) {
+          throw new EntityNotExistException('ContestRecord')
         }
-      })
-      if (!contestRecord) {
-        throw new EntityNotExistException('ContestRecord')
+        contest = contestRecord.contest
+        isJudgeResultVisible = contest.isJudgeResultVisible
       }
-      contest = contestRecord.contest
-      isJudgeResultVisible = contest.isJudgeResultVisible
     } else if (assignmentId) {
-      const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_userId: {
-            assignmentId,
-            userId
-          }
-        },
-        select: {
-          assignment: {
-            select: {
-              groupId: true,
-              startTime: true,
-              endTime: true,
-              isJudgeResultVisible: true
+      const assignmentData = await this.findLeaderAssignment(
+        assignmentId,
+        userId
+      )
+      if (assignmentData) {
+        isGroupLeader = true
+        assignment = assignmentData
+        isHiddenTestcaseVisible = assignment.isJudgeResultVisible
+      } else {
+        const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId: {
+              assignmentId,
+              userId
+            }
+          },
+          select: {
+            assignment: {
+              select: {
+                groupId: true,
+                startTime: true,
+                endTime: true,
+                isJudgeResultVisible: true
+              }
             }
           }
+        })
+        if (!assignmentRecord) {
+          throw new EntityNotExistException('AssignmentRecord')
         }
-      })
-      if (!assignmentRecord) {
-        throw new EntityNotExistException('AssignmentRecord')
+        assignment = assignmentRecord.assignment
+        isHiddenTestcaseVisible = assignment.isJudgeResultVisible
       }
-      assignment = assignmentRecord.assignment
-      isHiddenTestcaseVisible = assignment.isJudgeResultVisible
     }
 
     let problem
@@ -1153,11 +1247,13 @@ export class SubmissionService {
       throw new EntityNotExistException('Submission')
     }
 
-    // 본인이나 관리자가 아닐 경우
+    // 본인이나 관리자, contest staff, group leader가 아닐 경우
     if (
       submission.userId !== userId &&
       userRole !== Role.Admin &&
-      userRole !== Role.SuperAdmin
+      userRole !== Role.SuperAdmin &&
+      !isStaff &&
+      !isGroupLeader
     ) {
       if (
         contest &&
@@ -1319,7 +1415,11 @@ export class SubmissionService {
       }
     })
 
-    if (!isAdmin) {
+    const isStaff = isAdmin
+      ? true
+      : await this.isContestStaff(contestId, userId)
+
+    if (!isStaff) {
       const contestRecord = await this.prisma.contestRecord.findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1365,7 +1465,7 @@ export class SubmissionService {
       where: {
         problemId,
         contestId,
-        userId: isAdmin ? undefined : userId // Admin 계정인 경우 자신이 생성한 submission이 아니더라도 조회가 가능
+        userId: isStaff ? undefined : userId // Admin/Contest staff 인 경우 자신이 생성한 submission이 아니더라도 조회가 가능
       },
       select: {
         id: true,

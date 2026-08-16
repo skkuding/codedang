@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation($courseNoticeId: Int! ) {
-    deleteCourseNotice(courseNoticeId: $courseNoticeId) {
+  mutation($groupId: Int!, $courseNoticeId: Int! ) {
+    deleteCourseNotice(groupId: $groupId, courseNoticeId: $courseNoticeId) {
       title
       content
       isPublic
@@ -28,6 +28,7 @@ body:graphql {
 
 body:graphql:vars {
   {
+    "groupId": 1,
     "courseNoticeId": 1
   }
 }
@@ -62,5 +63,6 @@ docs {
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
+  | `groupId` | number | ✅       | 공지가 속한 강의 아이디 |
   | `courseNoticeId` | number | ✅       | 삭제할 강의 공지사항의 id |
 }

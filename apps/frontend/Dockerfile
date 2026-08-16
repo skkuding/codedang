@@ -13,12 +13,16 @@ FROM base AS build
 
 WORKDIR /build
 
+ENV PNPM_HOME=/pnpm
+ENV PATH=${PNPM_HOME}:${PATH}
+
 COPY pnpm-workspace.yaml .
 COPY package.json .
 COPY pnpm-lock.yaml .
 COPY apps/frontend/package.json apps/frontend/
 
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN corepack enable && pnpm config set store-dir /pnpm/store
+RUN --mount=type=cache,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY apps/frontend apps/frontend
 COPY apps/backend/schema.gql apps/backend/
@@ -36,9 +40,7 @@ ENV NEXT_PUBLIC_RUNNER_BASEURL=${RUNNER_BASEURL}
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_ADMIN_REST_URL=${ADMIN_REST_URL}
 
-# TODO: use cache mount
-# RUN --mount=type=cache,target=/build/apps/frontend/.next/cache pnpm build
-RUN pnpm build
+RUN --mount=type=cache,target=/build/apps/frontend/.next/cache pnpm build
 
 ### PRODUCTION ###
 FROM base AS production

@@ -3,9 +3,8 @@
 import { Input } from '@/components/shadcn/input'
 import { GET_CONTEST } from '@/graphql/contest/queries'
 import { GET_CONTEST_LEADERBOARD } from '@/graphql/leaderboard/queries'
-import searchIcon from '@/public/icons/search.svg'
+import SearchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@apollo/client'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { LeaderboardError } from './_components/LeaderboardError'
@@ -143,9 +142,7 @@ export default function ContestLeaderBoard() {
           /{contestLeaderboard?.registeredNum} Participants
         </div>
         <div className="relative">
-          <Image
-            src={searchIcon}
-            alt="search"
+          <SearchIcon
             className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
             onClick={() => {
               handleSearch({ text: searchText, leaderboardUsers })

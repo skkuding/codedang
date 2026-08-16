@@ -127,7 +127,7 @@ export function ProblemsUploadButton() {
       ) : (
         <section className="flex items-center justify-center gap-3 rounded-lg">
           <UploadCloudIcon className="h-16 w-16 text-slate-800" />
-          <p className="text-sm font-semibold">Drag and Drop or</p>
+          <p className="text-sub4_sb_14">Drag and Drop or</p>
           <Button
             variant="outline"
             className="text-sm"

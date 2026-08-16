@@ -25,7 +25,7 @@ import {
         }
 
         const uri =
-          (config.get('RABBITMQ_SSL', false) ? 'amqps://' : 'amqp://') +
+          (config.get('RABBITMQ_SSL') === 'true' ? 'amqps://' : 'amqp://') +
           config.get('RABBITMQ_DEFAULT_USER') +
           ':' +
           config.get('RABBITMQ_DEFAULT_PASS') +
@@ -39,7 +39,14 @@ import {
         return {
           uri,
           channels,
-          connectionInitOptions: { wait: false }
+          connectionInitOptions: { wait: false },
+          ...(config.get('RABBITMQ_SSL') === 'true' && {
+            connectionManagerOptions: {
+              connectionOptions: {
+                rejectUnauthorized: false
+              }
+            }
+          })
         }
       },
       inject: [ConfigService]

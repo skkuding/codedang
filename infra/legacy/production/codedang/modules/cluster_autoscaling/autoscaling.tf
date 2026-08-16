@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy ECS cluster autoscaling resources are no longer used.
 resource "aws_launch_template" "this" {
   name          = var.launch_template.name
   image_id      = "ami-05db432abf706dc01"
@@ -84,3 +85,4 @@ resource "aws_ecs_capacity_provider" "this" {
     }
   }
 }
+*/

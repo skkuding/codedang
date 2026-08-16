@@ -1,10 +1,9 @@
 'use client'
 
 import { cn, dateFormatter, getStatusColor } from '@/libs/utils'
-import checkIcon from '@/public/icons/check-darkgray.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import type { Contest } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import Image from 'next/image'
 import { getStatusText } from '../_libs/utils'
 
 export const columns: ColumnDef<Contest>[] = [
@@ -12,14 +11,24 @@ export const columns: ColumnDef<Contest>[] = [
     header: 'Title',
     accessorKey: 'title',
     cell: ({ row }) => (
-      <p
+      <span
         className={cn(
-          'overflow-hidden text-ellipsis whitespace-nowrap text-left text-sm md:text-base',
+          'text-body1_m_16 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left',
           row.original.status.toLowerCase().includes('upcoming') &&
-            'text-primary-strong font-semibold'
+            'text-primary-strong font-medium'
         )}
       >
         {row.original.title}
+      </span>
+    )
+  },
+  {
+    header: 'Period',
+    accessorKey: 'period',
+    cell: ({ row }) => (
+      <p className="text-body3_r_16 text-left tracking-[-0.48px] text-[#484C4D]">
+        {dateFormatter(row.original.startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
+        {dateFormatter(row.original.endTime, 'YYYY-MM-DD HH:mm')}
       </p>
     )
   },
@@ -29,7 +38,7 @@ export const columns: ColumnDef<Contest>[] = [
     cell: ({ row }) => (
       <p
         className={cn(
-          `ml-0 flex h-7 w-20 items-center justify-center rounded-[14px] border border-solid md:w-[92px] xl:ml-5`,
+          `text-body2_m_14 mx-auto flex h-10 w-fit items-center justify-center rounded-full border border-solid px-[22px] uppercase`,
           getStatusColor(row.original.status)
         )}
       >
@@ -52,25 +61,9 @@ export const columns: ColumnDef<Contest>[] = [
     accessorKey: 'registered',
     cell: ({ row }) =>
       row.original.isRegistered && (
-        <div className="flex items-center justify-center">
-          <Image
-            src={checkIcon}
-            alt="check"
-            width={24}
-            height={24}
-            className="block translate-x-[4px] translate-y-[4px]"
-          />
+        <div className="flex h-full w-full items-center justify-center">
+          <CheckCircleIcon className="text-primary block h-6 w-6" />
         </div>
       )
-  },
-  {
-    header: 'Period',
-    accessorKey: 'period',
-    cell: ({ row }) => (
-      <p className="text-neutral-500">
-        {dateFormatter(row.original.startTime, 'YYYY-MM-DD HH:mm')} ~{' '}
-        {dateFormatter(row.original.endTime, 'YYYY-MM-DD HH:mm')}
-      </p>
-    )
   }
 ]

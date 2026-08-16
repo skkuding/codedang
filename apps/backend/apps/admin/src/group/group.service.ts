@@ -17,6 +17,7 @@ import type {
   UpdateCourseNoticeInput
 } from './model/course-notice.input'
 import type { UpdateCourseQnAInput } from './model/course-qna.input'
+import type { DuplicateCourseInput } from './model/duplicate-course.input'
 import type { CourseInput } from './model/group.input'
 
 @Injectable()
@@ -328,6 +329,7 @@ export class GroupService {
    *
    * @param groupId - 복제할 원본 강좌의 ID
    * @param userId - 복제를 요청한 관리자(User)의 ID
+   * @param input - 복제된 강좌에 적용할 학수번호와 학기 정보
    * @returns 복제된 강좌 정보, 원본 과제 ID 목록, 복제된 과제 ID 목록
    *
    * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
@@ -337,8 +339,13 @@ export class GroupService {
    * @remarks
    * - `include`로 모든 연관 데이터를 가져온 후, 불필요한 필드(id, createTime 등)를 제외하고 복사합니다.
    * - 과제(Assignment)와 문제(AssignmentProblem)도 함께 복제됩니다.
+   * - 복제 시 학수번호(courseNum)와 학기(semester)는 input 값으로 덮어씁니다.
    */
-  async duplicateCourse(groupId: number, userId: number) {
+  async duplicateCourse(
+    groupId: number,
+    userId: number,
+    input: DuplicateCourseInput
+  ) {
     const userWithCanCreateCourse = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { canCreateCourse: true }
@@ -377,6 +384,9 @@ export class GroupService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { groupId: _, ...duplicatedCourseInfo } = originCourse.courseInfo
+    duplicatedCourseInfo.courseNum = input.courseNum
+    duplicatedCourseInfo.semester = input.semester
+    duplicatedCourseInfo.classNum = input.classNum
 
     return await this.prisma.$transaction(async (tx) => {
       const duplicatedCourse = await tx.group.create({
@@ -499,16 +509,19 @@ export class CourseNoticeService {
   /**
    * 공지사항을 1개 만듭니다.
    *
+   * @param {number} groupId 공지사항을 생성할 강의 아이디
    * @param {number} userId 접근하려는 유저 아이디
-   * @param {CreateCourseNoticeInput} createCourseNoticeInput 공지사항 내용 (groupId, title, content, isFixed, isPublic)
+   * @param {CreateCourseNoticeInput} createCourseNoticeInput 공지사항 내용 (title, content, isFixed, isPublic)
    * @returns {CourseNotice}
    */
   async createCourseNotice(
+    groupId: number,
     userId: number,
     createCourseNoticeInput: CreateCourseNoticeInput
   ) {
     const courseNotice = await this.prisma.courseNotice.create({
       data: {
+        groupId,
         createdById: userId,
         ...createCourseNoticeInput
       }
@@ -520,29 +533,11 @@ export class CourseNoticeService {
   /**
    * 강의 내 공지 1개를 삭제합니다.
    *
+   * @param {number} groupId 강의 아이디
    * @param {number} courseNoticeId 강의 공지 아이디
    * @returns {CourseNotice}
    */
-  async deleteCourseNotice(courseNoticeId: number) {
-    return await this.prisma.courseNotice.delete({
-      where: {
-        id: courseNoticeId
-      }
-    })
-  }
-
-  /**
-   * 강의 내 공지 1개를 수정합니다.
-   * (읽음 기록을 초기화합니다.)
-   *
-   * @param {number} courseNoticeId 강의 공지 아이디
-   * @param {UpdateCourseNoticeInput} updateCourseNoticeInput 수정할 공지사항 내용 (title, content, isFixed, isPublic 등 옵셔널)
-   * @returns {CourseNotice}
-   */
-  async updateCourseNotice(
-    courseNoticeId: number,
-    updateCourseNoticeInput: UpdateCourseNoticeInput
-  ) {
+  async deleteCourseNotice(groupId: number, courseNoticeId: number) {
     const courseNotice = await this.prisma.courseNotice.findUnique({
       where: {
         id: courseNoticeId
@@ -556,7 +551,63 @@ export class CourseNoticeService {
       throw new EntityNotExistException('CourseNotice')
     }
 
-    await this.markAsUnread(courseNotice.groupId, courseNoticeId)
+    if (groupId !== courseNotice.groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access course notice in your own group'
+      )
+    }
+
+    return await this.prisma.courseNotice.delete({
+      where: {
+        id: courseNoticeId
+      }
+    })
+  }
+
+  /**
+   * 강의 내 공지 1개를 수정합니다.
+   * (제목 또는 내용이 변경되는 경우에만 읽음 기록을 초기화합니다. 고정 여부만 변경하는 경우에는 초기화하지 않습니다.)
+   *
+   * @param {number} groupId 강의 아이디
+   * @param {number} courseNoticeId 강의 공지 아이디
+   * @param {UpdateCourseNoticeInput} updateCourseNoticeInput 수정할 공지사항 내용 (title, content, isFixed, isPublic 등 옵셔널)
+   * @returns {CourseNotice}
+   */
+  async updateCourseNotice(
+    groupId: number,
+    courseNoticeId: number,
+    updateCourseNoticeInput: UpdateCourseNoticeInput
+  ) {
+    const courseNotice = await this.prisma.courseNotice.findUnique({
+      where: {
+        id: courseNoticeId
+      },
+      select: {
+        groupId: true,
+        title: true,
+        content: true
+      }
+    })
+
+    if (!courseNotice) {
+      throw new EntityNotExistException('CourseNotice')
+    }
+
+    if (groupId !== courseNotice.groupId) {
+      throw new ForbiddenAccessException(
+        'You can only access course notice in your own group'
+      )
+    }
+
+    const isContentChanged =
+      (updateCourseNoticeInput.title !== undefined &&
+        updateCourseNoticeInput.title !== courseNotice.title) ||
+      (updateCourseNoticeInput.content !== undefined &&
+        updateCourseNoticeInput.content !== courseNotice.content)
+
+    if (isContentChanged) {
+      await this.markAsUnread(courseNotice.groupId, courseNoticeId)
+    }
 
     return await this.prisma.courseNotice.update({
       where: {
@@ -569,13 +620,15 @@ export class CourseNoticeService {
   /**
    * 한 강의 내 공지사항 여러 개를 다른 강의로 복제합니다.
    *
-   * @param {number} userId 유저 아이디 (복제된 공지의 작성자로 설정됩니다.)
+   * @param {AuthenticatedUser} reqUser 요청한 사용자 (복제된 공지의 작성자로 설정됩니다.)
    * @param {number[]} courseNoticeIds 복제할 공지 아이디 목록
    * @param {number} cloneToId 복제해 넣을 강의 아이디
    * @returns {CourseNotice[]}
+   * @throws EntityNotExistException - 요청한 공지 중 존재하지 않는 것이 있는 경우
+   * @throws ForbiddenAccessException - Admin/SuperAdmin이 아니면서, 원본 공지가 속한 강의 중 리더가 아닌 강의가 있는 경우
    */
   async cloneCourseNotice(
-    userId: number,
+    reqUser: AuthenticatedUser,
     courseNoticeIds: number[],
     cloneToId: number
   ) {
@@ -586,6 +639,7 @@ export class CourseNoticeService {
         }
       },
       select: {
+        groupId: true,
         title: true,
         content: true,
         isFixed: true,
@@ -593,14 +647,39 @@ export class CourseNoticeService {
       }
     })
 
-    if (originals.length == 0) {
+    if (originals.length !== courseNoticeIds.length) {
       throw new EntityNotExistException('CourseNotice')
+    }
+
+    const hasPrivilege = reqUser.isAdmin() || reqUser.isSuperAdmin()
+
+    if (!hasPrivilege) {
+      const originalGroupIds = [
+        ...new Set(originals.map((original) => original.groupId))
+      ]
+
+      const leaderGroups = await this.prisma.userGroup.findMany({
+        where: {
+          userId: reqUser.id,
+          groupId: { in: originalGroupIds },
+          isGroupLeader: true
+        },
+        select: {
+          groupId: true
+        }
+      })
+
+      if (leaderGroups.length !== originalGroupIds.length) {
+        throw new ForbiddenAccessException(
+          'You can only clone course notices from a course you lead'
+        )
+      }
     }
 
     const clones = await this.prisma.courseNotice.createManyAndReturn({
       data: originals.map((original) => {
         return {
-          createdById: userId,
+          createdById: reqUser.id,
           groupId: cloneToId,
           title: original.title,
           content: original.content,

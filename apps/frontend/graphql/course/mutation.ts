@@ -59,8 +59,8 @@ const UPDATE_COURSE = gql(`
 `)
 
 const DUPLICATE_COURSE = gql(`
-  mutation duplicateCourse($groupId: Int!){
-    duplicateCourse(groupId: $groupId) {
+  mutation duplicateCourse($groupId: Int!, $input: DuplicateCourseInput!){
+    duplicateCourse(groupId: $groupId, input: $input) {
       duplicatedCourse {
         id
         groupName

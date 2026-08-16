@@ -1,8 +1,7 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
-import penIcon from '@/public/icons/pen.svg'
-import Image from 'next/image'
+import PenIcon from '@/public/icons/pen.svg'
 
 interface SubmitButtonProps {
   isFormValid: boolean
@@ -24,7 +23,7 @@ export function SubmitButton({
       disabled={!isFormValid || isLoadingProblems}
       variant={canCreateQnA ? 'default' : 'secondary'}
     >
-      <Image src={penIcon} alt="pen" width={16} height={16} />
+      <PenIcon className="w-4 text-white" />
       <span className="font-pretendard text-base font-medium not-italic leading-[140%] tracking-[-0.48px] text-white">
         Post
       </span>

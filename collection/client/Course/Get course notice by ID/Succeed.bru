@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course/notice/1
+  url: {{baseUrl}}/course/1/notice/1
   body: none
   auth: none
 }
@@ -28,7 +28,7 @@ script:pre-request {
 docs {
   # 📘 Get a Course Notice By ID
 
-  **GET** `/course/notice/:id`
+  **GET** `/course/:groupId/notice/:id`
 
   Retrieve a single QnA for a specific contest.
 
@@ -54,5 +54,6 @@ docs {
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
+  | `groupId` | number | ✅    | 공지가 속한 강의 아이디 |
   | `id` | number | ✅    | 가져오고자 하는 공지 아이디 |
 }

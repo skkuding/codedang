@@ -617,3 +617,34 @@ export interface ProblemOption {
   value: string
   label: string
 }
+
+export interface CourseQnAComment {
+  id: string
+  order: number
+  content: string
+  isCourseStaff: boolean
+  createTime: Date
+  createdBy?: {
+    username: string
+  } | null
+}
+
+export interface CourseQnAItem {
+  id: number
+  order: number
+  groupId: number
+  problemId: number
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
+  title: string
+  content: string
+  category: string
+  createTime: Date
+  isResolved: boolean
+  isPrivate: boolean
+  createdBy?: {
+    username: string
+  }
+  comments: CourseQnAComment[]
+}
