@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
-
-	"golang.org/x/sync/errgroup"
+	"sync"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -64,7 +62,16 @@ func (t *Task) RunAction(ctx context.Context, resultSender handler.ResultSender2
 		return
 	}
 
-	allValid, results, err := t.runValidations(ctx, validatorUnit, tc.Elements)
+	limits, err := handler.ToolLimitsFromEnv()
+	if err != nil {
+		resultSender(handler.ResultMessage{
+			Result: nil,
+			Err:    handler.NewTaskError("validate", handler.SERVER_ERROR, logger.ERROR, err),
+		})
+		return
+	}
+
+	allValid, results, err := t.runValidations(ctx, validatorUnit, tc.Elements, limits)
 	if err != nil {
 		resultSender(handler.ResultMessage{
 			Result: nil,
@@ -90,36 +97,44 @@ func (t *Task) runValidations(
 	ctx context.Context,
 	validatorUnit *build.BuildUnit,
 	elements []loader.ElementOut,
+	limits handler.ToolExecutionLimits,
 ) (bool, []ValidateTestcaseToolResult, error) {
-	limitStr := os.Getenv("VALIDATE_CONCURRENCY")
-	concurrencyLimit, err := strconv.Atoi(limitStr)
-	if err != nil || concurrencyLimit <= 0 {
-		concurrencyLimit = 4
+	workerCount, err := handler.WorkerCountFromEnv("VALIDATE_CONCURRENCY", len(elements), 1)
+	if err != nil {
+		return false, nil, err
 	}
-
-	g, gCtx := errgroup.WithContext(ctx)
-	sem := make(chan struct{}, concurrencyLimit)
+	jobs := make(chan int)
 	results := make([]ValidateTestcaseToolResult, len(elements))
 	errs := make([]error, len(elements))
+	var wg sync.WaitGroup
 
-	for i, el := range elements {
-		g.Go(func() error {
-			select {
-			case sem <- struct{}{}:
-			case <-gCtx.Done():
-				return nil
-			}
-			defer func() { <-sem }()
-			tcRes, tcErr := t.validateTestcase(gCtx, i, el, validatorUnit)
+	worker := func() {
+		defer wg.Done()
+		for i := range jobs {
+			tcRes, tcErr := t.validateTestcase(ctx, i, elements[i], validatorUnit, limits)
 			if tcErr != nil {
 				errs[i] = tcErr
-				return nil
+				continue
 			}
 			results[i] = tcRes
-			return nil
-		})
+		}
 	}
-	g.Wait() //nolint:errcheck // goroutines always return nil
+
+	wg.Add(workerCount)
+	for range workerCount {
+		go worker()
+	}
+
+schedule:
+	for i := range elements {
+		select {
+		case jobs <- i:
+		case <-ctx.Done():
+			break schedule
+		}
+	}
+	close(jobs)
+	wg.Wait()
 
 	if ctx.Err() != nil {
 		return false, nil, fmt.Errorf("validation cancelled: %w", ctx.Err())
@@ -149,6 +164,7 @@ func (t *Task) validateTestcase(
 	idx int,
 	element loader.ElementOut,
 	validatorUnit *build.BuildUnit,
+	limits handler.ToolExecutionLimits,
 ) (res ValidateTestcaseToolResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -158,8 +174,8 @@ func (t *Task) validateTestcase(
 
 	runResult, runErr := validatorUnit.Run(t.sandbox, sandbox.RunRequest{
 		Order:       idx,
-		TimeLimit:   2000,
-		MemoryLimit: 512 * 1024 * 1024,
+		TimeLimit:   limits.TimeLimit,
+		MemoryLimit: limits.MemoryLimit,
 		ExtraArgs:   []string{},
 	}, []byte(element.In))
 
@@ -189,5 +205,3 @@ func (t *Task) validateTestcase(
 		Stderr:     string(runResult.ErrOutput),
 	}, nil
 }
-
-

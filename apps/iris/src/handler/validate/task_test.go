@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/stretchr/testify/assert"
@@ -11,7 +12,7 @@ import (
 
 type noopLogger struct{}
 
-func (noopLogger) Log(_ logger.Level, _ string)                              {}
+func (noopLogger) Log(_ logger.Level, _ string)                               {}
 func (noopLogger) LogWithContext(_ logger.Level, _ string, _ context.Context) {}
 func (noopLogger) Panic(_ string)                                             {}
 
@@ -31,7 +32,7 @@ func TestRunValidations(t *testing.T) {
 		}
 
 		// nil validatorUnit is safe here: goroutines exit via gCtx.Done() before calling Run
-		allValid, results, err := task.runValidations(ctx, nil, elements)
+		allValid, results, err := task.runValidations(ctx, nil, elements, handler.ToolExecutionLimits{})
 
 		assert.ErrorIs(t, err, context.Canceled)
 		assert.False(t, allValid)
@@ -45,7 +46,7 @@ func TestRunValidations(t *testing.T) {
 			logger: noopLogger{},
 		}
 
-		allValid, results, err := task.runValidations(context.Background(), nil, []loader.ElementOut{})
+		allValid, results, err := task.runValidations(context.Background(), nil, []loader.ElementOut{}, handler.ToolExecutionLimits{})
 
 		assert.Nil(t, err)
 		assert.True(t, allValid)

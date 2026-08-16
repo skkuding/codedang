@@ -19,6 +19,7 @@ import os
 import signal
 import sys
 import time
+from contextlib import contextmanager
 from datetime import datetime, timezone
 
 import requests
@@ -120,13 +121,17 @@ def mb(val: int) -> float:
 def pct(used: int, total: int) -> float:
     return round(used / total * 100, 1) if total else 0.0
 
+@contextmanager
 def open_csv(path: str, cols: list[str]):
     exists = os.path.isfile(path)
     f = open(path, "a", newline="", encoding="utf-8")
-    writer = csv.DictWriter(f, fieldnames=cols)
-    if not exists:
-        writer.writeheader()
-    return f, writer
+    try:
+        writer = csv.DictWriter(f, fieldnames=cols)
+        if not exists:
+            writer.writeheader()
+        yield f, writer
+    finally:
+        f.close()
 
 # ---------------------------------------------------------------------------
 # Collectors

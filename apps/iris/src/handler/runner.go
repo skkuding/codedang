@@ -52,6 +52,10 @@ func (tr *TaskRunner) Tracer() trace.Tracer {
 
 func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx context.Context) {
 	startedAt := time.Now()
+	defer func() {
+		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
+	}()
+
 	handleCtx, childSpan := tr.tracer.Start(
 		ctx,
 		instrumentation.GetSemanticSpanName("taskRunner", "run"),
@@ -78,10 +82,9 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 			}
 		}
 		close(out)
-		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
 	}()
 
-	errCh := make(chan *build.BuildUnitError, len(units))
+	setupErrs := make([]*build.BuildUnitError, len(units))
 	var wg sync.WaitGroup
 
 	for idx, u := range units {
@@ -89,7 +92,7 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 		go func(index int, unit *build.BuildUnit) {
 			defer wg.Done()
 			if unit == nil {
-				errCh <- &build.BuildUnitError{
+				setupErrs[index] = &build.BuildUnitError{
 					Unit:    fmt.Sprintf("unit-%d", index),
 					Phase:   "init",
 					Err:     fmt.Errorf("nil build unit at index %d", index),
@@ -98,15 +101,17 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 				return
 			}
 			if err := unit.Setup(index, len(units), tr.file, tr.sandbox); err != nil {
-				errCh <- err
+				setupErrs[index] = err
 			}
 		}(idx, u)
 	}
 
 	wg.Wait()
-	close(errCh)
 
-	for buildErr := range errCh {
+	for _, buildErr := range setupErrs {
+		if buildErr == nil {
+			continue
+		}
 		sendResult(ResultMessage{Result: nil, Err: buildUnitErrorToTaskError(buildErr)})
 		return
 	}

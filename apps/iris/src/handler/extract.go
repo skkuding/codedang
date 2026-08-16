@@ -1,19 +1,11 @@
 package handler
 
-import "errors"
+import "github.com/skkuding/codedang/apps/iris/src/common/taskerror"
 
 func ExtractUserMessage(err error) string {
-	var te *TaskError
-	if errors.As(err, &te) && te.UserMsg != "" {
-		return te.UserMsg
-	}
-	return ""
+	return taskerror.ExtractUserMessage(err)
 }
 
 func ExtractResultCode(err error) ResultCode {
-	var te *TaskError
-	if errors.As(err, &te) {
-		return te.Code
-	}
-	return SERVER_ERROR
+	return taskerror.ExtractResultCode(err)
 }

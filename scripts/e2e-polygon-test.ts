@@ -13,9 +13,8 @@
  *   pnpm e2e:polygon G1 G2 V1
  *   pnpm e2e:polygon --all
  *
- * Note: testcaseCount=1 is used throughout because the judger sandbox
- *       does not support concurrent execution on the same BuildUnit.
- *       (concurrent runs cause "mkdir: File exists" in cgroup creation)
+ * Generate scenarios use multiple testcases to verify that a shared BuildUnit
+ * serializes its sandbox runs without cgroup resource collisions.
  */
 import * as amqplib from 'amqplib'
 import { Client } from 'pg'
@@ -261,7 +260,7 @@ async function G1(
     problemId: ctx.pid1,
     generatorLanguage: 'C',
     generatorCode: C_GEN_VALID,
-    testcaseCount: 1
+    testcaseCount: 3
   })
   console.log(`  Waiting up to ${TIMEOUT_MS / 1000}s...`)
   const t0 = Date.now()
@@ -273,9 +272,9 @@ async function G1(
     check('toolType', resp.toolType, 'generator'),
     check('resultCode', resp.resultCode, 0),
     check('error', resp.error, ''),
-    check('generatedCount', tool?.generatedCount, 1),
-    check('requestedCount', tool?.requestedCount, 1),
-    check('DB rows', await dbCountTestcases(db, ctx.pid1), 1)
+    check('generatedCount', tool?.generatedCount, 3),
+    check('requestedCount', tool?.requestedCount, 3),
+    check('DB rows', await dbCountTestcases(db, ctx.pid1), 3)
   ])
 }
 
@@ -290,7 +289,7 @@ async function G2(
     generatorCode: C_GEN_VALID,
     solutionLanguage: 'C',
     solutionCode: C_SOL_ADD,
-    testcaseCount: 1
+    testcaseCount: 3
   })
   console.log(`  Waiting up to ${TIMEOUT_MS / 1000}s...`)
   const t0 = Date.now()
@@ -302,8 +301,8 @@ async function G2(
   const checks: CheckResult[] = [
     check('toolType', resp.toolType, 'generator'),
     check('resultCode', resp.resultCode, 0),
-    check('generatedCount', tool?.generatedCount, 1),
-    check('DB rows', dbRows, 1)
+    check('generatedCount', tool?.generatedCount, 3),
+    check('DB rows', dbRows, 3)
   ]
 
   if (dbRows > 0) {
@@ -530,8 +529,8 @@ const SCENARIOS: Record<string, Scenario> = {
 }
 
 const DESCRIPTIONS: Record<string, string> = {
-  G1: 'Generate — 정상 (솔루션 없음, testcaseCount=1)',
-  G2: 'Generate — 정상 (솔루션 포함, output 생성 확인)',
+  G1: 'Generate — 정상 (솔루션 없음, testcaseCount=3)',
+  G2: 'Generate — 정상 (솔루션 포함, testcaseCount=3, output 생성 확인)',
   G3: 'Generate — 컴파일 에러',
   G4: 'Generate — 런타임 전체 실패 (exit 1)',
   G5: 'Generate — invalid request (generatorCode 누락)',

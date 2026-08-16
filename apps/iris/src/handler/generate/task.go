@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
-
-	"golang.org/x/sync/errgroup"
+	"sync"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -52,7 +50,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 
 	for _, u := range t.buildUnits {
 		switch u.Name {
-    case "generator":
+		case "generator":
 			generatorUnit = u
 		case "solution":
 			solutionUnit = u
@@ -73,8 +71,23 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Ru
 	}
 
 	count := validReq.TestcaseCount
+	limits, err := handler.ToolLimitsFromEnv()
+	if err != nil {
+		sendResult(handler.ResultMessage{
+			Result: nil,
+			Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, err),
+		})
+		return
+	}
 
-	collected, generateErrors := t.runGenerations(ctx, count, generatorUnit, solutionUnit)
+	collected, generateErrors, runErr := t.runGenerations(ctx, count, generatorUnit, solutionUnit, limits)
+	if runErr != nil {
+		sendResult(handler.ResultMessage{
+			Result: nil,
+			Err:    handler.NewTaskError("generate", handler.SERVER_ERROR, logger.ERROR, runErr),
+		})
+		return
+	}
 
 	if len(collected) == 0 {
 		// all failed
@@ -133,34 +146,28 @@ func (t *Task) runGenerations(
 	count int,
 	generatorUnit *build.BuildUnit,
 	solutionUnit *build.BuildUnit,
-) ([]loader.ElementIn, []GenerateTestcaseError) {
-	limit, _ := strconv.Atoi(os.Getenv("GENERATE_CONCURRENCY"))
-	if limit <= 0 {
-		limit = 4
+	limits handler.ToolExecutionLimits,
+) ([]loader.ElementIn, []GenerateTestcaseError, error) {
+	fallbackWorkers := 1
+	if solutionUnit != nil {
+		// Two workers can pipeline the independent generator and solution units.
+		fallbackWorkers = 2
 	}
-
-	g, gCtx := errgroup.WithContext(ctx)
-	sem := make(chan struct{}, limit)
+	workerCount, err := handler.WorkerCountFromEnv("GENERATE_CONCURRENCY", count, fallbackWorkers)
+	if err != nil {
+		return nil, nil, err
+	}
+	jobs := make(chan int)
 	pairs := make([]loader.ElementIn, count)
 	pairOk := make([]bool, count)
 	errs := make([]GenerateTestcaseError, count)
 	hasErr := make([]bool, count)
+	var wg sync.WaitGroup
 
-	for i := 0; i < count; i++ {
-		i := i
-		g.Go(func() error {
-			defer func() {
-				if r := recover(); r != nil {
-					t.logger.Log(logger.ERROR, fmt.Sprintf("panic at index %d: %v", i, r))
-				}
-			}()
-			select {
-			case sem <- struct{}{}:
-			case <-gCtx.Done():
-				return nil
-			}
-			defer func() { <-sem }()
-			pair, genErr := t.generateOne(i, generatorUnit, solutionUnit)
+	worker := func() {
+		defer wg.Done()
+		for i := range jobs {
+			pair, genErr := t.generateOneSafely(i, generatorUnit, solutionUnit, limits)
 			if genErr != nil {
 				t.logger.Log(logger.ERROR, fmt.Sprintf(
 					"Error generating testcase %d for problemId %d: %s",
@@ -168,14 +175,31 @@ func (t *Task) runGenerations(
 				))
 				errs[i] = *genErr
 				hasErr[i] = true
-				return nil
+				continue
 			}
 			pairs[i] = pair
 			pairOk[i] = true
-			return nil
-		})
+		}
 	}
-	g.Wait() //nolint:errcheck // goroutines always return nil
+
+	wg.Add(workerCount)
+	for range workerCount {
+		go worker()
+	}
+
+schedule:
+	for i := 0; i < count; i++ {
+		select {
+		case jobs <- i:
+		case <-ctx.Done():
+			break schedule
+		}
+	}
+	close(jobs)
+	wg.Wait()
+	if ctx.Err() != nil {
+		return nil, nil, fmt.Errorf("generation cancelled: %w", ctx.Err())
+	}
 
 	var collected []loader.ElementIn
 	var collectedErrs []GenerateTestcaseError
@@ -187,18 +211,36 @@ func (t *Task) runGenerations(
 			collectedErrs = append(collectedErrs, errs[i])
 		}
 	}
-	return collected, collectedErrs
+	return collected, collectedErrs, nil
+}
+
+func (t *Task) generateOneSafely(
+	index int,
+	generatorUnit *build.BuildUnit,
+	solutionUnit *build.BuildUnit,
+	limits handler.ToolExecutionLimits,
+) (pair loader.ElementIn, generateErr *GenerateTestcaseError) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			generateErr = &GenerateTestcaseError{
+				Index:   index,
+				Message: fmt.Sprintf("panic while generating testcase: %v", recovered),
+			}
+		}
+	}()
+	return t.generateOne(index, generatorUnit, solutionUnit, limits)
 }
 
 func (t *Task) generateOne(
 	index int,
 	generatorUnit *build.BuildUnit,
 	solutionUnit *build.BuildUnit,
+	limits handler.ToolExecutionLimits,
 ) (loader.ElementIn, *GenerateTestcaseError) {
 	runResult, err := generatorUnit.Run(t.sandbox, sandbox.RunRequest{
 		Order:       index,
-		TimeLimit:   2000,
-		MemoryLimit: 512 * 1024 * 1024,
+		TimeLimit:   limits.TimeLimit,
+		MemoryLimit: limits.MemoryLimit,
 		ExtraArgs:   t.req.GeneratorArgs,
 	}, []byte{})
 	if err != nil {
@@ -216,8 +258,8 @@ func (t *Task) generateOne(
 	if solutionUnit != nil && t.req.SolutionCode != "" {
 		solutionRunResult, solutionErr := solutionUnit.Run(t.sandbox, sandbox.RunRequest{
 			Order:       index,
-			TimeLimit:   2000,
-			MemoryLimit: 512 * 1024 * 1024,
+			TimeLimit:   limits.TimeLimit,
+			MemoryLimit: limits.MemoryLimit,
 			ExtraArgs:   []string{},
 		}, runResult.Output)
 		if solutionErr != nil {

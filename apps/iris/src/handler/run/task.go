@@ -10,8 +10,8 @@ import (
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
-	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
+	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
@@ -47,6 +47,10 @@ func (t *Task) GetBuildUnits() []*build.BuildUnit {
 
 func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Runner) {
 	validReq := t.req
+	if len(t.buildUnits) == 0 || t.buildUnits[0] == nil {
+		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("run", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("run build unit not found"))})
+		return
+	}
 
 	var tc testcase.Testcase
 	if validReq.UserTestcases != nil {

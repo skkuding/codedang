@@ -3,6 +3,7 @@ package build
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
@@ -14,6 +15,7 @@ type BuildUnit struct {
 	Name     string
 	Code     string
 	Language string
+	runMu    sync.Mutex
 
 	// Populated after setup
 	Dir        string
@@ -122,6 +124,12 @@ func (bu *BuildUnit) Run(
 	req sandbox.RunRequest,
 	input []byte,
 ) (sandbox.RunResult, error) {
+	// Judger creates runtime resources under the build unit's directory.
+	// Concurrent runs of the same unit can therefore collide even when their
+	// testcase order differs. Different build units still run independently.
+	bu.runMu.Lock()
+	defer bu.runMu.Unlock()
+
 	req.Dir = bu.Dir
 	req.Language = bu.ParsedLang
 	return sandboxService.Run(req, input)

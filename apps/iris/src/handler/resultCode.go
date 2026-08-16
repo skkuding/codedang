@@ -1,21 +1,24 @@
 package handler
 
-import "github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+import (
+	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
+	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+)
 
-type ResultCode int8
+type ResultCode = taskerror.ResultCode
 
 const (
-	ACCEPTED ResultCode = 0 + iota
-	WRONG_ANSWER
-	CPU_TIME_LIMIT_EXCEEDED
-	REAL_TIME_LIMIT_EXCEEDED
-	MEMORY_LIMIT_EXCEEDED
-	RUNTIME_ERROR
-	COMPILE_ERROR
-	TESTCASE_ERROR
-	SEGMENTATION_FAULT_ERROR
-	SERVER_ERROR
-	CANCELED
+	ACCEPTED                 = taskerror.ACCEPTED
+	WRONG_ANSWER             = taskerror.WRONG_ANSWER
+	CPU_TIME_LIMIT_EXCEEDED  = taskerror.CPU_TIME_LIMIT_EXCEEDED
+	REAL_TIME_LIMIT_EXCEEDED = taskerror.REAL_TIME_LIMIT_EXCEEDED
+	MEMORY_LIMIT_EXCEEDED    = taskerror.MEMORY_LIMIT_EXCEEDED
+	RUNTIME_ERROR            = taskerror.RUNTIME_ERROR
+	COMPILE_ERROR            = taskerror.COMPILE_ERROR
+	TESTCASE_ERROR           = taskerror.TESTCASE_ERROR
+	SEGMENTATION_FAULT_ERROR = taskerror.SEGMENTATION_FAULT_ERROR
+	SERVER_ERROR             = taskerror.SERVER_ERROR
+	CANCELED                 = taskerror.CANCELED
 )
 
 func SandboxStatusCodeToJudgeResultCode(status sandbox.StatusCode) ResultCode {
