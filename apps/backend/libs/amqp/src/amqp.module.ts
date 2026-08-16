@@ -5,7 +5,7 @@ import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
 import {
   CheckAMQPService,
   JudgeAMQPService,
-  PolygonAMQPService
+  MandeuldangAMQPService
 } from './amqp.service'
 
 @Module({
@@ -52,7 +52,7 @@ import {
       inject: [ConfigService]
     })
   ],
-  providers: [JudgeAMQPService, CheckAMQPService, PolygonAMQPService],
-  exports: [JudgeAMQPService, CheckAMQPService, PolygonAMQPService]
+  providers: [JudgeAMQPService, CheckAMQPService, MandeuldangAMQPService],
+  exports: [JudgeAMQPService, CheckAMQPService, MandeuldangAMQPService]
 })
 export class AMQPModule {}

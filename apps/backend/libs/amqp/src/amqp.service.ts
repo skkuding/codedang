@@ -25,20 +25,20 @@ import {
   SUBMISSION_KEY,
   SUBMISSION_MESSAGE_TYPE,
   RUN_SUBMISSION_MESSAGE_TYPE,
-  POLYGON_EXCHANGE,
-  POLYGON_GENERATOR_MESSAGE_TYPE,
-  POLYGON_GENERATOR_KEY,
-  POLYGON_GENERATOR_RESULT_KEY,
-  POLYGON_GENERATOR_RESULT_QUEUE,
-  POLYGON_VALIDATOR_RESULT_KEY,
-  POLYGON_VALIDATOR_RESULT_QUEUE,
-  POLYGON_VALIDATOR_KEY,
-  POLYGON_VALIDATOR_MESSAGE_TYPE
+  MANDEULDANG_EXCHANGE,
+  MANDEULDANG_GENERATOR_MESSAGE_TYPE,
+  MANDEULDANG_GENERATOR_KEY,
+  MANDEULDANG_GENERATOR_RESULT_KEY,
+  MANDEULDANG_GENERATOR_RESULT_QUEUE,
+  MANDEULDANG_VALIDATOR_RESULT_KEY,
+  MANDEULDANG_VALIDATOR_RESULT_QUEUE,
+  MANDEULDANG_VALIDATOR_KEY,
+  MANDEULDANG_VALIDATOR_MESSAGE_TYPE
 } from '@libs/constants'
 import type {
   GeneratorRequest,
   ValidatorRequest
-} from '@admin/polygon/interface/polygonToolRequest.interface'
+} from '@admin/Mandeuldang/model/polygon-tool-request.interface'
 
 @Injectable()
 export class JudgeAMQPService {
@@ -267,8 +267,8 @@ export class CheckAMQPService {
 }
 
 @Injectable()
-export class PolygonAMQPService {
-  private readonly logger = new Logger(PolygonAMQPService.name)
+export class MandeuldangAMQPService {
+  private readonly logger = new Logger(MandeuldangAMQPService.name)
 
   constructor(
     private readonly amqpConnection: AmqpConnection,
@@ -296,9 +296,9 @@ export class PolygonAMQPService {
         }
       },
       {
-        exchange: POLYGON_EXCHANGE,
-        routingKey: POLYGON_GENERATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
-        queue: POLYGON_GENERATOR_RESULT_QUEUE
+        exchange: MANDEULDANG_EXCHANGE,
+        routingKey: MANDEULDANG_GENERATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
+        queue: MANDEULDANG_GENERATOR_RESULT_QUEUE
       },
       ORIGIN_HANDLER_NAME
     )
@@ -324,9 +324,9 @@ export class PolygonAMQPService {
         }
       },
       {
-        exchange: POLYGON_EXCHANGE,
-        routingKey: POLYGON_VALIDATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
-        queue: POLYGON_VALIDATOR_RESULT_QUEUE
+        exchange: MANDEULDANG_EXCHANGE,
+        routingKey: MANDEULDANG_VALIDATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
+        queue: MANDEULDANG_VALIDATOR_RESULT_QUEUE
       },
       ORIGIN_HANDLER_NAME
     )
@@ -339,13 +339,13 @@ export class PolygonAMQPService {
   async publishGeneratorMessage(request: GeneratorRequest): Promise<void> {
     const span = this.traceService.startSpan('publishGeneratorMessage.publish')
     await this.amqpConnection.publish(
-      POLYGON_EXCHANGE,
-      POLYGON_GENERATOR_KEY,
+      MANDEULDANG_EXCHANGE,
+      MANDEULDANG_GENERATOR_KEY,
       request,
       {
         messageId: `Generator-${request.problemId}`,
         persistent: true,
-        type: POLYGON_GENERATOR_MESSAGE_TYPE
+        type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
       }
     )
     span.end()
@@ -358,13 +358,13 @@ export class PolygonAMQPService {
   async publishValidatorMessage(request: ValidatorRequest): Promise<void> {
     const span = this.traceService.startSpan('publishValidatorMessage.publish')
     await this.amqpConnection.publish(
-      POLYGON_EXCHANGE,
-      POLYGON_VALIDATOR_KEY,
+      MANDEULDANG_EXCHANGE,
+      MANDEULDANG_VALIDATOR_KEY,
       request,
       {
         messageId: `Validator-${request.problemId}`,
         persistent: true,
-        type: POLYGON_VALIDATOR_MESSAGE_TYPE,
+        type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
         priority: MESSAGE_PRIORITY_MIDDLE
       }
     )
