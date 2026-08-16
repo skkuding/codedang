@@ -8,7 +8,7 @@ import { PrismaService } from '@libs/prisma'
 import {
   GeneratorResultDto,
   ValidatorResultDto
-} from './model/Mandeuldang-tool-result.dto'
+} from './model/mandeuldang-tool-result.dto'
 
 @Injectable()
 export class MandeuldangSubscriptionService implements OnModuleInit {
@@ -104,7 +104,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
     const lastRunPass = msg.resultCode === 0
 
-    await this.prisma.MandeuldangProblem.update({
+    await this.prisma.mandeuldangProblem.update({
       where: { id: problemId },
       data: { lastRunPass }
     })
@@ -133,7 +133,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
     const lastRunPass = msg.resultCode === 0
 
-    await this.prisma.MandeuldangProblem.update({
+    await this.prisma.mandeuldangProblem.update({
       where: { id: problemId },
       data: { lastRunPass }
     })

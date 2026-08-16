@@ -17,13 +17,13 @@ export class MandeuldangPublicationService {
   ) {
     //DB에서 generator, solution 조회
     const [generator, solution] = await Promise.all([
-      this.prisma.MandeuldangTool.findUniqueOrThrow({
+      this.prisma.mandeuldangTool.findUniqueOrThrow({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
           problemId_toolType: { problemId, toolType: ToolType.Generator }
         }
       }),
-      this.prisma.MandeuldangSolution.findUniqueOrThrow({
+      this.prisma.mandeuldangSolution.findUniqueOrThrow({
         where: { problemId }
       })
     ])
@@ -41,7 +41,7 @@ export class MandeuldangPublicationService {
   }
 
   async publishValidatorMessage(problemId: number) {
-    const validator = await this.prisma.MandeuldangTool.findUniqueOrThrow({
+    const validator = await this.prisma.mandeuldangTool.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         problemId_toolType: { problemId, toolType: ToolType.Validator }
