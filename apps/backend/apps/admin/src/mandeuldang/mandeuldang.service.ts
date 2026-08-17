@@ -33,18 +33,23 @@ export class MandeuldangService {
   //파일 실행
   async runGenerator(
     problemId: number,
+    requesterId: number,
     generatorArgs: string[],
     testCaseCount: number
   ) {
     await this.publicationService.publishGeneratorMessage(
       problemId,
+      requesterId,
       generatorArgs,
       testCaseCount
     )
   }
 
-  async runValidator(problemId: number) {
-    await this.publicationService.publishValidatorMessage(problemId)
+  async runValidator(problemId: number, requesterId: number) {
+    return await this.publicationService.publishValidatorMessage(
+      problemId,
+      requesterId
+    )
   }
 
   //테스트케이스 저장
