@@ -46,7 +46,7 @@ volumes:
       defaultMode: 0400
 
 ingress:
-  enabled: true
+  enabled: false
   className: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -59,6 +59,20 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+
+httproute:
+    enabled: true
+    hostnames:
+      - n8n.codedang.com
+    parentRefs:
+      - name: main-gateway
+        namespace: kube-system
+        sectionName: https-wildcard
+    rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 
 # Enable Prometheus monitoring
 serviceMonitor:
