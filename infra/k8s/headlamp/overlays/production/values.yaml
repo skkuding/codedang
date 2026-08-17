@@ -5,7 +5,7 @@ clusterRoleBinding:
   create: true
 
 ingress:
-  enabled: true
+  enabled: false
   ingressClassName: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -19,6 +19,21 @@ ingress:
     - hosts:
         - k8s.codedang.com
       secretName: headlamp-tls
+
+httproute:
+    enabled: true
+    hostnames:
+      - k8s.codedang.com
+    parentRefs:
+      - name: main-gateway
+        namespace: kube-system
+        sectionName: https-wildcard
+    rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
 
 # TODO: Configure OIDC for GitHub OAuth login
 # config:
