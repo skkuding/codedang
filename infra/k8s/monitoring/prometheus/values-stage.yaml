@@ -31,7 +31,7 @@ prometheus:
             requests:
               storage: 10Gi
   ingress:
-    enabled: true
+    enabled: false
     hosts:
       - prometheus.stage.codedang.com
     paths:
@@ -44,6 +44,20 @@ prometheus:
       - hosts:
           - prometheus.stage.codedang.com
         secretName: prometheus-tls
+
+  httproute:
+    enabled: true
+    hostnames:
+      - prometheus.stage.codedang.com
+    parentRefs:
+      - name: main-gateway
+        namespace: kube-system
+        sectionName: https-wildcard
+    rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 
 alertmanager:
   alertmanagerSpec:
