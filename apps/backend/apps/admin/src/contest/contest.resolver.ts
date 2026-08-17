@@ -118,6 +118,22 @@ export class ContestResolver {
     )
   }
 
+  @Mutation(() => UserContest)
+  @UseDisableContestRolesGuard()
+  async removeUserDuringContest(
+    @Args('contestId', { type: () => Int }, IDValidationPipe)
+    contestId: number,
+    @Args('userId', { type: () => Int }, IDValidationPipe)
+    userId: number,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.contestService.removeUserDuringContest(
+      contestId,
+      userId,
+      req.user.id
+    )
+  }
+
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
