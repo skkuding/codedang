@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Language, ToolType } from '@prisma/client'
+import { Language, MandeuldangRunStatus, ToolType } from '@prisma/client'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { PrismaService } from '@libs/prisma'
 
@@ -12,6 +12,7 @@ export class MandeuldangPublicationService {
 
   async publishGeneratorMessage(
     problemId: number,
+    requesterId: number,
     generatorArgs: string[],
     testCaseCount: number
   ) {
@@ -30,6 +31,15 @@ export class MandeuldangPublicationService {
       where: { problemId }
     })
 
+    const request = await this.prisma.mandeuldangRunRequest.create({
+      data: {
+        problemId,
+        requesterId,
+        toolType: ToolType.Generator,
+        status: MandeuldangRunStatus.Pending
+      }
+    })
+
     const generatorRequest = {
       problemId,
       generatorLanguage: Language.Cpp,
@@ -40,10 +50,23 @@ export class MandeuldangPublicationService {
       testCaseCount
     }
     //실행 요청 메시지 publish
-    await this.amqpService.publishGeneratorMessage(problemId, generatorRequest)
+    try {
+      await this.amqpService.publishGeneratorMessage(
+        problemId,
+        generatorRequest
+      )
+    } catch (error) {
+      await this.prisma.mandeuldangRunRequest.update({
+        where: { id: request.id },
+        data: { status: MandeuldangRunStatus.Failed, completedAt: new Date() }
+      })
+      throw error
+    }
+
+    return request
   }
 
-  async publishValidatorMessage(problemId: number) {
+  async publishValidatorMessage(problemId: number, requesterId: number) {
     const validator = await this.prisma.mandeuldangTool.findUniqueOrThrow({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -56,6 +79,26 @@ export class MandeuldangPublicationService {
       language: Language.Cpp,
       validatorCode: validator.fileContent
     }
-    await this.amqpService.publishValidatorMessage(problemId, validateRequest)
+
+    const request = await this.prisma.mandeuldangRunRequest.create({
+      data: {
+        problemId,
+        requesterId,
+        toolType: ToolType.Validator,
+        status: MandeuldangRunStatus.Pending
+      }
+    })
+
+    try {
+      await this.amqpService.publishValidatorMessage(problemId, validateRequest)
+    } catch (error) {
+      await this.prisma.mandeuldangRunRequest.update({
+        where: { id: request.id },
+        data: { status: MandeuldangRunStatus.Failed, completedAt: new Date() }
+      })
+      throw error
+    }
+
+    return request
   }
 }
