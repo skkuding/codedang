@@ -58,3 +58,24 @@ func TestWorkerCountFromEnv(t *testing.T) {
 		assert.EqualError(t, err, "TEST_WORKERS must be a positive integer")
 	})
 }
+
+func TestRetryCountFromEnv(t *testing.T) {
+	t.Run("uses default when omitted", func(t *testing.T) {
+		retries, err := RetryCountFromEnv("TEST_RETRIES", 1)
+		require.NoError(t, err)
+		assert.Equal(t, 1, retries)
+	})
+
+	t.Run("allows zero retries", func(t *testing.T) {
+		t.Setenv("TEST_RETRIES", "0")
+		retries, err := RetryCountFromEnv("TEST_RETRIES", 1)
+		require.NoError(t, err)
+		assert.Zero(t, retries)
+	})
+
+	t.Run("rejects invalid retry count", func(t *testing.T) {
+		t.Setenv("TEST_RETRIES", "-1")
+		_, err := RetryCountFromEnv("TEST_RETRIES", 1)
+		assert.EqualError(t, err, "TEST_RETRIES must be a non-negative integer")
+	})
+}

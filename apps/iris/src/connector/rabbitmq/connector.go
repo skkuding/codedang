@@ -91,7 +91,10 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		resultChan <- router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else {
-		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
+		go func() {
+			defer close(resultChan)
+			c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
+		}()
 	}
 
 	for result := range resultChan {

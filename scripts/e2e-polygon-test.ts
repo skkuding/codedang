@@ -497,7 +497,7 @@ async function V4(
 ): Promise<boolean> {
   publish(ch, 'validate', 'e2e-val-004', {
     problemId: ctx.pid1,
-    language: 'C'
+    language: 'C',
     // validatorCode omitted intentionally
   })
   console.log(`  Waiting up to ${TIMEOUT_MS / 1000}s...`)

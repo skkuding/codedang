@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
@@ -148,12 +149,14 @@ func (t *Task) runGenerations(
 	solutionUnit *build.BuildUnit,
 	limits handler.ToolExecutionLimits,
 ) ([]loader.ElementIn, []GenerateTestcaseError, error) {
-	fallbackWorkers := 1
-	if solutionUnit != nil {
-		// Two workers can pipeline the independent generator and solution units.
-		fallbackWorkers = 2
+	// Sandbox processes are external to Go's GMP scheduler. Keep the default
+	// serial until an operator has measured host CPU/memory headroom, then opt
+	// into a higher worker count through GENERATE_CONCURRENCY.
+	workerCount, err := handler.WorkerCountFromEnv("GENERATE_CONCURRENCY", count, 1)
+	if err != nil {
+		return nil, nil, err
 	}
-	workerCount, err := handler.WorkerCountFromEnv("GENERATE_CONCURRENCY", count, fallbackWorkers)
+	retryCount, err := handler.RetryCountFromEnv(handler.GenerateRetryCountEnv, handler.DefaultGenerateRetries)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -167,7 +170,7 @@ func (t *Task) runGenerations(
 	worker := func() {
 		defer wg.Done()
 		for i := range jobs {
-			pair, genErr := t.generateOneSafely(i, generatorUnit, solutionUnit, limits)
+			pair, genErr := t.generateOneWithRetry(i, generatorUnit, solutionUnit, limits, retryCount)
 			if genErr != nil {
 				t.logger.Log(logger.ERROR, fmt.Sprintf(
 					"Error generating testcase %d for problemId %d: %s",
@@ -212,6 +215,27 @@ schedule:
 		}
 	}
 	return collected, collectedErrs, nil
+}
+
+func (t *Task) generateOneWithRetry(
+	index int,
+	generatorUnit *build.BuildUnit,
+	solutionUnit *build.BuildUnit,
+	limits handler.ToolExecutionLimits,
+	retryCount int,
+) (loader.ElementIn, *GenerateTestcaseError) {
+	for attempt := 0; ; attempt++ {
+		pair, generateErr := t.generateOneSafely(index, generatorUnit, solutionUnit, limits)
+		if generateErr == nil || !isRetryableGenerationError(generateErr) || attempt == retryCount {
+			return pair, generateErr
+		}
+		t.logger.Log(logger.WARN, fmt.Sprintf("Retrying testcase %d after transient sandbox error (%d/%d): %s", index, attempt+1, retryCount, generateErr.Message))
+	}
+}
+
+func isRetryableGenerationError(generateErr *GenerateTestcaseError) bool {
+	return strings.HasPrefix(generateErr.Message, "generator run failed:") ||
+		strings.HasPrefix(generateErr.Message, "solution run failed:")
 }
 
 func (t *Task) generateOneSafely(

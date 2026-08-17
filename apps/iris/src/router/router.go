@@ -29,8 +29,7 @@ const (
 )
 
 type Router interface {
-	// Route(path string, id string, data []byte, resultChan chan []byte) []byte
-	Route(path string, id string, data []byte, resultChan chan []byte, ctx context.Context)
+	Route(path string, id string, data []byte, resultChan chan<- []byte, ctx context.Context)
 }
 
 type router struct {
@@ -63,7 +62,7 @@ func NewRouter(
 	}
 }
 
-func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
+func (r *router) Route(path string, id string, data []byte, out chan<- []byte, ctx context.Context) {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -119,17 +118,21 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 		} else {
 			out <- NewResponse(id, nil, taskErr).Marshal()
 		}
-		close(out)
 		return
 	}
-	r.logger.Log(logger.INFO, fmt.Sprintf("Task successfully created for path %s with id %s: %s", path, id, task.GetDebugString()))
-
-	if task != nil {
-		r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", path, id))
-		go r.runner.Run(id, task, taskResultChan, newCtx)
+	if task == nil {
+		r.logger.Log(logger.WARN, fmt.Sprintf("Task factory returned nil for path %s with id %s", path, id))
 	} else {
-		close(taskResultChan)
+		r.logger.Log(logger.INFO, fmt.Sprintf("Task successfully created for path %s with id %s: %s", path, id, task.GetDebugString()))
 	}
+
+	r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", path, id))
+	go func() {
+		defer close(taskResultChan)
+		r.runner.Run(id, task, func(result handler.ResultMessage) {
+			taskResultChan <- result
+		}, newCtx)
+	}()
 
 	for result := range taskResultChan {
 		r.errHandle(result.Err)
@@ -140,8 +143,6 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 		}
 		// break
 	}
-	// return NewResponse(id, handlerResult, err).Marshal()
-	close(out)
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
 

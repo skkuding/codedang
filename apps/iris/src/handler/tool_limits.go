@@ -9,8 +9,10 @@ import (
 const (
 	ToolTimeLimitEnv       = "POLYGON_TOOL_TIME_LIMIT_MS"
 	ToolMemoryLimitEnv     = "POLYGON_TOOL_MEMORY_LIMIT_BYTES"
+	GenerateRetryCountEnv  = "GENERATE_RETRY_COUNT"
 	DefaultToolTimeLimit   = 2000
 	DefaultToolMemoryLimit = 512 * 1024 * 1024
+	DefaultGenerateRetries = 1
 )
 
 type ToolExecutionLimits struct {
@@ -42,6 +44,18 @@ func WorkerCountFromEnv(name string, total, fallback int) (int, error) {
 		workers = total
 	}
 	return workers, nil
+}
+
+func RetryCountFromEnv(name string, fallback int) (int, error) {
+	raw := os.Getenv(name)
+	if raw == "" {
+		return fallback, nil
+	}
+	value, err := strconv.Atoi(raw)
+	if err != nil || value < 0 {
+		return 0, fmt.Errorf("%s must be a non-negative integer", name)
+	}
+	return value, nil
 }
 
 func positiveIntFromEnv(name string, fallback int) (int, error) {

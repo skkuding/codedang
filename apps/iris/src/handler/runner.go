@@ -50,7 +50,7 @@ func (tr *TaskRunner) Tracer() trace.Tracer {
 	return tr.tracer
 }
 
-func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx context.Context) {
+func (tr *TaskRunner) Run(id string, validReq Task, sendResult ResultSender2Runner, ctx context.Context) {
 	startedAt := time.Now()
 	defer func() {
 		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
@@ -68,12 +68,12 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 	defer childSpan.End()
 	tr.logger.Log(logger.INFO, fmt.Sprintf("TaskRunner started for message id: %s ", id))
 
-	units := validReq.GetBuildUnits()
-
-	// sendResult is scoped to this invocation, safe under concurrent Run calls.
-	sendResult := func(msg ResultMessage) {
-		out <- msg
+	if validReq == nil {
+		sendResult(ResultMessage{Err: NewTaskError("runner", SERVER_ERROR, logger.ERROR, fmt.Errorf("task must not be nil"))})
+		return
 	}
+
+	units := validReq.GetBuildUnits()
 
 	defer func() {
 		for _, unit := range units {
@@ -81,7 +81,6 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 				tr.file.RemoveDir(unit.Dir)
 			}
 		}
-		close(out)
 	}()
 
 	setupErrs := make([]*build.BuildUnitError, len(units))
@@ -117,4 +116,18 @@ func (tr *TaskRunner) Run(id string, validReq Task, out chan ResultMessage, ctx 
 	}
 
 	validReq.RunAction(handleCtx, sendResult)
+}
+
+func buildUnitErrorToTaskError(be *build.BuildUnitError) *TaskError {
+	level := logger.ERROR
+	if be.IsUserError {
+		level = logger.INFO
+	}
+	return &TaskError{
+		Handler: "runner",
+		Code:    COMPILE_ERROR,
+		UserMsg: be.UserMsg,
+		Level:   level,
+		Err:     be,
+	}
 }
