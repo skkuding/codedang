@@ -7,7 +7,8 @@ data:
   APP_ENV: 'stage' # Running in 'stage' temporarily because of errors from entrypoint.sh
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
-  RABBITMQ_PORT: '5672'
+  RABBITMQ_PORT: '5671'
+  RABBITMQ_SSL: 'true'
   RABBITMQ_DEFAULT_VHOST: 'vh'
   OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
   JUDGE_SUBMISSION_CONSUMER_CONNECTION_NAME: 'iris-consumer'

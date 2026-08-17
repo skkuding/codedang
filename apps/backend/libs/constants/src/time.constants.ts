@@ -16,6 +16,7 @@ export const REFRESH_TOKEN_COOKIE_OPTIONS = {
       : '/auth/reissue'
 }
 export const EMAIL_AUTH_EXPIRE_TIME = 5 * SECONDS_PER_MINUTE
+export const OAUTH_TOKEN_EXPIRE_TIME = 30 * SECONDS_PER_MINUTE
 
 /** Cache Expiration Settings (in milliseconds) */
 export const PUBLICIZING_REQUEST_EXPIRE_TIME = 7 * SECONDS_PER_DAY * 1000

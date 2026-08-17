@@ -1,3 +1,4 @@
+# TAS-2763: Legacy ECS API resources are commented in the module implementation.
 module "codedang_api" {
   source = "./modules/cluster_autoscaling"
 

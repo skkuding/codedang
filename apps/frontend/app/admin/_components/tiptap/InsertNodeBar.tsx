@@ -19,10 +19,10 @@ import {
 } from '@/components/shadcn/popover'
 import { Toggle } from '@/components/shadcn/toggle'
 import { UPLOAD_IMAGE, UPLOAD_FILE } from '@/graphql/problem/mutations'
-import CodeBlock from '@/public/icons/texteditor-codeblock.svg'
-import SquareRadical from '@/public/icons/texteditor-equation.svg'
-import Paperclip from '@/public/icons/texteditor-file.svg'
-import ImagePlus from '@/public/icons/texteditor-image.svg'
+import CodeBlockIcon from '@/public/icons/texteditor-codeblock.svg'
+import EquationIcon from '@/public/icons/texteditor-equation.svg'
+import FileIcon from '@/public/icons/texteditor-file.svg'
+import ImageIcon from '@/public/icons/texteditor-image.svg'
 import TableIcon from '@/public/icons/texteditor-table.svg'
 import { useMutation } from '@apollo/client'
 import type { Editor } from '@tiptap/react'
@@ -33,7 +33,6 @@ import {
   ArrowUpFromLine,
   Trash
 } from 'lucide-react'
-import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import { forwardRef, useImperativeHandle } from 'react'
 import { toast } from 'sonner'
@@ -155,9 +154,7 @@ export const InsertNodeBar = forwardRef<
             <p className="text-sm"> * File must be under 30MB</p>
           </>
         }
-        triggerIcon={
-          <Image src={Paperclip} alt="File" className="h-[18px] w-[18px]" />
-        }
+        triggerIcon={<FileIcon className="h-[18px] w-[18px]" />}
         onOpenChange={(open) => {
           setIsFileDialogOpen(open)
           if (!open) {
@@ -182,9 +179,7 @@ export const InsertNodeBar = forwardRef<
             <p className="text-sm"> * Image must be under 5MB</p>
           </>
         }
-        triggerIcon={
-          <Image src={ImagePlus} alt="Image" className="h-[18px] w-[18px]" />
-        }
+        triggerIcon={<ImageIcon className="h-[18px] w-[18px]" />}
         onOpenChange={(open) => {
           setIsImageDialogOpen(open)
           if (!open) {
@@ -206,11 +201,7 @@ export const InsertNodeBar = forwardRef<
         }}
         className="h-9 w-9 p-2"
       >
-        <Image
-          src={SquareRadical}
-          alt="Equation"
-          className="h-[17px] w-[17px]"
-        />
+        <EquationIcon className="h-[17px] w-[17px]" />
       </Toggle>
       <Toggle
         type="button"
@@ -220,7 +211,7 @@ export const InsertNodeBar = forwardRef<
         }}
         className="h-9 w-9 p-2"
       >
-        <Image src={CodeBlock} alt="Code Block" className="h-[18px] w-5" />
+        <CodeBlockIcon className="h-[18px] w-5" />
       </Toggle>
       <Dialog
         open={isTableDialogOpen}
@@ -295,7 +286,7 @@ export const InsertNodeBar = forwardRef<
               }
             }}
           >
-            <Image src={TableIcon} alt="Table" className="h-5 w-5" />
+            <TableIcon className="h-5 w-5" />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex w-fit p-1">

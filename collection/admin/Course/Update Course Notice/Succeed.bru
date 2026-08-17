@@ -11,8 +11,8 @@ post {
 }
 
 body:graphql {
-  mutation ($courseNoticeId: Int!, $input: UpdateCourseNoticeInput!) {
-    updateCourseNotice(courseNoticeId: $courseNoticeId, input: $input) {
+  mutation ($groupId: Int!, $courseNoticeId: Int!, $input: UpdateCourseNoticeInput!) {
+    updateCourseNotice(groupId: $groupId, courseNoticeId: $courseNoticeId, input: $input) {
       id
       createdById
       title
@@ -28,6 +28,7 @@ body:graphql {
 
 body:graphql:vars {
   {
+    "groupId": 1,
     "courseNoticeId": 1,
     "input": {
       "title": "updated title"
@@ -65,6 +66,7 @@ docs {
 
   | Name | Type   | Required | Description              |
   |------|--------|----------|--------------------------|
+  | `groupId` | number | ✅       | 공지가 속한 강의 아이디 |
   | `courseNoticeId` | int | ✅       | 수정할 강의 공지사항의 id |
   | `input` | object | ✅       | 공지사항을 구성하는 요소. 모든 값은 optional. 하단 참고 |
 

@@ -147,5 +147,7 @@ coverage
 
 # agent
 .agents/*
+.codex
 .claude/*
+.claude/settings.local.json
 **/CLAUDE**

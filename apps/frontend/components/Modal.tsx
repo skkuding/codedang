@@ -10,9 +10,8 @@ import {
 } from '@/components/shadcn/dialog'
 import { ScrollArea } from '@/components/shadcn/scroll-area'
 import { cn } from '@/libs/utils'
-import infoIcon from '@/public/icons/info.svg'
+import InfoIcon from '@/public/icons/info.svg'
 import { DialogTrigger } from '@radix-ui/react-dialog'
-import Image from 'next/image'
 import { useState } from 'react'
 import { ModalInput } from './ModalInput'
 
@@ -86,9 +85,7 @@ export function Modal({
         onEscapeKeyDown={onClose}
       >
         <DialogHeader className="flex flex-col items-center justify-center space-y-0">
-          {type === 'warning' && (
-            <Image src={infoIcon} alt="info" width={42} height={42} />
-          )}
+          {type === 'warning' && <InfoIcon width={42} height={42} />}
           <DialogTitle
             className={cn(
               'w-full text-2xl font-semibold',

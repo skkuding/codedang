@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy ECS cluster resources are no longer used.
 resource "aws_ecs_cluster" "this" {
   name = var.ecs_cluster_name
 }
@@ -12,3 +13,4 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
     base              = 1
   }
 }
+*/

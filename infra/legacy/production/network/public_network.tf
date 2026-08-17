@@ -44,6 +44,7 @@ resource "aws_subnet" "public_subnet2" {
   }
 }
 
+/* TAS-2763: Legacy Amazon MQ subnet is no longer used.
 resource "aws_subnet" "public_mq" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.101.0/24"
@@ -53,6 +54,7 @@ resource "aws_subnet" "public_mq" {
     Name = "Codedang-MQ-Subnet"
   }
 }
+*/
 
 # Temporarily expose database to public for on-premise iris
 # TODO: Move database back to private subnet, after migrating testcase from db to s3
@@ -96,10 +98,12 @@ resource "aws_route_table_association" "public_subnet2" {
   route_table_id = aws_route_table.public.id
 }
 
+/* TAS-2763: Legacy Amazon MQ subnet association is no longer used.
 resource "aws_route_table_association" "public_mq" {
   subnet_id      = aws_subnet.public_mq.id
   route_table_id = aws_route_table.public.id
 }
+*/
 
 resource "aws_route_table_association" "public_db1" {
   subnet_id      = aws_subnet.public_db1.id

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -19,9 +19,11 @@ type Postgres struct {
 }
 
 func NewPostgresDataSource(ctx context.Context, logProvider logger.Logger) (*Postgres, error) {
-	// 새로운 ENV 추가 필요
 	connStr := os.Getenv("DATABASE_URL")
-	data := strings.Replace(connStr, "schema=public", "sslmode=disable", 1)
+	data, err := parseDatabaseURL(connStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to access database: %w", err)
+	}
 	db, err := sql.Open("postgres", data)
 
 	if err != nil {
@@ -29,6 +31,32 @@ func NewPostgresDataSource(ctx context.Context, logProvider logger.Logger) (*Pos
 	}
 
 	return &Postgres{ctx: ctx, client: db, logger: logProvider}, nil
+}
+
+func parseDatabaseURL(databaseURL string) (string, error) {
+	parsed, err := url.Parse(databaseURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid database URL: %w", err)
+	}
+	if parsed.Scheme != "postgres" && parsed.Scheme != "postgresql" {
+		return "", fmt.Errorf("invalid database URL scheme %q", parsed.Scheme)
+	}
+
+	query, err := url.ParseQuery(parsed.RawQuery)
+	if err != nil {
+		return "", fmt.Errorf("invalid database URL query: %w", err)
+	}
+	query.Del("schema")
+	switch sslMode := query.Get("sslmode"); sslMode {
+	case "":
+		query.Set("sslmode", "disable")
+	case "disable", "require", "verify-ca", "verify-full":
+	default:
+		return "", fmt.Errorf("unsupported sslmode %q", sslMode)
+	}
+
+	parsed.RawQuery = query.Encode()
+	return parsed.String(), nil
 }
 
 // todo: need to introduce prisma like ORM

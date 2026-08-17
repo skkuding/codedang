@@ -33,9 +33,9 @@ const tabsTriggerVariants = cva(
           'data-[state=inactive]:bg-transparent data-[state=inactive]:text-color-neutral-60'
         ],
         problem: [
-          'flex h-[48px] w-40 items-center justify-center rounded-full px-4 py-3 text-lg font-medium leading-6 whitespace-nowrap tracking-normal',
+          'flex h-[49px] w-40 items-center justify-center rounded-full px-4 py-3 text-sub2_m_18 whitespace-nowrap',
           'data-[state=active]:bg-primary data-[state=active]:text-white',
-          'data-[state=inactive]:bg-transparent data-[state=inactive]:text-color-neutral-60'
+          'data-[state=inactive]:bg-Common-100 data-[state=inactive]:text-zinc-500'
         ],
         outline: [
           'rounded-full uppercase text-sm tracking-wide',

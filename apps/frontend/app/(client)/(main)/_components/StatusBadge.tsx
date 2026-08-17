@@ -1,32 +1,32 @@
 import { cn } from '@/libs/utils'
-import finishedIcon from '@/public/icons/finished.svg'
-import ongoingIcon from '@/public/icons/ongoing.svg'
-import upcomingIcon from '@/public/icons/upcoming.svg'
+import FinishedIcon from '@/public/icons/finished.svg'
+import OngoingIcon from '@/public/icons/ongoing.svg'
+import UpcomingIcon from '@/public/icons/upcoming.svg'
 import React from 'react'
 
 const variants = {
   registeredOngoing: {
-    image: ongoingIcon,
+    Icon: OngoingIcon,
     text: 'ONGOING',
     color: 'text-blue-500'
   },
   registeredUpcoming: {
-    image: upcomingIcon,
+    Icon: UpcomingIcon,
     text: 'UPCOMING',
     color: 'text-red-400'
   },
   ongoing: {
-    image: ongoingIcon,
+    Icon: OngoingIcon,
     text: 'ONGOING',
     color: 'text-blue-500'
   },
   upcoming: {
-    image: upcomingIcon,
+    Icon: UpcomingIcon,
     text: 'UPCOMING',
     color: 'text-red-400'
   },
   finished: {
-    image: finishedIcon,
+    Icon: FinishedIcon,
     text: 'FINISHED',
     color: 'text-gray-400'
   }

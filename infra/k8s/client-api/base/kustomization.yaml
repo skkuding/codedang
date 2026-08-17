@@ -8,4 +8,5 @@ resources:
   - ingress.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
+  - redis-credentials.yaml
   - service.yaml

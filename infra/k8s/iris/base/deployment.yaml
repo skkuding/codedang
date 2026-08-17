@@ -13,6 +13,13 @@ spec:
       labels:
         app: iris
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: iris
       containers:
         - name: iris
           image: ghcr.io/skkuding/codedang-iris

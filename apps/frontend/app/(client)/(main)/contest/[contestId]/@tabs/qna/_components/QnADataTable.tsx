@@ -1,5 +1,6 @@
 'use client'
 
+import { SearchBar } from '@/components/SearchBar'
 import {
   Table,
   TableBody,
@@ -24,7 +25,6 @@ import { useEffect, useState } from 'react'
 import { QnACategoryFilter } from './QnACategoryFilter'
 import type { QnAItem } from './QnAMainTable'
 import { QnAPostButton } from './QnAPostButton'
-import { SearchBar } from './SearchBar'
 
 interface QnADataTableProps<TData, TValue> {
   session: Session | null
@@ -115,11 +115,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
           </p>
         </div>
         <div className="flex h-[46px] items-center items-stretch gap-2.5 self-stretch">
-          <SearchBar
-            className="!w-full !max-w-none"
-            height="lg"
-            fontSize="lg"
-          />
+          <SearchBar className="!w-full !max-w-none" sizeVariant="lg" />
           <QnACategoryFilter
             column={table.getColumn('category')}
             options={options}

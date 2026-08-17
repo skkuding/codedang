@@ -1,9 +1,8 @@
 import { Toggle } from '@/components/shadcn/toggle'
-import Heading1 from '@/public/icons/texteditor-h1.svg'
-import Heading2 from '@/public/icons/texteditor-h2.svg'
-import Heading3 from '@/public/icons/texteditor-h3.svg'
+import Heading1Icon from '@/public/icons/texteditor-h1.svg'
+import Heading2Icon from '@/public/icons/texteditor-h2.svg'
+import Heading3Icon from '@/public/icons/texteditor-h3.svg'
 import type { Editor } from '@tiptap/core'
-import Image from 'next/image'
 
 interface HeadingSizeBarProps {
   editor: Editor
@@ -20,7 +19,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
         }}
         className="h-9 w-9 p-1"
       >
-        <Image src={Heading1} alt="Heading 1" className="h-[18px] w-[18px]" />
+        <Heading1Icon className="h-[18px] w-[18px]" />
       </Toggle>
       <Toggle
         pressed={editor.isActive('heading', { level: 2 })}
@@ -30,7 +29,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
         }}
         className="h-9 w-9 p-1"
       >
-        <Image src={Heading2} alt="Heading 2" className="h-[18px] w-[18px]" />
+        <Heading2Icon className="h-[18px] w-[18px]" />
       </Toggle>
       <Toggle
         pressed={editor.isActive('heading', { level: 3 })}
@@ -40,7 +39,7 @@ export function HeadingStyleBar({ editor }: HeadingSizeBarProps) {
         }}
         className="h-9 w-9 p-1"
       >
-        <Image src={Heading3} alt="Heading 3" className="h-[18px] w-[18px]" />
+        <Heading3Icon className="h-[18px] w-[18px]" />
       </Toggle>
     </div>
   )
