@@ -11,7 +11,7 @@ autoscaling:
   enabled: false
 
 ingress:
-  enabled: true
+  enabled: false
   path: /
   hosts:
     - grafana.codedang.com
@@ -22,6 +22,20 @@ ingress:
     - hosts:
         - grafana.codedang.com
       secretName: grafana-tls
+
+httproute:
+  enabled: true
+  hostnames:
+    - grafana.codedang.com
+  parentRefs:
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-wildcard
+  rules:
+  - matches:
+      - path:
+          type: PathPrefix
+          value: /
 
 limits:
   cpu: 200m
