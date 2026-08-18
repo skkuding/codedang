@@ -1597,6 +1597,7 @@ input CourseInput {
   phoneNum: String
   professor: String!
   semester: String!
+  studentWhitelist: [StudentWhitelistInput!]
   website: String
   week: Int!
 }
@@ -2267,6 +2268,7 @@ type GroupWhitelist {
   group: Group!
   groupId: Int!
   studentId: String!
+  studentName: String
 }
 
 type GroupWhitelistAvgAggregate {
@@ -2277,16 +2279,19 @@ type GroupWhitelistCountAggregate {
   _all: Int!
   groupId: Int!
   studentId: Int!
+  studentName: Int!
 }
 
 type GroupWhitelistMaxAggregate {
   groupId: Int
   studentId: String
+  studentName: String
 }
 
 type GroupWhitelistMinAggregate {
   groupId: Int
   studentId: String
+  studentName: String
 }
 
 type GroupWhitelistSumAggregate {
@@ -3662,6 +3667,11 @@ input Snippet {
 input Solution {
   code: String!
   language: Language!
+}
+
+input StudentWhitelistInput {
+  studentId: String!
+  studentName: String!
 }
 
 type StudyInfo {
