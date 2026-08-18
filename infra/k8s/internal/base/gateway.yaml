@@ -8,7 +8,14 @@ metadata:
 spec:
   gatewayClassName: traefik
   listeners:
-  - name: https
+  - name: http
+    protocol: HTTP
+    port: 8000
+    allowedRoutes:
+      namespaces:
+        from: All
+
+  - name: https-wildcard
     protocol: HTTPS
     port: 8443
     hostname: "*.codedang.com"
@@ -16,6 +23,19 @@ spec:
       mode: Terminate
       certificateRefs:
       - name: wildcard-tls-secret
+    allowedRoutes:
+      namespaces:
+        from: All
+
+    # apex domain listener
+  - name: https-apex
+    protocol: HTTPS
+    port: 8443
+    hostname: "codedang.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: apex-tls-secret
     allowedRoutes:
       namespaces:
         from: All
