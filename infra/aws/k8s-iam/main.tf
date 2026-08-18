@@ -23,7 +23,7 @@ data "terraform_remote_state" "storage" {
   backend = "s3"
   config = {
     bucket = "codedang-tf-state"
-    key    = "terraform/storage.tfstate"
+    key    = "terraform/db.tfstate"
     region = "ap-northeast-2"
   }
 }
