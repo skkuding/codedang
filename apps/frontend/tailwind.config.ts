@@ -218,6 +218,9 @@ export default {
             1: '#282D3D'
           }
         },
+        dimmed: {
+          DEFAULT: 'rgba(0, 0, 0, 0.6)'
+        },
         flowkit: {
           red: '#FC5555',
           purple: '#7B61FF',
