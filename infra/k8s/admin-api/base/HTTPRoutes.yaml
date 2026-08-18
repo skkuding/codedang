@@ -4,24 +4,24 @@ metadata:
   name: admin-api-server-gateway
 spec:
   parentRefs:
-    - name: main-gateway
-      namespace: kube-system
-      sectionName: https-apex
+  - name: main-gateway
+    namespace: kube-system
+    sectionName: https-apex
   hostnames:
-    - codedang.com
+  - codedang.com
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /graphql
-      backendRefs:
-        - name: admin-api-server
-          port: 3000
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /graphql
+    backendRefs:
+    - name: admin-api-server
+      port: 3000
 
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /admin-api
-      backendRefs:
-        - name: admin-api-server
-          port: 3000
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /admin-api
+    backendRefs:
+    - name: admin-api-server
+      port: 3000

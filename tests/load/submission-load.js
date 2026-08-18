@@ -65,9 +65,7 @@ const STEADY_DURATION = env('STEADY_DURATION', '2m')
 const RAMP_DOWN_DURATION = env('RAMP_DOWN_DURATION', '30s')
 
 if (NORMAL_VUS === 0 && VILLAIN_VUS === 0) {
-  throw new Error(
-    'At least one of NORMAL_VUS or VILLAIN_VUS must be greater than 0'
-  )
+  throw new Error('At least one of NORMAL_VUS or VILLAIN_VUS must be greater than 0')
 }
 
 if (!USERNAME || !PASSWORD || !PROBLEM_ID) {

@@ -5,14 +5,14 @@ metadata:
   namespace: kube-system
 spec:
   parentRefs:
-    - name: main-gateway
-      namespace: kube-system
-      sectionName: http
+  - name: main-gateway
+    namespace: kube-system
+    sectionName: http
   hostnames:
-    - '*.codedang.com'
-    - codedang.com
+  - "*.codedang.com"
+  - codedang.com
   rules:
-    - filters:
-        - type: RequestRedirect
-          requestRedirect:
-            scheme: https
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
