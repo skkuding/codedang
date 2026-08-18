@@ -10,7 +10,7 @@ terraform {
 
   backend "s3" {
     bucket       = "codedang-tf-state"
-    key          = "terraform/vpc.tfstate"
+    key          = "terraform/decommission-stage.tfstate"
     region       = "ap-northeast-2"
     encrypt      = true
     use_lockfile = true
@@ -19,4 +19,9 @@ terraform {
 
 provider "aws" {
   region = "ap-northeast-2"
+}
+
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
 }
