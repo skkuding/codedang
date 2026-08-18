@@ -52,6 +52,7 @@ export class MandeuldangPublicationService {
     //실행 요청 메시지 publish
     try {
       await this.amqpService.publishGeneratorMessage(
+        request.id,
         problemId,
         generatorRequest
       )
@@ -90,7 +91,11 @@ export class MandeuldangPublicationService {
     })
 
     try {
-      await this.amqpService.publishValidatorMessage(problemId, validateRequest)
+      await this.amqpService.publishValidatorMessage(
+        request.id,
+        problemId,
+        validateRequest
+      )
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
         where: { id: request.id },

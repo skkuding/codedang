@@ -363,6 +363,7 @@ export class MandeuldangAMQPService {
    */
   @Span()
   async publishGeneratorMessage(
+    requestId: number,
     problemId: number,
     request: object
   ): Promise<void> {
@@ -372,7 +373,7 @@ export class MandeuldangAMQPService {
       MANDEULDANG_GENERATOR_KEY,
       request,
       {
-        messageId: `Generator-${problemId}`,
+        messageId: String(request.requestId),
         persistent: true,
         type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
       }
@@ -385,6 +386,7 @@ export class MandeuldangAMQPService {
    */
   @Span()
   async publishValidatorMessage(
+    requestId: number,
     problemId: number,
     request: object
   ): Promise<void> {
@@ -394,7 +396,7 @@ export class MandeuldangAMQPService {
       MANDEULDANG_VALIDATOR_KEY,
       request,
       {
-        messageId: `Validator-${problemId}`,
+        messageId: String(requestId),
         persistent: true,
         type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
         priority: MESSAGE_PRIORITY_MIDDLE

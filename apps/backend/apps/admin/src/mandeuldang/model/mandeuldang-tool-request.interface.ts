@@ -1,4 +1,5 @@
 export interface GeneratorRequest {
+  requestId: number
   problemId: number
   generatorLanguage: string
   generatorCode: string
@@ -9,6 +10,7 @@ export interface GeneratorRequest {
 }
 
 export interface ValidatorRequest {
+  requestId: number
   problemId: number
   language: string
   validatorCode: string
