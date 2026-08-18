@@ -50,7 +50,7 @@ func (tr *TaskRunner) Tracer() trace.Tracer {
 	return tr.tracer
 }
 
-func (tr *TaskRunner) Run(id string, validReq Task, sendResult ResultSender2Runner, ctx context.Context) {
+func (tr *TaskRunner) Run(id string, validReq Task, sendResult ResultSender, ctx context.Context) {
 	startedAt := time.Now()
 	defer func() {
 		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))

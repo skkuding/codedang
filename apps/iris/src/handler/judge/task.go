@@ -45,7 +45,7 @@ func (t *Task) GetBuildUnits() []*build.BuildUnit {
 	return t.buildUnits
 }
 
-func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender2Runner) {
+func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
 	validReq := t.req
 	if len(t.buildUnits) == 0 || t.buildUnits[0] == nil {
 		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("judge build unit not found"))})
