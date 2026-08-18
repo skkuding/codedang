@@ -1713,28 +1713,6 @@ export class CourseService {
             title: true,
             isExercise: true
           }
-        },
-        problem: {
-          select: {
-            assignmentProblem: {
-              where: {
-                assignment: {
-                  groupId
-                }
-              },
-              orderBy: { assignmentId: 'desc' },
-              take: 1,
-              select: {
-                assignment: {
-                  select: {
-                    id: true,
-                    title: true,
-                    isExercise: true
-                  }
-                }
-              }
-            }
-          }
         }
       },
       where,
@@ -1743,19 +1721,15 @@ export class CourseService {
       }
     })
 
-    return qnas.map(
-      ({ readBy, problem, assignment: directAssignment, ...rest }) => {
-        const assignment =
-          directAssignment ?? problem?.assignmentProblem?.[0]?.assignment
-        return {
-          ...rest,
-          isRead: userId == null || readBy.includes(userId),
-          assignmentId: assignment?.id ?? null,
-          assignmentTitle: assignment?.title ?? null,
-          isExercise: assignment?.isExercise ?? null
-        }
+    return qnas.map(({ readBy, assignment, ...rest }) => {
+      return {
+        ...rest,
+        isRead: userId == null || readBy.includes(userId),
+        assignmentId: assignment?.id ?? null,
+        assignmentTitle: assignment?.title ?? null,
+        isExercise: assignment?.isExercise ?? null
       }
-    )
+    })
   }
 
   /**
@@ -1813,26 +1787,6 @@ export class CourseService {
             title: true,
             isExercise: true
           }
-        },
-        problem: {
-          select: {
-            assignmentProblem: {
-              where: {
-                assignment: { groupId }
-              },
-              orderBy: { assignmentId: 'desc' },
-              take: 1,
-              select: {
-                assignment: {
-                  select: {
-                    id: true,
-                    title: true,
-                    isExercise: true
-                  }
-                }
-              }
-            }
-          }
         }
       }
     })
@@ -1864,10 +1818,8 @@ export class CourseService {
       })
     }
 
-    const assignment =
-      qna.assignment ?? qna.problem?.assignmentProblem?.[0]?.assignment
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { problem, assignment: _, readBy, ...rest } = qna
+    const { assignment, readBy, ...rest } = qna
 
     return {
       ...rest,
