@@ -15,13 +15,13 @@ output "private_route_table_id" {
 
 output "db_subnet_ids" {
   value = [
-    module.public_api_subnets.subnet_ids["public_db1"],
-    module.public_api_subnets.subnet_ids["public_db2"],
-    module.public_api_subnets.subnet_ids["public_db3"],
+    module.public_db_subnets.subnet_ids["public_db1"],
+    module.public_db_subnets.subnet_ids["public_db2"],
+    module.public_db_subnets.subnet_ids["public_db3"],
   ]
 }
 
 output "security_group_ids" {
   description = "Map of active security group IDs"
-  value       = module.storage_security_groups.security_group_ids
+  value       = module.database_security_groups.security_group_ids
 }

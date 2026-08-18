@@ -1,4 +1,4 @@
-module "storage_security_groups" {
+module "database_security_groups" {
   source = "./modules/security-group"
 
   security_groups = {

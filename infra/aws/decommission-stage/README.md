@@ -7,6 +7,19 @@ Every resource is protected by `prevent_destroy`, and imported resources ignore
 configuration drift. Remove those guards only in a dedicated deletion change
 after reviewing a complete `terraform plan -destroy`.
 
+## State transfer
+
+Resources formerly managed by `infra/aws/vpc` and `infra/aws/storage` are
+detached there through `removed` blocks with `destroy = false`. Apply those
+source-root plans first, verify that they contain no destroy actions, and then
+apply this root to import the detached resources. The active DB resources in
+the former mixed-purpose VPC modules use `moved` blocks and remain in the VPC
+state.
+
+Do not remove the source-root `removed` blocks until the migration has been
+applied and this root produces a clean plan. The retired Redis cluster no longer
+exists; only its residual subnet group is imported here.
+
 ## Staged resources
 
 - Legacy admin/client ALBs, target groups, listeners, subnets, and security groups

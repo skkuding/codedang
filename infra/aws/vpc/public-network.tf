@@ -25,7 +25,7 @@ resource "aws_route_table" "public" {
 }
 
 
-module "public_api_subnets" {
+module "public_db_subnets" {
   source = "./modules/subnet"
 
   subnets = {
