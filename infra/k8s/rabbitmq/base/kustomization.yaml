@@ -5,10 +5,10 @@ namespace: rabbitmq
 resources:
   - admin-credentials.yaml
   - admin-user.yaml
-  - ingress.yaml
+  - HTTPRoutes.yaml
+  - backend-tls-policy.yaml
   - namespace.yaml
   - rabbitmq-cluster.yaml
-  - serverstransport.yaml
   - service-monitor.yaml
   - tls-certificate.yaml
   - vhost.yaml
