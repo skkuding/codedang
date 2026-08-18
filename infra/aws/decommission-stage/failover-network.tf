@@ -184,18 +184,6 @@ resource "aws_instance" "bastion" {
   }
 }
 
-# This default route is blackholed through the stopped NAT instance.
-resource "aws_route" "nat_default" {
-  route_table_id         = "rtb-0b1db0a507940f8a8"
-  destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = aws_instance.nat.primary_network_interface_id
-
-  lifecycle {
-    prevent_destroy = true
-    ignore_changes  = all
-  }
-}
-
 # The AWS Redis cluster is gone, leaving this subnet group as residue.
 resource "aws_elasticache_subnet_group" "redis" {
   name       = "redis-subnet-group"
@@ -233,11 +221,6 @@ import {
 import {
   to = aws_instance.bastion
   id = "i-06bf9c09e71704c47"
-}
-
-import {
-  to = aws_route.nat_default
-  id = "rtb-0b1db0a507940f8a8_0.0.0.0/0"
 }
 
 import {

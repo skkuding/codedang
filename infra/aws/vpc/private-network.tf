@@ -6,6 +6,7 @@ resource "aws_route_table" "private" {
   }
 
   lifecycle {
+    # Preserve the retired NAT route until its dedicated deletion change.
     ignore_changes = [route]
   }
 }
