@@ -75,6 +75,26 @@ export class GroupService {
               office: input.office,
               phoneNum: input.phoneNum
             }
+          },
+          GroupWhitelist: input.studentWhitelist?.length
+            ? {
+                createMany: {
+                  data: input.studentWhitelist.map(
+                    ({ studentId, studentName }) => ({
+                      studentId,
+                      studentName
+                    })
+                  )
+                }
+              }
+            : undefined,
+          userGroup: {
+            create: {
+              user: {
+                connect: { id: user.id }
+              },
+              isGroupLeader: true
+            }
           }
         },
         select: {
@@ -85,17 +105,7 @@ export class GroupService {
           courseInfo: true
         }
       })
-      await this.prisma.userGroup.create({
-        data: {
-          user: {
-            connect: { id: user.id }
-          },
-          group: {
-            connect: { id: createdCourse.id }
-          },
-          isGroupLeader: true
-        }
-      })
+
       return createdCourse
     } catch (error) {
       throw new UnprocessableDataException(error.message)
