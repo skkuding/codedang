@@ -319,7 +319,7 @@ export class MandeuldangAMQPService {
       MANDEULDANG_GENERATOR_KEY,
       request,
       {
-        messageId: `Generator-${request.problemId}`,
+        messageId: String(request.requestId),
         persistent: true,
         type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
       }
@@ -338,7 +338,7 @@ export class MandeuldangAMQPService {
       MANDEULDANG_VALIDATOR_KEY,
       request,
       {
-        messageId: `Validator-${request.problemId}`,
+        messageId: String(request.requestId),
         persistent: true,
         type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
         priority: MESSAGE_PRIORITY_MIDDLE
