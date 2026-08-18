@@ -25,6 +25,7 @@ exists; only its residual subnet group is imported here.
 - Legacy admin/client ALBs, target groups, listeners, subnets, and security groups
 - Amazon MQ broker, attached configuration, subnet, and Secrets Manager secret
 - ECS launch templates, IAM roles, policy attachments, and instance profiles
+- Empty legacy ECS CloudWatch log groups
 - Stopped NAT and bastion instances
 - Legacy API, admin, Iris, Redis, MQ, DB, Jaeger, and Grafana network resources
 - Retired stage CloudFront distribution and its wildcard certificate
@@ -40,8 +41,10 @@ exists; only its residual subnet group is imported here.
 4. Delete stopped instances before their subnets and security groups.
    The blackholed NAT route remains inline in the active private route table
    and must be removed from `infra/aws/vpc` separately.
-5. Preserve the ACM validation CNAME managed by `infra/aws/dns`; the active
+5. Delete the legacy ECS log groups only after their task definitions are
+   deregistered and no service can publish to them.
+6. Preserve the ACM validation CNAME managed by `infra/aws/dns`; the active
    wildcard certificate currently shares it.
-6. Do not include RDS snapshots, active S3 buckets, the cross-account VPC
+7. Do not include RDS snapshots, active S3 buckets, the cross-account VPC
    peering connection, or resources managed by the website and cookbook
    repositories in a bulk destroy.
