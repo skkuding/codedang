@@ -113,7 +113,20 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		}()
 	}
 
-	for result := range resultChan {
+drain:
+	for {
+		var result []byte
+		var open bool
+		select {
+		case result, open = <-resultChan:
+			if !open {
+				break drain
+			}
+		case <-spanCtx.Done():
+			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("message handling timed out after %s", timeout), spanCtx)
+			break drain
+		}
+
 		if err := c.producer.Publish(result, spanCtx, message.Type); err != nil {
 			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), spanCtx)
 			// nack

@@ -22,11 +22,10 @@ const PUBLISH_RESULT = "Publish"
 // const BASE_DIR = "./results"
 // const SANDBOX_BASE = "/app/sandbox" // for docker, FIXME: 환경변수로 설정
 
-const SANDBOX_BASE = "./lib/judger" // for local
-const RESULT_PATH = SANDBOX_BASE + "/results"
+const SANDBOX_BASE = "./lib/judger"        // for local
+const RESULT_PATH = "/app/sandbox/results" // Iris runtime directory
 const LIBJUDGER_PATH = SANDBOX_BASE + "/libjudger.so"
 const JAVA_POLICY_PATH = SANDBOX_BASE + "/policy/java_policy"
-const SANDBOX_RESULTS_DIR = "/app/sandbox/results"
 
 // const BASE_DIR = "/go/src/workspace/results"
 const BASE_FILE_MODE = 0711

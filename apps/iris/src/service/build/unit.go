@@ -110,7 +110,7 @@ func (bu *BuildUnit) Setup(
 }
 
 func normalizeCompileError(err error, dir string) string {
-	sandboxPath := constants.SANDBOX_RESULTS_DIR + "/" + dir + "/"
+	sandboxPath := constants.RESULT_PATH + "/" + dir + "/"
 	return strings.ReplaceAll(err.Error(), sandboxPath, "")
 }
 

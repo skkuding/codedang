@@ -66,13 +66,19 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
 	}
 
 	for tcID, element := range tc.Elements {
+		if err := ctx.Err(); err != nil {
+			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("run", handler.CANCELED, logger.INFO, err)})
+			return
+		}
 		judgeResult := t.runTestcase(ctx, tcID, validReq, element)
 		sendResult(judgeResult.message)
+		if ctx.Err() != nil {
+			return
+		}
 		if validReq.StopOnNotAccepted && judgeResult.code != handler.ACCEPTED {
 			for idxToCancel := tcID + 1; idxToCancel < len(tc.Elements); idxToCancel++ {
 				canceledResult := RunResult{
 					TestcaseId: tc.Elements[idxToCancel].Id,
-					ErrorCode:  int(handler.CANCELED),
 					Error:      "Execution canceled due to previous test case failure",
 				}
 
@@ -130,7 +136,7 @@ func (t *Task) runTestcase(ctx context.Context, idx int, validReq *RunRequest,
 		goto Send
 	}
 
-	res.SetExecResult(runResult.ExecResult)
+	res.SetRunExecResult(runResult.ExecResult)
 	res.Output = string(runResult.Output)
 
 	if len(res.Output) > constants.MAX_OUTPUT {

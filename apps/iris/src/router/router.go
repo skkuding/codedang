@@ -117,9 +117,9 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", path, taskErr))
 		r.errHandle(taskErr)
 		if isPolygonPath(path) {
-			r.sendPolygonResponse(out, id, problemId, path, nil, taskErr)
+			r.sendPolygonResponse(ctx, out, id, problemId, path, nil, taskErr)
 		} else {
-			out <- response.NewJudgeResponse(id, nil, taskErr).Marshal()
+			sendResponse(ctx, out, response.NewJudgeResponse(id, nil, taskErr).Marshal())
 		}
 		return
 	}
@@ -133,7 +133,10 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 	go func() {
 		defer close(taskResultChan)
 		r.runner.Run(newCtx, id, task, func(result handler.ResultMessage) {
-			taskResultChan <- result
+			select {
+			case taskResultChan <- result:
+			case <-newCtx.Done():
+			}
 		})
 	}()
 
@@ -141,16 +144,20 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 	for result := range taskResultChan {
 		r.errHandle(result.Err)
 		if isPolygonPath(path) {
-			r.sendPolygonResponse(out, id, problemId, path, result.Result, result.Err)
+			if !r.sendPolygonResponse(ctx, out, id, problemId, path, result.Result, result.Err) {
+				return
+			}
 		} else {
 			judgeResponse := response.NewJudgeResponse(id, result.Result, result.Err)
-			out <- judgeResponse.Marshal()
+			if !sendResponse(ctx, out, judgeResponse.Marshal()) {
+				return
+			}
 			judgeResults = append(judgeResults, judgeResponse)
 		}
 	}
 
 	if !isPolygonPath(path) {
-		out <- response.NewSubmissionResponse(id, judgeResults).Marshal()
+		sendResponse(ctx, out, response.NewSubmissionResponse(id, judgeResults).Marshal())
 	}
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
@@ -159,11 +166,19 @@ func isPolygonPath(path string) bool {
 	return path == Generate || path == Validate || path == Check
 }
 
-func (r *router) sendPolygonResponse(out chan<- []byte, id string, problemID int, path string, result json.RawMessage, taskErr error) {
+func sendResponse(ctx context.Context, out chan<- []byte, data []byte) bool {
+	select {
+	case out <- data:
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
+func (r *router) sendPolygonResponse(ctx context.Context, out chan<- []byte, id string, problemID int, path string, result json.RawMessage, taskErr error) bool {
 	res, err := response.NewPolygonToolResponse(id, problemID, getToolType(path), result, taskErr).Marshal()
 	if err == nil {
-		out <- res
-		return
+		return sendResponse(ctx, out, res)
 	}
 
 	r.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal Polygon response for path %s with id %s: %v", path, id, err))
@@ -176,9 +191,9 @@ func (r *router) sendPolygonResponse(out chan<- []byte, id string, problemID int
 	).Marshal()
 	if fallbackErr != nil {
 		r.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal fallback Polygon response for id %s: %v", id, fallbackErr))
-		return
+		return false
 	}
-	out <- fallback
+	return sendResponse(ctx, out, fallback)
 }
 
 func getToolType(path string) string {

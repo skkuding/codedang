@@ -90,7 +90,7 @@ func main() {
 	}
 	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
 
-	fileManager := file.NewFileManager(constants.SANDBOX_RESULTS_DIR)
+	fileManager := file.NewFileManager(constants.RESULT_PATH)
 
 	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 
