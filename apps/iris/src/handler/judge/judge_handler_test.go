@@ -1,4 +1,4 @@
-package handler
+package judge
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 func TestValidate(t *testing.T) {
 	t.Run("invalid code", func(t *testing.T) {
 		t.Parallel()
-		req := Request{Code: ""}
+		req := JudgeRequest{Code: ""}
 		result, err := req.Validate()
 
 		assert.Nil(t, result)
@@ -18,7 +18,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("invalid language", func(t *testing.T) {
 		t.Parallel()
-		req := Request{
+		req := JudgeRequest{
 			Code:     "print('')",
 			Language: "",
 		}
@@ -28,9 +28,9 @@ func TestValidate(t *testing.T) {
 		assert.EqualError(t, err, "language must not be empty")
 	})
 
-	t.Run("invalid language", func(t *testing.T) {
+	t.Run("unsupported language", func(t *testing.T) {
 		t.Parallel()
-		req := Request{
+		req := JudgeRequest{
 			Code:     "print('')",
 			Language: "Umm",
 		}
@@ -42,7 +42,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("invalid problemId", func(t *testing.T) {
 		t.Parallel()
-		req := Request{
+		req := JudgeRequest{
 			Code:      "print('')",
 			Language:  "C",
 			ProblemId: 0,
@@ -55,7 +55,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("invalid timeLimit", func(t *testing.T) {
 		t.Parallel()
-		req := Request{
+		req := JudgeRequest{
 			Code:      "print('')",
 			Language:  "C",
 			ProblemId: 1,
@@ -69,7 +69,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("invalid memoryLimit", func(t *testing.T) {
 		t.Parallel()
-		req := Request{
+		req := JudgeRequest{
 			Code:        "print('')",
 			Language:    "C",
 			ProblemId:   1,
@@ -84,7 +84,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("valid request", func(t *testing.T) {
 		t.Parallel()
-		req := Request{
+		req := JudgeRequest{
 			Code:        "print('')",
 			Language:    "C",
 			ProblemId:   1,
