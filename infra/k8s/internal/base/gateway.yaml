@@ -15,6 +15,20 @@ spec:
       namespaces:
         from: All
 
+    # apex domain listener
+  - name: https-apex
+    protocol: HTTPS
+    port: 8443
+    hostname: "codedang.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: apex-tls-secret
+    allowedRoutes:
+      namespaces:
+        from: All
+
+  # wildcard listener
   - name: https-wildcard
     protocol: HTTPS
     port: 8443
@@ -27,15 +41,15 @@ spec:
       namespaces:
         from: All
 
-    # apex domain listener
-  - name: https-apex
+    # stage domain listener
+  - name: https-stage-wildcard
     protocol: HTTPS
     port: 8443
-    hostname: "codedang.com"
+    hostname: "*.stage.codedang.com"
     tls:
       mode: Terminate
       certificateRefs:
-        - name: apex-tls-secret
+      - name: stage-wildcard-tls-secret
     allowedRoutes:
       namespaces:
         from: All

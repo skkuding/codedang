@@ -52,7 +52,7 @@ prometheus:
     parentRefs:
       - name: main-gateway
         namespace: kube-system
-        sectionName: https-wildcard
+        sectionName: https-stage-wildcard
     rules:
     - matches:
         - path:
