@@ -17,6 +17,7 @@
  * serializes its sandbox runs without cgroup resource collisions.
  */
 import * as amqplib from 'amqplib'
+import { appendFileSync } from 'node:fs'
 import { Client } from 'pg'
 
 // ---------------------------------------------------------------------------
@@ -37,6 +38,15 @@ const DB_URL = (
 ).split('?')[0]
 
 const TIMEOUT_MS = 30_000
+const EVENT_LOG = process.env.E2E_EVENT_LOG
+
+function logEvent(type: string, payload: unknown): void {
+  if (!EVENT_LOG) return
+  appendFileSync(
+    EVENT_LOG,
+    `${JSON.stringify({ at: new Date().toISOString(), type, payload })}\n`
+  )
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -91,6 +101,7 @@ function publish(
   messageId: string,
   body: object
 ): void {
+  logEvent('request', { messageId, type: msgType, body })
   ch.sendToQueue(SUB_QUEUE, Buffer.from(JSON.stringify(body)), {
     messageId,
     type: msgType,
@@ -111,6 +122,7 @@ async function waitForResponse(
       continue
     }
     const resp = JSON.parse(msg.content.toString()) as PolygonToolResponse
+    logEvent('response', resp)
     if (resp.messageId === messageId) {
       ch.ack(msg)
       return resp
@@ -556,6 +568,10 @@ async function runScenario(
     console.log(ok ? '>> PASSED' : '>> FAILED')
     return ok
   } catch (e) {
+    logEvent('scenario_error', {
+      scenario: name,
+      error: e instanceof Error ? e.message : String(e)
+    })
     console.log(`  [ERROR] ${e instanceof Error ? e.message : String(e)}`)
     console.log('>> FAILED')
     return false
