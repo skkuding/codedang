@@ -12,6 +12,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
 	"github.com/skkuding/codedang/apps/iris/src/handler/run"
 	"github.com/skkuding/codedang/apps/iris/src/handler/validate"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -116,7 +117,7 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 		if path == Generate || path == Validate || path == Check {
 			out <- NewPolygonToolResponse(id, problemId, getToolType(path), nil, taskErr).Marshal()
 		} else {
-			out <- NewResponse(id, nil, taskErr).Marshal()
+			out <- response.NewJudgeResponse(id, nil, taskErr).Marshal()
 		}
 		return
 	}
@@ -134,14 +135,20 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 		}, newCtx)
 	}()
 
+	judgeResults := make([]*response.JudgeResponse, 0)
 	for result := range taskResultChan {
 		r.errHandle(result.Err)
 		if path == Generate || path == Validate || path == Check {
 			out <- NewPolygonToolResponse(id, problemId, getToolType(path), result.Result, result.Err).Marshal()
 		} else {
-			out <- NewResponse(id, result.Result, result.Err).Marshal()
+			judgeResponse := response.NewJudgeResponse(id, result.Result, result.Err)
+			out <- judgeResponse.Marshal()
+			judgeResults = append(judgeResults, judgeResponse)
 		}
-		// break
+	}
+
+	if path != Generate && path != Validate && path != Check {
+		out <- response.NewSubmissionResponse(id, judgeResults).Marshal()
 	}
 	r.logger.Log(logger.DEBUG, "Router done...")
 }

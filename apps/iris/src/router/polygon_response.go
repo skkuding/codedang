@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 )
 
 type PolygonToolResponse struct {
@@ -35,7 +36,7 @@ func NewPolygonToolResponse(messageId string, problemId int, toolType string, da
 }
 
 func (r *PolygonToolResponse) Marshal() []byte {
-	if res, err := JSONMarshal(r); err != nil {
+	if res, err := response.JSONMarshal(r); err != nil {
 		panic(err)
 	} else {
 		return res
