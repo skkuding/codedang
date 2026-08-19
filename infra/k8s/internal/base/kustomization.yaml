@@ -6,5 +6,6 @@ resources:
   - cluster-issuer-http01.yaml
   - traefik-config.yaml
   - gateway.yaml
+  - TLSRedirect.yaml
 commonAnnotations:
   managed-by: kustomize
