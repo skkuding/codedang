@@ -31,7 +31,7 @@ func TestRunValidations(t *testing.T) {
 			{Id: 2, In: "2", Out: "2"},
 		}
 
-		// nil validatorUnit is safe here: goroutines exit via gCtx.Done() before calling Run
+		// runValidations checks cancellation before it starts workers, so no job reaches the nil unit.
 		allValid, results, err := task.runValidations(ctx, nil, elements, handler.ToolExecutionLimits{})
 
 		assert.ErrorIs(t, err, context.Canceled)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler"
@@ -20,7 +19,7 @@ import (
 type Task struct {
 	req        *GenerateRequest
 	buildUnits []*build.BuildUnit
-	tcManager  testcase.TestcaseManager
+	tcManager  testcase.TestcaseWriter
 	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger     logger.Logger
 }
@@ -51,9 +50,9 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
 
 	for _, u := range t.buildUnits {
 		switch u.Name {
-		case "generator":
+		case GeneratorUnitName:
 			generatorUnit = u
-		case "solution":
+		case SolutionUnitName:
 			solutionUnit = u
 		}
 	}
@@ -106,6 +105,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
 	}
 
 	if err := t.tcManager.SaveTestcase(
+		ctx,
 		strconv.Itoa(validReq.ProblemId),
 		false,
 		collected,
@@ -151,7 +151,8 @@ func (t *Task) runGenerations(
 ) ([]loader.ElementIn, []GenerateTestcaseError, error) {
 	// Sandbox processes are external to Go's GMP scheduler. Keep the default
 	// serial until an operator has measured host CPU/memory headroom, then opt
-	// into a higher worker count through GENERATE_CONCURRENCY.
+	// into a higher worker count through GENERATE_CONCURRENCY. A shared BuildUnit
+	// serializes its runs, so parallelism requires separate units per worker.
 	workerCount, err := handler.WorkerCountFromEnv("GENERATE_CONCURRENCY", count, 1)
 	if err != nil {
 		return nil, nil, err
@@ -160,6 +161,11 @@ func (t *Task) runGenerations(
 	if err != nil {
 		return nil, nil, err
 	}
+	if err := ctx.Err(); err != nil {
+		return nil, nil, fmt.Errorf("generation cancelled: %w", err)
+	}
+
+	// This function owns jobs: it creates, sends to, and closes the channel.
 	jobs := make(chan int)
 	pairs := make([]loader.ElementIn, count)
 	pairOk := make([]bool, count)
@@ -191,7 +197,7 @@ func (t *Task) runGenerations(
 	}
 
 schedule:
-	for i := 0; i < count; i++ {
+	for i := range count {
 		select {
 		case jobs <- i:
 		case <-ctx.Done():
@@ -200,8 +206,8 @@ schedule:
 	}
 	close(jobs)
 	wg.Wait()
-	if ctx.Err() != nil {
-		return nil, nil, fmt.Errorf("generation cancelled: %w", ctx.Err())
+	if err := ctx.Err(); err != nil {
+		return nil, nil, fmt.Errorf("generation cancelled: %w", err)
 	}
 
 	var collected []loader.ElementIn
@@ -234,8 +240,7 @@ func (t *Task) generateOneWithRetry(
 }
 
 func isRetryableGenerationError(generateErr *GenerateTestcaseError) bool {
-	return strings.HasPrefix(generateErr.Message, "generator run failed:") ||
-		strings.HasPrefix(generateErr.Message, "solution run failed:")
+	return generateErr.retryable
 }
 
 func (t *Task) generateOneSafely(
@@ -268,7 +273,7 @@ func (t *Task) generateOne(
 		ExtraArgs:   t.req.GeneratorArgs,
 	}, []byte{})
 	if err != nil {
-		return loader.ElementIn{}, &GenerateTestcaseError{Index: index, Message: fmt.Sprintf("generator run failed: %v", err)}
+		return loader.ElementIn{}, &GenerateTestcaseError{Index: index, Message: fmt.Sprintf("generator run failed: %v", err), retryable: true}
 	}
 	if runResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 		return loader.ElementIn{}, &GenerateTestcaseError{
@@ -287,7 +292,7 @@ func (t *Task) generateOne(
 			ExtraArgs:   []string{},
 		}, runResult.Output)
 		if solutionErr != nil {
-			return loader.ElementIn{}, &GenerateTestcaseError{Index: index, Message: fmt.Sprintf("solution run failed: %v", solutionErr)}
+			return loader.ElementIn{}, &GenerateTestcaseError{Index: index, Message: fmt.Sprintf("solution run failed: %v", solutionErr), retryable: true}
 		}
 		if solutionRunResult.ExecResult.StatusCode != sandbox.RUN_SUCCESS {
 			return loader.ElementIn{}, &GenerateTestcaseError{

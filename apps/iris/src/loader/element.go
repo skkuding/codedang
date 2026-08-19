@@ -1,8 +1,9 @@
 package loader
 
 type ElementIn struct {
+	// Id is the in-flight generation index. PostgreSQL assigns the persisted ID.
 	Id        int    `json:"id"`
-	ProblemId string `json:"problemId"`
+	ProblemId int    `json:"problemId"`
 	In        string `json:"in"`
 	Out       string `json:"out"`
 	Hidden    bool   `json:"hidden"`

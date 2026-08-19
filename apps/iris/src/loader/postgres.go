@@ -8,17 +8,16 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
 type Postgres struct {
-	ctx    context.Context
 	client *sql.DB
 	logger logger.Logger
 }
 
-func NewPostgresDataSource(ctx context.Context, logProvider logger.Logger) (*Postgres, error) {
+func NewPostgresDataSource(logProvider logger.Logger) (*Postgres, error) {
 	connStr := os.Getenv("DATABASE_URL")
 	data, err := parseDatabaseURL(connStr)
 	if err != nil {
@@ -30,7 +29,7 @@ func NewPostgresDataSource(ctx context.Context, logProvider logger.Logger) (*Pos
 		return nil, fmt.Errorf("failed to access database: %w", err)
 	}
 
-	return &Postgres{ctx: ctx, client: db, logger: logProvider}, nil
+	return &Postgres{client: db, logger: logProvider}, nil
 }
 
 func parseDatabaseURL(databaseURL string) (string, error) {
@@ -60,64 +59,63 @@ func parseDatabaseURL(databaseURL string) (string, error) {
 }
 
 // todo: need to introduce prisma like ORM
-func (p *Postgres) Save(elements []ElementIn) error {
-	const insertQuery = `INSERT INTO public.problem_testcase
-		(problem_id, input, output, is_hidden_testcase, update_time)
-		VALUES ($1, $2, $3, $4, NOW())`
+func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
 	start := time.Now()
-	p.logger.Log(
-		logger.INFO,
-		fmt.Sprintf("sql.save.start query=%q items=%d", insertQuery, len(elements)),
-	)
+	p.logger.Log(logger.INFO, fmt.Sprintf("sql.save.start items=%d", len(elements)))
 	if len(elements) == 0 {
 		p.logger.Log(logger.WARN, "sql.save.skip reason=empty_elements")
 		return nil
 	}
 
-	tx, err := p.client.BeginTx(p.ctx, nil)
+	problemID := elements[0].ProblemId
+	for _, element := range elements[1:] {
+		if element.ProblemId != problemID {
+			return fmt.Errorf("all testcases must have the same problemId")
+		}
+	}
+
+	tx, err := p.client.BeginTx(ctx, nil)
 	if err != nil {
 		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=begin_tx err=%v", err))
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer tx.Rollback() //nolint:errcheck
 
-	stmt, err := tx.PrepareContext(p.ctx, insertQuery)
+	if _, err := tx.ExecContext(
+		ctx,
+		`UPDATE public.problem_testcase
+		 SET is_outdated = true, outdate_time = NOW()
+		 WHERE problem_id = $1 AND is_outdated = false`,
+		problemID,
+	); err != nil {
+		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=retire problem_id=%d err=%v", problemID, err))
+		return fmt.Errorf("failed to retire existing testcases: %w", err)
+	}
+
+	stmt, err := tx.PrepareContext(ctx, pq.CopyInSchema(
+		"public",
+		"problem_testcase",
+		"problem_id",
+		"input",
+		"output",
+		"is_hidden_testcase",
+		"update_time",
+	))
 	if err != nil {
 		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=prepare err=%v", err))
 		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
-	defer stmt.Close()
+	defer stmt.Close() //nolint:errcheck
 
 	for idx, element := range elements {
-		p.logger.Log(
-			logger.DEBUG,
-			fmt.Sprintf(
-				"sql.save.exec.start index=%d problem_id=%s testcase_id=%d hidden=%t input_len=%d output_len=%d",
-				idx,
-				element.ProblemId,
-				element.Id,
-				element.Hidden,
-				len(element.In),
-				len(element.Out),
-			),
-		)
-		res, err := stmt.ExecContext(p.ctx, element.ProblemId, element.In, element.Out, element.Hidden)
-		if err != nil {
+		if _, err := stmt.ExecContext(ctx, element.ProblemId, element.In, element.Out, element.Hidden, start); err != nil {
 			p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=exec index=%d err=%v", idx, err))
 			return fmt.Errorf("failed to save testcase: %w", err)
 		}
-		affected, affectedErr := res.RowsAffected()
-		if affectedErr != nil {
-			p.logger.Log(
-				logger.WARN,
-				fmt.Sprintf("sql.save.exec.done index=%d rows_affected=unknown err=%v", idx, affectedErr),
-			)
-		} else {
-			p.logger.Log(
-				logger.DEBUG,
-				fmt.Sprintf("sql.save.exec.done index=%d rows_affected=%d", idx, affected),
-			)
-		}
+	}
+	if _, err := stmt.ExecContext(ctx); err != nil {
+		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=flush err=%v", err))
+		return fmt.Errorf("failed to flush testcase batch: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -131,19 +129,16 @@ func (p *Postgres) Save(elements []ElementIn) error {
 	return nil
 }
 
-func (p *Postgres) Get(key string) ([]ElementOut, error) {
+func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
 	const selectQuery = `
   SELECT id, input, output, is_hidden_testcase
   FROM public.problem_testcase
   WHERE problem_id = $1 AND is_outdated = false
   `
 	start := time.Now()
-	p.logger.Log(
-		logger.INFO,
-		fmt.Sprintf("sql.get.start query=%q problem_id=%s", selectQuery, key),
-	)
+	p.logger.Log(logger.INFO, fmt.Sprintf("sql.get.start problem_id=%s", key))
 
-	rows, err := p.client.Query(selectQuery, key)
+	rows, err := p.client.QueryContext(ctx, selectQuery, key)
 	if err != nil {
 		p.logger.Log(
 			logger.ERROR,
@@ -152,7 +147,7 @@ func (p *Postgres) Get(key string) ([]ElementOut, error) {
 		return nil, fmt.Errorf("failed to get key: %w", err)
 	}
 
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var result []ElementOut
 
@@ -176,6 +171,10 @@ func (p *Postgres) Get(key string) ([]ElementOut, error) {
 			Out:    output,
 			Hidden: isHiddenTestcase,
 		})
+	}
+	if err := rows.Err(); err != nil {
+		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.get.failed stage=iterate problem_id=%s err=%v", key, err))
+		return nil, fmt.Errorf("database fetch error: %w", err)
 	}
 
 	if len(result) == 0 {

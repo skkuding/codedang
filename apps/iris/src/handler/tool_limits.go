@@ -9,10 +9,12 @@ import (
 const (
 	ToolTimeLimitEnv       = "POLYGON_TOOL_TIME_LIMIT_MS"
 	ToolMemoryLimitEnv     = "POLYGON_TOOL_MEMORY_LIMIT_BYTES"
+	ToolMaxWorkersEnv      = "POLYGON_TOOL_MAX_WORKERS"
 	GenerateRetryCountEnv  = "GENERATE_RETRY_COUNT"
 	DefaultToolTimeLimit   = 2000
 	DefaultToolMemoryLimit = 512 * 1024 * 1024
 	DefaultGenerateRetries = 1
+	DefaultToolMaxWorkers  = 4
 )
 
 type ToolExecutionLimits struct {
@@ -42,6 +44,13 @@ func WorkerCountFromEnv(name string, total, fallback int) (int, error) {
 	}
 	if workers > total {
 		workers = total
+	}
+	maxWorkers, err := positiveIntFromEnv(ToolMaxWorkersEnv, DefaultToolMaxWorkers)
+	if err != nil {
+		return 0, err
+	}
+	if workers > maxWorkers {
+		workers = maxWorkers
 	}
 	return workers, nil
 }

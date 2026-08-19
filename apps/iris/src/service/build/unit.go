@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
@@ -47,6 +48,7 @@ func (bu *BuildUnit) Setup(
 			UserMsg: err.Error(),
 		}
 	}
+	bu.Dir = unitDir
 
 	language := sandbox.Language(bu.Language)
 	srcPath, err := sandboxService.MakeSrcPath(unitDir, language)
@@ -68,7 +70,6 @@ func (bu *BuildUnit) Setup(
 		}
 	}
 
-	bu.Dir = unitDir
 	bu.ParsedLang = language
 
 	compileResult, compileErr := sandboxService.Compile(sandbox.CompileRequest{
@@ -82,7 +83,7 @@ func (bu *BuildUnit) Setup(
 			Unit:    bu.Name,
 			Phase:   "compile",
 			Err:     fmt.Errorf("compilation error(%s): %w", bu.Name, compileErr),
-			UserMsg: normalizeCompileError(compileErr, bu.Dir, bu.ParsedLang),
+			UserMsg: normalizeCompileError(compileErr, bu.Dir),
 		}
 	}
 
@@ -100,7 +101,7 @@ func (bu *BuildUnit) Setup(
 			Unit:        bu.Name,
 			Phase:       "compile",
 			Err:         fmt.Errorf("compile failed (%s)", bu.Name),
-			UserMsg:     fmt.Sprintf("%s (%s)", normalizeCompileError(fmt.Errorf("%s", string(compileResult.ErrOutput)), bu.Dir, bu.ParsedLang), bu.Name),
+			UserMsg:     fmt.Sprintf("%s (%s)", normalizeCompileError(fmt.Errorf("%s", string(compileResult.ErrOutput)), bu.Dir), bu.Name),
 			IsUserError: true,
 		}
 	}
@@ -108,15 +109,9 @@ func (bu *BuildUnit) Setup(
 	return nil
 }
 
-func normalizeCompileError(err error, dir string, lang sandbox.Language) string {
-	switch lang {
-	case sandbox.C, sandbox.CPP:
-		errMsg := err.Error()
-		sandboxPath := "/app/sandbox/results/" + dir + "/"
-		return strings.ReplaceAll(errMsg, sandboxPath, "")
-	default:
-		return err.Error()
-	}
+func normalizeCompileError(err error, dir string) string {
+	sandboxPath := constants.SANDBOX_RESULTS_DIR + "/" + dir + "/"
+	return strings.ReplaceAll(err.Error(), sandboxPath, "")
 }
 
 func (bu *BuildUnit) Run(

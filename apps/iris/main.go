@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
@@ -82,14 +83,14 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
 		return
 	}
-	database, err := loader.NewPostgresDataSource(ctx, logProvider)
+	database, err := loader.NewPostgresDataSource(logProvider)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
 	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
 
-	fileManager := file.NewFileManager("/app/sandbox/results")
+	fileManager := file.NewFileManager(constants.SANDBOX_RESULTS_DIR)
 
 	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 

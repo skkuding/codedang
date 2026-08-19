@@ -34,10 +34,6 @@ func NewPolygonToolResponse(messageId string, problemId int, toolType string, da
 	}
 }
 
-func (r *PolygonToolResponse) Marshal() []byte {
-	if res, err := JSONMarshal(r); err != nil {
-		panic(err)
-	} else {
-		return res
-	}
+func (r *PolygonToolResponse) Marshal() ([]byte, error) {
+	return JSONMarshal(r)
 }

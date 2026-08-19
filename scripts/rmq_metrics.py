@@ -121,6 +121,12 @@ def mb(val: int) -> float:
 def pct(used: int, total: int) -> float:
     return round(used / total * 100, 1) if total else 0.0
 
+def positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("interval must be at least 1 second")
+    return parsed
+
 @contextmanager
 def open_csv(path: str, cols: list[str]):
     exists = os.path.isfile(path)
@@ -221,7 +227,7 @@ def collect_queues(session, label, writer):
 
 def main():
     parser = argparse.ArgumentParser(description="RabbitMQ metrics poller")
-    parser.add_argument("--interval", type=int, default=10, help="Polling interval in seconds (default: 10)")
+    parser.add_argument("--interval", type=positive_int, default=10, help="Polling interval in seconds (default: 10)")
     parser.add_argument("--output", default="./metrics", help="Output directory (default: ./metrics)")
     parser.add_argument("--label", default="default", help="Experiment label written to every row")
     args = parser.parse_args()

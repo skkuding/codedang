@@ -23,6 +23,8 @@ const (
 
 func SandboxStatusCodeToJudgeResultCode(status sandbox.StatusCode) ResultCode {
 	switch status {
+	case sandbox.RUN_SUCCESS:
+		return ACCEPTED
 	case sandbox.CPU_TIME_LIMIT_EXCEEDED:
 		return CPU_TIME_LIMIT_EXCEEDED
 	case sandbox.REAL_TIME_LIMIT_EXCEEDED:
@@ -31,8 +33,12 @@ func SandboxStatusCodeToJudgeResultCode(status sandbox.StatusCode) ResultCode {
 		return MEMORY_LIMIT_EXCEEDED
 	case sandbox.RUNTIME_ERROR:
 		return RUNTIME_ERROR
+	case sandbox.COMPILE_ERROR:
+		return COMPILE_ERROR
+	case sandbox.SEGMENTATION_FAULT_ERROR:
+		return SEGMENTATION_FAULT_ERROR
 	case sandbox.SERVER_ERROR:
 		return SERVER_ERROR
 	}
-	return ACCEPTED
+	return SERVER_ERROR
 }

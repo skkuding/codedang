@@ -50,7 +50,7 @@ func (tr *TaskRunner) Tracer() trace.Tracer {
 	return tr.tracer
 }
 
-func (tr *TaskRunner) Run(id string, validReq Task, sendResult ResultSender, ctx context.Context) {
+func (tr *TaskRunner) Run(ctx context.Context, id string, validReq Task, sendResult ResultSender) {
 	startedAt := time.Now()
 	defer func() {
 		tr.logger.Log(logger.DEBUG, fmt.Sprintf("task done: total time: %s", time.Since(startedAt)))
@@ -78,7 +78,9 @@ func (tr *TaskRunner) Run(id string, validReq Task, sendResult ResultSender, ctx
 	defer func() {
 		for _, unit := range units {
 			if unit != nil && unit.Dir != "" {
-				tr.file.RemoveDir(unit.Dir)
+				if err := tr.file.RemoveDir(unit.Dir); err != nil {
+					tr.logger.Log(logger.WARN, fmt.Sprintf("failed to remove build dir %s: %v", unit.Dir, err))
+				}
 			}
 		}
 	}()
@@ -120,12 +122,14 @@ func (tr *TaskRunner) Run(id string, validReq Task, sendResult ResultSender, ctx
 
 func buildUnitErrorToTaskError(be *build.BuildUnitError) *TaskError {
 	level := logger.ERROR
+	code := SERVER_ERROR
 	if be.IsUserError {
 		level = logger.INFO
+		code = COMPILE_ERROR
 	}
 	return &TaskError{
 		Handler: "runner",
-		Code:    COMPILE_ERROR,
+		Code:    code,
 		UserMsg: be.UserMsg,
 		Level:   level,
 		Err:     be,

@@ -1,15 +1,25 @@
 package testcase
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
+type TestcaseReader interface {
+	GetTestcase(ctx context.Context, problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error)
+}
+
+type TestcaseWriter interface {
+	SaveTestcase(ctx context.Context, problemId string, hidden bool, data []loader.ElementIn) error
+}
+
 type TestcaseManager interface {
-	GetTestcase(problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error)
-	SaveTestcase(problemId string, hidden bool, data []loader.ElementIn) error
+	TestcaseReader
+	TestcaseWriter
 }
 
 type testcaseManager struct {
@@ -22,7 +32,7 @@ func NewTestcaseManager(
 	s3reader *loader.S3reader,
 	database *loader.Postgres,
 	logProvider logger.Logger,
-) *testcaseManager {
+) TestcaseManager {
 	return &testcaseManager{
 		s3reader: s3reader,
 		database: database,
@@ -30,16 +40,21 @@ func NewTestcaseManager(
 	}
 }
 
-func (t *testcaseManager) SaveTestcase(problemId string, hidden bool, data []loader.ElementIn) error {
+// SaveTestcase takes ownership of data and overwrites each element's ProblemId and Hidden fields.
+func (t *testcaseManager) SaveTestcase(ctx context.Context, problemId string, hidden bool, data []loader.ElementIn) error {
+	parsedProblemID, err := strconv.Atoi(problemId)
+	if err != nil {
+		return fmt.Errorf("invalid problemId %q: %w", problemId, err)
+	}
 	t.logger.Log(
 		logger.INFO,
 		fmt.Sprintf("testcase.save.start problem_id=%s hidden=%t count=%d", problemId, hidden, len(data)),
 	)
 	for i := range data {
-		data[i].ProblemId = problemId
+		data[i].ProblemId = parsedProblemID
 		data[i].Hidden = hidden
 	}
-	if err := t.database.Save(data); err != nil {
+	if err := t.database.Save(ctx, data); err != nil {
 		t.logger.Log(
 			logger.ERROR,
 			fmt.Sprintf(
@@ -59,10 +74,10 @@ func (t *testcaseManager) SaveTestcase(problemId string, hidden bool, data []loa
 	return nil
 }
 
-func (t *testcaseManager) GetTestcase(problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error) {
+func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error) {
 	data, err := t.s3reader.Get(problemId)
 	if err != nil {
-		data, err = t.database.Get(problemId)
+		data, err = t.database.Get(ctx, problemId)
 		if err != nil {
 			return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
 		}

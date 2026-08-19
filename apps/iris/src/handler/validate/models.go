@@ -6,6 +6,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 )
 
+const ValidatorUnitName = "validator"
+
 type ValidateRequest struct {
 	ProblemId     int    `json:"problemId"`
 	Language      string `json:"language"`

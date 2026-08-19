@@ -3,6 +3,9 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
@@ -11,6 +14,11 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+)
+
+const (
+	MessageTimeoutEnv       = "IRIS_MESSAGE_TIMEOUT_MS"
+	DefaultMessageTimeoutMS = 10 * 60 * 1000
 )
 
 type connector struct {
@@ -83,6 +91,13 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		trace.WithSpanKind(trace.SpanKindConsumer),
 	)
 	defer childSpan.End()
+	timeout, err := messageTimeoutFromEnv()
+	if err != nil {
+		c.logger.LogWithContext(logger.WARN, fmt.Sprintf("invalid %s: %v; using default", MessageTimeoutEnv, err), spanCtx)
+		timeout = time.Duration(DefaultMessageTimeoutMS) * time.Millisecond
+	}
+	spanCtx, cancel := context.WithTimeout(spanCtx, timeout)
+	defer cancel()
 
 	resultChan := make(chan []byte, 1)
 	if message.Type == "" {
@@ -113,4 +128,16 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	} else {
 		c.logger.LogWithContext(logger.DEBUG, "message ack", spanCtx)
 	}
+}
+
+func messageTimeoutFromEnv() (time.Duration, error) {
+	raw := os.Getenv(MessageTimeoutEnv)
+	if raw == "" {
+		return time.Duration(DefaultMessageTimeoutMS) * time.Millisecond, nil
+	}
+	milliseconds, err := strconv.Atoi(raw)
+	if err != nil || milliseconds <= 0 {
+		return 0, fmt.Errorf("must be a positive integer")
+	}
+	return time.Duration(milliseconds) * time.Millisecond, nil
 }

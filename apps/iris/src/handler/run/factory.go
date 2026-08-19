@@ -14,13 +14,13 @@ import (
 )
 
 type Factory struct {
-	tcManager testcase.TestcaseManager
+	tcManager testcase.TestcaseReader
 	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger    logger.Logger
 	tracer    trace.Tracer
 }
 
-func NewFactory(tcManager testcase.TestcaseManager, sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs], logger logger.Logger, tracer trace.Tracer) *Factory {
+func NewFactory(tcManager testcase.TestcaseReader, sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs], logger logger.Logger, tracer trace.Tracer) *Factory {
 	return &Factory{
 		tcManager: tcManager,
 		sandbox:   sandbox,

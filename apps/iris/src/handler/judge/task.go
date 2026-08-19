@@ -25,7 +25,7 @@ type Task struct {
 	req        *JudgeRequest
 	tcFilter   testcase.TestcaseFilterCode
 	buildUnits []*build.BuildUnit
-	tcManager  testcase.TestcaseManager
+	tcManager  testcase.TestcaseReader
 	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger     logger.Logger
 	tracer     trace.Tracer
@@ -57,7 +57,7 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
 	if validReq.UserTestcases != nil {
 		tc = testcase.Testcase{Elements: *validReq.UserTestcases}
 	} else {
-		res, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), t.tcFilter)
+		res, err := t.tcManager.GetTestcase(ctx, strconv.Itoa(validReq.ProblemId), t.tcFilter)
 		if err != nil {
 			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 			return
@@ -81,14 +81,18 @@ func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
 
 func (t *Task) judgeTestcase(ctx context.Context, idx int, validReq *JudgeRequest,
 	tc loader.ElementOut, sendResult func(handler.ResultMessage)) handler.ResultCode {
-	_, childSpan := t.tracer.Start(
+	ctx, childSpan := t.tracer.Start(
 		ctx,
 		instrumentation.GetSemanticSpanName("judge-handler", "judgeTestcase"),
 		trace.WithAttributes(attribute.String("problemId", strconv.Itoa(validReq.ProblemId)), attribute.String("testcaseId", strconv.Itoa(tc.Id))),
 	)
 	defer childSpan.End()
 
-	res := JudgeResult{}
+	if err := ctx.Err(); err != nil {
+		return handler.CANCELED
+	}
+
+	res := JudgeResult{TestcaseId: tc.Id}
 
 	runResult, err := t.buildUnits[0].Run(t.sandbox, sandbox.RunRequest{
 		Order:       idx,
@@ -112,8 +116,7 @@ func (t *Task) judgeTestcase(ctx context.Context, idx int, validReq *JudgeReques
 		goto Send
 	}
 
-	res.TestcaseId = tc.Id
-	res.SetJudgeExecResult(runResult.ExecResult)
+	res.SetExecResult(runResult.ExecResult)
 	res.Output = string(runResult.Output)
 
 	if len(res.Output) > constants.MAX_OUTPUT {

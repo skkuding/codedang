@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 /**
  * E2E test for iris polygon tools (generate / validate).
- * Runs one scenario at a time against the existing judge queue.
+ * Uses an exclusive result queue so it never acknowledges another request's response.
  *
  * Prerequisites:
  *   - docker-compose up rabbitmq database
@@ -31,7 +31,9 @@ const RMQ_PASS = process.env.RABBITMQ_DEFAULT_PASS ?? '1234'
 const RMQ_VHOST = process.env.RABBITMQ_DEFAULT_VHOST ?? 'vh'
 const SUB_QUEUE =
   process.env.JUDGE_SUBMISSION_QUEUE_NAME ?? 'client.q.judge.submission'
-const RES_QUEUE = process.env.JUDGE_RESULT_QUEUE_NAME ?? 'iris.q.judge.result'
+const RESULT_EXCHANGE = process.env.JUDGE_EXCHANGE_NAME ?? 'iris.e.direct.judge'
+const RESULT_ROUTING_KEY =
+  process.env.JUDGE_RESULT_ROUTING_KEY ?? 'judge.result'
 const DB_URL = (
   process.env.DATABASE_URL ??
   'postgresql://postgres:1234@127.0.0.1:5433/skkuding'
@@ -39,6 +41,7 @@ const DB_URL = (
 
 const TIMEOUT_MS = 30_000
 const EVENT_LOG = process.env.E2E_EVENT_LOG
+let responseQueue = ''
 
 function logEvent(type: string, payload: unknown): void {
   if (!EVENT_LOG) return
@@ -116,7 +119,7 @@ async function waitForResponse(
 ): Promise<PolygonToolResponse> {
   const deadline = Date.now() + TIMEOUT_MS
   while (Date.now() < deadline) {
-    const msg = await ch.get(RES_QUEUE, { noAck: false })
+    const msg = await ch.get(responseQueue, { noAck: false })
     if (!msg) {
       await sleep(300)
       continue
@@ -127,13 +130,20 @@ async function waitForResponse(
       ch.ack(msg)
       return resp
     }
-    // stale message from a previous run — consume and discard
+    // This exclusive queue belongs only to this E2E process; stale messages are safe to discard.
     ch.ack(msg)
     console.log(`  [warn] discarded stale messageId=${resp.messageId}`)
   }
   throw new Error(
     `Timeout: no response for ${messageId} in ${TIMEOUT_MS / 1000}s`
   )
+}
+
+async function createResponseQueue(ch: amqplib.Channel): Promise<void> {
+  const queue = await ch.assertQueue('', { exclusive: true, autoDelete: true })
+  await ch.bindQueue(queue.queue, RESULT_EXCHANGE, RESULT_ROUTING_KEY)
+  responseQueue = queue.queue
+  console.log(`Using exclusive E2E response queue: ${responseQueue}`)
 }
 
 // ---------------------------------------------------------------------------
@@ -594,6 +604,7 @@ async function main(): Promise<void> {
   console.log(`Connecting RabbitMQ: ${RMQ_HOST}:${RMQ_PORT}/${RMQ_VHOST}`)
   const rmqConn = await amqplib.connect(rmqUrl)
   const ch = await rmqConn.createChannel()
+  await createResponseQueue(ch)
 
   console.log(`Connecting DB: ${DB_URL.replace(/:([^:@]+)@/, ':****@')}`)
   const db = new Client({ connectionString: DB_URL })

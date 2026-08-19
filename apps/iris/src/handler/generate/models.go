@@ -20,6 +20,11 @@ const maxTestcaseCount = 100
 const maxExtraArgs = 20
 const maxArgLength = 256
 
+const (
+	GeneratorUnitName = "generator"
+	SolutionUnitName  = "solution"
+)
+
 func (r GenerateRequest) Validate() (*GenerateRequest, error) {
 	if r.ProblemId == 0 {
 		return nil, fmt.Errorf("problemId must not be empty or zero")
@@ -63,7 +68,8 @@ type GenerateToolResult struct {
 }
 
 type GenerateTestcaseError struct {
-	Index   int    `json:"index"`
-	Message string `json:"message"`
-	Stderr  string `json:"stderr,omitempty"`
+	Index     int    `json:"index"`
+	Message   string `json:"message"`
+	Stderr    string `json:"stderr,omitempty"`
+	retryable bool
 }

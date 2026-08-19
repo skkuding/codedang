@@ -30,6 +30,9 @@ func (r CheckRequest) Validate() (*CheckRequest, error) {
 	if r.SolutionLanguage != "" && !sandbox.Language(r.SolutionLanguage).IsValid() {
 		return nil, fmt.Errorf("unsupported solutionLanguage: %s", r.SolutionLanguage)
 	}
+	if r.SolutionCode != "" && r.SolutionLanguage == "" {
+		return nil, fmt.Errorf("solutionLanguage must not be empty when solutionCode is provided")
+	}
 	return &r, nil
 }
 

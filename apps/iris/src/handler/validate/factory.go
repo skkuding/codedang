@@ -13,12 +13,12 @@ import (
 )
 
 type Factory struct {
-	tcManager testcase.TestcaseManager
+	tcManager testcase.TestcaseReader
 	sandbox   sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger    logger.Logger
 }
 
-func NewFactory(tcManager testcase.TestcaseManager, sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs], logger logger.Logger) *Factory {
+func NewFactory(tcManager testcase.TestcaseReader, sandbox sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs], logger logger.Logger) *Factory {
 	return &Factory{
 		tcManager: tcManager,
 		sandbox:   sandbox,
@@ -40,7 +40,7 @@ func (f *Factory) Create(taskType string, data []byte) (handler.Task, error) {
 
 	buildUnits := []*build.BuildUnit{
 		{
-			Name:     "validator",
+			Name:     ValidatorUnitName,
 			Code:     validReq.ValidatorCode,
 			Language: validReq.Language,
 		},

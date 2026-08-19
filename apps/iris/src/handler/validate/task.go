@@ -19,7 +19,7 @@ import (
 type Task struct {
 	req        *ValidateRequest
 	buildUnits []*build.BuildUnit
-	tcManager  testcase.TestcaseManager
+	tcManager  testcase.TestcaseReader
 	sandbox    sandbox.Sandbox[judger.JudgerConfig, judger.ExecArgs]
 	logger     logger.Logger
 }
@@ -43,7 +43,7 @@ func (t *Task) RunAction(ctx context.Context, resultSender handler.ResultSender)
 
 	var validatorUnit *build.BuildUnit
 	for _, u := range t.buildUnits {
-		if u.Name == "validator" {
+		if u.Name == ValidatorUnitName {
 			validatorUnit = u
 			break
 		}
@@ -56,7 +56,7 @@ func (t *Task) RunAction(ctx context.Context, resultSender handler.ResultSender)
 		return
 	}
 
-	tc, err := t.tcManager.GetTestcase(strconv.Itoa(validReq.ProblemId), testcase.PUBLIC_ONLY)
+	tc, err := t.tcManager.GetTestcase(ctx, strconv.Itoa(validReq.ProblemId), testcase.PUBLIC_ONLY)
 	if err != nil {
 		resultSender(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("validate", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 		return
@@ -103,8 +103,14 @@ func (t *Task) runValidations(
 	if err != nil {
 		return false, nil, err
 	}
+	if err := ctx.Err(); err != nil {
+		return false, nil, fmt.Errorf("validation cancelled: %w", err)
+	}
+
+	// This function owns jobs: it creates, sends to, and closes the channel.
 	jobs := make(chan int)
 	results := make([]ValidateTestcaseToolResult, len(elements))
+	filled := make([]bool, len(elements))
 	errs := make([]error, len(elements))
 	var wg sync.WaitGroup
 
@@ -114,9 +120,11 @@ func (t *Task) runValidations(
 			tcRes, tcErr := t.validateTestcase(ctx, i, elements[i], validatorUnit, limits)
 			if tcErr != nil {
 				errs[i] = tcErr
+				filled[i] = true
 				continue
 			}
 			results[i] = tcRes
+			filled[i] = true
 		}
 	}
 
@@ -135,9 +143,8 @@ schedule:
 	}
 	close(jobs)
 	wg.Wait()
-
-	if ctx.Err() != nil {
-		return false, nil, fmt.Errorf("validation cancelled: %w", ctx.Err())
+	if err := ctx.Err(); err != nil {
+		return false, nil, fmt.Errorf("validation cancelled: %w", err)
 	}
 
 	var firstInfraErr error
@@ -149,8 +156,8 @@ schedule:
 	}
 
 	allValid := true
-	for _, r := range results {
-		if r.TestcaseId != 0 && !r.IsValid {
+	for i, r := range results {
+		if filled[i] && !r.IsValid {
 			allValid = false
 			break
 		}

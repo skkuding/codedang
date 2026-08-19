@@ -10,6 +10,8 @@ import (
 
 type ResultCode int8
 
+const DefaultRealTimeLimitMS = 2000
+
 const (
 	ACCEPTED ResultCode = iota
 	WRONG_ANSWER
@@ -67,7 +69,7 @@ func Parse(res any, resultCode ResultCode) error {
 		if signal == 11 && resultCode != MEMORY_LIMIT_EXCEEDED {
 			code = SEGMENTATION_FAULT_ERROR
 		}
-		if realTime >= 2000 && signal == 9 && resultCode == RUNTIME_ERROR {
+		if realTime >= DefaultRealTimeLimitMS && signal == 9 && resultCode == RUNTIME_ERROR {
 			code = REAL_TIME_LIMIT_EXCEEDED
 		}
 	}
