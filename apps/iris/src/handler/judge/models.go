@@ -30,7 +30,7 @@ func (r JudgeRequest) Validate() (*JudgeRequest, error) {
 	if !sandbox.Language(r.Language).IsValid() {
 		return nil, fmt.Errorf("unsupported language: %s", r.Language)
 	}
-	if r.ProblemId == 0 {
+	if r.ProblemId <= 0 {
 		return nil, fmt.Errorf("problemId must not be empty or zero")
 	}
 	if r.TimeLimit <= 0 {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestPrepareSenderUsesToolSpecificResponse(t *testing.T) {
+func TestNewEncoderUsesToolSpecificResponse(t *testing.T) {
 	tests := []struct {
 		path     string
 		toolType string
@@ -17,12 +17,12 @@ func TestPrepareSenderUsesToolSpecificResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			sender, err := PrepareSender(tt.path, "message", []byte(`{"problemId": 42}`))
+			encoder, err := newEncoder(tt.path, "message", []byte(`{"problemId": 42}`))
 			if err != nil {
-				t.Fatalf("PrepareSender() error = %v", err)
+				t.Fatalf("newEncoder() error = %v", err)
 			}
 
-			data, err := sender.Marshal(json.RawMessage(`{"ok":true}`), nil)
+			data, err := encoder.Marshal(json.RawMessage(`{"ok":true}`), nil)
 			if err != nil {
 				t.Fatalf("Marshal() error = %v", err)
 			}
@@ -38,5 +38,15 @@ func TestPrepareSenderUsesToolSpecificResponse(t *testing.T) {
 				t.Errorf("response = %#v, want problemId=42 and toolType=%q", response, tt.toolType)
 			}
 		})
+	}
+}
+
+func TestNewEncoderRejectsUnsupportedPath(t *testing.T) {
+	encoder, err := newEncoder("unknown", "message", nil)
+	if encoder != nil {
+		t.Fatal("newEncoder() encoder must be nil for an unsupported path")
+	}
+	if err == nil {
+		t.Fatal("newEncoder() error must be set for an unsupported path")
 	}
 }

@@ -1,12 +1,8 @@
 package handler
 
-import "encoding/json"
+import "github.com/skkuding/codedang/apps/iris/src/common/taskresult"
 
-type ResultMessage struct {
-	Result   json.RawMessage
-	Err      error
-	Response []byte
-}
+type ResultMessage = taskresult.Message
 
 // ResultSender delivers a task result to the caller-provided result sink.
 // The sender does not own the underlying channel or its lifecycle.

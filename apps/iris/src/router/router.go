@@ -2,7 +2,6 @@ package router
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -102,29 +101,19 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 		taskErr = fmt.Errorf("invalid request type: %s", path)
 	}
 
-	preparedSender, prepareErr := response.PrepareSender(path, id, data)
-	if prepareErr != nil {
-		r.logger.Log(logger.WARN, fmt.Sprintf("failed to prepare response for path %s with id %s: %v", path, id, prepareErr))
-	}
-	sendPreparedResponse := func(result json.RawMessage, taskErr error) bool {
-		data, marshalErr := preparedSender.Marshal(result, taskErr)
-		if marshalErr == nil {
-			return sendResponse(ctx, out, data)
+	sender, responseErr := response.NewSender(ctx, out, path, id, data, r.logger)
+	if responseErr != nil {
+		if sender == nil {
+			r.logger.Log(logger.ERROR, fmt.Sprintf("unsupported response path %s with id %s: %v", path, id, responseErr))
+			return
 		}
-
-		r.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal response for path %s with id %s: %v", path, id, marshalErr))
-		fallback, fallbackErr := response.MarshalFallback(preparedSender, marshalErr)
-		if fallbackErr != nil {
-			r.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal fallback response for path %s with id %s: %v", path, id, fallbackErr))
-			return false
-		}
-		return sendResponse(ctx, out, fallback)
+		r.logger.Log(logger.WARN, fmt.Sprintf("failed to decode response metadata for path %s with id %s: %v", path, id, responseErr))
 	}
 
 	if taskErr != nil {
 		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", path, taskErr))
 		r.errHandle(taskErr)
-		sendPreparedResponse(nil, taskErr)
+		sender.Send(handler.ResultMessage{Err: taskErr})
 		return
 	}
 
@@ -147,26 +136,11 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 
 	for result := range taskResultChan {
 		r.errHandle(result.Err)
-		if result.Response != nil {
-			if !sendResponse(ctx, out, result.Response) {
-				return
-			}
-			continue
-		}
-		if !sendPreparedResponse(result.Result, result.Err) {
+		if !sender.Send(result) {
 			return
 		}
 	}
 	r.logger.Log(logger.DEBUG, "Router done...")
-}
-
-func sendResponse(ctx context.Context, out chan<- []byte, data []byte) bool {
-	select {
-	case out <- data:
-		return true
-	case <-ctx.Done():
-		return false
-	}
 }
 
 func (r *router) errHandle(err error) {

@@ -144,6 +144,8 @@ coverage
 *.pkg
 
 .idea
+.codex
+.claude/settings.local.json
 
 # agent
 .agents/*
@@ -151,3 +153,4 @@ coverage
 .claude/*
 .claude/settings.local.json
 **/CLAUDE**
+CLAUDE.*

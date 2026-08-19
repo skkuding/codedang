@@ -11,3 +11,9 @@ type Task interface {
 	GetDebugString() string
 	RunAction(ctx context.Context, messageID string, resultSender ResultSender)
 }
+
+// SetupFailureResponder emits the response sequence required when build setup
+// fails before RunAction can produce its normal final response.
+type SetupFailureResponder interface {
+	SendSetupFailure(messageID string, taskErr error, resultSender ResultSender)
+}

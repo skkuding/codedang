@@ -73,6 +73,7 @@ func (tr *TaskRunner) Run(ctx context.Context, id string, validReq Task, sendRes
 		return
 	}
 
+	// handle buildUnits
 	units := validReq.GetBuildUnits()
 
 	defer func() {
@@ -88,8 +89,9 @@ func (tr *TaskRunner) Run(ctx context.Context, id string, validReq Task, sendRes
 	setupErrs := make([]*build.BuildUnitError, len(units))
 	var wg sync.WaitGroup
 
+	// setup buildunits concurrently
+	wg.Add(len(units))
 	for idx, u := range units {
-		wg.Add(1)
 		go func(index int, unit *build.BuildUnit) {
 			defer wg.Done()
 			if unit == nil {
@@ -113,10 +115,16 @@ func (tr *TaskRunner) Run(ctx context.Context, id string, validReq Task, sendRes
 		if buildErr == nil {
 			continue
 		}
-		sendResult(ResultMessage{Result: nil, Err: buildUnitErrorToTaskError(buildErr)})
+		taskErr := buildUnitErrorToTaskError(buildErr)
+		if responder, ok := validReq.(SetupFailureResponder); ok {
+			responder.SendSetupFailure(id, taskErr, sendResult)
+		} else {
+			sendResult(ResultMessage{Result: nil, Err: taskErr})
+		}
 		return
 	}
 
+	// execute main job
 	validReq.RunAction(handleCtx, id, sendResult)
 }
 

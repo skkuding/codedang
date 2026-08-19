@@ -51,10 +51,10 @@ func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage hand
 	sendResult := func(result handler.ResultMessage) {
 		judgeResponse := response.NewJudgeResponse(messageID, result.Result, result.Err)
 		judgeResults = append(judgeResults, judgeResponse)
-		sendMessage(handler.ResultMessage{Response: judgeResponse.Marshal()})
+		sendMessage(handler.ResultMessage{EncodedResponse: judgeResponse.Marshal()})
 	}
 	defer func() {
-		sendMessage(handler.ResultMessage{Response: response.NewSubmissionResponse(messageID, judgeResults).Marshal()})
+		sendMessage(handler.ResultMessage{EncodedResponse: response.NewSubmissionResponse(messageID, judgeResults).Marshal()})
 	}()
 
 	validReq := t.req
@@ -95,6 +95,14 @@ func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage hand
 			break
 		}
 	}
+}
+
+func (t *Task) SendSetupFailure(messageID string, taskErr error, sendMessage handler.ResultSender) {
+	judgeResponse := response.NewJudgeResponse(messageID, nil, taskErr)
+	sendMessage(handler.ResultMessage{EncodedResponse: judgeResponse.Marshal()})
+	sendMessage(handler.ResultMessage{
+		EncodedResponse: response.NewSubmissionResponse(messageID, []*response.JudgeResponse{judgeResponse}).Marshal(),
+	})
 }
 
 func (t *Task) judgeTestcase(ctx context.Context, idx int, validReq *JudgeRequest,
