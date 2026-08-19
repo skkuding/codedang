@@ -45,16 +45,18 @@ prometheus:
           - prometheus.stage.codedang.com
         secretName: prometheus-tls
 
-  httpRoute:
-    enabled: true
-    hostnames:
-      - prometheus.stage.codedang.com
-    parentRefs:
+  route:
+    main:
+      enabled: true
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      hostnames:
+        - prometheus.stage.codedang.com
+      parentRefs:
       - name: main-gateway
         namespace: kube-system
         sectionName: https-stage-wildcard
-    rules:
-    - matches:
+      matches:
         - path:
             type: PathPrefix
             value: /
