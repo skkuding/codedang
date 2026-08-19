@@ -23,19 +23,22 @@ ingress:
         - grafana.codedang.com
       secretName: grafana-tls
 
-httpRoute:
-  enabled: true
-  hostnames:
-    - grafana.codedang.com
-  parentRefs:
-    - name: main-gateway
-      namespace: kube-system
-      sectionName: https-wildcard
-  rules:
-  - matches:
+route:
+  main:
+    enabled: true
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    hostnames:
+      - grafana.codedang.com
+    parentRefs:
+      - name: main-gateway
+        namespace: kube-system
+        sectionName: https-wildcard
+    matches:
       - path:
           type: PathPrefix
           value: /
+      
 
 limits:
   cpu: 200m
