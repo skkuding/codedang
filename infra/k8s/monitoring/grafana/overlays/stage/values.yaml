@@ -22,7 +22,7 @@ ingress:
         - grafana.stage.codedang.com
       secretName: grafana-tls
 
-httproute:
+httpRoute:
   enabled: true
   hostnames:
     - grafana.stage.codedang.com

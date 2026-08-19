@@ -45,7 +45,7 @@ prometheus:
           - prometheus.codedang.com
         secretName: prometheus-tls
 
-  httproute:
+  httpRoute:
     enabled: true
     hostnames:
       - prometheus.codedang.com

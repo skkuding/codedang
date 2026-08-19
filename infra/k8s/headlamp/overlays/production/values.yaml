@@ -20,7 +20,7 @@ ingress:
         - k8s.codedang.com
       secretName: headlamp-tls
 
-httproute:
+httpRoute:
     enabled: true
     hostnames:
       - k8s.codedang.com
