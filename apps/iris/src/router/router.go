@@ -115,7 +115,7 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", path, taskErr))
 		r.errHandle(taskErr)
 		if path == Generate || path == Validate || path == Check {
-			out <- NewPolygonToolResponse(id, problemId, getToolType(path), nil, taskErr).Marshal()
+			out <- response.NewPolygonToolResponse(id, problemId, getToolType(path), nil, taskErr).Marshal()
 		} else {
 			out <- response.NewJudgeResponse(id, nil, taskErr).Marshal()
 		}
@@ -139,7 +139,7 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 	for result := range taskResultChan {
 		r.errHandle(result.Err)
 		if path == Generate || path == Validate || path == Check {
-			out <- NewPolygonToolResponse(id, problemId, getToolType(path), result.Result, result.Err).Marshal()
+			out <- response.NewPolygonToolResponse(id, problemId, getToolType(path), result.Result, result.Err).Marshal()
 		} else {
 			judgeResponse := response.NewJudgeResponse(id, result.Result, result.Err)
 			out <- judgeResponse.Marshal()
