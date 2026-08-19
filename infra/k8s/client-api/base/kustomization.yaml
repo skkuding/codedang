@@ -5,7 +5,6 @@ namespace: client-api
 resources:
   - configmap.yaml
   - deployment.yaml
-  - ingress.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
   - redis-credentials.yaml

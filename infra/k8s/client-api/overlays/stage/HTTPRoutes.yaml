@@ -22,5 +22,5 @@ spec:
         kind: Middleware
         name: cors
     backendRefs:
-    - name: admin-api-server
+    - name: client-api-server
       port: 4000
