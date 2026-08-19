@@ -1,6 +1,5 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { ErrorBoundary } from '@suspensive/react'
-import { Suspense } from 'react'
+import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { ProblemCreateContainer } from './_components/ProblemCreateContainer'
 import { ProblemCreateContainerSkeleton } from './_components/ProblemCreateSkeletons'
 

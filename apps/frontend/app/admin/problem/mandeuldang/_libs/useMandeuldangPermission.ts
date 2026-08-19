@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { getMandeuldangPermissions, type MandeuldangRole } from './permissions'
 
 // 이후에 백엔드에서 role을 받아오는 로직을 추가할 예정
@@ -5,5 +6,5 @@ import { getMandeuldangPermissions, type MandeuldangRole } from './permissions'
 export function useMandeuldangPermission(
   role: MandeuldangRole | null | undefined
 ) {
-  return getMandeuldangPermissions(role)
+  return useMemo(() => getMandeuldangPermissions(role), [role])
 }
