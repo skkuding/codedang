@@ -4,24 +4,24 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
 )
 
 type JudgeResponse struct {
-	SubmissionId    int                `json:"submissionId"`
-	JudgeResultCode handler.ResultCode `json:"resultCode"`
-	JudgeResult     json.RawMessage    `json:"judgeResult"`
-	Finished        bool               `json:"finished"`
-	Error           string             `json:"error"`
+	SubmissionId    int                  `json:"submissionId"`
+	JudgeResultCode taskerror.ResultCode `json:"resultCode"`
+	JudgeResult     json.RawMessage      `json:"judgeResult"`
+	Finished        bool                 `json:"finished"`
+	Error           string               `json:"error"`
 }
 
 func NewJudgeResponse(id string, data json.RawMessage, err error) *JudgeResponse {
-	resultCode := handler.ACCEPTED
+	resultCode := taskerror.ACCEPTED
 	errMessage := ""
 
 	if err != nil {
-		errMessage = handler.ExtractUserMessage(err)
-		resultCode = handler.ExtractResultCode(err)
+		errMessage = taskerror.ExtractUserMessage(err)
+		resultCode = taskerror.ExtractResultCode(err)
 	}
 
 	_id, _ := strconv.Atoi(id)

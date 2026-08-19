@@ -117,7 +117,7 @@ func (tr *TaskRunner) Run(ctx context.Context, id string, validReq Task, sendRes
 		return
 	}
 
-	validReq.RunAction(handleCtx, sendResult)
+	validReq.RunAction(handleCtx, id, sendResult)
 }
 
 func buildUnitErrorToTaskError(be *build.BuildUnitError) *TaskError {

@@ -11,6 +11,7 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/build"
 	"github.com/skkuding/codedang/apps/iris/src/service/grader"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -45,7 +46,17 @@ func (t *Task) GetBuildUnits() []*build.BuildUnit {
 	return t.buildUnits
 }
 
-func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
+func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage handler.ResultSender) {
+	judgeResults := make([]*response.JudgeResponse, 0)
+	sendResult := func(result handler.ResultMessage) {
+		judgeResponse := response.NewJudgeResponse(messageID, result.Result, result.Err)
+		judgeResults = append(judgeResults, judgeResponse)
+		sendMessage(handler.ResultMessage{Response: judgeResponse.Marshal()})
+	}
+	defer func() {
+		sendMessage(handler.ResultMessage{Response: response.NewSubmissionResponse(messageID, judgeResults).Marshal()})
+	}()
+
 	validReq := t.req
 	if len(t.buildUnits) == 0 || t.buildUnits[0] == nil {
 		sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.SERVER_ERROR, logger.ERROR, fmt.Errorf("judge build unit not found"))})

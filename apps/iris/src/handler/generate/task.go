@@ -43,7 +43,7 @@ func (t *Task) GetBuildUnits() []*build.BuildUnit {
 	return t.buildUnits
 }
 
-func (t *Task) RunAction(ctx context.Context, sendResult handler.ResultSender) {
+func (t *Task) RunAction(ctx context.Context, _ string, sendResult handler.ResultSender) {
 	validReq := t.req
 	var generatorUnit *build.BuildUnit
 	var solutionUnit *build.BuildUnit

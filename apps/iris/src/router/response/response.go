@@ -3,10 +3,19 @@ package response
 import (
 	"bytes"
 	"encoding/json"
+
+	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
 )
 
 type Response interface {
 	Marshal() []byte
+}
+
+func toolResult(err error) (taskerror.ResultCode, string) {
+	if err == nil {
+		return taskerror.ACCEPTED, ""
+	}
+	return taskerror.ExtractResultCode(err), taskerror.ExtractUserMessage(err)
 }
 
 func JSONMarshal(t interface{}) ([]byte, error) {

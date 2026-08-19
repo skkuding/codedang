@@ -3,8 +3,9 @@ package handler
 import "encoding/json"
 
 type ResultMessage struct {
-	Result json.RawMessage
-	Err    error
+	Result   json.RawMessage
+	Err      error
+	Response []byte
 }
 
 // ResultSender delivers a task result to the caller-provided result sink.

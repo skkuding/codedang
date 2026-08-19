@@ -9,5 +9,5 @@ import (
 type Task interface {
 	GetBuildUnits() []*build.BuildUnit
 	GetDebugString() string
-	RunAction(ctx context.Context, resultSender ResultSender)
+	RunAction(ctx context.Context, messageID string, resultSender ResultSender)
 }
