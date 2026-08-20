@@ -1,4 +1,4 @@
-import { Field, Int } from '@nestjs/graphql'
+import { Field, GraphQLISODateTime, Int } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
 import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator'
 
@@ -13,6 +13,9 @@ export class DuplicateCourseInput {
   @IsString()
   @IsNotEmpty()
   semester: string
+
+  @Field(() => GraphQLISODateTime, { nullable: false })
+  endDate: Date
 
   @Field(() => Int, { nullable: false })
   @IsInt()

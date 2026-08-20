@@ -388,6 +388,7 @@ export class GroupService {
     const { groupId: _, ...duplicatedCourseInfo } = originCourse.courseInfo
     duplicatedCourseInfo.courseNum = input.courseNum
     duplicatedCourseInfo.semester = input.semester
+    duplicatedCourseInfo.endDate = input.endDate
     duplicatedCourseInfo.classNum = input.classNum
 
     return await this.prisma.$transaction(async (tx) => {

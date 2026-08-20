@@ -342,6 +342,7 @@ describe('GroupService', () => {
     const duplicateInput = {
       courseNum: 'SWE3099',
       semester: '2026 Spring',
+      endDate: new Date('2026-06-30'),
       classNum: 1
     }
 
