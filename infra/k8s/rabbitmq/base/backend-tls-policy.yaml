@@ -1,5 +1,5 @@
-# This policy refers to tls-certifiate.yaml
-apiVersion: gateway.networking.k8s.io/v1alpha3
+# This policy refers to trust-manager.yaml
+apiVersion: gateway.networking.k8s.io/v1
 kind: BackendTLSPolicy
 metadata:
   name: rabbitmq-backend-tls-policy
@@ -13,5 +13,5 @@ spec:
     hostname: rabbitmq.rabbitmq.svc.cluster.local
     caCertificateRefs:
       - group: ""
-        kind: Secret
-        name: rabbitmq-server-certs
+        kind: ConfigMap
+        name: rabbitmq-ca-cert

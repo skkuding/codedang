@@ -1,5 +1,6 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+# namespace 간 참조 필요
+kind: ClusterIssuer
 metadata:
   name: rabbitmq-selfsigned-issuer
   namespace: rabbitmq
@@ -22,3 +23,26 @@ spec:
     - rabbitmq
   duration: 8760h
   renewBefore: 720h
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rabbitmq-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: rabbitmq-ca
+  secretName: rabbitmq-ca-secret
+  issuerRef:
+    name: rabbitmq-selfsigned-issuer
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: rabbitmq-ca-issuer
+  namespace: rabbitmq
+spec:
+  ca:
+    secretName: rabbitmq-ca-secret
+---
