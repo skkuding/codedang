@@ -87,7 +87,7 @@ export default async function ContestQna(props: ContestQnAProps) {
   }
 
   return (
-    <div className="mb-[88px] mt-[80px] max-w-[1440px] px-[116px]">
+    <div className="mb-[88px] mt-[80px] w-[1208px]">
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<QnATableFallback />}>
           <QnAMainTable
