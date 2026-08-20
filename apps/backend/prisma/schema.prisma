@@ -176,17 +176,18 @@ model GroupWhitelist {
 }
 
 model CourseInfo {
-  groupId   Int     @id @map("group_id")
-  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  courseNum String  @map("course_num")
-  classNum  Int?    @map("class_num")
+  groupId   Int       @id @map("group_id")
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  courseNum String    @map("course_num")
+  classNum  Int?      @map("class_num")
   professor String
   semester  String
+  endDate   DateTime? @map("end_date") @db.Date
   email     String?
   website   String?
   office    String?
-  phoneNum  String? @map("phone_num")
-  week      Int     @default(16) //양수만 허용됨
+  phoneNum  String?   @map("phone_num")
+  week      Int       @default(16) //양수만 허용됨
 
   @@map("course_info")
 }
