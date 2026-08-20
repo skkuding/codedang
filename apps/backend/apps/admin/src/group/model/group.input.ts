@@ -1,4 +1,4 @@
-import { Field, Int } from '@nestjs/graphql'
+import { Field, GraphQLISODateTime, Int } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
 import { GroupCreateInput, GroupUpdateInput } from '@generated'
 
@@ -42,6 +42,9 @@ export class CourseInput {
 
   @Field(() => Int, { nullable: false })
   week: number
+
+  @Field(() => GraphQLISODateTime, { nullable: false })
+  endDate: Date
 
   @Field(() => String, { nullable: true })
   email?: string
