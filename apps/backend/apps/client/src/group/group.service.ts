@@ -13,8 +13,15 @@ import {
   QnACategory
 } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import {
+  invitationCodeKey,
+  joinGroupCacheKey,
+  studentRetryKey
+} from '@libs/cache'
+import {
+  JOIN_GROUP_REQUEST_EXPIRE_TIME,
+  STUDENT_RETRY_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -507,6 +514,30 @@ export class GroupService {
         }
       }
     })
+  }
+
+  async getUserRetryCount(userId: number, courseId: number) {
+    const count = await this.cacheManager.get<number>(
+      studentRetryKey(userId, courseId)
+    )
+    return count || 0
+  }
+
+  async canUserRetry(userId: number, courseId: number) {
+    const count = await this.getUserRetryCount(userId, courseId)
+
+    if (count >= 3) {
+      return false
+    }
+    return true
+  }
+
+  async updateRetryCount(userId: number, courseId: number, count: number) {
+    await this.cacheManager.set<number>(
+      studentRetryKey(userId, courseId),
+      count,
+      STUDENT_RETRY_EXPIRE_TIME
+    )
   }
 
   /**
