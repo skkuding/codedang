@@ -1,8 +1,7 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: rabbitmq-selfsigned-issuer
-  namespace: rabbitmq
 spec:
   selfSigned: {}
 ---
@@ -14,11 +13,32 @@ metadata:
 spec:
   secretName: rabbitmq-server-certs
   issuerRef:
-    name: rabbitmq-selfsigned-issuer
-    kind: Issuer
+    name: rabbitmq-ca-issuer
+    kind: ClusterIssuer
   dnsNames:
     - rabbitmq.rabbitmq.svc.cluster.local
     - rabbitmq.rabbitmq.svc
     - rabbitmq
   duration: 8760h
   renewBefore: 720h
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rabbitmq-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: rabbitmq-ca
+  secretName: rabbitmq-ca-secret
+  issuerRef:
+    name: rabbitmq-selfsigned-issuer
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: rabbitmq-ca-issuer
+spec:
+  ca:
+    secretName: rabbitmq-ca-secret
