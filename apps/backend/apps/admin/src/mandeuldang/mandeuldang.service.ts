@@ -27,7 +27,7 @@ export class MandeuldangService {
   }
 
   async deleteMandeuldangTool(problemId: number, toolType: ToolType) {
-    return this.fileService.deleteMandeuldangFile(problemId, toolType)
+    return this.fileService.deleteMandeuldangToolFile(problemId, toolType)
   }
 
   //파일 실행
