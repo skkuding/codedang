@@ -77,6 +77,7 @@ export class GroupService {
                 classNum: true,
                 professor: true,
                 semester: true,
+                endDate: true,
                 week: true,
                 email: true,
                 phoneNum: true,
@@ -109,7 +110,8 @@ export class GroupService {
               courseNum: true,
               classNum: true,
               professor: true,
-              semester: true
+              semester: true,
+              endDate: true
             }
           }
         }
