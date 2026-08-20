@@ -85,24 +85,34 @@ export class UserService {
    * @returns 조회한 사용자 정보
    */
   async getUserByUsername({ username }: UsernameDto) {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: {
-        username
-      },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        userProfile: {
-          select: {
-            realName: true
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          username
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          userProfile: {
+            select: {
+              realName: true
+            }
           }
         }
-      }
-    })
+      })
 
-    this.logger.debug(user, 'getUserByUsername')
-    return user
+      this.logger.debug(user, 'getUserByUsername')
+      return user
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('User')
+      }
+      throw error
+    }
   }
 
   /**

@@ -194,10 +194,16 @@ describe('UserService', () => {
     })
 
     it('should not return user information', async () => {
-      db.user.findUniqueOrThrow.throws(new EntityNotExistException('user'))
+      db.user.findUniqueOrThrow.throws(
+        new Prisma.PrismaClientKnownRequestError('User not found', {
+          code: 'P2025',
+          clientVersion: Prisma.prismaVersion.client
+        })
+      )
 
       await expect(service.getUserByUsername(usernameDto)).to.be.rejectedWith(
-        EntityNotExistException
+        EntityNotExistException,
+        'User does not exist'
       )
     })
   })
