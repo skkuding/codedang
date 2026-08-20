@@ -44,10 +44,10 @@ export class MandeuldangPublicationService {
         requestId: request.id,
         problemId,
         generatorLanguage: Language.Cpp,
-        generatorCode: generator.fileContent,
+        generatorCode: generator.filePath,
         generatorArgs,
         solutionLanguage: solution.language,
-        solutionCode: solution.fileContent,
+        solutionCode: solution.filePath,
         testCaseCount
       })
     } catch (error) {
@@ -83,7 +83,7 @@ export class MandeuldangPublicationService {
         requestId: request.id,
         problemId,
         language: Language.Cpp,
-        validatorCode: validator.fileContent
+        validatorCode: validator.filePath
       })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
