@@ -1525,6 +1525,7 @@ type CourseInfo {
   classNum: Int
   courseNum: String!
   email: String
+  endDate: DateTime
   group: Group!
   groupId: ID!
   office: String
@@ -1546,6 +1547,7 @@ type CourseInfoCountAggregate {
   classNum: Int!
   courseNum: Int!
   email: Int!
+  endDate: Int!
   groupId: Int!
   office: Int!
   phoneNum: Int!
@@ -1559,6 +1561,7 @@ type CourseInfoMaxAggregate {
   classNum: Int
   courseNum: String
   email: String
+  endDate: DateTime
   groupId: Int
   office: String
   phoneNum: String
@@ -1572,6 +1575,7 @@ type CourseInfoMinAggregate {
   classNum: Int
   courseNum: String
   email: String
+  endDate: DateTime
   groupId: Int
   office: String
   phoneNum: String
@@ -1593,6 +1597,7 @@ input CourseInput {
   courseNum: String!
   courseTitle: String!
   email: String
+  endDate: DateTime!
   office: String
   phoneNum: String
   professor: String!
