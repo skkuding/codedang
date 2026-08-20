@@ -1,0 +1,32 @@
+meta {
+  name: [409] Violate Code Policy
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/submission/test?problemId=1
+  body: json
+  auth: none
+}
+
+params:query {
+  problemId: 1
+}
+
+body:json {
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "import os\n print(\"hello\")",
+        "locked": false
+      }
+    ],
+    "language": "Python3"
+  }
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
