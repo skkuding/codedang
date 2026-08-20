@@ -34,7 +34,7 @@ export class MandeuldangService {
     userId: number,
     userRole: Role
   ) {
-    return this.fileService.deleteMandeuldangFile(
+    return this.fileService.deleteMandeuldangToolFile(
       problemId,
       toolType,
       userId,

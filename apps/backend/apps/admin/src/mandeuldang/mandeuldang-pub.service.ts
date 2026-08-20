@@ -43,10 +43,10 @@ export class MandeuldangPublicationService {
     const generatorRequest = {
       problemId,
       generatorLanguage: Language.Cpp,
-      generatorCode: generator.fileContent,
+      generatorCode: generator.filePath,
       generatorArgs,
       solutionLanguage: solution.language,
-      solutionCode: solution.fileContent,
+      solutionCode: solution.filePath,
       testCaseCount
     }
     //실행 요청 메시지 publish
@@ -78,7 +78,7 @@ export class MandeuldangPublicationService {
     const validateRequest = {
       problemId,
       language: Language.Cpp,
-      validatorCode: validator.fileContent
+      validatorCode: validator.filePath
     }
 
     const request = await this.prisma.mandeuldangRunRequest.create({
