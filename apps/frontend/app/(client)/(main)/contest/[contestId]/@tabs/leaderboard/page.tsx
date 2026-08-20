@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
+import { LeaderboardSkeleton } from './_components/LeaderboardSkeleton'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContest } from './_libs/apis/getContest'
 import type { LeaderboardUser } from './_libs/apis/getContestLeaderboard'
@@ -128,6 +129,10 @@ export default function ContestLeaderBoard() {
     }
   }
 
+  if (isLoading || isContestLoading) {
+    return <LeaderboardSkeleton />
+  }
+
   return (
     <div className="relative ml-[116px] w-screen pb-[120px]">
       <div className="mt-[96px] flex flex-row">
@@ -164,13 +169,11 @@ export default function ContestLeaderBoard() {
         />
       </div>
       <div>
-        {!isLoading && (
-          <LeaderboardTable
-            problemSize={problemSize}
-            leaderboardUsers={leaderboardUsers}
-            matchedIndices={matchedIndices}
-          />
-        )}
+        <LeaderboardTable
+          problemSize={problemSize}
+          leaderboardUsers={leaderboardUsers}
+          matchedIndices={matchedIndices}
+        />
       </div>
     </div>
   )
