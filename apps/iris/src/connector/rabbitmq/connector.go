@@ -3,14 +3,22 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/router"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+)
+
+const (
+	MessageTimeoutEnv       = "IRIS_MESSAGE_TIMEOUT_MS"
+	DefaultMessageTimeoutMS = 10 * 60 * 1000
 )
 
 type connector struct {
@@ -31,9 +39,7 @@ func NewConnector(
 }
 
 func (c *connector) Connect(ctx context.Context) {
-	connectorCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer func() {
-		cancel()
 		c.consumer.CleanUp()
 		c.producer.CleanUp()
 	}()
@@ -58,7 +64,7 @@ func (c *connector) Connect(ctx context.Context) {
 	// [handler]													  | handler -> |
 	// i.consume(messageCh, i.Done)
 	for message := range messageCh {
-		go c.handle(message, connectorCtx)
+		go c.handle(message, ctx)
 	}
 
 	c.logger.Log(logger.DEBUG, "connector done")
@@ -85,19 +91,42 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		trace.WithSpanKind(trace.SpanKindConsumer),
 	)
 	defer childSpan.End()
+	timeout, err := messageTimeoutFromEnv()
+	if err != nil {
+		c.logger.LogWithContext(logger.WARN, fmt.Sprintf("invalid %s: %v; using default", MessageTimeoutEnv, err), spanCtx)
+		timeout = time.Duration(DefaultMessageTimeoutMS) * time.Millisecond
+	}
+	spanCtx, cancel := context.WithTimeout(spanCtx, timeout)
+	defer cancel()
 
-	resultChan := make(chan []byte)
+	resultChan := make(chan []byte, 1)
 	if message.Type == "" {
-		resultChan <- router.NewResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
+		resultChan <- response.NewJudgeResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else if message.MessageId == "" {
-		resultChan <- router.NewResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
+		resultChan <- response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
 		close(resultChan)
 	} else {
-		go c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
+		go func() {
+			defer close(resultChan)
+			c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
+		}()
 	}
 
-	for result := range resultChan {
+drain:
+	for {
+		var result []byte
+		var open bool
+		select {
+		case result, open = <-resultChan:
+			if !open {
+				break drain
+			}
+		case <-spanCtx.Done():
+			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("message handling timed out after %s", timeout), spanCtx)
+			break drain
+		}
+
 		if err := c.producer.Publish(result, spanCtx, message.Type); err != nil {
 			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), spanCtx)
 			// nack
@@ -112,4 +141,16 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	} else {
 		c.logger.LogWithContext(logger.DEBUG, "message ack", spanCtx)
 	}
+}
+
+func messageTimeoutFromEnv() (time.Duration, error) {
+	raw := os.Getenv(MessageTimeoutEnv)
+	if raw == "" {
+		return time.Duration(DefaultMessageTimeoutMS) * time.Millisecond, nil
+	}
+	milliseconds, err := strconv.Atoi(raw)
+	if err != nil || milliseconds <= 0 {
+		return 0, fmt.Errorf("must be a positive integer")
+	}
+	return time.Duration(milliseconds) * time.Millisecond, nil
 }
