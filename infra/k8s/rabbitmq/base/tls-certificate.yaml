@@ -31,6 +31,8 @@ spec:
   isCA: true
   commonName: rabbitmq-ca
   secretName: rabbitmq-ca-secret
+  duration: 8770h
+  renewBefore: 720h
   issuerRef:
     name: rabbitmq-selfsigned-issuer
     kind: ClusterIssuer
