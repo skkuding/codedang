@@ -375,6 +375,10 @@ describe('SubmissionService', () => {
 
   describe('createSubmission', () => {
     it('should create submission', async () => {
+      const judgeableTestcases = [{ id: 1, isHidden: false }]
+      const getJudgeableStub = stub(service, 'getJudgeableTestcases').resolves(
+        judgeableTestcases
+      )
       const createSpy = stub(service, 'createSubmissionResults')
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.submission.create.resolves(submissions[0])
@@ -387,7 +391,9 @@ describe('SubmissionService', () => {
           userIp: USERIP
         })
       ).to.deep.equal(submissions[0])
-      expect(createSpy.calledOnceWith(submissions[0])).to.be.true
+      expect(getJudgeableStub.calledOnceWith(problems[0].id, false)).to.be.true
+      expect(createSpy.calledOnceWith(submissions[0], judgeableTestcases)).to.be
+        .true
       expect(publishSpy.calledOnce).to.be.true
     })
 
@@ -405,10 +411,10 @@ describe('SubmissionService', () => {
       db.submission.create.resolves(createdSubmission)
       db.submission.findUniqueOrThrow.resolves(finalizedSubmission)
 
-      const createResultsStub = stub(
-        service,
-        'createSubmissionResults'
-      ).resolves(0)
+      const getJudgeableStub = stub(service, 'getJudgeableTestcases').resolves(
+        []
+      )
+      const createResultsStub = stub(service, 'createSubmissionResults')
       const publishStub = stub(publish, 'publishJudgeRequestMessage')
       const updateResultStub = subscribe.updateSubmissionResult as SinonStub
 
@@ -423,7 +429,8 @@ describe('SubmissionService', () => {
         judgeOnlyHiddenTestcases: true
       })
 
-      expect(createResultsStub.calledOnce).to.be.true
+      expect(getJudgeableStub.calledOnceWith(problems[0].id, true)).to.be.true
+      expect(createResultsStub.called).to.be.false
       expect(updateResultStub.calledOnceWithExactly(createdSubmission.id, true))
         .to.be.true
       expect(publishStub.called).to.be.false

@@ -515,18 +515,19 @@ export class SubmissionService {
         }
       })
 
-      const testcasesCount = await this.createSubmissionResults(
-        submission,
+      const testcases = await this.getJudgeableTestcases(
+        problem.id,
         judgeOnlyHiddenTestcases
       )
 
-      if (testcasesCount === 0) {
-        // 채점할 테스트 케이스가 없는 경우 정답 및 후속 처리 후 return
-        await this.subscribe.updateSubmissionResult(submission.id, true) // 문제 정답 후속처리
+      if (testcases.length === 0) {
+        await this.subscribe.updateSubmissionResult(submission.id, true)
         return await this.prisma.submission.findUniqueOrThrow({
           where: { id: submission.id }
         })
       }
+
+      await this.createSubmissionResults(submission, testcases)
 
       await this.publish.publishJudgeRequestMessage({
         code,
@@ -544,46 +545,49 @@ export class SubmissionService {
   }
 
   /**
-   * 전달한 제출 기록에 대해 아직 채점되지 않은 테스트케이스 채점 결과들을 생성합니다.
+   * 제출된 문제에 대해 채점 대상이 되는(outdated가 아닌) 테스트케이스를 조회합니다.
+   * judgeOnlyHiddenTestcases가 true면 hidden 테스트케이스만 남깁니다.
    *
-   * 제출된 문제에 연결된 모든 테스트 케이스를 조회한 후,
-   * 각 테스트 케이스에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정
-   *
-   * @param {Submission} submission - 테스트 케이스 결과를 생성할 제출 기록
-   * @returns {Promise<number>} - 생성한 테스트 케이스 결과 개수
+   * @param {number} problemId - 테스트케이스를 조회할 문제의 ID
+   * @param {boolean} judgeOnlyHiddenTestcases - 숨김 테스트 케이스만 채점 대상으로 선별할지 여부
+   * @returns {Promise<Array<{ id: number; isHidden: boolean }>>} - 채점 대상 테스트케이스 목록
    */
   @Span()
-  async createSubmissionResults(
-    submission: Submission,
+  async getJudgeableTestcases(
+    problemId: number,
     judgeOnlyHiddenTestcases: boolean
-  ): Promise<number> {
-    let testcases = await this.prisma.problemTestcase.findMany({
+  ): Promise<Array<{ id: number; isHidden: boolean }>> {
+    const testcases = await this.prisma.problemTestcase.findMany({
       where: {
-        problemId: submission.problemId,
+        problemId,
         isOutdated: false
       },
       select: { id: true, isHidden: true }
     })
 
-    if (judgeOnlyHiddenTestcases) {
-      testcases = testcases.filter((testcase) => testcase.isHidden)
-    }
+    return judgeOnlyHiddenTestcases
+      ? testcases.filter((testcase) => testcase.isHidden)
+      : testcases
+  }
 
-    if (testcases.length === 0) {
-      return 0 // 채점할 테스트 케이스가 없으니 return
-    }
-
+  /**
+   * 전달받은 테스트케이스들에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정합니다.
+   *
+   * @param {Submission} submission - 테스트 케이스 결과를 생성할 제출 기록
+   * @param {Array<{ id: number }>} testcases - 결과 레코드를 생성할 테스트케이스 목록
+   */
+  @Span()
+  async createSubmissionResults(
+    submission: Submission,
+    testcases: Array<{ id: number }>
+  ): Promise<void> {
     await this.prisma.submissionResult.createMany({
-      data: testcases.map((testcase) => {
-        return {
-          submissionId: submission.id,
-          result: ResultStatus.Judging,
-          problemTestcaseId: testcase.id
-        }
-      })
+      data: testcases.map((testcase) => ({
+        submissionId: submission.id,
+        result: ResultStatus.Judging,
+        problemTestcaseId: testcase.id
+      }))
     })
-
-    return testcases.length
   }
 
   /**
