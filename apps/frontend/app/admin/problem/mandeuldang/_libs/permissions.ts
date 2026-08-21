@@ -41,7 +41,7 @@ export function getMandeuldangPermissions(
     isReadOnly: isReviewer,
     canCreateProblem: isOwner,
     canDeleteProblem: isOwner,
-    canReadProblem: Boolean(role),
+    canReadProblem: Boolean(normalizedRole),
     canEditStatement: canEditProblem,
     canSaveProblem: canEditProblem,
     canUploadSolution: canEditProblem,
