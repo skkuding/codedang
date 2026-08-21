@@ -521,9 +521,7 @@ export class SubmissionService {
       )
 
       if (
-        testcasesCount === 0 &&
-        submission.contestId &&
-        judgeOnlyHiddenTestcases
+        testcasesCount === 0
       ) {
         // 채점할 테스트 케이스가 없는 경우 정답 및 후속 처리 후 return
         await this.subscribe.updateSubmissionResult(submission.id, true) // 문제 정답 후속처리
