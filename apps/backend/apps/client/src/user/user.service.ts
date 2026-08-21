@@ -102,7 +102,7 @@ export class UserService {
         }
       })
 
-      this.logger.debug(user, 'getUserByUsername')
+      this.logger.debug({ userId: user.id }, 'getUserByUsername')
       return user
     } catch (error) {
       if (
