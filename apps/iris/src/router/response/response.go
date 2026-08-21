@@ -7,8 +7,9 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
 )
 
-type Response interface {
-	Marshal() []byte
+type Response struct {
+	Message []byte
+	Type    string
 }
 
 func toolResult(err error) (taskerror.ResultCode, string) {

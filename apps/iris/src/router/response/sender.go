@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
 	"github.com/skkuding/codedang/apps/iris/src/common/taskresult"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -12,19 +13,23 @@ import (
 
 type encoder interface {
 	Marshal(result json.RawMessage, taskErr error) ([]byte, error)
+	MessageType() string
 }
 
 // Sender owns response encoding and cancellation-aware delivery for one routed message.
 type Sender struct {
 	ctx       context.Context
-	out       chan<- []byte
+	out       chan<- Response
 	path      string
 	messageID string
 	encoder   encoder
 	logger    logger.Logger
 }
 
-type judgeEncoder struct{ messageID string }
+type judgeEncoder struct {
+	messageID   string
+	messageType string
+}
 type generateEncoder struct {
 	messageID string
 	problemID int
@@ -40,7 +45,7 @@ type checkEncoder struct {
 
 // NewSender selects the response contract and owns delivery for one message.
 // problemId belongs only to tool contracts and is extracted by those encoders.
-func NewSender(ctx context.Context, out chan<- []byte, path, messageID string, data []byte, logger logger.Logger) (*Sender, error) {
+func NewSender(ctx context.Context, out chan<- Response, path, messageID string, data []byte, logger logger.Logger) (*Sender, error) {
 	encoder, err := newEncoder(path, messageID, data)
 	if encoder == nil {
 		return nil, err
@@ -50,27 +55,28 @@ func NewSender(ctx context.Context, out chan<- []byte, path, messageID string, d
 
 func newEncoder(path, messageID string, data []byte) (encoder, error) {
 	switch path {
-	case "judge", "specialJudge", "run", "userTestCase":
-		return judgeEncoder{messageID: messageID}, nil
-	case "generate":
+	case constants.Judge, constants.SpecialJudge, constants.Run, constants.UserTestCase:
+		return judgeEncoder{messageID: messageID, messageType: path}, nil
+	case constants.Generate:
 		return newGenerateEncoder(messageID, data)
-	case "validate":
+	case constants.Validate:
 		return newValidateEncoder(messageID, data)
-	case "check":
+	case constants.Check:
 		return newCheckEncoder(messageID, data)
 	default:
 		return nil, fmt.Errorf("unsupported response path: %s", path)
 	}
 }
 
-func (s *Sender) Send(result taskresult.Message) bool {
+func (s *Sender) Send(result taskresult.Message, messageType ...any) bool {
+	typeName := s.responseType(messageType...)
 	if result.EncodedResponse != nil {
-		return s.deliver(result.EncodedResponse)
+		return s.deliver(Response{Message: result.EncodedResponse, Type: typeName})
 	}
 
 	data, err := s.encoder.Marshal(result.Result, result.Err)
 	if err == nil {
-		return s.deliver(data)
+		return s.deliver(Response{Message: data, Type: typeName})
 	}
 
 	s.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal response for path %s with id %s: %v", s.path, s.messageID, err))
@@ -79,10 +85,23 @@ func (s *Sender) Send(result taskresult.Message) bool {
 		s.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal fallback response for path %s with id %s: %v", s.path, s.messageID, fallbackErr))
 		return false
 	}
-	return s.deliver(fallback)
+	return s.deliver(Response{Message: fallback, Type: typeName})
 }
 
-func (s *Sender) deliver(data []byte) bool {
+func (s *Sender) responseType(messageType ...any) string {
+	if len(messageType) == 0 {
+		return s.encoder.MessageType()
+	}
+
+	typeName, ok := messageType[0].(string)
+	if !ok || typeName == "" {
+		s.logger.Log(logger.WARN, fmt.Sprintf("invalid response type for path %s with id %s; using sender type", s.path, s.messageID))
+		return s.encoder.MessageType()
+	}
+	return typeName
+}
+
+func (s *Sender) deliver(data Response) bool {
 	select {
 	case s.out <- data:
 		return true
@@ -95,17 +114,25 @@ func (s judgeEncoder) Marshal(result json.RawMessage, taskErr error) ([]byte, er
 	return NewJudgeResponse(s.messageID, result, taskErr).Marshal(), nil
 }
 
+func (s judgeEncoder) MessageType() string { return s.messageType }
+
 func (s generateEncoder) Marshal(result json.RawMessage, taskErr error) ([]byte, error) {
 	return NewGenerateResponse(s.messageID, s.problemID, result, taskErr).Marshal()
 }
+
+func (s generateEncoder) MessageType() string { return constants.Generate }
 
 func (s validateEncoder) Marshal(result json.RawMessage, taskErr error) ([]byte, error) {
 	return NewValidateResponse(s.messageID, s.problemID, result, taskErr).Marshal()
 }
 
+func (s validateEncoder) MessageType() string { return constants.Validate }
+
 func (s checkEncoder) Marshal(result json.RawMessage, taskErr error) ([]byte, error) {
 	return NewCheckResponse(s.messageID, s.problemID, result, taskErr).Marshal()
 }
+
+func (s checkEncoder) MessageType() string { return constants.Check }
 
 func newGenerateEncoder(messageID string, data []byte) (encoder, error) {
 	problemID, err := problemIDFrom(data)

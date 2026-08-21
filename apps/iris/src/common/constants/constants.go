@@ -55,3 +55,16 @@ const (
 )
 
 const MAX_OUTPUT = 1048576 // 1MB
+
+const (
+	Judge        = "judge"
+	Submission   = "submission"
+	SpecialJudge = "specialJudge"
+	Run          = "run"
+	Interactive  = "interactive"
+	UserTestCase = "userTestCase"
+	Generate     = "generate"
+	Validate     = "validate"
+	Check        = "check"
+	Default      = "judge"
+)

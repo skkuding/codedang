@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
 	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
@@ -17,19 +18,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const (
-	Judge        = "judge"
-	SpecialJudge = "specialJudge"
-	Run          = "run"
-	Interactive  = "interactive"
-	UserTestCase = "userTestCase"
-	Generate     = "generate"
-	Validate     = "validate"
-	Check        = "check"
-)
-
 type Router interface {
-	Route(path string, id string, data []byte, resultChan chan<- []byte, ctx context.Context)
+	Route(path string, id string, data []byte, resultChan chan<- response.Response, ctx context.Context)
 }
 
 type router struct {
@@ -40,6 +30,11 @@ type router struct {
 	validateTaskFactory *validate.Factory
 	logger              logger.Logger
 	tracer              trace.Tracer
+}
+
+type taskResult struct {
+	message     handler.ResultMessage
+	messageType []any
 }
 
 func NewRouter(
@@ -62,7 +57,7 @@ func NewRouter(
 	}
 }
 
-func (r *router) Route(path string, id string, data []byte, out chan<- []byte, ctx context.Context) {
+func (r *router) Route(path string, id string, data []byte, out chan<- response.Response, ctx context.Context) {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -79,21 +74,21 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 	// var handlerResult json.RawMessage
 	// var err error
 
-	taskResultChan := make(chan handler.ResultMessage)
+	taskResultChan := make(chan taskResult)
 	var task handler.Task
 	var taskErr error
 
 	r.logger.Log(logger.INFO, fmt.Sprintf("%s message received", path))
 	switch path {
-	case Judge, SpecialJudge:
+	case constants.Judge, constants.SpecialJudge:
 		task, taskErr = r.judgeTaskFactory.Create(path, data)
-	case Run, UserTestCase:
+	case constants.Run, constants.UserTestCase:
 		task, taskErr = r.runTaskFactory.Create(path, data)
-	case Generate:
+	case constants.Generate:
 		task, taskErr = r.generateTaskFactory.Create(path, data)
-	case Validate:
+	case constants.Validate:
 		task, taskErr = r.validateTaskFactory.Create(path, data)
-	case Check:
+	case constants.Check:
 		// task, taskErr = r.checkTaskFactory.Create(path, data)
 		// TODO: implement check factory
 		taskErr = fmt.Errorf("check handler not implemented yet")
@@ -126,17 +121,17 @@ func (r *router) Route(path string, id string, data []byte, out chan<- []byte, c
 	r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", path, id))
 	go func() {
 		defer close(taskResultChan)
-		r.runner.Run(newCtx, id, task, func(result handler.ResultMessage) {
+		r.runner.Run(newCtx, id, task, func(result handler.ResultMessage, messageType ...any) {
 			select {
-			case taskResultChan <- result:
+			case taskResultChan <- taskResult{message: result, messageType: messageType}:
 			case <-newCtx.Done():
 			}
 		})
 	}()
 
 	for result := range taskResultChan {
-		r.errHandle(result.Err)
-		if !sender.Send(result) {
+		r.errHandle(result.message.Err)
+		if !sender.Send(result.message, result.messageType...) {
 			return
 		}
 	}
