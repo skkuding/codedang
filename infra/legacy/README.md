@@ -1,5 +1,10 @@
 # Infra legacy
 
+> [!WARNING]
+> These Terraform projects are retired and deliberately reject every Terraform
+> version. Active AWS resources were adopted by `infra/aws`; resources awaiting
+> removal are staged in `infra/aws/decommission-stage`.
+
 코드당 인프라의 레거시 시스템을 남겨두었습니다.
 
 이전에는 코드당 인프라가 production, rc, stage 3개의 환경으로 운영되었습니다.

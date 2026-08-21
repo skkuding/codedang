@@ -60,7 +60,7 @@ function VisitProblemButton({ problemId }: VisitProblemButtonProps) {
     <Link href={`/problem/${problemId}`}>
       <Button
         type="button"
-        className="h-10 w-48 shrink-0 gap-[5px] rounded-[4px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
+        className="h-10 shrink-0 gap-[5px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
       >
         <VisitIcon width={20} height={20} />
         Visit Public Problem
