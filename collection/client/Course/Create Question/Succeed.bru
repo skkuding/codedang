@@ -29,50 +29,88 @@ tests {
     expect(res.getStatus()).to.equal(201);
     expect(data).to.have.property('id');
     expect(data).to.have.property('order');
+    expect(data).to.have.property('createdById');
     expect(data.title).to.equal("강의 전반에 대한 질문입니다");
     expect(data.content).to.equal("이번 주차 과제 제출 기한이 언제인가요?");
     expect(data.isPrivate).to.equal(false);
-    expect(data.category).to.equal("General");
-    expect(data.problemId).to.equal(null);
-    expect(data.assignmentId).to.equal(null);
-    expect(data.assignmentTitle).to.equal(null);
-    expect(data.isExercise).to.equal(null);
+    expect(data.category).to.equal("general");
+    expect(data).to.not.have.property('problemId');
+    expect(data.readBy).to.be.an('array').that.includes(data.createdById);
   });
 }
 
 docs {
-  # 📘 Create Course Question - General
+  # 📘 Create Course Question
 
   **POST** `/course/:id/qna`
 
-  `problemId`와 `assignmentId`를 모두 생략하면 일반 질문을 생성합니다.
+  Create a new question for a specific course.
 
-  ### 📥 Parameters
+  특정 강의에 새로운 질문을 등록합니다.
 
-  | Name | Type | Required | Description |
-  |---|---|---|---|
-  | `id` | number | ✅ | Course ID |
+  - 강의 멤버(학생, 교수, 조교)만 질문을 작성할 수 있습니다.
+  - `problemId`를 쿼리 파라미터로 전달하지 않으면 General 카테고리로 분류됩니다.
+  - `isPrivate`를 `true`로 설정하면 비밀글로 작성되어 작성자와 교수/조교만 열람할 수 있습니다.
+  - 저장 시, 해당 강의의 Q&A 목록 중 가장 마지막 순번(`order`) 이후 번호가 자동으로 부여됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required
+  강의 멤버만 질문을 작성할 수 있습니다.
+
+  ---
+
+  ### 📥 Request Parameters
+
+  #### Path Parameters
+
+  | Name | Type   | Required | Description                |
+  |------|--------|----------|----------------------------|
+  | `id` | number | ✅       | ID of the target course    |
+
+  #### Query Parameters
+
+  | Name        | Type   | Required | Description                |
+  |-------------|--------|----------|----------------------------|
+  | `problemId` | number | ❌       | ID of the related problem  |
+
+  ---
+
+  ### 📝 Request Body
+
+  #### Content-Type: `application/json`
+```json
+  {
+    "title": "질문 제목",
+    "content": "질문 내용입니다.",
+    "isPrivate": false
+  }
+}```
+
+  | Name        | Type    | Required | Description                                                                 |
+  |-------------|---------|----------|-----------------------------------------------------------------------------|
+  | `title`     | string  | ✅       | Title of the question (max length: 100 characters)                         |
+  | `content`   | string  | ✅       | Content of the question (supports Markdown formatting)                      |
+  | `isPrivate` | boolean | ✅       | If set to `true`, the question is private and can only be viewed by the author and instructors/TAs |
+
+  ---
 
   ### 📤 Response
 
+  #### Content-Type: `application/json`
 ```json
   {
     "id": 1,
     "order": 1,
     "title": "질문 제목",
-    "content": "질문 내용",
+    "content": "질문 내용입니다.",
     "isPrivate": false,
-    "isResolved": false,
-    "category": "General",
+    "category": "general",
     "problemId": null,
-    "createTime": "2026-08-13T13:10:40.642Z",
-    "readBy": [7],
-    "createdBy": {
-      "username": "user01"
-    },
-    "assignmentId": null,
-    "assignmentTitle": null,
-    "isExercise": null
-  }
-```
-}
+    "createdById": 1,
+    "createdAt": "2023-10-05T12:34:56.789Z",
+    "updatedAt": "2023-10-05T12:34:56.789Z",
+    "readBy": [1]
+  }```

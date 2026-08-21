@@ -5513,22 +5513,6 @@ const createCourseQnA = async () => {
     }
   })
 
-  // QnA 3 (Problem, Public, Direct Assignment Mapping)
-  await prisma.courseQnA.create({
-    data: {
-      groupId: privateGroup1.id,
-      createdById: users[0].id,
-      assignmentId: ongoingAssignments[0].id,
-      problemId: problems[1].id,
-      category: QnACategory.Problem,
-      title: '2번 문제 과제 연결 질문입니다.',
-      content: '2번 문제의 과제 정보를 함께 확인하고 싶습니다.',
-      isResolved: false,
-      isPrivate: false,
-      order: 3
-    }
-  })
-
   // Comment 1 (Staff reply to QnA 1)
   await prisma.courseQnAComment.create({
     data: {

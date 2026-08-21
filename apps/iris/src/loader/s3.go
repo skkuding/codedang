@@ -18,14 +18,6 @@ type S3reader struct {
 }
 
 func NewS3DataSource(bucket string) (*S3reader, error) {
-	endpoint := os.Getenv("MINIO_ENDPOINT_URL")
-	if endpoint != "" {
-		// When running with MinIO, static env credentials are used.
-		// Clearing profile variables prevents AWS SDK from failing on missing shared profiles (e.g. root env).
-		_ = os.Unsetenv("AWS_PROFILE")
-		_ = os.Unsetenv("AWS_DEFAULT_PROFILE")
-	}
-
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-2"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to load AWS config: %w", err)
@@ -34,6 +26,7 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		// endpoint is only needed when using MinIO
 		// For AWS S3, this environment variable should be empty
+		endpoint := os.Getenv("MINIO_ENDPOINT_URL")
 		if endpoint != "" {
 			o.UsePathStyle = true
 			o.BaseEndpoint = &endpoint
@@ -50,7 +43,7 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	return &S3reader{client: client, bucket: bucket}, nil
 }
 
-func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
+func (s *S3reader) Get(problemId string) ([]Element, error) {
 	output, err := s.client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(s.bucket),
 		Prefix: aws.String(problemId + "/"),
@@ -65,8 +58,8 @@ func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 	//   ├── <testcaseId>.out
 	//   └── ...
 	//
-	// Since ElementOut contains input and output both, we need to read both at the same time
-	// and return them as a single element. For this, we will parse file names and get the list
+	// Since `Element` contains input and output both, we need to read both at the same time
+	// and return them as a single Element. For this, we will parse file names and get the list
 	// of testcaseIds.
 	var testcaseIds []string
 	for _, obj := range output.Contents {
@@ -84,7 +77,7 @@ func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 		return nil, fmt.Errorf("no testcases found for problemId: %s", problemId)
 	}
 
-	resultChan := make(chan ElementOut, len(testcaseIds))
+	resultChan := make(chan Element, len(testcaseIds))
 	errChan := make(chan error, len(testcaseIds))
 
 	// Process each testcase in a goroutine
@@ -148,7 +141,7 @@ func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 				}
 			}
 
-			resultChan <- ElementOut{
+			resultChan <- Element{
 				Id:     idInt,
 				In:     string(bodyIn),
 				Out:    string(bodyOut),
@@ -157,7 +150,7 @@ func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 		}(id)
 	}
 
-	var results []ElementOut
+	var results []Element
 	var errs []error
 
 	for range testcaseIds {

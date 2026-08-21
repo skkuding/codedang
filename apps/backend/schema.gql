@@ -71,7 +71,6 @@ type Assignment {
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
-  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -106,7 +105,6 @@ type AssignmentCount {
   CheckRequest: Int!
   assignmentProblem: Int!
   assignmentRecord: Int!
-  courseQnA: Int!
   submission: Int!
   testSubmission: Int!
 }
@@ -464,7 +462,6 @@ type AssignmentWithParticipants {
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
-  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -495,7 +492,6 @@ type AssignmentWithScores {
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
-  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -1752,8 +1748,6 @@ type CourseNoticeSumAggregate {
 
 type CourseQnA {
   _count: CourseQnACount!
-  assignment: Assignment
-  assignmentId: Int
   category: QnACategory!
   comments: [CourseQnAComment!]
   content: String!
@@ -1773,7 +1767,6 @@ type CourseQnA {
 }
 
 type CourseQnAAvgAggregate {
-  assignmentId: Float
   createdById: Float
   groupId: Float
   id: Float
@@ -1845,7 +1838,6 @@ type CourseQnACount {
 
 type CourseQnACountAggregate {
   _all: Int!
-  assignmentId: Int!
   category: Int!
   content: Int!
   createTime: Int!
@@ -1861,7 +1853,6 @@ type CourseQnACountAggregate {
 }
 
 type CourseQnAMaxAggregate {
-  assignmentId: Int
   category: QnACategory
   content: String
   createTime: DateTime
@@ -1876,7 +1867,6 @@ type CourseQnAMaxAggregate {
 }
 
 type CourseQnAMinAggregate {
-  assignmentId: Int
   category: QnACategory
   content: String
   createTime: DateTime
@@ -1891,7 +1881,6 @@ type CourseQnAMinAggregate {
 }
 
 type CourseQnASumAggregate {
-  assignmentId: Int
   createdById: Int
   groupId: Int
   id: Int

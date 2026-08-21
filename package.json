@@ -6,8 +6,6 @@
     "format:check": "prettier --check .",
     "init:storage": "ts-node scripts/init-storage.ts",
     "init:rabbitmq": "ts-node scripts/init-rabbitmq.ts",
-    "e2e:polygon": "ts-node scripts/e2e-polygon-test.ts",
-    "e2e:polygon:run": "bash scripts/e2e-polygon.sh",
     "knip": "knip"
   },
   "devDependencies": {
@@ -22,7 +20,6 @@
     "@tsconfig/recommended": "^1.0.10",
     "@types/amqplib": "^0.10.7",
     "@types/node": "^22.17.1",
-    "@types/pg": "^8.20.0",
     "amqplib": "^0.10.9",
     "eslint": "^9.33.0",
     "eslint-config-next": "^15.5.18",
@@ -34,7 +31,6 @@
     "knip": "^5.62.0",
     "lefthook": "^1.12.2",
     "prettier": "^3.6.2",
-    "pg": "^8.21.0",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "ts-node": "^10.9.2",
     "typescript": "5.9.2",

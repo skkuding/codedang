@@ -8,14 +8,9 @@ import (
 
 	"github.com/joho/godotenv"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
-	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
-	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
-	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
-	"github.com/skkuding/codedang/apps/iris/src/handler/run"
-	"github.com/skkuding/codedang/apps/iris/src/handler/validate"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
@@ -83,41 +78,26 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
 		return
 	}
-	database, err := loader.NewPostgresDataSource(logProvider)
+	database, err := loader.NewPostgresDataSource(ctx)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
+	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
 
-	fileManager := file.NewFileManager(constants.RESULT_PATH)
+	fileManager := file.NewFileManager("/app/sandbox/results")
 
 	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 
-	taskRunner := handler.NewTaskRunner(
+	judgeHandler := handler.NewJudgeHandler(
 		sandbox,
+		testcaseManager,
 		fileManager,
 		logProvider,
 		defaultTracer,
 	)
 
-	judgeTaskFactory := judge.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
-
-	runTaskFactory := run.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
-
-	generateTaskFactory := generate.NewFactory(testcaseManager, sandbox, logProvider)
-
-	validateTaskFactory := validate.NewFactory(testcaseManager, sandbox, logProvider)
-
-	routeProvider := router.NewRouter(
-		taskRunner,
-		judgeTaskFactory,
-		runTaskFactory,
-		generateTaskFactory,
-		validateTaskFactory,
-		logProvider,
-		defaultTracer,
-	)
+	routeProvider := router.NewRouter(judgeHandler, logProvider, defaultTracer)
 
 	logProvider.Log(logger.INFO, "Server Started")
 
