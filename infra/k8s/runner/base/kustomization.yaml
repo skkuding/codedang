@@ -13,6 +13,7 @@ resources:
   - redis-pvc.yaml
   - redis-deployment.yaml
   - resourcequota.yaml
+  - traefik-service.yaml
 
 commonAnnotations:
   managed-by: kustomize

@@ -18,3 +18,5 @@ spec:
     backendRefs:
     - name: pod-manager
       port: 80
+    timeouts:
+      request: 200s
