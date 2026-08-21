@@ -3,20 +3,22 @@ package response
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 )
 
 func TestNewEncoderUsesToolSpecificResponse(t *testing.T) {
 	tests := []struct {
-		path     string
+		path     constants.MessageType
 		toolType string
 	}{
-		{path: "generate", toolType: "generator"},
-		{path: "validate", toolType: "validator"},
-		{path: "check", toolType: "checker"},
+		{path: constants.Generate, toolType: "generator"},
+		{path: constants.Validate, toolType: "validator"},
+		{path: constants.Check, toolType: "checker"},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.path, func(t *testing.T) {
+		t.Run(string(tt.path), func(t *testing.T) {
 			encoder, err := newEncoder(tt.path, "message", []byte(`{"problemId": 42}`))
 			if err != nil {
 				t.Fatalf("newEncoder() error = %v", err)
@@ -42,7 +44,7 @@ func TestNewEncoderUsesToolSpecificResponse(t *testing.T) {
 }
 
 func TestNewEncoderRejectsUnsupportedPath(t *testing.T) {
-	encoder, err := newEncoder("unknown", "message", nil)
+	encoder, err := newEncoder(constants.MessageType("unknown"), "message", nil)
 	if encoder != nil {
 		t.Fatal("newEncoder() encoder must be nil for an unsupported path")
 	}

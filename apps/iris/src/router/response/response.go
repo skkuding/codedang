@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
 )
 
 type Response struct {
 	Message []byte
-	Type    string
+	Type    constants.MessageType
 }
 
 func toolResult(err error) (taskerror.ResultCode, string) {

@@ -105,12 +105,12 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 		resultChan <- response.Response{Message: response.NewJudgeResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal(), Type: constants.Default}
 		close(resultChan)
 	} else if message.MessageId == "" {
-		resultChan <- response.Response{Message: response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal(), Type: message.Type}
+		resultChan <- response.Response{Message: response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal(), Type: constants.MessageType(message.Type)}
 		close(resultChan)
 	} else {
 		go func() {
 			defer close(resultChan)
-			c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
+			c.router.Route(constants.MessageType(message.Type), message.MessageId, message.Body, resultChan, spanCtx)
 		}()
 	}
 
@@ -128,7 +128,7 @@ drain:
 			break drain
 		}
 
-		if err := c.producer.Publish(result.Message, spanCtx, result.Type); err != nil {
+		if err := c.producer.Publish(result.Message, spanCtx, string(result.Type)); err != nil {
 			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result.Message), err), spanCtx)
 			// nack
 		} else {
