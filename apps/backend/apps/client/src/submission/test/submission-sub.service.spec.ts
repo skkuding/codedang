@@ -39,14 +39,12 @@ const msg = {
   resultCode: 1,
   submissionId: 1,
   error: '',
-  judgeResult,
-  finished: false
+  judgeResult
 }
 
 const submissionResponseMsg = {
   submissionId: 1,
-  judgeResults: [msg],
-  finished: true
+  judgeResults: [msg]
 }
 
 const submission: Submission & { submissionResult: SubmissionResult[] } = {
@@ -357,8 +355,7 @@ describe('SubmissionSubscriptionService', () => {
             ),
             memoryUsage:
               submissionResponseMsg.judgeResults[0].judgeResult.memory,
-            output: submissionResponseMsg.judgeResults[0].judgeResult.output,
-            finished: submissionResponseMsg.judgeResults[0].finished
+            output: submissionResponseMsg.judgeResults[0].judgeResult.output
           }
         ])
       ).to.be.true
@@ -377,8 +374,7 @@ describe('SubmissionSubscriptionService', () => {
       }
       const multiMsg = {
         submissionId: 1,
-        judgeResults: [serverErrMsg, msg],
-        finished: true
+        judgeResults: [serverErrMsg, msg]
       }
       await service.handleJudgerMessage(multiMsg)
       expect(handlerSpy.calledOnceWith(ResultStatus.ServerError, serverErrMsg))
@@ -399,8 +395,7 @@ describe('SubmissionSubscriptionService', () => {
       }
       const multiMsg = {
         submissionId: 1,
-        judgeResults: [compileErrMsg, msg],
-        finished: true
+        judgeResults: [compileErrMsg, msg]
       }
 
       await service.handleJudgerMessage(multiMsg)
@@ -419,8 +414,7 @@ describe('SubmissionSubscriptionService', () => {
 
       const missingResultMsg = {
         submissionId: 1,
-        judgeResults: [missingResultJudgeResponse],
-        finished: true
+        judgeResults: [missingResultJudgeResponse]
       }
 
       await expect(
