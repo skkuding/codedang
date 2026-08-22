@@ -14,13 +14,9 @@ import { JudgeAMQPService } from '@libs/amqp'
 import { Status } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { problems } from '@admin/problem/mock/mock'
-import { assignmentRecord } from '../mock/assignmentRecord.mock'
-import { normalContest } from '../mock/contest.mock'
-import { contestProblem } from '../mock/contestProblem.mock'
-import { contestRecordsMock } from '../mock/contestRecord.mock'
 import { submissions } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
+import { SubmissionFinalizationService } from '../submission-finalization.service'
 import { SubmissionSubscriptionService } from '../submission-sub.service'
 
 const judgeResult = {
@@ -55,11 +51,6 @@ const contestSubmission = {
   contest: {
     evaluateWithSampleTestcase: true
   }
-}
-
-const assignmentSubmission = {
-  ...submission,
-  assignmentId: 1
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -134,6 +125,7 @@ const db = {
 describe('SubmissionSubscriptionService', () => {
   let service: SubmissionSubscriptionService
   let amqpService: JudgeAMQPService
+  let finalization: SubmissionFinalizationService
   let cache: Cache
 
   const sandbox = sinon.createSandbox()
@@ -155,6 +147,12 @@ describe('SubmissionSubscriptionService', () => {
           })
         },
         {
+          provide: SubmissionFinalizationService,
+          useFactory: () => ({
+            finalizeSubmission: () => []
+          })
+        },
+        {
           provide: CACHE_MANAGER,
           useFactory: () => ({
             set: () => [],
@@ -172,6 +170,9 @@ describe('SubmissionSubscriptionService', () => {
       SubmissionSubscriptionService
     )
     amqpService = module.get<JudgeAMQPService>(JudgeAMQPService)
+    finalization = module.get<SubmissionFinalizationService>(
+      SubmissionFinalizationService
+    )
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
     sandbox
@@ -476,21 +477,15 @@ describe('SubmissionSubscriptionService', () => {
     })
   })
 
-  describe('updateContestSubmissionResult', () => {
-    it('should resolve', async () => {
+  describe('updateSubmissionResult', () => {
+    it('should calculate score and delegate finalization for an accepted submission', async () => {
       const findSpy = sandbox
         .stub(db.submission, 'findUnique')
         .resolves(submission)
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const submissionScoreSpy = sandbox
-        .stub(service, 'updateContestRecord')
-        .resolves()
-      const problemScoreSpy = sandbox
-        .stub(service, 'updateSubmissionScore')
-        .resolves()
-      const acceptSpy = sandbox
-        .stub(service, 'updateProblemAccepted')
-        .resolves()
+      const scoreSpy = sandbox
+        .stub(service, 'calculateSubmissionScore')
+        .resolves(100)
+      const finalizeSpy = sandbox.stub(finalization, 'finalizeSubmission')
 
       await expect(service.updateSubmissionResult(1)).not.to.be.rejected
       expect(
@@ -512,8 +507,8 @@ describe('SubmissionSubscriptionService', () => {
             userId: true,
             contestId: true,
             assignmentId: true,
-            updateTime: true,
             createTime: true,
+            updateTime: true,
             submissionResult: {
               select: {
                 result: true,
@@ -528,422 +523,38 @@ describe('SubmissionSubscriptionService', () => {
           }
         })
       ).to.be.true
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id: 1
-          },
-          data: {
-            result: ResultStatus.Accepted
-          }
-        })
-      ).to.be.true
-      expect(submissionScoreSpy.notCalled).to.be.true
-      expect(acceptSpy.calledOnceWith(submission.problemId, true)).to.be.true
-      expect(problemScoreSpy.calledOnce).to.be.true
-    })
-
-    it('should return when judge not finished', async () => {
-      sandbox.stub(db.submission, 'findUnique').resolves(undefined)
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const scoreSpy = sandbox.stub(service, 'updateContestRecord').resolves()
-      const acceptSpy = sandbox
-        .stub(service, 'updateProblemAccepted')
-        .resolves()
-
-      await expect(service.updateSubmissionResult(1)).not.to.be.rejected
-      expect(updateSpy.notCalled).to.be.true
-      expect(scoreSpy.notCalled).to.be.true
-      expect(acceptSpy.notCalled).to.be.true
-    })
-
-    it('should resolve contest submission', async () => {
-      sandbox.stub(db.submission, 'update').resolves()
-      const acceptSpy = sandbox
-        .stub(service, 'updateProblemAccepted')
-        .resolves()
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(contestSubmission)
-      const submissionScoreSpy = sandbox.stub(service, 'updateContestRecord')
-      const problemScoreSpy = sandbox.stub(service, 'updateSubmissionScore')
-
-      await service.updateSubmissionResult(1)
-
-      expect(findSpy.calledOnce).to.be.true
-      expect(submissionScoreSpy.calledOnceWith(contestSubmission, true)).to.be
-        .true
-      expect(problemScoreSpy.calledOnce).to.be.true
-      expect(acceptSpy.calledOnceWithExactly(contestSubmission.problemId, true))
+      expect(scoreSpy.calledOnceWith(submission.id)).to.be.true
+      expect(finalizeSpy.calledOnceWith(submission, ResultStatus.Accepted, 100))
         .to.be.true
     })
-  })
 
-  describe('updateAssignmentSubmissionResult', () => {
-    it('should resolve', async () => {
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(submission)
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const submissionScoreSpy = sandbox
-        .stub(service, 'calculateAssignmentSubmissionScore')
-        .resolves()
-      const problemScoreSpy = sandbox
-        .stub(service, 'updateSubmissionScore')
-        .resolves()
-      const acceptSpy = sandbox
-        .stub(service, 'updateProblemAccepted')
-        .resolves()
-
-      await expect(service.updateSubmissionResult(1)).not.to.be.rejected
-      expect(
-        findSpy.calledOnceWith({
-          where: {
-            id: 1,
-            result: ResultStatus.Judging,
-            submissionResult: {
-              every: {
-                NOT: {
-                  result: ResultStatus.Judging
-                }
-              }
-            }
-          },
-          select: {
-            id: true,
-            problemId: true,
-            userId: true,
-            contestId: true,
-            assignmentId: true,
-            createTime: true,
-            updateTime: true,
-            submissionResult: {
-              select: {
-                result: true,
-                problemTestcaseId: true
-              }
-            },
-            contest: {
-              select: {
-                evaluateWithSampleTestcase: true
-              }
-            }
-          }
-        })
-      ).to.be.true
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id: 1
-          },
-          data: {
-            result: ResultStatus.Accepted
-          }
-        })
-      ).to.be.true
-      expect(submissionScoreSpy.notCalled).to.be.true
-      expect(acceptSpy.calledOnceWith(submission.problemId, true)).to.be.true
-      expect(problemScoreSpy.calledOnce).to.be.true
-    })
-
-    it('should return when judge not finished', async () => {
+    it('should return without calculating score when judge not finished', async () => {
       sandbox.stub(db.submission, 'findUnique').resolves(undefined)
-      const updateSpy = sandbox.stub(db.submission, 'update').resolves()
-      const scoreSpy = sandbox
-        .stub(service, 'calculateAssignmentSubmissionScore')
-        .resolves()
-      const acceptSpy = sandbox
-        .stub(service, 'updateProblemAccepted')
-        .resolves()
+      const scoreSpy = sandbox.stub(service, 'calculateSubmissionScore')
+      const finalizeSpy = sandbox.stub(finalization, 'finalizeSubmission')
 
       await expect(service.updateSubmissionResult(1)).not.to.be.rejected
-      expect(updateSpy.notCalled).to.be.true
       expect(scoreSpy.notCalled).to.be.true
-      expect(acceptSpy.notCalled).to.be.true
+      expect(finalizeSpy.notCalled).to.be.true
     })
 
-    it('should resolve assignment submission', async () => {
-      sandbox.stub(db.submission, 'update').resolves()
-      const acceptSpy = sandbox
-        .stub(service, 'updateProblemAccepted')
-        .resolves()
-      const findSpy = sandbox
-        .stub(db.submission, 'findUnique')
-        .resolves(assignmentSubmission)
-      const submissionScoreSpy = sandbox.stub(
-        service,
-        'calculateAssignmentSubmissionScore'
-      )
-      const problemScoreSpy = sandbox.stub(service, 'updateSubmissionScore')
+    it('should pass the fetched submission through for a contest submission', async () => {
+      sandbox.stub(db.submission, 'findUnique').resolves(contestSubmission)
+      const scoreSpy = sandbox
+        .stub(service, 'calculateSubmissionScore')
+        .resolves(100)
+      const finalizeSpy = sandbox.stub(finalization, 'finalizeSubmission')
 
       await service.updateSubmissionResult(1)
 
-      expect(findSpy.calledOnce).to.be.true
-      expect(submissionScoreSpy.calledOnceWith(assignmentSubmission, true)).to
-        .be.true
-      expect(problemScoreSpy.calledOnce).to.be.true
+      expect(scoreSpy.calledOnceWith(contestSubmission.id)).to.be.true
       expect(
-        acceptSpy.calledOnceWithExactly(assignmentSubmission.problemId, true)
+        finalizeSpy.calledOnceWith(
+          contestSubmission,
+          ResultStatus.Accepted,
+          100
+        )
       ).to.be.true
-    })
-  })
-
-  describe('updateContestRecord', () => {
-    it('should update records when new accepted submission', async () => {
-      // 일반 참가자 제출 → staff가 아님
-      sandbox.stub(db.userContest, 'findFirst').resolves(null)
-
-      const submissionCountSpy = sandbox
-        .stub(db.submission, 'count')
-        .resolves(0)
-      const contestFindUniqueSpy = sandbox
-        .stub(db.contest, 'findUniqueOrThrow')
-        .resolves({
-          normalContest,
-          submission: submissions
-        })
-      const contestProblemFindUniqueSpy = sandbox
-        .stub(db.contestProblem, 'findUniqueOrThrow')
-        .resolves(contestProblem)
-      const contestRecordFindUniqueSpy = sandbox
-        .stub(db.contestRecord, 'findUniqueOrThrow')
-        .resolves(contestRecordsMock[0])
-      const aggregateSpy = sandbox
-        .stub(db.contestProblemRecord, 'aggregate')
-        .resolves({
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _sum: {
-            score: 100,
-            submitCountPenalty: 10,
-            timePenalty: 100,
-            finalScore: 100,
-            finalTimePenalty: 100,
-            finalSubmitCountPenalty: 10
-          },
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _max: {
-            timePenalty: 100,
-            finalTimePenalty: 100
-          }
-        })
-      const upsertProblemRecordSpy = sandbox
-        .stub(db.contestProblemRecord, 'upsert')
-        .resolves()
-      const updateRecordSpy = sandbox
-        .stub(db.contestRecord, 'update')
-        .resolves()
-
-      // when
-      await service.updateContestRecord(contestSubmission, true)
-
-      // then
-      expect(
-        submissionCountSpy.calledOnceWith({
-          where: {
-            contestId: contestSubmission.contestId,
-            problemId: contestSubmission.problemId,
-            userId: contestSubmission.userId,
-            result: ResultStatus.Accepted,
-            id: { not: contestSubmission.id }
-          }
-        })
-      ).to.be.true
-      expect(
-        contestFindUniqueSpy.calledOnceWith({
-          where: {
-            id: contestSubmission.contestId
-          },
-          select: {
-            startTime: true,
-            penalty: true,
-            lastPenalty: true,
-            freezeTime: true,
-            submission: {
-              where: {
-                userId: contestSubmission.userId,
-                problemId: contestSubmission.problemId
-              },
-              select: {
-                id: true
-              }
-            }
-          }
-        })
-      ).to.be.true
-      expect(
-        contestProblemFindUniqueSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_problemId: {
-              contestId: contestSubmission.contestId,
-              problemId: contestSubmission.problemId
-            }
-          },
-          select: {
-            id: true,
-            score: true
-          }
-        })
-      ).to.be.true
-      expect(
-        contestRecordFindUniqueSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_userId: {
-              contestId: contestSubmission.contestId,
-              userId: contestSubmission.userId
-            }
-          },
-          select: {
-            id: true
-          }
-        })
-      ).to.be.true
-      expect(upsertProblemRecordSpy.calledOnce).to.be.true
-
-      expect(
-        aggregateSpy.calledOnceWith({
-          where: { contestRecordId: contestRecordsMock[0].id },
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _sum: {
-            score: true,
-            submitCountPenalty: true,
-            timePenalty: true,
-            finalScore: true,
-            finalTimePenalty: true,
-            finalSubmitCountPenalty: true
-          },
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          _max: {
-            timePenalty: true,
-            finalTimePenalty: true
-          }
-        })
-      ).to.be.true
-      expect(updateRecordSpy.calledOnce).to.be.true
-    })
-
-    it('should reject when submission is not accepted', async () => {
-      const submissionCountSpy = sandbox
-        .stub(db.submission, 'count')
-        .resolves(0)
-      const upsertProblemRecordSpy = sandbox
-        .stub(db.contestProblemRecord, 'upsert')
-        .resolves()
-      const updateRecordSpy = sandbox
-        .stub(db.contestRecord, 'update')
-        .resolves()
-
-      // when
-      await service.updateContestRecord(contestSubmission, false)
-
-      expect(submissionCountSpy.notCalled).to.be.true
-      expect(upsertProblemRecordSpy.notCalled).to.be.true
-      expect(updateRecordSpy.notCalled).to.be.true
-    })
-  })
-
-  describe('calculateAssignmentSubmissionScore', () => {
-    it('should resolves', async () => {
-      const findUniqueSpy = sandbox
-        .stub(db.assignmentRecord, 'findUniqueOrThrow')
-        .resolves(assignmentRecord)
-      const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
-      const getScoreSpy = sandbox
-        .stub(db.assignmentProblem, 'findUnique')
-        .resolves({ score: 100 })
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      sandbox.stub(db.problemTestcase, 'aggregate').resolves({ _sum: 3 })
-
-      await service.calculateAssignmentSubmissionScore(
-        assignmentSubmission,
-        true
-      )
-
-      expect(
-        findUniqueSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            assignmentId_userId: {
-              assignmentId: assignmentSubmission.assignmentId,
-              userId: assignmentSubmission.userId
-            }
-          },
-          select: {
-            id: true,
-            acceptedProblemNum: true,
-            score: true,
-            totalPenalty: true,
-            finishTime: true
-          }
-        })
-      ).to.be.true
-      expect(
-        getScoreSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            assignmentId_problemId: {
-              assignmentId: assignmentSubmission.assignmentId,
-              problemId: assignmentSubmission.problemId
-            }
-          },
-          select: {
-            score: true
-          }
-        })
-      ).to.be.true
-      expect(updateSpy.calledOnce).to.be.true
-    })
-
-    it('should resolves', async () => {
-      const findUniqueSpy = sandbox
-        .stub(db.assignmentRecord, 'findUniqueOrThrow')
-        .resolves(assignmentRecord)
-      const getScoreSpy = sandbox
-        .stub(db.assignmentProblem, 'findUnique')
-        .resolves({ score: 100 })
-      const updateSpy = sandbox.stub(db.assignmentRecord, 'update').resolves()
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      sandbox.stub(db.problemTestcase, 'aggregate').resolves({ _sum: 3 })
-
-      await service.calculateAssignmentSubmissionScore(
-        assignmentSubmission,
-        false
-      )
-
-      expect(
-        findUniqueSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            assignmentId_userId: {
-              assignmentId: assignmentSubmission.assignmentId,
-              userId: assignmentSubmission.userId
-            }
-          },
-          select: {
-            id: true,
-            acceptedProblemNum: true,
-            score: true,
-            totalPenalty: true,
-            finishTime: true
-          }
-        })
-      ).to.be.true
-      expect(
-        getScoreSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            assignmentId_problemId: {
-              assignmentId: assignmentSubmission.assignmentId,
-              problemId: assignmentSubmission.problemId
-            }
-          },
-          select: {
-            score: true
-          }
-        })
-      ).to.be.true
-      expect(updateSpy.calledOnce).to.be.true
     })
   })
 
@@ -977,58 +588,6 @@ describe('SubmissionSubscriptionService', () => {
         updateSubmissionResultSpy.calledOnceWith(
           submissionResults[0].submissionId
         )
-      ).to.be.true
-    })
-  })
-
-  describe('updateProblemAccepted', () => {
-    it('should update submissionCount', async () => {
-      const updateSpy = sandbox.stub(db.problem, 'update').resolves()
-      sandbox.stub(db.problem, 'findFirstOrThrow').resolves(problems[0])
-      const id = 1
-      const isAccepted = false
-
-      await service.updateProblemAccepted(id, isAccepted)
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id
-          },
-          data: {
-            submissionCount: {
-              increment: 1
-            },
-            acceptedRate:
-              problems[0].acceptedCount / (problems[0].submissionCount + 1)
-          }
-        })
-      ).to.be.true
-    })
-
-    it('should update submissionCount and acceptedCount', async () => {
-      const updateSpy = sandbox.stub(db.problem, 'update').resolves()
-      sandbox.stub(db.problem, 'findFirstOrThrow').resolves(problems[0])
-      const id = 1
-      const isAccepted = true
-
-      await service.updateProblemAccepted(id, isAccepted)
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            id
-          },
-          data: {
-            submissionCount: {
-              increment: 1
-            },
-            acceptedCount: {
-              increment: 1
-            },
-            acceptedRate:
-              (problems[0].acceptedCount + 1) /
-              (problems[0].submissionCount + 1)
-          }
-        })
       ).to.be.true
     })
   })
