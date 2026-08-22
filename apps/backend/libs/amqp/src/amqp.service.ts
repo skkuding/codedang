@@ -44,29 +44,20 @@ export class JudgeAMQPService {
 
       try {
         // 메시지 타입에 따라 적절한 핸들러로 라우팅
-        if (
-          raw.properties?.type === RUN_MESSAGE_TYPE ||
-          raw.properties?.type === USER_TESTCASE_MESSAGE_TYPE
-        ) {
-          if (this.messageHandlers?.onRunMessage) {
-            await this.messageHandlers.onRunMessage(
-              msg,
-              raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-            )
-          }
-          return
+        const type = raw.properties?.type
+        const handlerMap = this.getMessageHandlerMap()
+
+        const handler = handlerMap[type]
+
+        if (!handler) {
+          this.logger.error(
+            `Unknown MessageType found: ${raw.properties?.type}`
+          )
+          return new Nack(false)
         }
 
-        if (raw.properties?.type === SUBMISSION_MESSAGE_TYPE) {
-          if (this.messageHandlers?.onSubmissionMessage) {
-            await this.messageHandlers.onSubmissionMessage(msg)
-          }
-          return
-        }
-
-        if (this.messageHandlers?.onJudgeMessage) {
-          await this.messageHandlers.onJudgeMessage(msg)
-        }
+        await handler(msg)
+        return
       } catch (error) {
         this.logger.error(error, 'Unexpected error in message handler')
         return new Nack()
@@ -162,6 +153,24 @@ export class JudgeAMQPService {
     onRunMessage?: (msg: object, isUserTest: boolean) => Promise<void>
     onJudgeMessage?: (msg: object) => Promise<void>
     onSubmissionMessage?: (msg: object) => Promise<void>
+  }
+
+  private getMessageHandlerMap(): Record<
+    string,
+    ((msg: object) => Promise<void>) | undefined
+  > {
+    const onRunMessage = this.messageHandlers?.onRunMessage
+
+    return {
+      [RUN_MESSAGE_TYPE]: onRunMessage
+        ? (msg: object) => onRunMessage(msg, false)
+        : undefined,
+      [USER_TESTCASE_MESSAGE_TYPE]: onRunMessage
+        ? (msg: object) => onRunMessage(msg, true)
+        : undefined,
+      [JUDGE_MESSAGE_TYPE]: this.messageHandlers?.onJudgeMessage,
+      [SUBMISSION_MESSAGE_TYPE]: this.messageHandlers?.onSubmissionMessage
+    }
   }
 }
 
