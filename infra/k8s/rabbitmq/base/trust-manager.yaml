@@ -1,0 +1,16 @@
+# This ConfigMap refers to infra/k8s/rabbitmq/base/tls-certificate.yaml
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: rabbitmq-ca-cert
+spec:
+  sources:
+    - secret:
+        name: rabbitmq-ca-secret
+        key: tls.crt
+  target:
+    configMap:
+      key: ca.crt
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: rabbitmq

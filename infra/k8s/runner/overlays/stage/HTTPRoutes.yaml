@@ -1,0 +1,22 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: runner-httproute
+  namespace: runner
+spec:
+  parentRefs:
+  - name: main-gateway
+    namespace: kube-system
+    sectionName: https-stage-wildcard
+  hostnames:
+  - run.stage.codedang.com
+  rules:
+  - matches:
+    - path:
+        type: Exact
+        value: /run
+    backendRefs:
+    - name: pod-manager
+      port: 80
+    timeouts:
+      request: 200s

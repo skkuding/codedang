@@ -58,21 +58,11 @@ spec:
                   path: /data/NEXTAUTH_URL
                   value: 'https://{{.number}}.preview.codedang.com/next-auth/api/auth'
             - target:
-                #TODO: migrate ingress to gateway
-                kind: Ingress
-                name: frontend-ingress
+                kind: HTTPRoute
+                name: frontend-httproute
               patch: |-
                 - op: replace
-                  path: /metadata/annotations/cert-manager.io~1cluster-issuer
-                  value: letsencrypt-dns01
-                - op: replace
-                  path: /spec/tls/0/hosts/0
-                  value: '*.preview.codedang.com'
-                - op: replace
-                  path: /spec/tls/0/secretName
-                  value: frontend-preview-tls
-                - op: replace
-                  path: /spec/rules/0/host
+                  path: /spec/hostnames/0
                   value: '{{.number}}.preview.codedang.com'
             - target:
                 kind: Deployment

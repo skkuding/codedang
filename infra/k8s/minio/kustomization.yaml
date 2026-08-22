@@ -5,7 +5,7 @@ kind: Kustomization
 namespace: minio
 
 resources:
-  - ingress.yaml
+  - HTTPRoutes.yaml
   - namespace.yaml
   - tenant-config.yaml
   - tenant.yaml

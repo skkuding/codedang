@@ -10,7 +10,7 @@ patches:
     target:
       kind: SealedSecret
       name: admin-credentials
-  - path: ingress.yaml
+  - path: HTTPRoutes.yaml
     target:
-      kind: Ingress
-      name: rabbitmq-console-ingress
+      kind: HTTPRoute
+      name: rabbitmq-console-httproute
