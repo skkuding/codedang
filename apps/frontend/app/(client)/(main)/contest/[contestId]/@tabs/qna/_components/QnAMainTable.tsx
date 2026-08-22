@@ -7,7 +7,11 @@ import {
 } from '@/components/PaginatorV2'
 import { usePagination } from '@/libs/hooks/usePaginationV2'
 import { fetcher, fetcherWithAuth } from '@/libs/utils'
-import type { ProblemDataTop } from '@/types/type'
+import type {
+  ProblemDataTop,
+  ContestQnaListItem,
+  QnAItemWithCategory
+} from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import type { Session } from 'next-auth'
 import { useEffect, useState } from 'react'
@@ -27,25 +31,6 @@ interface QnAMainTableProps {
   problemOrders: string
   isContestStaff: boolean
   canCreateQnA: boolean | null
-}
-
-export interface QnAItem {
-  id: number
-  order: number
-  createdById: number
-  title: string
-  isResolved: boolean
-  category: string
-  problemId: number
-  createTime: string
-  createdBy: {
-    username: string
-  }
-  isRead: boolean
-}
-
-export interface QnAItemWithCategory extends QnAItem {
-  categoryName?: string
 }
 
 export function QnAMainTable({
@@ -95,7 +80,8 @@ export function QnAMainTable({
     }
   })
 
-  const [filteredData, setFilteredData] = useState<QnAItem[]>(QnAData)
+  const [filteredData, setFilteredData] =
+    useState<ContestQnaListItem[]>(QnAData)
   useEffect(() => {
     setFilteredData(QnAData)
   }, [QnAData])
@@ -175,6 +161,6 @@ const getFilteredQnAs = async (
     .get(`contest/${contestId}/qna`, {
       searchParams: { search, orderBy, categories, problemOrders }
     })
-    .json<QnAItem[]>()
+    .json<ContestQnaListItem[]>()
   return data
 }

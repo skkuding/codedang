@@ -563,47 +563,82 @@ export interface Notification {
   createTime: string
 }
 
-export interface MultipleQnaData {
+// export interface MultipleQnaData {
+//   id: number
+//   order: number
+//   createdById?: number
+//   assignmentId?: number
+//   assignmentTitle?: string
+//   isExercise?: boolean
+//   groupId?: number
+//   isPrivate?: boolean
+//   title: string
+//   isResolved: boolean
+//   category: string
+//   problemId: number | null
+//   createTime: Date
+//   createdBy: {
+//     username: string
+//   }
+//   isRead: boolean
+// }
+interface QnaBase {
   id: number
   order: number
-  createdById: number
   title: string
-  isResolved: boolean
   category: string
-  problemId: number | null
+  problemId: number
+  isResolved: boolean
+  isPrivate?: boolean
+  isRead?: boolean
   createTime: Date
   createdBy: {
     username: string
   }
-  isRead: boolean
 }
 
-export interface SingleQnaData {
-  id: number
-  order: number
-  createdById: number
-  title: string
+export interface ContestQnaListItem extends QnaBase {
+  createdById?: number
+  groupId?: number
+}
+
+export interface CourseQnaListItem extends QnaBase {
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
+}
+
+export type MultipleQnaData = ContestQnaListItem | CourseQnaListItem
+interface SingleQnaBase extends QnaBase {
   content: string
-  problemId: number | null
-  category: string
-  isResolved: boolean
-  createTime: Date
   readby: number[]
-  comments: {
-    id: number
-    order: number
-    createdById: number
-    isContestStaff: false
-    content: string
-    contestQnAId: number
-    createdTime: Date
-    createdBy: {
-      username: string
-    }
-  }[]
+  comments: QnAComment[]
+}
+
+export interface ContestSingleQnaData extends SingleQnaBase {
+  groupId?: number
+}
+
+export interface CourseSingleQnaData extends SingleQnaBase {
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
+}
+
+export type SingleQnaData = ContestSingleQnaData | CourseSingleQnaData
+
+export interface QnAComment {
+  id: string
+  order: number
+  content: string
+  createdById?: number
+  isCourseStaff: boolean
+  isContestStaff: false
+  contestQnAId?: number
+  createTime: Date
   createdBy: {
     username: string
-  }
+  } | null
 }
 
 export interface QnaFormData {
@@ -613,38 +648,31 @@ export interface QnaFormData {
   selectedProblemLabel: string
 }
 
+export interface QnAItemWithCategory extends ContestQnaListItem {
+  categoryName?: string
+}
+
 export interface ProblemOption {
   value: string
   label: string
 }
 
-export interface CourseQnAComment {
-  id: string
-  order: number
-  content: string
-  isCourseStaff: boolean
-  createTime: Date
-  createdBy?: {
-    username: string
-  } | null
-}
-
-export interface CourseQnAItem {
-  id: number
-  order: number
-  groupId: number
-  problemId: number
-  assignmentId: number
-  assignmentTitle: string
-  isExercise: boolean
-  title: string
-  content: string
-  category: string
-  createTime: Date
-  isResolved: boolean
-  isPrivate: boolean
-  createdBy?: {
-    username: string
-  }
-  comments: CourseQnAComment[]
-}
+// export interface CourseQnAItem {
+//   id: number
+//   order: number
+//   groupId: number
+//   problemId: number
+//   assignmentId: number
+//   assignmentTitle: string
+//   isExercise: boolean
+//   title: string
+//   content: string
+//   category: string
+//   createTime: Date
+//   isResolved: boolean
+//   isPrivate: boolean
+//   createdBy?: {
+//     username: string
+//   }
+//   comments: CourseQnAComment[]
+// }

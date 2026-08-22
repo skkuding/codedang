@@ -6,7 +6,7 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import type { CourseQnAItem } from '@/types/type'
+import type { CourseSingleQnaData } from '@/types/type'
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useState } from 'react'
@@ -19,7 +19,7 @@ interface CourseQnaTableProps {
 export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
   const [filterType, setFilterType] = useState<'General' | 'Problem'>('General')
 
-  const { data: qnaData } = useSuspenseQuery<CourseQnAItem[]>({
+  const { data: qnaData } = useSuspenseQuery<CourseSingleQnaData[]>({
     queryKey: ['courseQnA', courseId, filterType],
     queryFn: () =>
       safeFetcherWithAuth
@@ -48,7 +48,7 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
     return new Map(flatProblems.map((p) => [p.id, p]))
   }, [problemQueries])
 
-  const tableData: (CourseQnAItem & { problemTitle: string })[] =
+  const tableData: (CourseSingleQnaData & { problemTitle: string })[] =
     useMemo(() => {
       return qnaData.map((qna) => {
         const matchedProblem = allProblemsMap.get(qna.problemId)
@@ -114,7 +114,9 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
         <DataTableSearchBar columndId="title" />
       </div>
       <DataTable
-        getHref={(row: CourseQnAItem) => `/course/${courseId}/qna/${row.order}`}
+        getHref={(row: CourseSingleQnaData) =>
+          `/course/${courseId}/qna/${row.order}`
+        }
       />
 
       <DataTablePagination />

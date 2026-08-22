@@ -2,38 +2,28 @@ import { CreateQnaTextArea } from '@/app/(client)/(code-editor)/_components/Crea
 import { QuestionAnswerArea } from '@/app/(client)/(code-editor)/_components/QuestionAnswerArea'
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { TanstackQueryErrorBoundary } from '@/components/TanstackQueryErrorBoundary'
-import { fetcherWithAuth } from '@/libs/utils'
-import type { ProblemDataTop } from '@/types/type'
 import { Suspense } from 'react'
 
-// import { CreateQnaTextArea } from './_components/CreateQnaTextArea'
-// import { QuestionAnswerArea } from './_components/QuestionAnswerArea'
-
 export default async function QnaPage(props: {
-  params: Promise<{ problemId: string; contestId: string }>
+  params: Promise<{ courseId: string; assignmentId: string; problemId: string }>
 }) {
-  const { problemId, contestId } = await props.params
-  const problemData: ProblemDataTop = await fetcherWithAuth
-    .get(`contest/${contestId}/problem`)
-    .json()
-  const findproblem = problemData.data.find(
-    (problem) => problem.id === Number(problemId)
-  )
-  const problemorder = findproblem ? findproblem.order : null
+  const { courseId, assignmentId, problemId } = await props.params
 
   return (
     <TanstackQueryErrorBoundary fallback={FetchErrorFallback}>
       <Suspense fallback={<div>Loading...</div>}>
         <div className="flex h-full flex-col bg-[#222939]">
           <CreateQnaTextArea
-            problemOrder={problemorder}
-            contestId={Number(contestId)}
+            courseId={Number(courseId)}
+            problemId={Number(problemId)}
           />
 
           <hr className="border-4 border-[#121728]" />
           <QuestionAnswerArea
-            contestId={Number(contestId)}
+            courseId={Number(courseId)}
             problemId={Number(problemId)}
+            assignmentId={Number(assignmentId)}
+            isExercise={false}
           />
         </div>
       </Suspense>
