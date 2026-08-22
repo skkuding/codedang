@@ -62,10 +62,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.parseJudgerResponse(msg)
 
-          if (res instanceof JudgerResponse) {
-            // JudgerResponse 메시지는 처리하지 않습니다.
-            return // Ack
-          }
+          // JudgerResponse 메시지는 처리하지 않습니다.
+          return // Ack
         } catch (error) {
           if (
             Array.isArray(error) &&
