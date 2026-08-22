@@ -42,10 +42,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     this.amqpService.setMessageHandlers({
       onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
-          const res = await this.parseResponse(msg)
-          if (res instanceof SubmissionResponse) {
-            return // Ack
-          }
+          const res = await this.parseJudgerResponse(msg)
           await this.handleRunMessage(res, res.submissionId, isUserTest)
         } catch (error) {
           if (
@@ -63,12 +60,29 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       },
       onJudgeMessage: async (msg: object) => {
         try {
-          const res = await this.parseResponse(msg)
+          const res = await this.parseJudgerResponse(msg)
 
           if (res instanceof JudgerResponse) {
             // JudgerResponse 메시지는 처리하지 않습니다.
             return // Ack
           }
+        } catch (error) {
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
+          }
+          throw error // MQTT 서비스에서 Nack 처리
+        }
+      },
+      onSubmissionMessage: async (msg) => {
+        try {
+          const res = await this.parseSubmissionResponse(msg)
 
           const validResponse = await this.filterOutdatedTestcases(
             res.submissionId,
@@ -228,19 +242,26 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @throws {ValidationError[]} 유효성 검사 실패 시 발생
    */
   @Span()
-  async parseResponse(
-    msg: object
-  ): Promise<JudgerResponse | SubmissionResponse> {
-    const isSubmissionResult = Boolean(msg['finished'])
-
-    if (isSubmissionResult) {
-      const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
-      await validateOrReject(res)
-
-      return res
-    }
-
+  async parseJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
+    await validateOrReject(res)
+
+    return res
+  }
+
+  /**
+   * 채점 서버로부터 수신한 메시지의 형식을 검증합니다.
+   *
+   * 1. 수신한 `msg` 객체를 `SubmissionResponse` DTO 인스턴스로 변환합니다 (`plainToInstance`).
+   * 2. `class-validator`를 사용하여 데이터의 유효성을 검사합니다.
+   * 3. 검증 성공 시 DTO 인스턴스를 반환하며, 실패 시 예외를 던집니다.
+   *
+   * @param {object} msg 채점 서버로부터 수신한 Raw 메시지 객체
+   * @returns {Promise<SubmissionResponse>} 유효성 검사가 완료된 `SubmissionResponse` 객체
+   * @throws {ValidationError[]} 유효성 검사 실패 시 발생
+   */
+  async parseSubmissionResponse(msg: object): Promise<SubmissionResponse> {
+    const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
     await validateOrReject(res)
 
     return res
@@ -335,8 +356,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         result: status,
         cpuTime: BigInt(value.judgeResult.cpuTime),
         memoryUsage: value.judgeResult.memory,
-        output: value.judgeResult.output,
-        finished: value.finished!
+        output: value.judgeResult.output
       }
 
       submissionResults.push(submissionResult)
@@ -404,12 +424,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   @Span()
   async updateTestcaseJudgeResult(
     submissionResults: (Partial<SubmissionResult> &
-      Pick<
-        SubmissionResult,
-        'result' | 'submissionId' | 'problemTestcaseId'
-      > & {
-        finished?: boolean
-      })[]
+      Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>)[]
   ): Promise<void> {
     if (submissionResults.length === 0) return
 
