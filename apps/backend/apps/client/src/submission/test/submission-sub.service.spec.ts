@@ -216,9 +216,9 @@ describe('SubmissionSubscriptionService', () => {
     })
   })
 
-  describe('parseResponse', () => {
+  describe('parseJudgerResponse', () => {
     it('should return JudgerResponse', async () => {
-      const result = await service.parseResponse(msg)
+      const result = await service.parseJudgerResponse(msg)
 
       expect(result).to.be.deep.equal(msg)
     })
@@ -231,7 +231,7 @@ describe('SubmissionSubscriptionService', () => {
         judgeResult
       }
 
-      await expect(service.parseResponse(invalidMsg)).to.be.rejected
+      await expect(service.parseJudgerResponse(invalidMsg)).to.be.rejected
     })
   })
 
