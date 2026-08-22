@@ -501,7 +501,6 @@ export class SubmissionService {
 
     const submissionData = {
       code: code.map((snippet) => ({ ...snippet })), // convert to plain object
-      result: ResultStatus.Judging,
       userId,
       userIp,
       problemId: problem.id,
@@ -510,23 +509,27 @@ export class SubmissionService {
     }
 
     try {
-      const submission = await this.prisma.submission.create({
-        data: {
-          ...submissionData,
-          contestId: idOptions?.contestId,
-          assignmentId: idOptions?.assignmentId,
-          workbookId: idOptions?.workbookId
-        }
-      })
-
       const testcases = await this.getJudgeableTestcases(
         problem.id,
         judgeOnlyHiddenTestcases
       )
 
       if (testcases.length === 0) {
-        return await this.finalizeSubmissionWithoutTestcases(submission)
+        return await this.createSubmissionWithoutTestcases(
+          submissionData,
+          idOptions
+        )
       }
+
+      const submission = await this.prisma.submission.create({
+        data: {
+          ...submissionData,
+          result: ResultStatus.Judging,
+          contestId: idOptions?.contestId,
+          assignmentId: idOptions?.assignmentId,
+          workbookId: idOptions?.workbookId
+        }
+      })
 
       await this.createSubmissionResults(submission, testcases)
 
@@ -546,27 +549,43 @@ export class SubmissionService {
   }
 
   /**
-   * 채점 가능한 테스트케이스가 없는 제출을 즉시 정답으로 확정하고, 관련 통계 및 기록에 반영합니다.
+   * 채점 가능한 테스트케이스가 없는 제출을 곧바로 정답 상태로 생성하고, 관련 통계 및 기록에 반영합니다.
    *
+   * 채점할 것이 없으므로 Judging 상태를 거치지 않고 처음부터 Accepted로 생성합니다.
    * Iris 채점 서버로부터 결과를 받는 흐름을 거치지 않으므로,
    * `SubmissionSubscriptionService.updateSubmissionResult`가 아닌 이 메서드가 직접 처리합니다.
    *
-   * @param {Submission} submission - 정답으로 확정할 제출 기록
-   * @returns {Promise<Submission>} 최종 확정된 제출 기록
+   * @param {Omit<Prisma.SubmissionUncheckedCreateInput, 'result' | 'score' | 'contestId' | 'assignmentId' | 'workbookId'>} submissionData
+   *   - 제출 생성에 필요한 데이터 (결과/점수/대회·과제·워크북 ID 제외)
+   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
+   * @returns {Promise<Submission>} 정답으로 생성된 제출 기록
    */
   @Span()
-  async finalizeSubmissionWithoutTestcases(
-    submission: Submission
+  async createSubmissionWithoutTestcases(
+    submissionData: Omit<
+      Prisma.SubmissionUncheckedCreateInput,
+      'result' | 'score' | 'contestId' | 'assignmentId' | 'workbookId'
+    >,
+    idOptions?: {
+      contestId?: number
+      assignmentId?: number
+      workbookId?: number
+    }
   ): Promise<Submission> {
-    await this.finalization.finalizeSubmission(
-      submission,
-      ResultStatus.Accepted,
-      PERCENTAGE_SCALE
-    )
-
-    return await this.prisma.submission.findUniqueOrThrow({
-      where: { id: submission.id }
+    const submission = await this.prisma.submission.create({
+      data: {
+        ...submissionData,
+        result: ResultStatus.Accepted,
+        score: PERCENTAGE_SCALE,
+        contestId: idOptions?.contestId,
+        assignmentId: idOptions?.assignmentId,
+        workbookId: idOptions?.workbookId
+      }
     })
+
+    await this.finalization.applyFinalizationEffects(submission, true)
+
+    return submission
   }
 
   /**

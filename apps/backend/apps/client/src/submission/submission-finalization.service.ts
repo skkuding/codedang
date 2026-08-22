@@ -15,10 +15,11 @@ export class SubmissionFinalizationService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 제출의 최종 결과와 점수를 확정하고, 문제 통계 및 대회/과제 기록에 반영합니다.
+   * 제출의 최종 결과와 점수를 DB에 저장하고, 문제 통계 및 대회/과제 기록에 반영합니다.
    *
-   * Iris 채점 결과를 집계해 마무리하는 흐름과, 채점할 테스트케이스가 없어 즉시 확정하는 흐름
-   * 양쪽에서 공통으로 필요한 마무리 처리를 담당합니다.
+   * Iris 채점 결과를 집계해 마무리하는 흐름에서 사용합니다. 제출 생성 시점에 이미
+   * 결과/점수가 정해지는 흐름(채점할 테스트케이스가 없는 경우)은 저장이 필요 없으므로
+   * `applyFinalizationEffects`를 직접 호출합니다.
    *
    * @param {Pick<Submission, 'id' | 'problemId' | 'userId' | 'contestId' | 'assignmentId' | 'createTime' | 'updateTime'>} submission
    *   - 결과를 확정할 제출 정보 객체
@@ -46,8 +47,38 @@ export class SubmissionFinalizationService {
       data: { result, score }
     })
 
-    const isAccepted = result === ResultStatus.Accepted
+    await this.applyFinalizationEffects(
+      submission,
+      result === ResultStatus.Accepted
+    )
+  }
 
+  /**
+   * 이미 최종 결과/점수가 반영된 제출에 대해, 문제 통계 및 대회/과제 기록에 반영합니다.
+   *
+   * `finalizeSubmission`이 결과/점수를 저장한 뒤 호출하는 것 외에도,
+   * 제출 생성 시점에 이미 결과/점수가 확정된 경우(채점 대상 테스트케이스가 없는 경우)
+   * 저장을 다시 하지 않고 이 메서드만 직접 호출할 수 있습니다.
+   *
+   * @param {Pick<Submission, 'id' | 'problemId' | 'userId' | 'contestId' | 'assignmentId' | 'createTime' | 'updateTime'>} submission
+   *   - 후속 반영 대상 제출 정보 객체
+   * @param {boolean} isAccepted - 제출 결과가 `Accepted`인지 여부
+   * @returns {Promise<void>}
+   */
+  @Span()
+  async applyFinalizationEffects(
+    submission: Pick<
+      Submission,
+      | 'id'
+      | 'problemId'
+      | 'userId'
+      | 'contestId'
+      | 'assignmentId'
+      | 'createTime'
+      | 'updateTime'
+    >,
+    isAccepted: boolean
+  ): Promise<void> {
     await this.updateProblemAccepted(submission.problemId, isAccepted)
 
     if (submission.userId) {

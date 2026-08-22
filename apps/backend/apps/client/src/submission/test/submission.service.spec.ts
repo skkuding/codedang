@@ -166,7 +166,8 @@ describe('SubmissionService', () => {
         {
           provide: SubmissionFinalizationService,
           useFactory: () => ({
-            finalizeSubmission: stub()
+            finalizeSubmission: stub(),
+            applyFinalizationEffects: stub()
           })
         },
         {
@@ -399,27 +400,22 @@ describe('SubmissionService', () => {
       expect(publishSpy.calledOnce).to.be.true
     })
 
-    it('should finalize submission without publishing when no testcase is judgeable', async () => {
-      const createdSubmission = {
+    it('should create the submission without testcases when no testcase is judgeable', async () => {
+      const finalizedSubmission = {
         ...submissions[0],
         codeSize: 1000,
-        contestId: CONTEST_ID
-      }
-      const finalizedSubmission = {
-        ...createdSubmission,
+        contestId: CONTEST_ID,
         result: ResultStatus.Accepted,
         score: new Prisma.Decimal(PERCENTAGE_SCALE)
       }
-
-      db.submission.create.resolves(createdSubmission)
 
       const getJudgeableStub = stub(service, 'getJudgeableTestcases').resolves(
         []
       )
       const createResultsStub = stub(service, 'createSubmissionResults')
-      const finalizeStub = stub(
+      const createWithoutTestcasesStub = stub(
         service,
-        'finalizeSubmissionWithoutTestcases'
+        'createSubmissionWithoutTestcases'
       ).resolves(finalizedSubmission)
       const publishStub = stub(publish, 'publishJudgeRequestMessage')
 
@@ -436,7 +432,16 @@ describe('SubmissionService', () => {
 
       expect(getJudgeableStub.calledOnceWith(problems[0].id, true)).to.be.true
       expect(createResultsStub.called).to.be.false
-      expect(finalizeStub.calledOnceWith(createdSubmission)).to.be.true
+      expect(db.submission.create.called).to.be.false
+      expect(createWithoutTestcasesStub.calledOnce).to.be.true
+      expect(createWithoutTestcasesStub.firstCall.args[0]).to.deep.include({
+        userId: submissions[0].userId,
+        userIp: USERIP,
+        problemId: problems[0].id
+      })
+      expect(createWithoutTestcasesStub.firstCall.args[1]).to.deep.equal({
+        contestId: CONTEST_ID
+      })
       expect(publishStub.called).to.be.false
       expect(result).to.deep.equal(finalizedSubmission)
     })
@@ -537,39 +542,48 @@ describe('SubmissionService', () => {
     })
   })
 
-  describe('finalizeSubmissionWithoutTestcases', () => {
-    it('should delegate to SubmissionFinalizationService and return the refetched submission', async () => {
-      const submission = {
-        ...submissions[0],
-        codeSize: 1000,
-        contestId: CONTEST_ID,
-        score: new Prisma.Decimal(0)
+  describe('createSubmissionWithoutTestcases', () => {
+    it('should create the submission as Accepted and apply finalization effects without a prior update', async () => {
+      const submissionData = {
+        code: submissions[0].code,
+        language: submissions[0].language,
+        userId: submissions[0].userId,
+        userIp: USERIP,
+        problemId: problems[0].id,
+        codeSize: 1000
       }
-      const finalizedSubmission = {
-        ...submission,
+      const createdSubmission = {
+        ...submissions[0],
+        ...submissionData,
+        contestId: CONTEST_ID,
         result: ResultStatus.Accepted,
         score: new Prisma.Decimal(PERCENTAGE_SCALE)
       }
 
-      db.submission.findUniqueOrThrow.resolves(finalizedSubmission)
-      const finalizeStub = finalization.finalizeSubmission as SinonStub
+      db.submission.create.resolves(createdSubmission)
+      const applyEffectsStub =
+        finalization.applyFinalizationEffects as SinonStub
 
-      const result =
-        await service.finalizeSubmissionWithoutTestcases(submission)
+      const result = await service.createSubmissionWithoutTestcases(
+        submissionData,
+        { contestId: CONTEST_ID }
+      )
 
       expect(
-        finalizeStub.calledOnceWithExactly(
-          submission,
-          ResultStatus.Accepted,
-          PERCENTAGE_SCALE
-        )
-      ).to.be.true
-      expect(
-        db.submission.findUniqueOrThrow.calledOnceWith({
-          where: { id: submission.id }
+        db.submission.create.calledOnceWith({
+          data: {
+            ...submissionData,
+            result: ResultStatus.Accepted,
+            score: PERCENTAGE_SCALE,
+            contestId: CONTEST_ID,
+            assignmentId: undefined,
+            workbookId: undefined
+          }
         })
       ).to.be.true
-      expect(result).to.deep.equal(finalizedSubmission)
+      expect(applyEffectsStub.calledOnceWithExactly(createdSubmission, true)).to
+        .be.true
+      expect(result).to.deep.equal(createdSubmission)
     })
   })
 
