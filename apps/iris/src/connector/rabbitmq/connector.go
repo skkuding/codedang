@@ -9,6 +9,7 @@ import (
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
@@ -99,23 +100,23 @@ func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	spanCtx, cancel := context.WithTimeout(spanCtx, timeout)
 	defer cancel()
 
-	resultChan := make(chan []byte, 1)
+	resultChan := make(chan response.Response, 1)
 	if message.Type == "" {
-		resultChan <- response.NewJudgeResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal()
+		resultChan <- response.Response{Message: response.NewJudgeResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal(), Type: constants.Default}
 		close(resultChan)
 	} else if message.MessageId == "" {
-		resultChan <- response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal()
+		resultChan <- response.Response{Message: response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal(), Type: constants.MessageType(message.Type)}
 		close(resultChan)
 	} else {
 		go func() {
 			defer close(resultChan)
-			c.router.Route(message.Type, message.MessageId, message.Body, resultChan, spanCtx)
+			c.router.Route(constants.MessageType(message.Type), message.MessageId, message.Body, resultChan, spanCtx)
 		}()
 	}
 
 drain:
 	for {
-		var result []byte
+		var result response.Response
 		var open bool
 		select {
 		case result, open = <-resultChan:
@@ -127,11 +128,11 @@ drain:
 			break drain
 		}
 
-		if err := c.producer.Publish(result, spanCtx, message.Type); err != nil {
-			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result), err), spanCtx)
+		if err := c.producer.Publish(result.Message, spanCtx, string(result.Type)); err != nil {
+			c.logger.LogWithContext(logger.ERROR, fmt.Sprintf("failed to publish result: %s: %s", string(result.Message), err), spanCtx)
 			// nack
 		} else {
-			c.logger.LogWithContext(logger.DEBUG, fmt.Sprintf("result published: %s", string(result)), spanCtx)
+			c.logger.LogWithContext(logger.DEBUG, fmt.Sprintf("result published: %s", string(result.Message)), spanCtx)
 		}
 	}
 
