@@ -23,7 +23,11 @@ import {
   userTestKey,
   userTestcasesKey
 } from '@libs/cache'
-import { MIN_DATE, TEST_SUBMISSION_EXPIRE_TIME } from '@libs/constants'
+import {
+  MIN_DATE,
+  PERCENTAGE_SCALE,
+  TEST_SUBMISSION_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -37,8 +41,8 @@ import {
   Snippet,
   Template
 } from './class/create-submission.dto'
+import { SubmissionFinalizationService } from './submission-finalization.service'
 import { SubmissionPublicationService } from './submission-pub.service'
-import { SubmissionSubscriptionService } from './submission-sub.service'
 
 @Injectable()
 export class SubmissionService {
@@ -50,7 +54,7 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly publish: SubmissionPublicationService,
-    private readonly subscribe: SubmissionSubscriptionService,
+    private readonly finalization: SubmissionFinalizationService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -521,10 +525,7 @@ export class SubmissionService {
       )
 
       if (testcases.length === 0) {
-        await this.subscribe.updateSubmissionResult(submission.id, true)
-        return await this.prisma.submission.findUniqueOrThrow({
-          where: { id: submission.id }
-        })
+        return await this.finalizeSubmissionWithoutTestcases(submission)
       }
 
       await this.createSubmissionResults(submission, testcases)
@@ -542,6 +543,30 @@ export class SubmissionService {
       }
       throw error
     }
+  }
+
+  /**
+   * 채점 가능한 테스트케이스가 없는 제출을 즉시 정답으로 확정하고, 관련 통계 및 기록에 반영합니다.
+   *
+   * Iris 채점 서버로부터 결과를 받는 흐름을 거치지 않으므로,
+   * `SubmissionSubscriptionService.updateSubmissionResult`가 아닌 이 메서드가 직접 처리합니다.
+   *
+   * @param {Submission} submission - 정답으로 확정할 제출 기록
+   * @returns {Promise<Submission>} 최종 확정된 제출 기록
+   */
+  @Span()
+  async finalizeSubmissionWithoutTestcases(
+    submission: Submission
+  ): Promise<Submission> {
+    await this.finalization.finalizeSubmission(
+      submission,
+      ResultStatus.Accepted,
+      PERCENTAGE_SCALE
+    )
+
+    return await this.prisma.submission.findUniqueOrThrow({
+      where: { id: submission.id }
+    })
   }
 
   /**

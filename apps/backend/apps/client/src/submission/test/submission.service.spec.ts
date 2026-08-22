@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import type { Contest, User, Assignment } from '@prisma/client'
-import { Language, ResultStatus, Role } from '@prisma/client'
+import { Language, Prisma, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
@@ -21,8 +21,8 @@ import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
+import { SubmissionFinalizationService } from '../submission-finalization.service'
 import { SubmissionPublicationService } from '../submission-pub.service'
-import { SubmissionSubscriptionService } from '../submission-sub.service'
 import { SubmissionService } from '../submission.service'
 
 const db = {
@@ -148,7 +148,7 @@ const USERIP = '127.0.0.1'
 describe('SubmissionService', () => {
   let service: SubmissionService
   let publish: SubmissionPublicationService
-  let subscribe: SubmissionSubscriptionService
+  let finalization: SubmissionFinalizationService
   let cache: Cache
 
   beforeEach(async () => {
@@ -164,8 +164,10 @@ describe('SubmissionService', () => {
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
         },
         {
-          provide: SubmissionSubscriptionService,
-          useFactory: () => ({ updateSubmissionResult: stub() })
+          provide: SubmissionFinalizationService,
+          useFactory: () => ({
+            finalizeSubmission: stub()
+          })
         },
         {
           provide: CACHE_MANAGER,
@@ -185,8 +187,8 @@ describe('SubmissionService', () => {
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
-    subscribe = module.get<SubmissionSubscriptionService>(
-      SubmissionSubscriptionService
+    finalization = module.get<SubmissionFinalizationService>(
+      SubmissionFinalizationService
     )
     cache = module.get<Cache>(CACHE_MANAGER)
     stub(cache, 'set').resolves()
@@ -400,23 +402,26 @@ describe('SubmissionService', () => {
     it('should finalize submission without publishing when no testcase is judgeable', async () => {
       const createdSubmission = {
         ...submissions[0],
+        codeSize: 1000,
         contestId: CONTEST_ID
       }
       const finalizedSubmission = {
         ...createdSubmission,
         result: ResultStatus.Accepted,
-        score: PERCENTAGE_SCALE
+        score: new Prisma.Decimal(PERCENTAGE_SCALE)
       }
 
       db.submission.create.resolves(createdSubmission)
-      db.submission.findUniqueOrThrow.resolves(finalizedSubmission)
 
       const getJudgeableStub = stub(service, 'getJudgeableTestcases').resolves(
         []
       )
       const createResultsStub = stub(service, 'createSubmissionResults')
+      const finalizeStub = stub(
+        service,
+        'finalizeSubmissionWithoutTestcases'
+      ).resolves(finalizedSubmission)
       const publishStub = stub(publish, 'publishJudgeRequestMessage')
-      const updateResultStub = subscribe.updateSubmissionResult as SinonStub
 
       const result = await service.createSubmission({
         submissionDto,
@@ -431,8 +436,7 @@ describe('SubmissionService', () => {
 
       expect(getJudgeableStub.calledOnceWith(problems[0].id, true)).to.be.true
       expect(createResultsStub.called).to.be.false
-      expect(updateResultStub.calledOnceWithExactly(createdSubmission.id, true))
-        .to.be.true
+      expect(finalizeStub.calledOnceWith(createdSubmission)).to.be.true
       expect(publishStub.called).to.be.false
       expect(result).to.deep.equal(finalizedSubmission)
     })
@@ -530,6 +534,42 @@ describe('SubmissionService', () => {
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
       expect(publishSpy.calledOnce).to.be.false
+    })
+  })
+
+  describe('finalizeSubmissionWithoutTestcases', () => {
+    it('should delegate to SubmissionFinalizationService and return the refetched submission', async () => {
+      const submission = {
+        ...submissions[0],
+        codeSize: 1000,
+        contestId: CONTEST_ID,
+        score: new Prisma.Decimal(0)
+      }
+      const finalizedSubmission = {
+        ...submission,
+        result: ResultStatus.Accepted,
+        score: new Prisma.Decimal(PERCENTAGE_SCALE)
+      }
+
+      db.submission.findUniqueOrThrow.resolves(finalizedSubmission)
+      const finalizeStub = finalization.finalizeSubmission as SinonStub
+
+      const result =
+        await service.finalizeSubmissionWithoutTestcases(submission)
+
+      expect(
+        finalizeStub.calledOnceWithExactly(
+          submission,
+          ResultStatus.Accepted,
+          PERCENTAGE_SCALE
+        )
+      ).to.be.true
+      expect(
+        db.submission.findUniqueOrThrow.calledOnceWith({
+          where: { id: submission.id }
+        })
+      ).to.be.true
+      expect(result).to.deep.equal(finalizedSubmission)
     })
   })
 
