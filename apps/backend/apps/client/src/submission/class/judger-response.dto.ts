@@ -37,10 +37,6 @@ export class JudgerResponse {
   @Type(() => JudgeResult)
   @IsOptional()
   judgeResult?: JudgeResult
-
-  @IsBoolean()
-  @IsOptional()
-  finished?: boolean
 }
 
 export class SubmissionResponse {
@@ -52,8 +48,4 @@ export class SubmissionResponse {
   @ValidateNested({ each: true })
   @Type(() => JudgerResponse)
   judgeResults: JudgerResponse[]
-
-  @IsBoolean()
-  @IsNotEmpty()
-  finished: boolean
 }
