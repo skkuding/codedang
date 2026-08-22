@@ -105,7 +105,7 @@ export function Modal({
             </p>
           )}
         </DialogHeader>
-        <ScrollArea className="w-full flex-1 px-1">
+        <ScrollArea className="min-h-0 w-full flex-1 px-1">
           {type === 'input' && inputProps && (
             <ModalInput
               type={inputProps.type}

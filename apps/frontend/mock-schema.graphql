@@ -1,0 +1,23 @@
+# Temporary stub for the backend contract agreed for course enrollment
+# security (roster names + verification) but not yet implemented on
+# apps/backend. Merged into codegen.ts's `schema` alongside the real
+# schema.gql purely to unblock frontend build/typecheck/preview.
+#
+# Delete this file (and the schema array entry in codegen.ts) once the
+# backend team ships the matching fields in schema.gql.
+
+extend type GroupWhitelist {
+  name: String
+}
+
+extend type Query {
+  getWhitelistEntries(groupId: Int!): [GroupWhitelist!]!
+}
+
+extend type Mutation {
+  createWhitelist(
+    groupId: Int!
+    studentIds: [String!]!
+    names: [String!]
+  ): Float!
+}
