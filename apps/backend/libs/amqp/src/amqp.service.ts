@@ -61,6 +61,7 @@ export class JudgeAMQPService {
           if (this.messageHandlers?.onSubmissionMessage) {
             await this.messageHandlers.onSubmissionMessage(msg)
           }
+          return
         }
 
         if (this.messageHandlers?.onJudgeMessage) {
