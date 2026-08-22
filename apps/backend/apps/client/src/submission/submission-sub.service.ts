@@ -25,7 +25,7 @@ import {
 } from '@libs/constants'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { JudgerResponse } from './class/judger-response.dto'
+import { JudgerResponse, SubmissionResponse } from './class/judger-response.dto'
 
 @Injectable()
 export class SubmissionSubscriptionService implements OnModuleInit {
@@ -42,7 +42,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     this.amqpService.setMessageHandlers({
       onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
-          const res = await this.validateJudgerResponse(msg)
+          const res = await this.parseJudgerResponse(msg)
           await this.handleRunMessage(res, res.submissionId, isUserTest)
         } catch (error) {
           if (
@@ -60,10 +60,34 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       },
       onJudgeMessage: async (msg: object) => {
         try {
-          const res = await this.validateJudgerResponse(msg)
+          const res = await this.parseJudgerResponse(msg)
 
-          const isOudated = await this.isOutdatedTestcase(res)
-          if (isOudated) return
+          // JudgerResponse 메시지는 처리하지 않습니다.
+          return // Ack
+        } catch (error) {
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
+          }
+          throw error // MQTT 서비스에서 Nack 처리
+        }
+      },
+      onSubmissionMessage: async (msg) => {
+        try {
+          const res = await this.parseSubmissionResponse(msg)
+
+          const validResponse = await this.filterOutdatedTestcases(
+            res.submissionId,
+            res.judgeResults
+          )
+
+          res.judgeResults = validResponse
 
           await this.handleJudgerMessage(res)
         } catch (error) {
@@ -216,7 +240,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @throws {ValidationError[]} 유효성 검사 실패 시 발생
    */
   @Span()
-  async validateJudgerResponse(msg: object): Promise<JudgerResponse> {
+  async parseJudgerResponse(msg: object): Promise<JudgerResponse> {
     const res: JudgerResponse = plainToInstance(JudgerResponse, msg)
     await validateOrReject(res)
 
@@ -224,36 +248,68 @@ export class SubmissionSubscriptionService implements OnModuleInit {
   }
 
   /**
-   * 채점 결과가 도착한 테스트케이스가 최신 상태인지(유효한지) 확인합니다.
+   * 채점 서버로부터 수신한 메시지의 형식을 검증합니다.
+   *
+   * 1. 수신한 `msg` 객체를 `SubmissionResponse` DTO 인스턴스로 변환합니다 (`plainToInstance`).
+   * 2. `class-validator`를 사용하여 데이터의 유효성을 검사합니다.
+   * 3. 검증 성공 시 DTO 인스턴스를 반환하며, 실패 시 예외를 던집니다.
+   *
+   * @param {object} msg 채점 서버로부터 수신한 Raw 메시지 객체
+   * @returns {Promise<SubmissionResponse>} 유효성 검사가 완료된 `SubmissionResponse` 객체
+   * @throws {ValidationError[]} 유효성 검사 실패 시 발생
+   */
+  async parseSubmissionResponse(msg: object): Promise<SubmissionResponse> {
+    const res: SubmissionResponse = plainToInstance(SubmissionResponse, msg)
+    await validateOrReject(res)
+
+    return res
+  }
+
+  /**
+   * 도착한 테스트케이스들이 최신 상태인지(유효한지) 확인합니다.
    *
    * 문제 출제자가 테스트케이스를 수정하거나 새로 업로드하면(`uploadTestcaseZip` 등),
    * 기존 테스트케이스들은 모두 `isOutdated: true`로 설정됩니다.
    *
    * 1. 응답에 포함된 `testcaseId`가 현재 유효한지(`isOutdated: false`) 확인합니다.
-   * 2. 해당 테스트케이스가 존재하지 않으면(즉, Outdated 되었거나 삭제된 경우), `true`를 반환합니다.
+   * 2. 해당 테스트케이스가 존재하지 않으면(즉, Outdated 되었거나 삭제된 경우), 반환값에서 제외합니다.
    *
-   * @param {JudgerResponse} res 채점 서버로부터 수신한 응답 메시지 객체
-   * @returns {Promise<boolean>} 테스트케이스가 만료(Outdated)되었으면 `true`, 유효하면 `false`
+   * @param {number} submissionId 보내진 응답의 제출 ID
+   * @param {JudgerResponse[]} res 채점 서버로부터 수신한 채점 결과 배열
+   * @returns {Promise<JudgerResponse[]>} 유효한 채점 결과만 담은 배열
    */
   @Span()
-  async isOutdatedTestcase(res: JudgerResponse): Promise<boolean> {
-    const testcase = await this.prisma.problemTestcase.count({
+  async filterOutdatedTestcases(
+    submissionId: number,
+    res: JudgerResponse[]
+  ): Promise<JudgerResponse[]> {
+    const testCaseIds = res
+      .map((v) => v.judgeResult?.testcaseId)
+      .filter((v) => v !== undefined)
+
+    const validTestcases = await this.prisma.problemTestcase.findMany({
+      select: { id: true },
       where: {
-        id: res.judgeResult?.testcaseId,
+        id: { in: testCaseIds },
         isOutdated: false,
         problem: {
           submission: {
-            some: { id: res.submissionId }
+            some: { id: submissionId }
           }
         }
       }
     })
 
-    return testcase === 0
+    const validIds = new Set(validTestcases.map((v) => v.id))
+
+    return res.filter((v) => {
+      const id = v.judgeResult?.testcaseId
+      return id !== undefined && validIds.has(id)
+    })
   }
 
   /**
-   * 채점 서버로부터 수신한 개별 테스트케이스의 채점 결과 메시지를 처리합니다.
+   * 채점 서버로부터 수신한 채점 결과 메시지를 처리합니다.
    *
    * 1. 메시지의 상태 코드(`resultCode`)를 파싱하여 `ResultStatus`를 결정합니다.
    * 2. 에러 상태(ServerError, CompileError)인 경우, `handleJudgeError`를 호출하여 예외 처리를 수행하고 종료합니다.
@@ -265,33 +321,46 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * @throws {UnprocessableDataException} 정상 결과(`judgeResult`)가 누락된 경우 예외 발생
    */
   @Span()
-  async handleJudgerMessage(msg: JudgerResponse): Promise<void> {
-    const status = Status(msg.resultCode)
+  async handleJudgerMessage(msg: SubmissionResponse): Promise<void> {
+    const submissionResults: {
+      submissionId: number
+      problemTestcaseId: number
+      result: ResultStatus
+      cpuTime: bigint
+      memoryUsage: number
+      output: string | undefined
+    }[] = []
 
-    if (
-      status === ResultStatus.ServerError ||
-      status === ResultStatus.CompileError
-    ) {
-      await this.handleJudgeError(status, msg)
-      return
+    for (const value of msg.judgeResults) {
+      const status = Status(value.resultCode)
+
+      if (
+        status === ResultStatus.ServerError ||
+        status === ResultStatus.CompileError
+      ) {
+        await this.handleJudgeError(status, value)
+        return
+      }
+
+      if (!value.judgeResult) {
+        throw new UnprocessableDataException(
+          `JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response`
+        )
+      }
+
+      const submissionResult = {
+        submissionId: value.submissionId,
+        problemTestcaseId: value.judgeResult.testcaseId,
+        result: status,
+        cpuTime: BigInt(value.judgeResult.cpuTime),
+        memoryUsage: value.judgeResult.memory,
+        output: value.judgeResult.output
+      }
+
+      submissionResults.push(submissionResult)
     }
 
-    if (!msg.judgeResult) {
-      throw new UnprocessableDataException(
-        'JudgeResult is missing for submission ${msg.submissionId} - cannot process judge response'
-      )
-    }
-
-    const submissionResult = {
-      submissionId: msg.submissionId,
-      problemTestcaseId: msg.judgeResult.testcaseId,
-      result: status,
-      cpuTime: BigInt(msg.judgeResult.cpuTime),
-      memoryUsage: msg.judgeResult.memory,
-      output: msg.judgeResult.output
-    }
-
-    await this.updateTestcaseJudgeResult(submissionResult)
+    await this.updateTestcaseJudgeResult(submissionResults)
   }
 
   /**
@@ -343,7 +412,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    * 개별 테스트케이스의 채점 결과를 DB에 반영하고, 후속 처리를 수행합니다.
    *
    * 1. `SubmissionResult` 테이블에 해당 테스트케이스의 채점 결과(성공 여부, 시간, 메모리, 출력 등)를 업데이트합니다.
-   * 2. 유효한 채점 결과(Judging, ServerError 등이 아닌 확정된 상태)라면, `updateTestcaseStats`를 호출하여 테스트케이스별 통계를 갱신합니다.
+   * 2. 유효한 채점 결과(Judging, ServerError 등이 아닌 확정된 상태)라면, 테스트케이스별 통계를 갱신합니다.
    * 3. `updateSubmissionResult`를 호출하여, 해당 제출(Submission)의 전체 채점 완료 여부를 확인하고 최종 결과를 갱신합니다.
    *
    * @param {Partial<SubmissionResult> & Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>} submissionResult
@@ -352,24 +421,12 @@ export class SubmissionSubscriptionService implements OnModuleInit {
    *    */
   @Span()
   async updateTestcaseJudgeResult(
-    submissionResult: Partial<SubmissionResult> &
-      Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>
+    submissionResults: (Partial<SubmissionResult> &
+      Pick<SubmissionResult, 'result' | 'submissionId' | 'problemTestcaseId'>)[]
   ): Promise<void> {
-    await this.prisma.submissionResult.update({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        submissionId_problemTestcaseId: {
-          submissionId: submissionResult.submissionId,
-          problemTestcaseId: submissionResult.problemTestcaseId
-        }
-      },
-      data: {
-        result: submissionResult.result,
-        cpuTime: submissionResult.cpuTime,
-        memoryUsage: submissionResult.memoryUsage,
-        output: submissionResult.output
-      }
-    })
+    if (submissionResults.length === 0) return
+
+    const submissionId = submissionResults[0].submissionId
 
     const invalidSubmissionStatuses: Array<ResultStatus> = [
       ResultStatus.Judging,
@@ -377,50 +434,59 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       ResultStatus.Blind,
       ResultStatus.Canceled
     ]
-    if (
-      invalidSubmissionStatuses.every(
-        (result) => result !== submissionResult.result
-      )
-    ) {
-      this.updateTestcaseStats(
-        submissionResult.problemTestcaseId,
-        submissionResult.result === ResultStatus.Accepted
-      )
-    }
 
-    await this.updateSubmissionResult(submissionResult.submissionId)
-  }
+    const statsTargets = submissionResults.filter(
+      (submissionResult) =>
+        !invalidSubmissionStatuses.includes(submissionResult.result)
+    )
 
-  /**
-   * 개별 테스트케이스의 실행 통계를 업데이트합니다.
-   *
-   * 매 실행 시마다 `submissionCount`를 1씩 증가시키며,
-   * 결과가 `Accepted`인 경우 `acceptedCount`도 1씩 증가시킵니다.
-   *
-   * @param {number} testcaseId 통계를 업데이트할 테스트케이스 ID
-   * @param {boolean} isAccepted 채점 결과가 정답(Accepted)인지 여부
-   * @returns {Promise<void>}
-   */
-  @Span()
-  async updateTestcaseStats(
-    testcaseId: number,
-    isAccepted: boolean
-  ): Promise<void> {
-    const testcaseStats = {
-      where: {
-        id: testcaseId
-      },
-      data: {
-        submissionCount: {
-          increment: 1
-        },
-        acceptedCount: {
-          increment: isAccepted ? 1 : 0
-        }
-      }
-    }
+    await this.prisma.$transaction([
+      this.prisma.$executeRaw`
+        UPDATE "submission_result" AS sr
+        SET "result" = v.result::"ResultStatus",
+            "cpu_time" = v.cpu_time,
+            "memory_usage" = v.memory_usage,
+            "output" = v.output,
+            "update_time" = NOW()
+        FROM (
+          VALUES ${Prisma.join(
+            submissionResults.map(
+              (r) => Prisma.sql`(
+                ${r.problemTestcaseId}::int,
+                ${r.result}::text,
+                ${r.cpuTime ?? null}::bigint,
+                ${r.memoryUsage ?? null}::int,
+                ${r.output ?? null}::text
+              )`
+            )
+          )}
+        ) AS v(problem_test_case_id, result, cpu_time, memory_usage, output)
+        WHERE sr."submission_id" = ${submissionId}
+          AND sr."problem_test_case_id" = v.problem_test_case_id;
+      `,
+      ...(statsTargets.length > 0
+        ? [
+            this.prisma.$executeRaw`
+            UPDATE "problem_testcase" as pt
+            SET "submission_count" = pt."submission_count" + 1,
+                "accepted_count" = pt."accepted_count" + v.accepted
+            FROM (
+              VALUES ${Prisma.join(
+                statsTargets.map(
+                  (r) => Prisma.sql`(
+                    ${r.problemTestcaseId}::int,
+                    ${r.result === ResultStatus.Accepted ? 1 : 0}::int
+                  )`
+                )
+              )}
+            ) AS v(problem_test_case_id, accepted)
+            WHERE pt."id" = v.problem_test_case_id
+          `
+          ]
+        : [])
+    ])
 
-    await this.prisma.problemTestcase.update(testcaseStats)
+    await this.updateSubmissionResult(submissionId)
   }
 
   /**

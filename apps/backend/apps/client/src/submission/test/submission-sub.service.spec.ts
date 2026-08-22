@@ -42,6 +42,11 @@ const msg = {
   judgeResult
 }
 
+const submissionResponseMsg = {
+  submissionId: 1,
+  judgeResults: [msg]
+}
+
 const submission: Submission & { submissionResult: SubmissionResult[] } = {
   ...submissions[0],
   codeSize: 1000,
@@ -126,8 +131,12 @@ const db = {
     findUnique: mockFunc,
     update: mockFunc
   },
-  $transaction: async (fn: (prisma: typeof db) => Promise<unknown>) => {
-    return fn(db)
+  $executeRaw: mockFunc,
+  $transaction: async (arg: unknown) => {
+    if (Array.isArray(arg)) {
+      return Promise.all(arg)
+    }
+    return (arg as (prisma: typeof db) => Promise<unknown>)(db)
   }
 }
 
@@ -174,13 +183,12 @@ describe('SubmissionSubscriptionService', () => {
     amqpService = module.get<JudgeAMQPService>(JudgeAMQPService)
     cache = module.get<Cache>(CACHE_MANAGER)
     sandbox.stub(cache, 'get').resolves([])
-    sandbox
-      .stub(db, '$transaction')
-      .callsFake(
-        async <T>(fn: (prisma: typeof db) => Promise<T>): Promise<T> => {
-          return fn(db)
-        }
-      )
+    sandbox.stub(db, '$transaction').callsFake(async (arg: unknown) => {
+      if (Array.isArray(arg)) {
+        return Promise.all(arg)
+      }
+      return (arg as (prisma: typeof db) => Promise<unknown>)(db)
+    })
   })
 
   afterEach(() => {
@@ -206,9 +214,9 @@ describe('SubmissionSubscriptionService', () => {
     })
   })
 
-  describe('validateJudgerResponse', () => {
+  describe('parseJudgerResponse', () => {
     it('should return JudgerResponse', async () => {
-      const result = await service.validateJudgerResponse(msg)
+      const result = await service.parseJudgerResponse(msg)
 
       expect(result).to.be.deep.equal(msg)
     })
@@ -221,7 +229,7 @@ describe('SubmissionSubscriptionService', () => {
         judgeResult
       }
 
-      await expect(service.validateJudgerResponse(invalidMsg)).to.be.rejected
+      await expect(service.parseJudgerResponse(invalidMsg)).to.be.rejected
     })
   })
 
@@ -333,16 +341,23 @@ describe('SubmissionSubscriptionService', () => {
     it('should resolve', async () => {
       const spy = sandbox.stub(service, 'updateTestcaseJudgeResult').resolves()
 
-      await expect(service.handleJudgerMessage(msg)).not.to.be.rejected
+      await expect(service.handleJudgerMessage(submissionResponseMsg)).not.to.be
+        .rejected
       expect(
-        spy.calledOnceWithExactly({
-          submissionId: msg.submissionId,
-          problemTestcaseId: msg.judgeResult.testcaseId,
-          result: Status(msg.resultCode),
-          cpuTime: BigInt(msg.judgeResult.cpuTime),
-          memoryUsage: msg.judgeResult.memory,
-          output: undefined
-        })
+        spy.calledOnceWithExactly([
+          {
+            submissionId: submissionResponseMsg.submissionId,
+            problemTestcaseId:
+              submissionResponseMsg.judgeResults[0].judgeResult.testcaseId,
+            result: Status(submissionResponseMsg.judgeResults[0].resultCode),
+            cpuTime: BigInt(
+              submissionResponseMsg.judgeResults[0].judgeResult.cpuTime
+            ),
+            memoryUsage:
+              submissionResponseMsg.judgeResults[0].judgeResult.memory,
+            output: submissionResponseMsg.judgeResults[0].judgeResult.output
+          }
+        ])
       ).to.be.true
     })
 
@@ -357,8 +372,11 @@ describe('SubmissionSubscriptionService', () => {
         error: '',
         judgeResult
       }
-
-      await service.handleJudgerMessage(serverErrMsg)
+      const multiMsg = {
+        submissionId: 1,
+        judgeResults: [serverErrMsg, msg]
+      }
+      await service.handleJudgerMessage(multiMsg)
       expect(handlerSpy.calledOnceWith(ResultStatus.ServerError, serverErrMsg))
         .to.be.true
       expect(updateSpy.notCalled).to.be.true
@@ -369,17 +387,39 @@ describe('SubmissionSubscriptionService', () => {
       const updateSpy = sandbox
         .stub(service, 'updateTestcaseJudgeResult')
         .resolves()
-      const serverErrMsg = {
+      const compileErrMsg = {
         resultCode: 6,
         submissionId: 1,
         error: '',
         judgeResult
       }
+      const multiMsg = {
+        submissionId: 1,
+        judgeResults: [compileErrMsg, msg]
+      }
 
-      await service.handleJudgerMessage(serverErrMsg)
-      expect(handlerSpy.calledOnceWith(ResultStatus.CompileError, serverErrMsg))
-        .to.be.true
+      await service.handleJudgerMessage(multiMsg)
+      expect(
+        handlerSpy.calledOnceWith(ResultStatus.CompileError, compileErrMsg)
+      ).to.be.true
       expect(updateSpy.notCalled).to.be.true
+    })
+
+    it('should throw when judgeResult is missing', async () => {
+      const missingResultJudgeResponse = {
+        resultCode: 1,
+        submissionId: 1,
+        error: ''
+      }
+
+      const missingResultMsg = {
+        submissionId: 1,
+        judgeResults: [missingResultJudgeResponse]
+      }
+
+      await expect(
+        service.handleJudgerMessage(missingResultMsg)
+      ).to.be.rejectedWith(UnprocessableDataException)
     })
   })
 
@@ -948,36 +988,53 @@ describe('SubmissionSubscriptionService', () => {
   })
 
   describe('updateTestcaseJudgeResult', () => {
-    it('should resolves', async () => {
-      const updateSpy = sandbox.stub(db.submissionResult, 'update').resolves()
+    it('should return early when submissionResults is empty', async () => {
+      const transactionSpy = sandbox.stub(db, '$transaction').resolves([])
       const updateSubmissionResultSpy = sandbox
         .stub(service, 'updateSubmissionResult')
         .resolves()
 
-      await service.updateTestcaseJudgeResult(submissionResults[0])
+      await service.updateTestcaseJudgeResult([])
 
-      expect(
-        updateSpy.calledOnceWith({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            submissionId_problemTestcaseId: {
-              submissionId: submissionResults[0].submissionId,
-              problemTestcaseId: submissionResults[0].problemTestcaseId
-            }
-          },
-          data: {
-            result: submissionResults[0].result,
-            cpuTime: submissionResults[0].cpuTime,
-            memoryUsage: submissionResults[0].memoryUsage,
-            output: null
-          }
-        })
-      ).to.be.true
+      expect(transactionSpy.notCalled).to.be.true
+      expect(updateSubmissionResultSpy.notCalled).to.be.true
+    })
+
+    it('should run both submission_result and problem_testcase batch updates when there are valid stats targets', async () => {
+      const executeRawSpy = sandbox.stub(db, '$executeRaw').resolves(1)
+      const transactionSpy = sandbox.stub(db, '$transaction').resolves([1, 1])
+      const updateSubmissionResultSpy = sandbox
+        .stub(service, 'updateSubmissionResult')
+        .resolves()
+
+      await service.updateTestcaseJudgeResult(submissionResults)
+
+      expect(transactionSpy.calledOnce).to.be.true
+      const passedQueries = transactionSpy.firstCall.args[0]
+      expect(passedQueries).to.have.lengthOf(2)
+      expect(executeRawSpy.calledTwice).to.be.true
+
       expect(
         updateSubmissionResultSpy.calledOnceWith(
           submissionResults[0].submissionId
         )
       ).to.be.true
+    })
+
+    it('should skip the problem_testcase batch when all results are Judging/ServerError/Blind/Canceled', async () => {
+      const executeRawSpy = sandbox.stub(db, '$executeRaw').resolves(1)
+      const transactionSpy = sandbox.stub(db, '$transaction').resolves([1])
+      sandbox.stub(service, 'updateSubmissionResult').resolves()
+
+      const canceledOnly = [
+        { ...submissionResults[0], result: ResultStatus.Canceled }
+      ]
+
+      await service.updateTestcaseJudgeResult(canceledOnly)
+
+      const passedQueries = transactionSpy.firstCall.args[0]
+      expect(passedQueries).to.have.lengthOf(1)
+      expect(executeRawSpy.calledOnce).to.be.true
     })
   })
 

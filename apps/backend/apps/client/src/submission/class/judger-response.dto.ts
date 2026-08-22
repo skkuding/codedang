@@ -1,11 +1,13 @@
 import { Type } from 'class-transformer'
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   Max,
-  Min
+  Min,
+  ValidateNested
 } from 'class-validator'
 
 class JudgeResult {
@@ -35,4 +37,15 @@ export class JudgerResponse {
   @Type(() => JudgeResult)
   @IsOptional()
   judgeResult?: JudgeResult
+}
+
+export class SubmissionResponse {
+  @IsNumber()
+  @IsNotEmpty()
+  submissionId: number
+
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => JudgerResponse)
+  judgeResults: JudgerResponse[]
 }
