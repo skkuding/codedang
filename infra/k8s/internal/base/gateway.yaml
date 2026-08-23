@@ -53,3 +53,16 @@ spec:
     allowedRoutes:
       namespaces:
         from: All
+
+    # preview domain listener
+  - name: https-preview-wildcard
+    protocol: HTTPS
+    port: 8443
+    hostname: "*.preview.codedang.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: preview-wildcard-tls-secret
+    allowedRoutes:
+      namespaces:
+        from: All

@@ -30,7 +30,7 @@ spec:
   parentRefs:
   - name: main-gateway
     namespace: kube-system
-    sectionName: https-wildcard
+    sectionName: https-stage-wildcard
   hostnames:
   - minio-console.stage.codedang.com
   rules:

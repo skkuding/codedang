@@ -64,6 +64,9 @@ spec:
                 - op: replace
                   path: /spec/hostnames/0
                   value: '{{.number}}.preview.codedang.com'
+                - op: replace
+                  path: /spec/parentRefs/sectionName
+                  value: https-preview-wildcard
             - target:
                 kind: Deployment
                 name: frontend
