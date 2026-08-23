@@ -1417,10 +1417,10 @@ export class GroupService {
     const comment = await this.prisma.courseNoticeComment.findUnique({
       where: {
         id: commentId,
-        courseNoticeId: id,
-        createdById: userId
+        courseNoticeId: id
       },
       select: {
+        createdById: true,
         replyOn: {
           select: {
             id: true,
@@ -1447,13 +1447,30 @@ export class GroupService {
       throw new EntityNotExistException('CourseNoticeComment')
     }
 
+    const courseNotice = await this.prisma.courseNotice.findUniqueOrThrow({
+      where: { id },
+      select: { groupId: true }
+    })
+
+    const isCourseStaff =
+      (await this.prisma.userGroup.findFirst({
+        where: {
+          userId,
+          groupId: courseNotice.groupId,
+          isGroupLeader: true
+        }
+      })) !== null
+
+    if (comment.createdById !== userId && !isCourseStaff) {
+      throw new ForbiddenAccessException('You are not allowed to delete')
+    }
+
     if (comment._count.CourseNoticeComment > 0) {
       // 답글이 존재할 때
       return await this.prisma.courseNoticeComment.update({
         where: {
           id: commentId,
-          courseNoticeId: id,
-          createdById: userId
+          courseNoticeId: id
         },
         data: {
           isDeleted: true,
@@ -1481,8 +1498,7 @@ export class GroupService {
     return await this.prisma.courseNoticeComment.delete({
       where: {
         id: commentId,
-        courseNoticeId: id,
-        createdById: userId
+        courseNoticeId: id
       }
     })
   }

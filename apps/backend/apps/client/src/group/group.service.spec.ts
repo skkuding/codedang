@@ -9,7 +9,8 @@ import chaiExclude from 'chai-exclude'
 import * as sinon from 'sinon'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import {
   PrismaService,
@@ -346,6 +347,102 @@ describe('GroupService', () => {
       const res = await service.getGroupLeaders(2)
 
       expect(res).to.deep.equal(['instructor', 'user01'])
+    })
+  })
+
+  describe('deleteComment', () => {
+    let groupId: number
+    let courseNoticeId: number
+
+    beforeEach(async () => {
+      const group = await transaction.group.create({
+        data: {
+          groupName: 'test course',
+          description: 'test',
+          config: {
+            allowJoinFromSearch: true,
+            requireApprovalBeforeJoin: false,
+            allowJoinWithURL: true
+          }
+        }
+      })
+      groupId = group.id
+
+      const courseNotice = await transaction.courseNotice.create({
+        data: {
+          groupId,
+          title: 'test notice',
+          content: 'test content',
+          isPublic: true
+        }
+      })
+      courseNoticeId = courseNotice.id
+    })
+
+    it('should allow the author to delete their own comment', async () => {
+      const comment = await transaction.courseNoticeComment.create({
+        data: {
+          courseNoticeId,
+          createdById: 4,
+          content: 'test comment'
+        }
+      })
+
+      const res = await service.deleteComment({
+        userId: 4,
+        id: courseNoticeId,
+        commentId: comment.id
+      })
+
+      expect(res.id).to.equal(comment.id)
+
+      const found = await transaction.courseNoticeComment.findUnique({
+        where: { id: comment.id }
+      })
+      expect(found).to.be.null
+    })
+
+    it('should throw ForbiddenAccessException when a non-author, non-staff user tries to delete', async () => {
+      const comment = await transaction.courseNoticeComment.create({
+        data: {
+          courseNoticeId,
+          createdById: 4,
+          content: 'test comment'
+        }
+      })
+
+      await expect(
+        service.deleteComment({
+          userId: 7,
+          id: courseNoticeId,
+          commentId: comment.id
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it("should allow course staff to delete another user's comment", async () => {
+      await transaction.userGroup.create({
+        data: {
+          userId: 5,
+          groupId,
+          isGroupLeader: true
+        }
+      })
+      const comment = await transaction.courseNoticeComment.create({
+        data: {
+          courseNoticeId,
+          createdById: 4,
+          content: 'test comment'
+        }
+      })
+
+      const res = await service.deleteComment({
+        userId: 5,
+        id: courseNoticeId,
+        commentId: comment.id
+      })
+
+      expect(res.id).to.equal(comment.id)
     })
   })
 })
