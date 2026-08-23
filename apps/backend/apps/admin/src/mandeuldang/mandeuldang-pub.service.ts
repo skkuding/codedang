@@ -43,19 +43,22 @@ export class MandeuldangPublicationService {
     const generatorRequest = {
       problemId,
       generatorLanguage: Language.Cpp,
-      generatorCode: generator.filePath,
+      generatorCode: generator.fileContent,
       generatorArgs,
       solutionLanguage: solution.language,
-      solutionCode: solution.filePath,
+      solutionCode: solution.fileContent,
       testCaseCount
     }
     //실행 요청 메시지 publish
     try {
-      await this.amqpService.publishGeneratorMessage(
-        request.id,
-        problemId,
-        generatorRequest
-      )
+      await this.amqpService.publishGeneratorMessage(request.id, problemId, {
+        generatorLanguage: Language.Cpp,
+        generatorCode: generator.fileContent,
+        generatorArgs,
+        solutionLanguage: solution.language,
+        solutionCode: solution.fileContent,
+        testCaseCount
+      })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
         where: { id: request.id },
@@ -78,7 +81,7 @@ export class MandeuldangPublicationService {
     const validateRequest = {
       problemId,
       language: Language.Cpp,
-      validatorCode: validator.filePath
+      validatorCode: validator.fileContent
     }
 
     const request = await this.prisma.mandeuldangRunRequest.create({
@@ -91,11 +94,11 @@ export class MandeuldangPublicationService {
     })
 
     try {
-      await this.amqpService.publishValidatorMessage(
-        request.id,
+      await this.amqpService.publishValidatorMessage(request.id, problemId, {
         problemId,
-        validateRequest
-      )
+        language: Language.Cpp,
+        validatorCode: validator.fileContent
+      })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
         where: { id: request.id },
