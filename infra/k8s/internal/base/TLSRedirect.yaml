@@ -12,6 +12,7 @@ spec:
   - codedang.com
   - "*.codedang.com"
   - "*.stage.codedang.com"
+  - "*.preview.codedang.com"
   rules:
   - filters:
     - type: RequestRedirect
