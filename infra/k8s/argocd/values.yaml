@@ -76,7 +76,7 @@ server:
     tls: true
 
   # migrate ingress to gateway, enable after every migration
-  httpRoute:
+  httproute:
     enabled: false
     hostnames:
       - argocd.codedang.com

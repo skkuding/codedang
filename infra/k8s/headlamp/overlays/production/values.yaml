@@ -20,7 +20,7 @@ ingress:
         - k8s.codedang.com
       secretName: headlamp-tls
 
-httpRoute:
+httproute:
     enabled: true
     parentRefs:
       - name: main-gateway
