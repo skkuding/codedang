@@ -695,7 +695,7 @@ export class ContestService {
   }
 
   /**
-   * 특정 Contest의 Contest Admin / Manager가 진행중인 대회에서 User를 강퇴시킵니다.
+   * 특정 Contest의 Contest Admin / Manager가 진행중인 대회에서 User를 차단시킵니다.
    * @param contestId 대회 ID
    * @param userId 사용자 ID
    * @param reqId Contest Admin / Manager ID
@@ -703,33 +703,45 @@ export class ContestService {
    * @throws {EntityNotExistException} 해당 Contest에 참여하고 있지 않은 userId인 경우
    * @throws {ForbiddenAccessException} ContestAdmin 또는 ContestManager가 아닌 reqId인 경우
    * @throws {ForbiddenAccessException} 시작 전이거나 종료된 Contest인 경우
+   * @throws {ForbiddenAccessException} 이미 차단된 유저인 경우
    * @returns
    */
-  async removeUserDuringContest(
+  async blockUserDuringContest(
     contestId: number,
     userId: number,
     reqId: number
   ) {
-    const [contest, contestRecord, requesterRole] = await Promise.all([
-      this.prisma.contest.findUnique({
-        where: { id: contestId },
-        select: { startTime: true, endTime: true }
-      }),
-      this.prisma.contestRecord.findFirst({
-        where: { userId, contestId },
-        select: { id: true }
-      }),
-      this.prisma.userContest.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_contestId: {
-            userId: reqId,
-            contestId
-          }
-        },
-        select: { role: true }
-      })
-    ])
+    const [contest, contestRecord, userContest, requesterRole] =
+      await Promise.all([
+        this.prisma.contest.findUnique({
+          where: { id: contestId },
+          select: { startTime: true, endTime: true }
+        }),
+        this.prisma.contestRecord.findFirst({
+          where: { userId, contestId },
+          select: { id: true }
+        }),
+        this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: {
+              userId: userId,
+              contestId
+            }
+          },
+          select: { id: true, isBlocked: true }
+        }),
+        this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: {
+              userId: reqId,
+              contestId
+            }
+          },
+          select: { role: true }
+        })
+      ])
 
     if (!contest) {
       throw new EntityNotExistException('Contest')
@@ -737,6 +749,7 @@ export class ContestService {
     if (!contestRecord) {
       throw new EntityNotExistException('ContestRecord')
     }
+
     if (
       !requesterRole ||
       (requesterRole.role !== ContestRole.Admin &&
@@ -754,6 +767,10 @@ export class ContestService {
       )
     }
 
+    if (userContest?.isBlocked) {
+      throw new ForbiddenAccessException('That user is already blocked')
+    }
+
     return await this.prisma.$transaction(async (tx) => {
       // 강퇴당한 user가 firstSolver인 문제 존재 여부 확인 후 있으면 다음 사람에게 이월
       const firstSolveProblems = await tx.contestProblemFirstSolver.findMany({
@@ -761,46 +778,52 @@ export class ContestService {
         select: { contestProblemId: true }
       })
 
-      if (firstSolveProblems.length !== 0) {
-        for (const { contestProblemId } of firstSolveProblems) {
-          const nextSolver = await tx.contestProblemRecord.findFirst({
-            where: {
+      for (const { contestProblemId } of firstSolveProblems) {
+        await tx.contestProblemRecord.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestProblemId_contestRecordId: {
               contestProblemId,
-              finishTime: { not: null },
-              contestRecordId: { not: contestRecord.id }
-            },
-            orderBy: { finishTime: 'asc' }
-          })
+              contestRecordId: contestRecord.id
+            }
+          },
+          data: { isFirstSolver: false }
+        })
+        const nextSolver = await tx.contestProblemRecord.findFirst({
+          where: {
+            contestProblemId,
+            finishTime: { not: null },
+            contestRecordId: { not: contestRecord.id }
+          },
+          orderBy: { finishTime: 'asc' }
+        })
 
-          if (nextSolver) {
-            await tx.contestProblemFirstSolver.update({
-              where: { contestProblemId },
-              data: { contestRecordId: nextSolver.contestRecordId }
-            })
-            await tx.contestProblemRecord.update({
-              where: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                contestProblemId_contestRecordId: {
-                  contestProblemId,
-                  contestRecordId: nextSolver.contestRecordId
-                }
-              },
-              data: { isFirstSolver: true }
-            })
-          }
+        if (nextSolver) {
+          await tx.contestProblemFirstSolver.update({
+            where: { contestProblemId },
+            data: { contestRecordId: nextSolver.contestRecordId }
+          })
+          await tx.contestProblemRecord.update({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              contestProblemId_contestRecordId: {
+                contestProblemId,
+                contestRecordId: nextSolver.contestRecordId
+              }
+            },
+            data: { isFirstSolver: true }
+          })
+        } else {
+          await tx.contestProblemFirstSolver.delete({
+            where: { contestProblemId }
+          })
         }
       }
 
-      await tx.contestRecord.delete({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: { contestId, userId }
-        }
-      })
-
-      return tx.userContest.delete({
+      return tx.userContest.update({
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { userId_contestId: { userId, contestId } }
+        where: { userId_contestId: { userId, contestId } },
+        data: { isBlocked: true }
       })
     })
   }
@@ -1267,7 +1290,14 @@ export class ContestService {
       }),
       // 항상 finalScore, finalTotalPenalty 사용
       this.prisma.contestRecord.findMany({
-        where: { contestId },
+        where: {
+          contestId,
+          user: {
+            userContest: {
+              none: { contestId, isBlocked: true }
+            }
+          }
+        },
         select: {
           userId: true,
           user: { select: { username: true } },
