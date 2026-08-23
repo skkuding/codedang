@@ -16,7 +16,7 @@ spec:
         type: Exact
         value: /run
     backendRefs:
-    - name: pod-manager
-      port: 80
-    timeouts:
-      request: 200s
+      - group: traefik.io
+        kind: TraefikService
+        name: pod-manager-traefik-service
+        port: 80

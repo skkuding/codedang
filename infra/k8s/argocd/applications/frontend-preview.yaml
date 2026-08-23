@@ -65,7 +65,7 @@ spec:
                   path: /spec/hostnames/0
                   value: '{{.number}}.preview.codedang.com'
                 - op: replace
-                  path: /spec/parentRefs/sectionName
+                  path: /spec/parentRefs/0/sectionName
                   value: https-preview-wildcard
             - target:
                 kind: Deployment
