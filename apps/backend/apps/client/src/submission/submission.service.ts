@@ -126,6 +126,8 @@ export class SubmissionService {
    *   - 유효한 진행 중인 대회가 없을 경우 (Contest)
    *   - 사용자가 대회에 등록되어 있지 않은 경우 (ContestRecord)
    *   - 문제를 찾을 수 없거나 대회와 매칭되지 않는 경우 (ContestProblem)
+   * @throws {ForbiddenAccessException} 아래의 경우에 발생합니다
+   *   - 차단된 유저인 경우
    * @throws {ConflictFoundException} 아래의 경우에 발생합니다
    *   - 대회가 진행중이지 않을 경우
    */
@@ -177,8 +179,25 @@ export class SubmissionService {
           }
         }
       })
+
+      const userContest = await this.prisma.userContest.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_contestId: {
+            userId,
+            contestId
+          }
+        },
+        select: { isBlocked: true }
+      })
+
       if (!contestRecord) {
         throw new EntityNotExistException('ContestRecord')
+      }
+      if (userContest?.isBlocked) {
+        throw new ForbiddenAccessException(
+          'Blocked users cannot submit to this contest'
+        )
       }
       if (
         contestRecord.contest.startTime > now ||
