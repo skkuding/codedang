@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/libs/utils'
 import {
   getCoreRowModel,
   getFacetedRowModel,
@@ -22,6 +23,7 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
   selectedRowIds?: number[]
   hiddenColumns?: string[]
   enablePagination?: boolean // ✅ 추가
+  className?: string
   children: ReactNode
 }
 
@@ -47,6 +49,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
   selectedRowIds = [],
   hiddenColumns = [],
   enablePagination = true,
+  className,
   children
 }: DataTableRootProps<TData, TValue>) {
   const defaultRowSelection = Object.fromEntries(
@@ -93,7 +96,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
 
   return (
     <Provider value={{ table }}>
-      <div className="w-full space-y-4">{children}</div>
+      <div className={cn('w-full space-y-4', className)}>{children}</div>
     </Provider>
   )
 }
