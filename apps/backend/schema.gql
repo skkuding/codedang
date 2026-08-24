@@ -3602,7 +3602,7 @@ type Query {
   getTestcase(testcaseId: Int!): ProblemTestcase!
   getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
   getUsers(cursor: Int, take: Int! = 10): [User!]!
-  getWhitelist(groupId: Int!): [String!]!
+  getWhitelist(groupId: Int!): [GroupWhitelist!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
   overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
   overviewCheckByRequestId(checkId: Int!, cursor: Int, groupId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!

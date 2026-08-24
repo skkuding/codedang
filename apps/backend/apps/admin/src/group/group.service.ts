@@ -26,16 +26,15 @@ export class WhitelistService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWhitelist(groupId: number) {
-    return (
-      await this.prisma.groupWhitelist.findMany({
-        where: {
-          groupId
-        },
-        select: {
-          studentId: true
-        }
-      })
-    ).map((whitelist) => whitelist.studentId)
+    return await this.prisma.groupWhitelist.findMany({
+      where: {
+        groupId
+      },
+      select: {
+        studentId: true,
+        studentName: true
+      }
+    })
   }
 
   async updateWhitelist(
@@ -97,7 +96,7 @@ export class WhitelistService {
   }
 
   async createWhitelist(groupId: number, studentIds: [string]) {
-    this.deleteWhitelist(groupId)
+    await this.deleteWhitelist(groupId)
 
     const whitelistData = studentIds.map((studentId) => ({
       groupId,
