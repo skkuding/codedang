@@ -761,7 +761,7 @@ export class ContestService {
     }
 
     const now = new Date()
-    if (now < contest.startTime || now > contest.endTime) {
+    if (now < contest.startTime || now >= contest.endTime) {
       throw new ForbiddenAccessException(
         'Cannot block user not started or ended contest'
       )
