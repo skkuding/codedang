@@ -46,10 +46,10 @@ export const MANDEULDANG_GENERATOR_KEY = 'polygon.generator'
 export const MANDEULDANG_GENERATOR_MESSAGE_TYPE = 'generate'
 
 export const MANDEULDANG_VALIDATOR_KEY = 'polygon.validator'
-export const MANDEULDANG_VALIDATOR_MESSAGE_TYPE = 'validator'
+export const MANDEULDANG_VALIDATOR_MESSAGE_TYPE = 'validate'
 
 export const MANDEULDANG_CHECKER_KEY = 'polygon.checker'
-export const MANDEULDANG_CHECKER_MESSAGE_TYPE = 'checker'
+export const MANDEULDANG_CHECKER_MESSAGE_TYPE = 'check'
 
 export const MANDEULDANG_GENERATOR_RESULT_KEY = 'polygon.generate.result'
 export const MANDEULDANG_GENERATOR_RESULT_QUEUE =
