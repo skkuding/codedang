@@ -1,0 +1,54 @@
+meta {
+  name: [ERR] Not Contest Staff
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation BlockUserDuringContest(
+    $contestId: Int!,
+    $userId: Int!
+  ) {
+    blockUserDuringContest(
+      contestId: $contestId,
+      userId: $userId
+    ) {
+      userId
+      contestId
+      role
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 1,
+    "userId": 7
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  [ERR] Not Contest Staff
+  
+  **POST** `/graphql (mutation: blockUserDuringContest)`
+  
+  Only Admin or Manager can remove users from contest.
+  
+  요청자가 해당 대회의 `Admin` 또는 `Manager`가 아닐 때,
+  
+  `ForbiddenAccessException`이 발생합니다.
+}

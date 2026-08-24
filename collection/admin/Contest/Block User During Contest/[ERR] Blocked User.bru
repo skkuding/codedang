@@ -1,0 +1,48 @@
+meta {
+  name: [ERR] Blocked User
+  type: graphql
+  seq: 6
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation BlockUserDuringContest(
+    $contestId: Int!,
+    $userId: Int!
+  ) {
+    blockUserDuringContest(
+      contestId: $contestId,
+      userId: $userId
+    ) {
+      userId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "userId": 8
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Blocked User
+  
+  **POST** `/graphql (mutation: blockUserDuringContest)`
+  
+  The user is already blocked.
+  
+  차단하려는 대상(`userId`)이 이미 해당 대회에서 차단되었을 때,
+  
+  `ForbiddenAccessException`이 발생합니다.
+}

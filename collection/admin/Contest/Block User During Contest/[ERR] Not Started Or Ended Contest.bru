@@ -1,0 +1,52 @@
+meta {
+  name: [ERR] Not Started Or Ended Contest
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation BlockUserDuringContest(
+    $contestId: Int!,
+    $userId: Int!
+  ) {
+    blockUserDuringContest(
+      contestId: $contestId,
+      userId: $userId
+    ) {
+      userId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 19,
+    "userId": 7
+  }
+}
+
+assert {
+  res.body.errors: isDefined
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Not Started Or Ended Contest
+  
+  **POST** `/graphql (mutation: blockUserDuringContest)`
+  
+  Cannot block from not started or ended contest.
+  
+  시작되기 전이나 종료된 대회에서 사용자를 차단하려고 할 때,
+  
+  `ForbiddenAccessException`이 발생합니다.
+}

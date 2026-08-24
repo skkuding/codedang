@@ -1,0 +1,48 @@
+meta {
+  name: [ERR] Nonexistent ContestRecord
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation BlockUserDuringContest(
+    $contestId: Int!,
+    $userId: Int!
+  ) {
+    blockUserDuringContest(
+      contestId: $contestId,
+      userId: $userId
+    ) {
+      userId
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "contestId": 20,
+    "userId": 999
+  }
+}
+
+script:pre-request {
+  await require("./login").loginContestAdmin(req);
+}
+
+docs {
+  # 📙 [ERR] Nonexistent ContestRecord
+  
+  **POST** `/graphql (mutation: blockUserDuringContest)`
+  
+  The user is not registered for the contest.
+  
+  차단하려는 대상(`userId`)이 해당 대회의 참가자 명단에 없을 때,
+  
+  `EntityNotExistException`이 발생합니다.
+}
