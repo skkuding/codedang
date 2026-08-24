@@ -340,8 +340,7 @@ export class MandeuldangAMQPService {
       {
         messageId: String(request.requestId),
         persistent: true,
-        type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
-        priority: MESSAGE_PRIORITY_MIDDLE
+        type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE
       }
     )
     span.end()

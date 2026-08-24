@@ -14,7 +14,7 @@ export class MandeuldangPublicationService {
     problemId: number,
     requesterId: number,
     generatorArgs: string[],
-    testCaseCount: number
+    testcaseCount: number
   ) {
     //DB에서 generator, solution 조회
     const [generator, solution] = await Promise.all([
@@ -48,7 +48,7 @@ export class MandeuldangPublicationService {
         generatorArgs,
         solutionLanguage: solution.language,
         solutionCode: solution.fileContent,
-        testCaseCount
+        testcaseCount
       })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
