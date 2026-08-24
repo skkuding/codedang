@@ -14,7 +14,7 @@ import { useState } from 'react'
 import { HiMiniPlusCircle } from 'react-icons/hi2'
 
 export function CreateProblemEntry() {
-  const [useMandeuldang, setUseMandeuldang] = useState(true)
+  const [useMandeuldang, setUseMandeuldang] = useState(false)
   const createHref = (
     useMandeuldang ? '/admin/problem/mandeuldang' : '/admin/problem/create'
   ) as Route
