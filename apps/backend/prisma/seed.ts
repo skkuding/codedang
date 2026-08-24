@@ -5048,6 +5048,18 @@ const createContestRecords = async () => {
     })
     contestRecords.push(record)
   }
+  const alreadyBlockedUser = users[3] // user04
+  await prisma.contestRecord.create({
+    data: { contestId: 20, userId: alreadyBlockedUser.id }
+  })
+  await prisma.userContest.create({
+    data: {
+      userId: alreadyBlockedUser.id,
+      contestId: 20,
+      role: ContestRole.Participant,
+      isBlocked: true
+    }
+  })
 }
 
 const createUserContests = async () => {
@@ -5201,7 +5213,10 @@ const createContestProblemRecords = async () => {
     }
   })
 
-  if (contest20?.contestProblem.length) {
+  if (!contest20 || contest20.contestProblem.length < 2) {
+    throw new Error('contest20 requires at least two contest problems')
+  }
+  {
     const [sharedProblem, soloProblem] = contest20.contestProblem
     const [firstSolverRecord, secondSolverRecord] =
       await prisma.contestRecord.findMany({

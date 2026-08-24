@@ -34,7 +34,7 @@ body:graphql:vars {
 }
 
 assert {
-  res.body.errors: isDefined
+  res.body.errors[0].message: eq Only Admin or Manager can block users from contest
 }
 
 script:pre-request {

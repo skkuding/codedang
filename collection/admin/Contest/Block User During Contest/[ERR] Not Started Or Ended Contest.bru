@@ -32,7 +32,7 @@ body:graphql:vars {
 }
 
 assert {
-  res.body.errors: isDefined
+  res.body.errors[0].message: eq Cannot block user not started or ended contest
 }
 
 script:pre-request {

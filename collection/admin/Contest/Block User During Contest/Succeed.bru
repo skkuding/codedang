@@ -22,6 +22,7 @@ body:graphql {
       userId
       contestId
       role
+      isBlocked
     }
   }
 }
@@ -31,6 +32,10 @@ body:graphql:vars {
     "contestId": 20,
     "userId": 8
   }
+}
+
+assert {
+  res.body.data.blockUserDuringContest.isBlocked: eq true
 }
 
 script:pre-request {
