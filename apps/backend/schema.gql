@@ -1597,7 +1597,7 @@ input CourseInput {
   phoneNum: String
   professor: String!
   semester: String!
-  studentWhitelist: [StudentWhitelistInput!]
+  studentWhitelist: [StudentWhitelistInput!]!
   website: String
   week: Int!
 }

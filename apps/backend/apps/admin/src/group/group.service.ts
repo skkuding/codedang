@@ -76,7 +76,7 @@ export class GroupService {
               phoneNum: input.phoneNum
             }
           },
-          GroupWhitelist: input.studentWhitelist?.length
+          GroupWhitelist: input.studentWhitelist.length
             ? {
                 createMany: {
                   data: input.studentWhitelist.map(

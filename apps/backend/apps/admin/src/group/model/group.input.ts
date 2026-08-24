@@ -52,8 +52,8 @@ export class CourseInput {
   @Field(() => Int, { nullable: false })
   week: number
 
-  @Field(() => [StudentWhitelistInput], { nullable: true })
-  studentWhitelist?: StudentWhitelistInput[]
+  @Field(() => [StudentWhitelistInput], { nullable: false })
+  studentWhitelist: StudentWhitelistInput[]
 
   @Field(() => String, { nullable: true })
   email?: string
