@@ -4,12 +4,13 @@ import { APP_GUARD } from '@nestjs/core'
 import { AMQPModule } from '@libs/amqp'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { ProblemModule } from '@client/problem/problem.module'
+import { CodePolicyService } from '@client/submission/policy'
 import { SubmissionPublicationService } from './submission-pub.service'
 import { SubmissionSubscriptionService } from './submission-sub.service'
 import {
+  AssignmentSubmissionController,
   ContestSubmissionController,
-  SubmissionController,
-  AssignmentSubmissionController
+  SubmissionController
 } from './submission.controller'
 import { SubmissionService } from './submission.service'
 
@@ -24,6 +25,7 @@ import { SubmissionService } from './submission.service'
     SubmissionService,
     SubmissionPublicationService,
     SubmissionSubscriptionService,
+    CodePolicyService,
     { provide: APP_GUARD, useClass: GroupMemberGuard }
   ]
 })
