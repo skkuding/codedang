@@ -162,34 +162,24 @@ export class SubmissionService {
 
     if (!isStaff) {
       // 대회에 등록되어 있는지 확인합니다.
-      const contestRecord = await this.prisma.contestRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
+      const [contestRecord, userContest] = await Promise.all([
+        this.prisma.contestRecord.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: { contestId, userId }
+          },
+          select: {
+            contest: { select: { startTime: true, endTime: true } }
           }
-        },
-        select: {
-          contest: {
-            select: {
-              startTime: true,
-              endTime: true
-            }
-          }
-        }
-      })
-
-      const userContest = await this.prisma.userContest.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_contestId: {
-            userId,
-            contestId
-          }
-        },
-        select: { isBlocked: true }
-      })
+        }),
+        this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: { userId, contestId }
+          },
+          select: { isBlocked: true }
+        })
+      ])
 
       if (!contestRecord) {
         throw new EntityNotExistException('ContestRecord')

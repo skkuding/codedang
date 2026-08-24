@@ -75,7 +75,8 @@ const db = {
     update: stub()
   },
   userContest: {
-    findFirst: stub()
+    findFirst: stub(),
+    findUnique: stub()
   },
   assignmentRecord: {
     findUnique: stub(),
