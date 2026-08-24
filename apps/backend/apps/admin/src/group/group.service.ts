@@ -1,5 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
+import type { Prisma } from '@prisma/client'
 import { Cache } from 'cache-manager'
 import type { AuthenticatedUser } from '@libs/auth'
 import { invitationCodeKey, invitationGroupKey } from '@libs/cache'
@@ -18,12 +19,124 @@ import type {
 } from './model/course-notice.input'
 import type { UpdateCourseQnAInput } from './model/course-qna.input'
 import type { DuplicateCourseInput } from './model/duplicate-course.input'
-import type { CourseInput } from './model/group.input'
+import type { CourseInput, StudentWhitelistInput } from './model/group.input'
+
+@Injectable()
+export class WhitelistService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getWhitelist(groupId: number) {
+    return (
+      await this.prisma.groupWhitelist.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          studentId: true
+        }
+      })
+    ).map((whitelist) => whitelist.studentId)
+  }
+
+  async updateWhitelist(
+    groupId: number,
+    newWhitelist: StudentWhitelistInput[],
+    tx: Prisma.TransactionClient
+  ) {
+    const currentWhitelist = await tx.groupWhitelist.findMany({
+      where: { groupId },
+      select: {
+        studentId: true,
+        studentName: true
+      }
+    })
+
+    const currentStudentsById = new Map(
+      currentWhitelist.map(({ studentId, studentName }) => [
+        studentId,
+        studentName
+      ])
+    )
+    const newStudentsById = new Map(
+      newWhitelist.map(({ studentId, studentName }) => [studentId, studentName])
+    )
+
+    // 새 whitelist에 새로운 학번이 추가 됐거나 같은 학번인 학생의 이름이 다르면 추가
+    const whitelistToAdd = newWhitelist.filter(
+      ({ studentId, studentName }) =>
+        !currentStudentsById.has(studentId) ||
+        currentStudentsById.get(studentId) !== studentName
+    )
+
+    const whitelistToDelete = currentWhitelist.filter(
+      ({ studentId, studentName }) =>
+        !newStudentsById.has(studentId) ||
+        newStudentsById.get(studentId) !== studentName
+    )
+
+    if (whitelistToDelete.length) {
+      await tx.groupWhitelist.deleteMany({
+        where: {
+          groupId,
+          studentId: {
+            in: whitelistToDelete.map(({ studentId }) => studentId)
+          }
+        }
+      })
+    }
+
+    if (whitelistToAdd.length) {
+      await tx.groupWhitelist.createMany({
+        data: whitelistToAdd.map(({ studentId, studentName }) => ({
+          groupId,
+          studentId,
+          studentName
+        }))
+      })
+    }
+  }
+
+  async createWhitelist(groupId: number, studentIds: [string]) {
+    this.deleteWhitelist(groupId)
+
+    const whitelistData = studentIds.map((studentId) => ({
+      groupId,
+      studentId
+    }))
+
+    try {
+      return (
+        await this.prisma.groupWhitelist.createMany({
+          data: whitelistData
+        })
+      ).count
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new UnprocessableDataException('Duplicate studentId(s) detected')
+      } else if (err.code === 'P2003') {
+        throw new UnprocessableDataException('Invalid groupId')
+      } else {
+        throw err
+      }
+    }
+  }
+
+  async deleteWhitelist(groupId: number) {
+    return (
+      await this.prisma.groupWhitelist.deleteMany({
+        where: {
+          groupId
+        }
+      })
+    ).count
+  }
+}
 
 @Injectable()
 export class GroupService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly whitelistService: WhitelistService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -256,34 +369,44 @@ export class GroupService {
     }
 
     try {
-      return await this.prisma.group.update({
-        where: {
-          id
-        },
-        data: {
-          groupName: input.courseTitle,
-          groupType: GroupType.Course,
-          config: JSON.parse(JSON.stringify(input.config)),
-          courseInfo: {
-            update: {
-              courseNum: input.courseNum,
-              classNum: input.classNum,
-              professor: input.professor,
-              semester: input.semester,
-              email: input.email,
-              website: input.website,
-              office: input.office,
-              phoneNum: input.phoneNum
+      return await this.prisma.$transaction(async (tx) => {
+        const updatedCourse = await tx.group.update({
+          where: {
+            id
+          },
+          data: {
+            groupName: input.courseTitle,
+            groupType: GroupType.Course,
+            config: JSON.parse(JSON.stringify(input.config)),
+            courseInfo: {
+              update: {
+                courseNum: input.courseNum,
+                classNum: input.classNum,
+                professor: input.professor,
+                semester: input.semester,
+                email: input.email,
+                website: input.website,
+                office: input.office,
+                phoneNum: input.phoneNum
+              }
             }
+          },
+          select: {
+            id: true,
+            groupName: true,
+            groupType: true,
+            config: true,
+            courseInfo: true
           }
-        },
-        select: {
-          id: true,
-          groupName: true,
-          groupType: true,
-          config: true,
-          courseInfo: true
-        }
+        })
+
+        await this.whitelistService.updateWhitelist(
+          id,
+          input.studentWhitelist,
+          tx
+        )
+
+        return updatedCourse
       })
     } catch (error) {
       throw new UnprocessableDataException(error.message)
@@ -856,59 +979,6 @@ export class InvitationService {
       ])
       return userGroup
     }
-  }
-}
-
-@Injectable()
-export class WhitelistService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async getWhitelist(groupId: number) {
-    return (
-      await this.prisma.groupWhitelist.findMany({
-        where: {
-          groupId
-        },
-        select: {
-          studentId: true
-        }
-      })
-    ).map((whitelist) => whitelist.studentId)
-  }
-
-  async createWhitelist(groupId: number, studentIds: [string]) {
-    this.deleteWhitelist(groupId)
-
-    const whitelistData = studentIds.map((studentId) => ({
-      groupId,
-      studentId
-    }))
-
-    try {
-      return (
-        await this.prisma.groupWhitelist.createMany({
-          data: whitelistData
-        })
-      ).count
-    } catch (err) {
-      if (err.code === 'P2002') {
-        throw new UnprocessableDataException('Duplicate studentId(s) detected')
-      } else if (err.code === 'P2003') {
-        throw new UnprocessableDataException('Invalid groupId')
-      } else {
-        throw err
-      }
-    }
-  }
-
-  async deleteWhitelist(groupId: number) {
-    return (
-      await this.prisma.groupWhitelist.deleteMany({
-        where: {
-          groupId
-        }
-      })
-    ).count
   }
 }
 
