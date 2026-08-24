@@ -725,7 +725,7 @@ export class ContestService {
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             userId_contestId: {
-              userId: userId,
+              userId,
               contestId
             }
           },
@@ -756,14 +756,14 @@ export class ContestService {
         requesterRole.role !== ContestRole.Manager)
     ) {
       throw new ForbiddenAccessException(
-        'Only Admin or Manager can remove users from contest'
+        'Only Admin or Manager can block users from contest'
       )
     }
 
     const now = new Date()
     if (now < contest.startTime || now > contest.endTime) {
       throw new ForbiddenAccessException(
-        'Cannot unregister not started or ended contest'
+        'Cannot block user not started or ended contest'
       )
     }
 
@@ -793,7 +793,14 @@ export class ContestService {
           where: {
             contestProblemId,
             finishTime: { not: null },
-            contestRecordId: { not: contestRecord.id }
+            contestRecordId: { not: contestRecord.id },
+            contestRecord: {
+              user: {
+                userContest: {
+                  none: { contestId, isBlocked: true }
+                }
+              }
+            }
           },
           orderBy: { finishTime: 'asc' }
         })
