@@ -133,8 +133,8 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
         problemId: request.problemId,
         resultCode: msg.resultCode,
         isSuccess,
-        generatedTestCases: msg.judgeResult.generatedTestCases,
-        totalTestCases: msg.judgeResult.totalTestCases
+        generatedCount: msg.toolResult.generatedCount,
+        requestedCount: msg.toolResult.requestedCount
       },
       'Handled Mandeuldang Generator Result Message'
     )
@@ -155,7 +155,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    const isSuccess = msg.resultCode === 0 && msg.judgeResult.isValid
+    const isSuccess = msg.resultCode === 0 && msg.toolResult.isAllValid
     const now = new Date()
 
     await this.prisma.$transaction([
@@ -179,8 +179,8 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       {
         requestId: request.id,
         problemId: request.problemId,
-        isValid: msg.judgeResult.isValid,
-        testcaseCount: msg.judgeResult.testcaseCount
+        isAllValid: msg.toolResult.isAllValid,
+        testcaseCount: msg.toolResult.testcaseCount
       },
       'Handled Mandeuldang Validator Result Message'
     )

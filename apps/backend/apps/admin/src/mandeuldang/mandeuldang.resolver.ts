@@ -41,13 +41,13 @@ export class MandeuldangResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('generatorArgs', { type: () => [String] }) generatorArgs: string[],
-    @Args('testCaseCount', { type: () => Int }) testCaseCount: number
+    @Args('testcaseCount', { type: () => Int }) testcaseCount: number
   ) {
     return this.mandeuldangService.runGenerator(
       problemId,
       req.user.id,
       generatorArgs,
-      testCaseCount
+      testcaseCount
     )
   }
 

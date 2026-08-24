@@ -35,13 +35,13 @@ export class MandeuldangService {
     problemId: number,
     requesterId: number,
     generatorArgs: string[],
-    testCaseCount: number
+    testcaseCount: number
   ) {
     await this.publicationService.publishGeneratorMessage(
       problemId,
       requesterId,
       generatorArgs,
-      testCaseCount
+      testcaseCount
     )
   }
 
