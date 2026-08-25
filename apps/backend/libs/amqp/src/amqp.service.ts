@@ -23,7 +23,8 @@ import {
   MESSAGE_PRIORITY_MIDDLE,
   MESSAGE_PRIORITY_LOW,
   SUBMISSION_KEY,
-  SUBMISSION_MESSAGE_TYPE
+  SUBMISSION_MESSAGE_TYPE,
+  RUN_SUBMISSION_MESSAGE_TYPE
 } from '@libs/constants'
 
 @Injectable()
@@ -143,6 +144,7 @@ export class JudgeAMQPService {
    */
   setMessageHandlers(handlers: {
     onRunMessage?: (msg: object, isUserTest: boolean) => Promise<void>
+    onRunSubmission?: (msg: object) => Promise<void>
     onJudgeMessage?: (msg: object) => Promise<void>
     onSubmissionMessage?: (msg: object) => Promise<void>
   }) {
@@ -151,6 +153,7 @@ export class JudgeAMQPService {
 
   private messageHandlers?: {
     onRunMessage?: (msg: object, isUserTest: boolean) => Promise<void>
+    onRunSubmission?: (msg: object) => Promise<void>
     onJudgeMessage?: (msg: object) => Promise<void>
     onSubmissionMessage?: (msg: object) => Promise<void>
   }
@@ -168,6 +171,7 @@ export class JudgeAMQPService {
       [USER_TESTCASE_MESSAGE_TYPE]: onRunMessage
         ? (msg: object) => onRunMessage(msg, true)
         : undefined,
+      [RUN_SUBMISSION_MESSAGE_TYPE]: this.messageHandlers?.onRunSubmission,
       [JUDGE_MESSAGE_TYPE]: this.messageHandlers?.onJudgeMessage,
       [SUBMISSION_MESSAGE_TYPE]: this.messageHandlers?.onSubmissionMessage
     }
