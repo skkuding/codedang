@@ -557,7 +557,7 @@ export class TestcaseService {
     })
 
     await this.prisma.$executeRaw`
-      UPDATE "ProblemTestcase" AS testcase
+      UPDATE "problem_testcase" AS testcase
       SET "order" = input."order"
       FROM (
         VALUES ${Prisma.join(values)}
