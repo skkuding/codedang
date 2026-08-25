@@ -54,7 +54,7 @@ func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage hand
 		sendMessage(handler.ResultMessage{EncodedResponse: judgeResponse.Marshal()})
 	}
 	defer func() {
-		sendMessage(handler.ResultMessage{EncodedResponse: response.NewSubmissionResponse(messageID, judgeResults).Marshal()}, constants.Submission)
+		sendMessage(handler.ResultMessage{EncodedResponse: response.NewSubmissionResponse(messageID, judgeResults).Marshal()}, constants.RunSubmission)
 	}()
 
 	validReq := t.req
