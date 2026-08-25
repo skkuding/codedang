@@ -549,23 +549,27 @@ export class TestcaseService {
     // e.g) [aaa.(in|out), aab.(in|out), aac.(in|out), ...]
     const originalFileNames = Object.keys(testcaseIdMapper).sort()
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const [idx, name] of originalFileNames.entries()) {
-        const id = testcaseIdMapper[name]
+    // TODO: Refactor with chunk (for enormous testCases(over PostgreSQL parameter limit))
+    const values = originalFileNames.map((name, index) => {
+      const id = testcaseIdMapper[name]
 
-        await tx.problemTestcase.update({
-          where: {
-            id,
-            isOutdated: false
-          },
-          data: { order: idx + 1 }
-        })
-      }
+      return Prisma.sql`(${id}, ${index + 1})`
     })
+
+    await this.prisma.$executeRaw`
+      UPDATE "ProblemTestcase" AS testcase
+      SET "order" = input."order"
+      FROM (
+        VALUES ${Prisma.join(values)}
+      ) AS input(id, "order")
+      WHERE testcase.id = input.id
+        AND testcase."isOutdated" = false
+    `
 
     const testcaseIds = originalFileNames.map((name) => ({
       testcaseId: testcaseIdMapper[name]
     }))
+
     return testcaseIds
   }
 
