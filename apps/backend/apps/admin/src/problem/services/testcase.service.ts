@@ -563,7 +563,7 @@ export class TestcaseService {
         VALUES ${Prisma.join(values)}
       ) AS input(id, "order")
       WHERE testcase.id = input.id
-        AND testcase."isOutdated" = false
+        AND testcase."is_outdated" = false
     `
 
     const testcaseIds = originalFileNames.map((name) => ({
