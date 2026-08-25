@@ -16,3 +16,7 @@ patches:
     target:
       kind: HTTPRoute
       name: frontend-httproute
+  - path: ingress.yaml
+    target:
+      kind: Ingress
+      name: frontend-ingress
