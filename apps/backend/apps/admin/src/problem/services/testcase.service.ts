@@ -549,15 +549,18 @@ export class TestcaseService {
     // e.g) [aaa.(in|out), aab.(in|out), aac.(in|out), ...]
     const originalFileNames = Object.keys(testcaseIdMapper).sort()
 
-    originalFileNames.forEach(async (name, index) => {
-      const id = testcaseIdMapper[name]
-      await this.prisma.problemTestcase.update({
-        where: {
-          id,
-          isOutdated: false
-        },
-        data: { order: index + 1 }
-      })
+    await this.prisma.$transaction(async (tx) => {
+      for (const [idx, name] of originalFileNames.entries()) {
+        const id = testcaseIdMapper[name]
+
+        await tx.problemTestcase.update({
+          where: {
+            id,
+            isOutdated: false
+          },
+          data: { order: idx + 1 }
+        })
+      }
     })
 
     const testcaseIds = originalFileNames.map((name) => ({
