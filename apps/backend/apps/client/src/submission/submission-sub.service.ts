@@ -55,7 +55,7 @@ export class SubmissionSubscriptionService implements OnModuleInit {
           throw error // MQTT 서비스에서 Nack 처리
         }
       },
-      onRunSubmission: async (msg: object) => {
+      onRunSubmissionMessage: async (msg: object) => {
         try {
           const res = await this.parseSubmissionResponse(msg)
 
