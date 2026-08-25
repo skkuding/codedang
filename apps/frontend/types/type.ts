@@ -647,32 +647,64 @@ export interface QnaFormData {
   selectedProblem: string
   selectedProblemLabel: string
 }
-
-export interface QnAItemWithCategory extends ContestQnaListItem {
-  categoryName?: string
+export interface CourseNoticeCommentAuthor {
+  username: string
+  studentId: string
 }
 
-export interface ProblemOption {
-  value: string
-  label: string
+export interface CourseNoticeCommentItem {
+  id: number
+  createdById: number | null
+  createdBy: CourseNoticeCommentAuthor | null
+  isDeleted: boolean
+  isSecret: boolean
+  replyOnId: number | null
+  content: string
+  createdTime: Date
+  updateTime: Date
 }
 
-// export interface CourseQnAItem {
-//   id: number
-//   order: number
-//   groupId: number
-//   problemId: number
-//   assignmentId: number
-//   assignmentTitle: string
-//   isExercise: boolean
-//   title: string
-//   content: string
-//   category: string
-//   createTime: Date
-//   isResolved: boolean
-//   isPrivate: boolean
-//   createdBy?: {
-//     username: string
-//   }
-//   comments: CourseQnAComment[]
-// }
+export interface CourseNoticeCommentGroup {
+  comment: CourseNoticeCommentItem
+  replys: CourseNoticeCommentItem[]
+}
+
+export interface CourseNoticeDetailCurrent {
+  groupId: number
+  isPublic: boolean
+  title: string
+  content: string
+  createTime: Date
+  updateTime: Date
+  createdBy: string | null
+  _count: {
+    CourseNoticeComment: number
+  }
+}
+
+export interface CourseNoticeNavigationItem {
+  id: number
+  title: string
+}
+
+export interface CourseNoticeDetailResponse {
+  current: CourseNoticeDetailCurrent
+  prev?: CourseNoticeNavigationItem | null
+  next?: CourseNoticeNavigationItem | null
+}
+
+export interface CourseNoticeListItem {
+  id: number
+  title: string
+  createTime?: string
+  updateTime?: string
+  isFixed: boolean
+  createdBy: string | null
+  isRead: boolean
+  commentCount: number
+}
+
+export interface CourseNoticeListResponse {
+  data: CourseNoticeListItem[]
+  total: number
+}

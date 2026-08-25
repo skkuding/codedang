@@ -184,6 +184,14 @@ export default {
             letterSpacing: '-0.48px',
             fontWeight: '400'
           }
+        ],
+        label4_r_12: [
+          '12px',
+          {
+            lineHeight: '140%',
+            letterSpacing: '-0.36px',
+            fontWeight: '400'
+          }
         ]
       },
       fontFamily: {
@@ -209,6 +217,9 @@ export default {
           fill: {
             1: '#282D3D'
           }
+        },
+        dimmed: {
+          DEFAULT: 'rgba(0, 0, 0, 0.6)'
         },
         flowkit: {
           red: '#FC5555',
