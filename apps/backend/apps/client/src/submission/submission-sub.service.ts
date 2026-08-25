@@ -39,7 +39,8 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       onRunMessage: async (msg: object, isUserTest: boolean) => {
         try {
           const res = await this.parseJudgerResponse(msg)
-          await this.handleRunMessage(res, res.submissionId, isUserTest)
+
+          // Run 메시지는 처리하지 않습니다.
         } catch (error) {
           if (
             Array.isArray(error) &&
@@ -123,13 +124,27 @@ export class SubmissionSubscriptionService implements OnModuleInit {
     this.amqpService.startSubscription()
   }
 
+  /**
+   * 채점 서버로부터 수신한 실행 결과 메시지를 처리합니다.
+   * 주로 코드 실행 요청(`TestSubmission`)에 대한 결과를 처리하며, 캐시 및 DB를 업데이트합니다.
+   *
+   * 1. 메시지를 JudgeResult 유무로 분류합니다.
+   * 2. `testcaseId`가 존재하지 않는 경우(컴파일 에러, 서버 에러 등), 해당 제출과 관련된 모든 테스트케이스의 결과를 에러 상태로 캐시에 업데이트하고 종료합니다.
+   * 3. `testcaseId`가 존재하는 경우, 해당 테스트케이스의 결과와 출력값을 캐시에 업데이트합니다.
+   * 4. 실행 결과에 포함된 CPU 시간 및 메모리 사용량을 확인하여, 해당 제출(`TestSubmission`)의 최대 리소스 사용량(maxCpuTime, maxMemoryUsage)을 DB에 갱신합니다.
+   *
+   * @param {SubmissionResponse} msg 채점 서버로부터 수신한 응답 메시지 객체
+   * @param {number} submissionId 제출 ID (`TestSubmission`의 ID)
+   * @returns
+   */
   @Span()
   async handleRunSubmissionMessage(
     msg: SubmissionResponse,
     submissionId: number
   ) {
-    // TODO: change to redis cache checker
-    const isUserTest = true
+    const isUserTest = Boolean(
+      await this.cacheManager.get(userTestcasesKey(submissionId))
+    )
     const key = isUserTest
       ? userTestcasesKey(submissionId)
       : testcasesKey(submissionId)
@@ -172,6 +187,9 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     )
 
+    // judgeResult 없음 => testcaseId 없음
+    // CompileError 또는 ServerError 발생을 의미
+    // 전체 테스트케이스 결과를 해당 에러로 저장하고 함수 종료
     const isFailed = results.withoutJudgeResult.length > 0
 
     if (isFailed) {
@@ -244,98 +262,6 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
       })
     )
-  }
-
-  /**
-   * 채점 서버로부터 수신한 실행 결과 메시지를 처리합니다.
-   * 주로 코드 실행 요청(`TestSubmission`)에 대한 결과를 처리하며, 캐시 및 DB를 업데이트합니다.
-   *
-   * 1. 메시지의 상태 및 에러 정보를 파싱합니다.
-   * 2. `testcaseId`가 존재하지 않는 경우(컴파일 에러, 서버 에러 등), 해당 제출과 관련된 모든 테스트케이스의 결과를 에러 상태로 캐시에 업데이트하고 종료합니다.
-   * 3. `testcaseId`가 존재하는 경우, 해당 테스트케이스의 결과와 출력값을 캐시에 업데이트합니다.
-   * 4. 실행 결과에 포함된 CPU 시간 및 메모리 사용량을 확인하여, 해당 제출(`TestSubmission`)의 최대 리소스 사용량(maxCpuTime, maxMemoryUsage)을 DB에 갱신합니다.
-   *
-   * @param {JudgerResponse} msg 채점 서버로부터 수신한 응답 메시지 객체
-   * @param {number} submissionId 제출 ID (`TestSubmission`의 ID)
-   * @param  isUserTest '테스트 실행' 여부 (기본값: false). true인 경우 사용자 테스트용 캐시 키를 사용합니다.
-   * @returns
-   */
-  @Span()
-  async handleRunMessage(
-    msg: JudgerResponse,
-    submissionId: number,
-    isUserTest = false
-  ) {
-    const status = Status(msg.resultCode)
-    const testcaseId = msg.judgeResult?.testcaseId
-    const output = this.parseError(msg, status)
-
-    // judgeResult 없음 => testcaseId 없음
-    // CompileError 또는 ServerError 발생을 의미
-    // 전체 테스트케이스 결과를 해당 에러로 저장하고 함수 종료
-    if (!testcaseId) {
-      const key = isUserTest
-        ? userTestcasesKey(submissionId)
-        : testcasesKey(submissionId)
-      const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
-
-      for (const testcaseId of testcaseIds) {
-        await this.cacheManager.set(
-          isUserTest
-            ? userTestKey(submissionId, testcaseId)
-            : testKey(submissionId, testcaseId),
-          {
-            id: testcaseId,
-            result: status,
-            output
-          },
-          TEST_SUBMISSION_EXPIRE_TIME
-        )
-      }
-      return
-    }
-
-    const key = isUserTest
-      ? userTestKey(submissionId, testcaseId)
-      : testKey(submissionId, testcaseId)
-
-    const testcase = await this.cacheManager.get<{
-      id: number
-      result: ResultStatus
-      output?: string
-    }>(key)
-    if (testcase) {
-      testcase.id = testcaseId
-      testcase.result = status
-      testcase.output = output
-    }
-
-    const cpuTime = BigInt(msg.judgeResult!.cpuTime)
-    const memoryUsage = msg.judgeResult!.memory
-
-    const testSubmission = await this.prisma.testSubmission.findUnique({
-      where: { id: submissionId }
-    })
-    if (testSubmission) {
-      const maxCpuTime = testSubmission.maxCpuTime || BigInt(0)
-      const newMaxCpuTime =
-        cpuTime > BigInt(maxCpuTime) ? cpuTime : BigInt(maxCpuTime)
-
-      const maxMemoryUsage = testSubmission.maxMemoryUsage || 0
-      const newMaxMemoryUsage =
-        memoryUsage > maxMemoryUsage ? memoryUsage : maxMemoryUsage
-
-      if (maxCpuTime !== newMaxCpuTime || maxMemoryUsage !== newMaxMemoryUsage)
-        await this.prisma.testSubmission.update({
-          where: { id: testSubmission.id },
-          data: {
-            maxCpuTime: newMaxCpuTime,
-            maxMemoryUsage: newMaxMemoryUsage
-          }
-        })
-    }
-
-    await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
   }
 
   /**
