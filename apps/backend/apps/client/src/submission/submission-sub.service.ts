@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { ResultStatus, type SubmissionResult } from '@prisma/client'
+import { Prisma, ResultStatus, type SubmissionResult } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { plainToInstance } from 'class-transformer'
 import { ValidationError, validateOrReject } from 'class-validator'
@@ -40,6 +40,25 @@ export class SubmissionSubscriptionService implements OnModuleInit {
         try {
           const res = await this.parseJudgerResponse(msg)
           await this.handleRunMessage(res, res.submissionId, isUserTest)
+        } catch (error) {
+          if (
+            Array.isArray(error) &&
+            error.every((e) => e instanceof ValidationError)
+          ) {
+            this.logger.error(error, 'Message format error')
+          } else if (error instanceof UnprocessableDataException) {
+            this.logger.error(error, 'Iris exception')
+          } else {
+            this.logger.error(error, 'Unexpected error')
+          }
+          throw error // MQTT 서비스에서 Nack 처리
+        }
+      },
+      onRunSubmission: async (msg: object) => {
+        try {
+          const res = await this.parseSubmissionResponse(msg)
+
+          await this.handleRunSubmissionMessage(res, res.submissionId)
         } catch (error) {
           if (
             Array.isArray(error) &&
@@ -102,6 +121,129 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       }
     })
     this.amqpService.startSubscription()
+  }
+
+  @Span()
+  async handleRunSubmissionMessage(
+    msg: SubmissionResponse,
+    submissionId: number
+  ) {
+    // TODO: change to redis cache checker
+    const isUserTest = true
+    const key = isUserTest
+      ? userTestcasesKey(submissionId)
+      : testcasesKey(submissionId)
+
+    const results = msg.judgeResults.reduce<{
+      withJudgeResult: JudgerResponse[]
+      withoutJudgeResult: JudgerResponse[]
+      max: {
+        maxCpuTime: bigint
+        maxMemoryUsage: number
+      }
+    }>(
+      (prev, v) => {
+        const { judgeResult } = v
+
+        if (judgeResult?.testcaseId || judgeResult?.testcaseId === 0) {
+          prev.withJudgeResult.push(v)
+
+          const cpuTime = BigInt(judgeResult.cpuTime)
+          if (cpuTime > prev.max.maxCpuTime) {
+            prev.max.maxCpuTime = cpuTime
+          }
+
+          if (judgeResult.memory > prev.max.maxMemoryUsage) {
+            prev.max.maxMemoryUsage = judgeResult.memory
+          }
+        } else {
+          prev.withoutJudgeResult.push(v)
+        }
+
+        return prev
+      },
+      {
+        withJudgeResult: [],
+        withoutJudgeResult: [],
+        max: {
+          maxCpuTime: 0n,
+          maxMemoryUsage: 0
+        }
+      }
+    )
+
+    const isFailed = results.withoutJudgeResult.length > 0
+
+    if (isFailed) {
+      const representive = results.withoutJudgeResult[0]
+
+      const status = Status(representive.resultCode)
+      const output = this.parseError(representive, status)
+
+      const testcaseIds = (await this.cacheManager.get<number[]>(key)) ?? []
+
+      for (const testcaseId of testcaseIds) {
+        await this.cacheManager.set(
+          isUserTest
+            ? userTestKey(submissionId, testcaseId)
+            : testKey(submissionId, testcaseId),
+          {
+            id: testcaseId,
+            result: status,
+            output
+          },
+          TEST_SUBMISSION_EXPIRE_TIME
+        )
+      }
+      return
+    }
+
+    const testSubmission = await this.prisma.testSubmission.findUnique({
+      where: { id: submissionId }
+    })
+
+    if (testSubmission) {
+      const max = {
+        maxCpuTime:
+          (testSubmission.maxCpuTime ?? 0n) > results.max.maxCpuTime
+            ? (testSubmission.maxCpuTime ?? 0n)
+            : results.max.maxCpuTime,
+        maxMemoryUsage:
+          (testSubmission.maxMemoryUsage ?? 0) > results.max.maxMemoryUsage
+            ? (testSubmission.maxMemoryUsage ?? 0)
+            : results.max.maxMemoryUsage
+      }
+
+      await this.prisma.testSubmission.update({
+        where: { id: testSubmission.id },
+        data: max
+      })
+    }
+
+    await Promise.all(
+      results.withJudgeResult.map(async (response) => {
+        const testcaseId = response.judgeResult!.testcaseId
+        const status = Status(response.resultCode)
+        const output = this.parseError(response, status)
+
+        const key = isUserTest
+          ? userTestKey(submissionId, testcaseId)
+          : testKey(submissionId, testcaseId)
+
+        const testcase = await this.cacheManager.get<{
+          id: number
+          result: ResultStatus
+          output?: string
+        }>(key)
+        if (testcase) {
+          testcase.id = testcaseId
+          testcase.result = status
+          testcase.output = output
+        }
+
+        await this.cacheManager.set(key, testcase, TEST_SUBMISSION_EXPIRE_TIME)
+      })
+    )
   }
 
   /**
