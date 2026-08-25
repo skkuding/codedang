@@ -110,7 +110,7 @@ func (t *Task) SendSetupFailure(messageID string, taskErr error, sendMessage han
 	sendMessage(handler.ResultMessage{EncodedResponse: judgeResponse.Marshal()})
 	sendMessage(handler.ResultMessage{
 		EncodedResponse: response.NewSubmissionResponse(messageID, []*response.JudgeResponse{judgeResponse}).Marshal(),
-	}, constants.Submission)
+	}, constants.RunSubmission)
 }
 
 type runTestcaseResult struct {
