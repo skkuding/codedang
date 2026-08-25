@@ -66,3 +66,16 @@ spec:
     allowedRoutes:
       namespaces:
         from: All
+
+    # minio domain listener
+  - name: https-minio-wildcard
+    protocol: HTTPS
+    port: 8443
+    hostname: "*.minio.codedang.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: minio-wildcard-tls-secret
+    allowedRoutes:
+      namespaces:
+        from: All

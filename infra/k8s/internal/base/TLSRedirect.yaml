@@ -13,6 +13,7 @@ spec:
   - "*.codedang.com"
   - "*.stage.codedang.com"
   - "*.preview.codedang.com"
+  - "*.minio.codedang.com"
   rules:
   - filters:
     - type: RequestRedirect
