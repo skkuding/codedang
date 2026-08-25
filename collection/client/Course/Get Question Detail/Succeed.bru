@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/course/1/qna/1
+  url: {{baseUrl}}/course/1/qna/3
   body: none
   auth: none
 }
@@ -28,8 +28,11 @@ tests {
     expect(data).to.have.property('category');
     expect(data).to.have.property('isPrivate');
     expect(data).to.have.property('isResolved');
-    expect(data).to.have.property('readBy');
     expect(data).to.have.property('createTime');
+    expect(data.problemId).to.equal(2);
+    expect(data.assignmentId).to.equal(1);
+    expect(data.assignmentTitle).to.equal("SKKU Coding Platform 모의과제");
+    expect(data.isExercise).to.equal(false);
 
     // Creator info
     expect(data).to.have.property('createdBy');
@@ -43,7 +46,7 @@ tests {
       const comment = data.comments[0];
       expect(comment).to.have.property('order');
       expect(comment).to.have.property('content');
-      expect(comment).to.have.property('isStaff');
+      expect(comment).to.have.property('isCourseStaff');
       expect(comment).to.have.property('createdBy');
     }
   });
@@ -57,6 +60,14 @@ docs {
   Retrieve a single question with its details and comments.
 
   특정 강의의 특정 order에 해당하는 질문을 상세 조회합니다.
+
+  과제 정보 응답은 QnA 저장 상태에 따라 다음과 같이 달라집니다.
+
+  | QnA 상태 | 예시 order | `problemId` | `assignmentId` | 응답 방식 |
+  |----------|------------|-------------|----------------|-----------|
+  | 레거시 문제 QnA | 1 | 존재 | DB에는 없음 | 과제 관련 필드를 `null`로 반환 |
+  | 일반 QnA | 2 | 없음 | 없음 | `assignmentId`, `assignmentTitle`, `isExercise` 모두 `null` |
+  | 신규 문제 QnA | 3 | 존재 | 존재 | 저장된 assignment direct relation |
 
   - 공개 질문은 누구나 조회할 수 있습니다.
   - 비밀글은 작성자와 교수/조교만 조회할 수 있습니다.
@@ -92,30 +103,33 @@ docs {
     "id": 1,
     "order": 1,
     "createdById": 7,
-    "groupId": 1,
-    "title": "강의 전반에 대한 질문입니다",
-    "content": "이번 주차 과제 제출 기한이 언제인가요?",
-    "category": "general",
+    "title": "질문 제목",
+    "content": "질문 내용",
+    "category": "Problem",
     "isPrivate": false,
-    "isResolved": true,
-    "problemId": null,
-    "readBy": [7, 8, 9],
-    "createTime": "2025-01-15T10:30:00.000Z",
-    "updateTime": "2025-01-15T10:30:00.000Z",
+    "isResolved": false,
+    "problemId": 1,
+    "createTime": "2026-08-13T13:09:38.450Z",
     "createdBy": {
       "username": "user01"
     },
+    "assignmentId": 1,
+    "assignmentTitle": "SKKU Coding Platform 모의과제",
+    "isExercise": false,
     "comments": [
       {
         "id": 1,
         "order": 1,
-        "content": "1월 20일까지입니다.",
-        "isStaff": true,
-        "createTime": "2025-01-15T11:00:00.000Z",
+        "createdById": 2,
+        "content": "댓글 내용",
+        "isCourseStaff": true,
+        "courseQnAId": 1,
+        "createTime": "2026-08-13T13:09:38.457Z",
         "createdBy": {
-          "username": "professor01"
+          "username": "admin"
         }
       }
     ]
   }
+```
 }
