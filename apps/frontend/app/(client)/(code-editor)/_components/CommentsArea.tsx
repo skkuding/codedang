@@ -16,7 +16,7 @@ interface CommentsAreaProps {
 export function CommentsArea({ comments }: CommentsAreaProps) {
   const sortedComments = [...comments].sort((a, b) => a.order - b.order)
   return (
-    <div className="flex h-full flex-col gap-2 bg-[#121728] px-5 pt-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 bg-[#121728] px-5 pt-5">
       {sortedComments && sortedComments.length > 0 ? (
         sortedComments.map((comment) => {
           const isStaff = comment.isCourseStaff || comment.isContestStaff
@@ -43,7 +43,7 @@ export function CommentsArea({ comments }: CommentsAreaProps) {
           )
         })
       ) : (
-        <div className="flex h-full flex-col items-center justify-center gap-2 bg-[#121728] text-gray-400">
+        <div className="flex min-h-[180px] w-full flex-1 flex-col items-center justify-center gap-2 bg-[#121728] py-10 text-gray-400">
           <div className="text-[#787E80]">
             <FaCircleExclamation className="h-[30px] w-[30px]" />
           </div>

@@ -563,25 +563,6 @@ export interface Notification {
   createTime: string
 }
 
-// export interface MultipleQnaData {
-//   id: number
-//   order: number
-//   createdById?: number
-//   assignmentId?: number
-//   assignmentTitle?: string
-//   isExercise?: boolean
-//   groupId?: number
-//   isPrivate?: boolean
-//   title: string
-//   isResolved: boolean
-//   category: string
-//   problemId: number | null
-//   createTime: Date
-//   createdBy: {
-//     username: string
-//   }
-//   isRead: boolean
-// }
 interface QnaBase {
   id: number
   order: number
@@ -647,6 +628,16 @@ export interface QnaFormData {
   selectedProblem: string
   selectedProblemLabel: string
 }
+
+export interface QnAItemWithCategory extends ContestQnaListItem {
+  categoryName?: string
+}
+
+export interface ProblemOption {
+  value: string
+  label: string
+}
+
 export interface CourseNoticeCommentAuthor {
   username: string
   studentId: string

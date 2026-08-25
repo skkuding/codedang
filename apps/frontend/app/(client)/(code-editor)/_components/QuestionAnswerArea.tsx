@@ -23,7 +23,10 @@ interface QuestionAnswerAreaProps {
 export function QuestionAnswerArea({
   problemId,
   contestId,
-  courseId
+  courseId,
+  assignmentId,
+  exerciseId,
+  isExercise
 }: QuestionAnswerAreaProps) {
   const session = useSession()
   const currentUsername = session?.user?.username
@@ -58,6 +61,8 @@ export function QuestionAnswerArea({
         .json<MultipleQnaData[]>()
 
       const allqnaData = Array.isArray(qnaResponse) ? qnaResponse : []
+      const targetAssignmentId = assignmentId ?? exerciseId
+      const targetIsExercise = Boolean(isExercise)
 
       const filteredQnaData = allqnaData.filter((item) => {
         if (item.problemId !== problemId) {
@@ -68,10 +73,18 @@ export function QuestionAnswerArea({
           return true
         }
 
-        // Backend maps course QnA to the latest assignment containing the problem.
-        // To avoid hiding newly created QnA in exercise/assignment pages,
-        // filter by problem only on course pages.
-        return true
+        if (targetAssignmentId === undefined) {
+          return true
+        }
+
+        if (!('assignmentId' in item)) {
+          return false
+        }
+
+        return (
+          item.assignmentId === targetAssignmentId &&
+          item.isExercise === targetIsExercise
+        )
       })
 
       if (filteredQnaData.length === 0) {
@@ -94,7 +107,7 @@ export function QuestionAnswerArea({
     } finally {
       setLoading(false)
     }
-  }, [contestId, courseId, problemId])
+  }, [assignmentId, contestId, courseId, exerciseId, isExercise, problemId])
 
   useEffect(() => {
     fetchQnaData()
@@ -159,7 +172,7 @@ export function QuestionAnswerArea({
 
   if (!filteredQnaDetails.length) {
     return (
-      <div className="flex h-full flex-col">
+      <div className="flex min-h-0 flex-1 flex-col">
         {qnaFilterHeader}
 
         <div className="mx-5 mb-[38px] mt-5 flex flex-col items-center justify-center gap-[6px] rounded-lg bg-[#121728] px-5 pb-10 pt-[30px] text-center font-sans text-[#787E80]">
@@ -171,10 +184,15 @@ export function QuestionAnswerArea({
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       {qnaFilterHeader}
 
-      <QnaAccordion key={questionFilter} qnaData={filteredQnaDetails} />
+      <QnaAccordion
+        key={questionFilter}
+        qnaData={filteredQnaDetails}
+        contestId={contestId}
+        courseId={courseId}
+      />
     </div>
   )
 }

@@ -4,41 +4,48 @@ import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/con
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { BsFillCaretRightFill } from 'react-icons/bs'
 import { toast } from 'sonner'
 
 interface CreateCommentsProps {
   qnaOrder: number
+  contestId?: number
+  courseId?: number
 }
 
-export function CreateComments({ qnaOrder }: CreateCommentsProps) {
-  const pathname = usePathname()
-  const pathSegments = pathname.split('/').filter(Boolean)
-  const contestIndex = pathSegments.indexOf('contest')
-  const courseIndex = pathSegments.indexOf('course')
-
-  const targetType = contestIndex >= 0 ? 'contest' : 'course'
-  const targetIndex = contestIndex >= 0 ? contestIndex : courseIndex
-  const targetId = Number(pathSegments[targetIndex + 1])
+export function CreateComments({
+  qnaOrder,
+  contestId,
+  courseId
+}: CreateCommentsProps) {
   const [commentData, setCommentData] = useState('')
   const [loading, setLoading] = useState(false)
   const triggerQnaRefresh = useQnaCommentsSync((state) => state.triggerRefresh)
 
   const handleSubmit = async () => {
+    let apiUrl = ''
+
+    if (contestId) {
+      apiUrl = `contest/${contestId}/qna/${qnaOrder}/comment`
+    } else if (courseId) {
+      apiUrl = `course/${courseId}/qna/${qnaOrder}/comment`
+    }
+
+    if (!apiUrl) {
+      toast.error('Submission failed! Please try again later.')
+      return
+    }
+
     setLoading(true)
 
     try {
-      await safeFetcherWithAuth.post(
-        `${targetType}/${targetId}/qna/${qnaOrder}/comment`,
-        {
-          body: JSON.stringify({ content: commentData }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
+      await safeFetcherWithAuth.post(apiUrl, {
+        body: JSON.stringify({ content: commentData }),
+        headers: {
+          'Content-Type': 'application/json'
         }
-      )
+      })
 
       triggerQnaRefresh()
       setCommentData('')

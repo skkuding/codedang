@@ -1,6 +1,7 @@
 'use client'
 
 import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
+import { AlertModal } from '@/components/AlertModal'
 import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
@@ -13,12 +14,14 @@ interface CreateQnaTextAreaProps {
   courseId?: number
   problemId?: number
   contestId?: number
+  assignmentId?: number
   problemOrder?: number | null
 }
 
 export function CreateQnaTextArea({
   courseId,
   problemId,
+  assignmentId,
   contestId,
   problemOrder
 }: CreateQnaTextAreaProps) {
@@ -27,6 +30,7 @@ export function CreateQnaTextArea({
     content: ''
   })
   const [loading, setLoading] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const triggerRefresh = useQnaCommentsSync((s) => s.triggerRefresh)
 
   const handleInputChange = (
@@ -39,8 +43,7 @@ export function CreateQnaTextArea({
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const submitQuestion = async () => {
     setLoading(true)
     let apiUrl = ''
     if (contestId) {
@@ -49,7 +52,7 @@ export function CreateQnaTextArea({
           ? `contest/${contestId}/qna`
           : `contest/${contestId}/qna?problem-order=${problemOrder}`
     } else if (courseId && problemId) {
-      apiUrl = `course/${courseId}/qna?problemId=${problemId}`
+      apiUrl = `course/${courseId}/qna?problemId=${problemId}&assignmentId=${assignmentId}`
     } else {
       toast.error('Submission failed! Please try again later.')
       setLoading(false)
@@ -70,8 +73,11 @@ export function CreateQnaTextArea({
       })
 
       toast.success('Question submitted successfully')
-      setQnaFormData({ title: '', content: '' })
-      triggerRefresh()
+      setIsConfirmOpen(false)
+      setQnaFormData({
+        title: '',
+        content: ''
+      })
       triggerRefresh()
     } catch (error) {
       console.error('Error submitting question:', error)
@@ -79,6 +85,11 @@ export function CreateQnaTextArea({
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsConfirmOpen(true)
   }
 
   return (
@@ -134,6 +145,24 @@ export function CreateQnaTextArea({
           </span>
         </div>
       </form>
+
+      <AlertModal
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        size="sm"
+        type="confirm"
+        showIcon={false}
+        showCancelButton
+        title="Do you want to register question?"
+        description={
+          'Pranky questions, swear words,\nand accusations can be sanctioned.\nDo you really want to register your questions?'
+        }
+        primaryButton={{
+          text: 'Register',
+          onClick: submitQuestion,
+          disabled: loading || !qnaFormdata.title || !qnaFormdata.content
+        }}
+      />
     </div>
   )
 }

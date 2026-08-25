@@ -16,6 +16,7 @@ export default async function QnaPage(props: {
           <CreateQnaTextArea
             courseId={Number(courseId)}
             problemId={Number(problemId)}
+            assignmentId={Number(assignmentId)}
           />
 
           <hr className="border-4 border-[#121728]" />
