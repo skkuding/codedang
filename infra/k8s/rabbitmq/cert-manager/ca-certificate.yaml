@@ -1,0 +1,45 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rabbitmq-root-ca
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+spec:
+  isCA: true
+  commonName: rabbitmq-root-ca
+  secretName: rabbitmq-root-ca-secret
+  duration: 87600h
+  renewBefore: 720h
+  privateKey:
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - cert sign
+    - crl sign
+  issuerRef:
+    name: rabbitmq-selfsigned-issuer
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rabbitmq-intermediate-ca
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  isCA: true
+  commonName: rabbitmq-intermediate-ca
+  secretName: rabbitmq-intermediate-ca-secret
+  duration: 8760h
+  renewBefore: 2880h
+  privateKey:
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - cert sign
+    - crl sign
+  issuerRef:
+    name: rabbitmq-root-ca-issuer
+    kind: ClusterIssuer

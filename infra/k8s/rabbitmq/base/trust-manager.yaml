@@ -1,12 +1,15 @@
-# This ConfigMap refers to infra/k8s/rabbitmq/base/tls-certificate.yaml
+# Distribute only the long-lived root CA. Intermediate CA rotation does not
+# require a trust bundle update because every intermediate chains to this root.
 apiVersion: trust.cert-manager.io/v1alpha1
 kind: Bundle
 metadata:
   name: rabbitmq-ca-cert
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   sources:
     - secret:
-        name: rabbitmq-ca-secret
+        name: rabbitmq-root-ca-secret
         key: tls.crt
   target:
     configMap:
