@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { PrismaService } from '@libs/prisma'
+import { ToolType } from '@admin/@generated'
 import { FileService } from './file/file.service'
 import { MandeuldangPublicationService } from './mandeuldang-pub.service'
 
@@ -18,7 +18,6 @@ export class MandeuldangService {
     toolType: ToolType,
     file: FileUpload
   ) {
-    //DB에 파일 저장
     return await this.fileService.uploadMandeuldangToolFile(
       problemId,
       toolType,
