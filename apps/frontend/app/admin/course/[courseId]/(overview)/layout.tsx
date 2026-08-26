@@ -53,6 +53,12 @@ export default function CourseDetailLayout({
       href: `/admin/course/${courseId}/exercise`
     },
     {
+      name: 'Notice',
+      title: 'NOTICE',
+      description: "Here's a notice list you made",
+      href: `/admin/course/${courseId}/notice`
+    },
+    {
       name: 'Q&A',
       title: 'Question & Answer',
       description:
