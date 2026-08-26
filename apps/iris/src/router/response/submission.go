@@ -7,7 +7,6 @@ import (
 type SubmissionResponse struct {
 	SubmissionId int              `json:"submissionId"`
 	JudgeResults []*JudgeResponse `json:"judgeResults"`
-	Finished     bool             `json:"finished"`
 }
 
 func NewSubmissionResponse(id string, judgeResponses []*JudgeResponse) *SubmissionResponse {
@@ -17,7 +16,6 @@ func NewSubmissionResponse(id string, judgeResponses []*JudgeResponse) *Submissi
 	return &SubmissionResponse{
 		SubmissionId: _id,
 		JudgeResults: judgeResponses,
-		Finished:     true,
 	}
 }
 
