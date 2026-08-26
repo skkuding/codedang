@@ -250,14 +250,16 @@ describe('SubmissionService', () => {
   describe('submitToContest', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
-      db.contest.findFirst.resolves(mockContest)
-      db.userContest.findFirst.resolves(null)
-      db.contestRecord.findUnique.resolves({
-        contest: {
-          groupId: 1,
-          startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() + 10000)
-        }
+      db.contest.findFirst.resolves({
+        ...mockContest,
+        startTime: new Date(Date.now() - 10000),
+        endTime: new Date(Date.now() + 10000)
+      })
+      db.userContest.findUnique.resolves({
+        id: 1,
+        userId: submissions[0].userId,
+        contestId: CONTEST_ID,
+        role: 'participant'
       })
       db.contestProblem.findUnique.resolves({ problem: problems[0] })
 
