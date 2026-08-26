@@ -5040,7 +5040,7 @@ const createContestRecords = async () => {
     contestRecords.push(updated)
   }
 
-  // contest 20 (진행중, contestAdmin=Admin) blockUserDuringContest 테스트용 참가자 2명
+  // contest 20 (진행중, contestAdmin=Admin) removeUserFromContest 테스트용 참가자 3명
   const blockTestUsers = [users[1], users[2]] // user02, user03
   for (const user of blockTestUsers) {
     const record = await prisma.contestRecord.create({
@@ -5048,16 +5048,30 @@ const createContestRecords = async () => {
     })
     contestRecords.push(record)
   }
-  const alreadyBlockedUser = users[3] // user04
+  const alreadyRemovedUser = users[3] // user04
   await prisma.contestRecord.create({
-    data: { contestId: 20, userId: alreadyBlockedUser.id }
+    data: { contestId: 20, userId: alreadyRemovedUser.id }
+  })
+
+  // Ended Contest 테스트용
+  const endedContest = await prisma.contest.findFirstOrThrow({
+    where: { title: 'Long Time Ago Assignment' }
   })
   await prisma.userContest.create({
     data: {
-      userId: alreadyBlockedUser.id,
-      contestId: 20,
-      role: ContestRole.Participant,
-      isBlocked: true
+      userId: contestAdminUser.id,
+      contestId: endedContest.id,
+      role: ContestRole.Admin
+    }
+  })
+  await prisma.contestRecord.create({
+    data: { contestId: endedContest.id, userId: contestReviewerUser.id }
+  })
+  await prisma.userContest.create({
+    data: {
+      userId: contestReviewerUser.id,
+      contestId: endedContest.id,
+      role: ContestRole.Participant
     }
   })
 }
