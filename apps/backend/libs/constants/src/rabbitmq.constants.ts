@@ -40,21 +40,13 @@ export const CHECK_MESSAGE_TYPE = 'check'
  * Mandeuldang Tool 업로드 -> Queue
  */
 
-export const MANDEULDANG_EXCHANGE = 'iris.e.direct.polygon'
+export const MANDEULDANG_EXCHANGE = 'iris.e.direct.judge'
 
-export const MANDEULDANG_GENERATOR_KEY = 'polygon.generator'
+export const MANDEULDANG_REQUEST_KEY = 'judge.submission'
+export const MANDEULDANG_RESULT_KEY = 'mandeuldang.result'
+
+export const MANDEULDANG_RESULT_QUEUE = 'iris.q.mandeuldang.result'
+
 export const MANDEULDANG_GENERATOR_MESSAGE_TYPE = 'generate'
-
-export const MANDEULDANG_VALIDATOR_KEY = 'polygon.validator'
 export const MANDEULDANG_VALIDATOR_MESSAGE_TYPE = 'validate'
-
-export const MANDEULDANG_CHECKER_KEY = 'polygon.checker'
 export const MANDEULDANG_CHECKER_MESSAGE_TYPE = 'check'
-
-export const MANDEULDANG_GENERATOR_RESULT_KEY = 'polygon.generate.result'
-export const MANDEULDANG_GENERATOR_RESULT_QUEUE =
-  'iris.q.polygon.generate.result'
-
-export const MANDEULDANG_VALIDATOR_RESULT_KEY = 'polygon.validate.result'
-export const MANDEULDANG_VALIDATOR_RESULT_QUEUE =
-  'iris.q.polygon.validate.result'
