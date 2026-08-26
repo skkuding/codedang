@@ -24,13 +24,10 @@ import {
   MESSAGE_PRIORITY_LOW,
   SUBMISSION_KEY,
   MANDEULDANG_EXCHANGE,
+  MANDEULDANG_REQUEST_KEY,
+  MANDEULDANG_RESULT_KEY,
+  MANDEULDANG_RESULT_QUEUE,
   MANDEULDANG_GENERATOR_MESSAGE_TYPE,
-  MANDEULDANG_GENERATOR_KEY,
-  MANDEULDANG_GENERATOR_RESULT_KEY,
-  MANDEULDANG_GENERATOR_RESULT_QUEUE,
-  MANDEULDANG_VALIDATOR_RESULT_KEY,
-  MANDEULDANG_VALIDATOR_RESULT_QUEUE,
-  MANDEULDANG_VALIDATOR_KEY,
   MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
   SUBMISSION_MESSAGE_TYPE,
   RUN_SUBMISSION_MESSAGE_TYPE
@@ -276,57 +273,47 @@ export class MandeuldangAMQPService {
   ) {}
 
   //1. 큐 구독
-  startGeneratorSubscription() {
-    //결과메시지 도착하면 콜백 실행됨
-    this.amqpConnection.createSubscriber(
-      //@golevelup/nestjs-rabbitmq 버전이 업데이트 되면서 생긴 문제?
-      async (msg: object | undefined) => {
-        try {
-          if (!msg) return //undefined인 경우 메시지 큐에서 제거
-          //onGenerateResult 핸들러가 등록되어 있으면
-          if (this.messageHandlers?.onGenerateResult) {
-            await this.messageHandlers.onGenerateResult(msg) //onGenerateResult() 실행
-          }
-        } catch (error) {
-          this.logger.error(
-            error,
-            'Unexpected error in handling generator result message'
-          )
-          return new Nack()
-        }
-      },
-      {
-        exchange: MANDEULDANG_EXCHANGE,
-        routingKey: MANDEULDANG_GENERATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
-        queue: MANDEULDANG_GENERATOR_RESULT_QUEUE
-      },
-      ORIGIN_HANDLER_NAME
-    )
-  }
+  startSubscription() {
+    const handleMandeuldangMessage: SubscriberHandler<object> = async (
+      msg,
+      raw
+    ) => {
+      if (!msg || !raw) {
+        this.logger.error('Received empty mandeuldang message')
+        return new Nack(false)
+      }
 
-  startValidatorSubscription() {
-    //결과메시지 도착하면 콜백 실행됨
-    this.amqpConnection.createSubscriber(
-      //@golevelup/nestjs-rabbitmq 버전이 업데이트 되면서 생긴 문제?
-      async (msg: object | undefined) => {
-        try {
-          if (!msg) return //undefined인 경우 메시지 큐에서 제거
-          //onValidateResult 핸들러가 등록되어 있으면
-          if (this.messageHandlers?.onValidateResult) {
-            await this.messageHandlers.onValidateResult(msg) //onValidateResult() 실행
-          }
-        } catch (error) {
+      try {
+        // 메시지 타입에 따라 적절한 핸들러로 라우팅
+        const type = raw.properties?.type
+        const handlerMap = this.getMessageHandlerMap()
+
+        const handler = handlerMap[type]
+
+        if (!handler) {
           this.logger.error(
-            error,
-            'Unexpected error in handling validator result message'
+            `Unknown MessageType found: ${raw.properties?.type}`
           )
-          return new Nack()
+          return new Nack(false)
         }
-      },
+
+        await handler(msg)
+        return
+      } catch (error) {
+        this.logger.error(
+          error,
+          'Unexpected error in handling mandeuldang result message'
+        )
+        return new Nack()
+      }
+    }
+
+    this.amqpConnection.createSubscriber<object>(
+      handleMandeuldangMessage,
       {
         exchange: MANDEULDANG_EXCHANGE,
-        routingKey: MANDEULDANG_VALIDATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
-        queue: MANDEULDANG_VALIDATOR_RESULT_QUEUE
+        routingKey: MANDEULDANG_RESULT_KEY,
+        queue: MANDEULDANG_RESULT_QUEUE
       },
       ORIGIN_HANDLER_NAME
     )
@@ -340,7 +327,7 @@ export class MandeuldangAMQPService {
     const span = this.traceService.startSpan('publishGeneratorMessage.publish')
     await this.amqpConnection.publish(
       MANDEULDANG_EXCHANGE,
-      MANDEULDANG_GENERATOR_KEY,
+      MANDEULDANG_REQUEST_KEY,
       request,
       {
         messageId: String(request.requestId),
@@ -359,7 +346,7 @@ export class MandeuldangAMQPService {
     const span = this.traceService.startSpan('publishValidatorMessage.publish')
     await this.amqpConnection.publish(
       MANDEULDANG_EXCHANGE,
-      MANDEULDANG_VALIDATOR_KEY,
+      MANDEULDANG_REQUEST_KEY,
       request,
       {
         messageId: String(request.requestId),
@@ -381,5 +368,17 @@ export class MandeuldangAMQPService {
   private messageHandlers?: {
     onGenerateResult?: (msg: object) => Promise<void>
     onValidateResult?: (msg: object) => Promise<void>
+  }
+
+  private getMessageHandlerMap(): Record<
+    string,
+    ((msg: object) => Promise<void>) | undefined
+  > {
+    return {
+      [MANDEULDANG_GENERATOR_MESSAGE_TYPE]:
+        this.messageHandlers?.onGenerateResult,
+      [MANDEULDANG_VALIDATOR_MESSAGE_TYPE]:
+        this.messageHandlers?.onValidateResult
+    }
   }
 }
