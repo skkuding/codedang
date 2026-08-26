@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type ToolType } from '@prisma/client'
+import { Prisma, ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
+import { extname } from 'path'
 import {
   EntityNotExistException,
   UnprocessableDataException
@@ -45,8 +46,15 @@ export class FileService {
     const fileContent = Buffer.concat(chunks).toString('utf-8')
 
     // S3에 저장
-    const filePath = `mandeuldang/${problemId}/tools/${toolType}.cpp`
-    await this.storageService.uploadObject(filePath, fileContent, 'cpp')
+    const ext = extname(filename)
+    const filePath = `mandeuldang/${problemId}/tools/${toolType}${ext}`
+    await this.storageService.uploadObject(
+      filePath,
+      fileContent,
+      'cpp',
+      undefined,
+      'mandeuldang'
+    )
 
     // DB엔 경로만 저장
     const tool = await this.prisma.mandeuldangTool.upsert({
@@ -65,9 +73,23 @@ export class FileService {
         where: { problemId_toolType: { problemId, toolType } }
       })
       // DB row 삭제 후 S3 파일도 삭제
-      await this.storageService.deleteObject(tool.filePath, 'testcase')
+      await this.storageService.deleteObject(tool.filePath, 'mandeuldang')
 
-      // TO DO: generator의 경우 생성된 테스트케이스 파일도 삭제
+      if (toolType == ToolType.Generator) {
+        const testcasePrefix = `mandeuldang/${problemId}/testcases/`
+        const testcaseFiles = await this.storageService.listObjects(
+          testcasePrefix,
+          'testcase'
+        )
+
+        await Promise.all(
+          testcaseFiles.map(async (file) => {
+            if (file.Key) {
+              await this.storageService.deleteObject(file.Key, 'testcase')
+            }
+          })
+        )
+      }
 
       return tool
     } catch (error) {

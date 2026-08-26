@@ -7,7 +7,7 @@ import {
   MandeuldangTool
 } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
-import type { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
+import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
 @Resolver(() => MandeuldangProblem)
 @UseDisableAdminGuard()
