@@ -48,3 +48,14 @@ spec:
                 secretKeyRef:
                   name: redis-credentials
                   key: password
+                  
+          volumeMounts:
+            - name: rabbitmq-ca
+              mountPath: /etc/codedang/certs/rabbitmq-ca.crt
+              subPath: ca.crt
+              readOnly: true
+
+      volumes:
+        - name: rabbitmq-ca
+          configMap:
+            name: rabbitmq-ca-cert

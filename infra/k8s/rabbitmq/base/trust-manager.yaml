@@ -16,4 +16,4 @@ spec:
       key: ca.crt
     namespaceSelector:
       matchLabels:
-        kubernetes.io/metadata.name: rabbitmq
+        trust.codedang.com/rabbitmq: "true"
