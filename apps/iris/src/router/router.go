@@ -111,11 +111,11 @@ func (r *router) Route(path constants.MessageType, id string, data []byte, out c
 		if !sender.Send(handler.ResultMessage{Err: taskErr}) {
 			return
 		}
-		if isSubmissionTask(path) {
+		if ok, msgType := isSubmissionTask(path); ok {
 			judgeResponse := response.NewJudgeResponse(id, nil, taskErr)
 			sender.Send(handler.ResultMessage{
 				EncodedResponse: response.NewSubmissionResponse(id, []*response.JudgeResponse{judgeResponse}).Marshal(),
-			}, constants.Submission)
+			}, msgType)
 		}
 		return
 	}
@@ -146,12 +146,14 @@ func (r *router) Route(path constants.MessageType, id string, data []byte, out c
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
 
-func isSubmissionTask(path constants.MessageType) bool {
+func isSubmissionTask(path constants.MessageType) (bool, constants.MessageType) {
 	switch path {
-	case constants.Judge, constants.SpecialJudge, constants.Run, constants.UserTestCase:
-		return true
+	case constants.Run, constants.UserTestCase:
+		return true, constants.RunSubmission
+	case constants.Judge, constants.SpecialJudge:
+		return true, constants.Submission
 	default:
-		return false
+		return false, path
 	}
 }
 
