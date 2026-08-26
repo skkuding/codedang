@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common'
 import { Language, MandeuldangRunStatus, ToolType } from '@prisma/client'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 
 @Injectable()
 export class MandeuldangPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: MandeuldangAMQPService
+    private readonly amqpService: MandeuldangAMQPService,
+    private readonly storageService: StorageService
   ) {}
 
   async publishGeneratorMessage(
@@ -31,6 +33,11 @@ export class MandeuldangPublicationService {
       where: { problemId }
     })
 
+    const [generatorCode, solutionCode] = await Promise.all([
+      this.storageService.readObject(generator.filePath, 'mandeuldang'),
+      this.storageService.readObject(solution.filePath, 'mandeuldang')
+    ])
+
     const request = await this.prisma.mandeuldangRunRequest.create({
       data: {
         problemId,
@@ -40,23 +47,14 @@ export class MandeuldangPublicationService {
       }
     })
 
-    const generatorRequest = {
-      problemId,
-      generatorLanguage: Language.Cpp,
-      generatorCode: generator.fileContent,
-      generatorArgs,
-      solutionLanguage: solution.language,
-      solutionCode: solution.fileContent,
-      testCaseCount
-    }
     //실행 요청 메시지 publish
     try {
       await this.amqpService.publishGeneratorMessage(request.id, problemId, {
         generatorLanguage: Language.Cpp,
-        generatorCode: generator.fileContent,
+        generatorCode,
         generatorArgs,
         solutionLanguage: solution.language,
-        solutionCode: solution.fileContent,
+        solutionCode,
         testcaseCount
       })
     } catch (error) {
@@ -78,11 +76,10 @@ export class MandeuldangPublicationService {
       }
     })
 
-    const validateRequest = {
-      problemId,
-      language: Language.Cpp,
-      validatorCode: validator.fileContent
-    }
+    const validatorCode = await this.storageService.readObject(
+      validator.filePath,
+      'mandeuldang'
+    )
 
     const request = await this.prisma.mandeuldangRunRequest.create({
       data: {
@@ -97,7 +94,7 @@ export class MandeuldangPublicationService {
       await this.amqpService.publishValidatorMessage(request.id, problemId, {
         problemId,
         language: Language.Cpp,
-        validatorCode: validator.fileContent
+        validatorCode
       })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
