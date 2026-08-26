@@ -85,7 +85,7 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
       columns={columns}
       defaultSortState={[{ id: 'createTime', desc: true }]}
     >
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex h-[44px] w-[390px] items-center rounded-full border border-gray-200 bg-white p-1 px-[5px] py-[5px]">
           <button
             onClick={() => setFilterType('General')}
