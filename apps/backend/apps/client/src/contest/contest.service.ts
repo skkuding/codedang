@@ -412,7 +412,7 @@ export class ContestService {
         contestId,
         user: {
           userContest: {
-            none: { contestId, isBlocked: true }
+            some: { contestId }
           }
         }
       },
