@@ -19,6 +19,10 @@ spec:
       containers:
         - name: postgres
           image: postgres:18.4-alpine@sha256:b6a16ed0eb96e2c362811f7eeb951eac8b459e7b40be4149ea5444aa7c65569b
+          args:
+            - -c
+            # Matches the production db.t4g.small RDS default.
+            - max_connections=225
           ports:
             - containerPort: 5432
           env:
@@ -58,7 +62,7 @@ spec:
               memory: 256Mi
             limits:
               cpu: '1'
-              memory: 1Gi
+              memory: 2Gi
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql
