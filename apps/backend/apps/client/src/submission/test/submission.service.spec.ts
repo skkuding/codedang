@@ -4,12 +4,13 @@ import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import type { Contest, User, Assignment } from '@prisma/client'
-import { Language, Role } from '@prisma/client'
+import { Language, Prisma, ResultStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { TraceService } from 'nestjs-otel'
-import { spy, stub } from 'sinon'
+import { spy, stub, type SinonStub } from 'sinon'
+import { PERCENTAGE_SCALE } from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -20,6 +21,7 @@ import { Snippet } from '../class/create-submission.dto'
 import { problems } from '../mock/problem.mock'
 import { submissions, submissionDto } from '../mock/submission.mock'
 import { submissionResults } from '../mock/submissionResult.mock'
+import { SubmissionFinalizationService } from '../submission-finalization.service'
 import { SubmissionPublicationService } from '../submission-pub.service'
 import { SubmissionService } from '../submission.service'
 
@@ -28,6 +30,7 @@ const db = {
     findMany: stub(),
     findFirst: stub(),
     findUnique: stub(),
+    findUniqueOrThrow: stub(),
     create: stub(),
     update: stub(),
     count: stub()
@@ -146,6 +149,7 @@ const USERIP = '127.0.0.1'
 describe('SubmissionService', () => {
   let service: SubmissionService
   let publish: SubmissionPublicationService
+  let finalization: SubmissionFinalizationService
   let cache: Cache
 
   beforeEach(async () => {
@@ -159,6 +163,13 @@ describe('SubmissionService', () => {
         {
           provide: SubmissionPublicationService,
           useFactory: () => ({ publishJudgeRequestMessage: () => [] })
+        },
+        {
+          provide: SubmissionFinalizationService,
+          useFactory: () => ({
+            finalizeSubmission: stub(),
+            applyFinalizationEffects: stub()
+          })
         },
         {
           provide: CACHE_MANAGER,
@@ -178,6 +189,9 @@ describe('SubmissionService', () => {
     publish = module.get<SubmissionPublicationService>(
       SubmissionPublicationService
     )
+    finalization = module.get<SubmissionFinalizationService>(
+      SubmissionFinalizationService
+    )
     cache = module.get<Cache>(CACHE_MANAGER)
     stub(cache, 'set').resolves()
     stub(cache, 'get').resolves([])
@@ -189,6 +203,7 @@ describe('SubmissionService', () => {
     db.submission.findUnique.resetHistory()
     db.submission.create.resetHistory()
     db.submission.update.resetHistory()
+    db.submission.findUniqueOrThrow.resetHistory()
     db.submissionResult.create.resetHistory()
     db.submissionResult.createMany.resetHistory()
     db.submissionResult.updateMany.resetHistory()
@@ -366,6 +381,10 @@ describe('SubmissionService', () => {
 
   describe('createSubmission', () => {
     it('should create submission', async () => {
+      const judgeableTestcases = [{ id: 1, isHidden: false }]
+      const getJudgeableStub = stub(service, 'getJudgeableTestcases').resolves(
+        judgeableTestcases
+      )
       const createSpy = stub(service, 'createSubmissionResults')
       const publishSpy = stub(publish, 'publishJudgeRequestMessage')
       db.submission.create.resolves(submissions[0])
@@ -378,8 +397,56 @@ describe('SubmissionService', () => {
           userIp: USERIP
         })
       ).to.deep.equal(submissions[0])
-      expect(createSpy.calledOnceWith(submissions[0])).to.be.true
+      expect(getJudgeableStub.calledOnceWith(problems[0].id, false)).to.be.true
+      expect(createSpy.calledOnceWith(submissions[0], judgeableTestcases)).to.be
+        .true
       expect(publishSpy.calledOnce).to.be.true
+    })
+
+    it('should create the submission without testcases when no testcase is judgeable', async () => {
+      const finalizedSubmission = {
+        ...submissions[0],
+        codeSize: 1000,
+        contestId: CONTEST_ID,
+        result: ResultStatus.Accepted,
+        score: new Prisma.Decimal(PERCENTAGE_SCALE)
+      }
+
+      const getJudgeableStub = stub(service, 'getJudgeableTestcases').resolves(
+        []
+      )
+      const createResultsStub = stub(service, 'createSubmissionResults')
+      const createWithoutTestcasesStub = stub(
+        service,
+        'createSubmissionWithoutTestcases'
+      ).resolves(finalizedSubmission)
+      const publishStub = stub(publish, 'publishJudgeRequestMessage')
+
+      const result = await service.createSubmission({
+        submissionDto,
+        problem: problems[0],
+        userId: submissions[0].userId,
+        userIp: USERIP,
+        idOptions: {
+          contestId: CONTEST_ID
+        },
+        judgeOnlyHiddenTestcases: true
+      })
+
+      expect(getJudgeableStub.calledOnceWith(problems[0].id, true)).to.be.true
+      expect(createResultsStub.called).to.be.false
+      expect(db.submission.create.called).to.be.false
+      expect(createWithoutTestcasesStub.calledOnce).to.be.true
+      expect(createWithoutTestcasesStub.firstCall.args[0]).to.deep.include({
+        userId: submissions[0].userId,
+        userIp: USERIP,
+        problemId: problems[0].id
+      })
+      expect(createWithoutTestcasesStub.firstCall.args[1]).to.deep.equal({
+        contestId: CONTEST_ID
+      })
+      expect(publishStub.called).to.be.false
+      expect(result).to.deep.equal(finalizedSubmission)
     })
 
     it('should create submission with contestId', async () => {
@@ -475,6 +542,51 @@ describe('SubmissionService', () => {
       ).to.be.rejectedWith(ConflictFoundException)
       expect(validateSpy.returnValues[0]).to.be.false
       expect(publishSpy.calledOnce).to.be.false
+    })
+  })
+
+  describe('createSubmissionWithoutTestcases', () => {
+    it('should create the submission as Accepted and apply finalization effects without a prior update', async () => {
+      const submissionData = {
+        code: submissions[0].code,
+        language: submissions[0].language,
+        userId: submissions[0].userId,
+        userIp: USERIP,
+        problemId: problems[0].id,
+        codeSize: 1000
+      }
+      const createdSubmission = {
+        ...submissions[0],
+        ...submissionData,
+        contestId: CONTEST_ID,
+        result: ResultStatus.Accepted,
+        score: new Prisma.Decimal(PERCENTAGE_SCALE)
+      }
+
+      db.submission.create.resolves(createdSubmission)
+      const applyEffectsStub =
+        finalization.applyFinalizationEffects as SinonStub
+
+      const result = await service.createSubmissionWithoutTestcases(
+        submissionData,
+        { contestId: CONTEST_ID }
+      )
+
+      expect(
+        db.submission.create.calledOnceWith({
+          data: {
+            ...submissionData,
+            result: ResultStatus.Accepted,
+            score: PERCENTAGE_SCALE,
+            contestId: CONTEST_ID,
+            assignmentId: undefined,
+            workbookId: undefined
+          }
+        })
+      ).to.be.true
+      expect(applyEffectsStub.calledOnceWithExactly(createdSubmission, true)).to
+        .be.true
+      expect(result).to.deep.equal(createdSubmission)
     })
   })
 

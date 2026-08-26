@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { AMQPModule } from '@libs/amqp'
 import { GroupMemberGuard, RolesModule } from '@libs/auth'
 import { ProblemModule } from '@client/problem/problem.module'
+import { SubmissionFinalizationService } from './submission-finalization.service'
 import { SubmissionPublicationService } from './submission-pub.service'
 import { SubmissionSubscriptionService } from './submission-sub.service'
 import {
@@ -24,6 +25,7 @@ import { SubmissionService } from './submission.service'
     SubmissionService,
     SubmissionPublicationService,
     SubmissionSubscriptionService,
+    SubmissionFinalizationService,
     { provide: APP_GUARD, useClass: GroupMemberGuard }
   ]
 })
