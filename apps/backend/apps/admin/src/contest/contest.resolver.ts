@@ -118,22 +118,6 @@ export class ContestResolver {
     )
   }
 
-  @Mutation(() => UserContest)
-  @UseDisableContestRolesGuard()
-  async blockUserDuringContest(
-    @Args('contestId', { type: () => Int }, IDValidationPipe)
-    contestId: number,
-    @Args('userId', { type: () => Int }, IDValidationPipe)
-    userId: number,
-    @Context('req') req: AuthenticatedRequest
-  ) {
-    return await this.contestService.blockUserDuringContest(
-      contestId,
-      userId,
-      req.user.id
-    )
-  }
-
   @Query(() => ContestSubmissionSummaryForUser)
   async getContestSubmissionSummaryByUserId(
     @Args('contestId', { type: () => Int }, IDValidationPipe) contestId: number,
