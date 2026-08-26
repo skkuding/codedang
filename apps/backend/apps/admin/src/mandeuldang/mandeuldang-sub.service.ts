@@ -48,8 +48,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    this.amqpService.startGeneratorSubscription()
-    this.amqpService.startValidatorSubscription()
+    this.amqpService.startSubscription()
   }
 
   /**
