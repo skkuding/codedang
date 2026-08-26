@@ -10,7 +10,8 @@ export class FileService {
 
   async getComparisonsFile(checkId: number): Promise<Comparison[]> {
     const comparisonJson = await this.storageService.readObject(
-      `comparison${checkId}.json`
+      `comparison${checkId}.json`,
+      'checkResult'
     )
     if (comparisonJson == '') {
       throw new UnprocessableDataException('cannot read comparison.json')
@@ -25,7 +26,8 @@ export class FileService {
 
   async getClustersFile(checkId: number): Promise<Cluster[]> {
     const clusterJson = await this.storageService.readObject(
-      `cluster${checkId}.json`
+      `cluster${checkId}.json`,
+      'checkResult'
     )
     if (clusterJson == '') {
       throw new UnprocessableDataException('cannot read cluster.json')
