@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common'
 import { Language, MandeuldangRunStatus, ToolType } from '@prisma/client'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 
 @Injectable()
 export class MandeuldangPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: MandeuldangAMQPService
+    private readonly amqpService: MandeuldangAMQPService,
+    private readonly storageService: StorageService
   ) {}
 
   async publishGeneratorMessage(
@@ -29,6 +31,11 @@ export class MandeuldangPublicationService {
       })
     ])
 
+    const [generatorCode, solutionCode] = await Promise.all([
+      this.storageService.readObject(generator.filePath, 'mandeuldang'),
+      this.storageService.readObject(solution.filePath, 'mandeuldang')
+    ])
+
     const request = await this.prisma.mandeuldangRunRequest.create({
       data: {
         problemId,
@@ -44,10 +51,10 @@ export class MandeuldangPublicationService {
         requestId: request.id,
         problemId,
         generatorLanguage: Language.Cpp,
-        generatorCode: generator.fileContent,
+        generatorCode,
         generatorArgs,
         solutionLanguage: solution.language,
-        solutionCode: solution.fileContent,
+        solutionCode,
         testcaseCount
       })
     } catch (error) {
@@ -69,6 +76,11 @@ export class MandeuldangPublicationService {
       }
     })
 
+    const validatorCode = await this.storageService.readObject(
+      validator.filePath,
+      'mandeuldang'
+    )
+
     const request = await this.prisma.mandeuldangRunRequest.create({
       data: {
         problemId,
@@ -83,7 +95,7 @@ export class MandeuldangPublicationService {
         requestId: request.id,
         problemId,
         language: Language.Cpp,
-        validatorCode: validator.fileContent
+        validatorCode
       })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
