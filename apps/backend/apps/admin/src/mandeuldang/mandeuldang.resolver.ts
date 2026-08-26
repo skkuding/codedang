@@ -1,14 +1,13 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
-import { ToolType } from '@prisma/client'
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
-import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
+import { ToolType } from '@admin/@generated'
 import {
   MandeuldangProblem,
   MandeuldangRunRequest,
   MandeuldangTool
 } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
+import type { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
 @Resolver(() => MandeuldangProblem)
 @UseDisableAdminGuard()
@@ -17,14 +16,12 @@ export class MandeuldangResolver {
 
   @Mutation(() => MandeuldangTool)
   async uploadMandeuldangTool(
-    @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('toolType', { type: () => ToolType }) toolType: ToolType,
-    @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>
+    @Args('input') input: UploadMandeuldangToolInput
   ) {
-    return this.mandeuldangService.uploadMandeuldangTool(
-      problemId,
-      toolType,
-      await file
+    return await this.mandeuldangService.uploadMandeuldangTool(
+      input.problemId,
+      input.toolType,
+      await input.file
     )
   }
 
