@@ -1213,10 +1213,24 @@ export class ContestService {
       }),
       this.prisma.submission.groupBy({
         by: ['userId'],
-        where: { contestId }
+        where: {
+          contestId,
+          user: {
+            userContest: {
+              some: { contestId }
+            }
+          }
+        }
       }),
       this.prisma.contestRecord.count({
-        where: { contestId }
+        where: {
+          contestId,
+          user: {
+            userContest: {
+              some: { contestId }
+            }
+          }
+        }
       }),
       // Contest의 최고 점수 계산
       this.prisma.contestProblem.aggregate({
