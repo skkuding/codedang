@@ -20,11 +20,15 @@ Do not remove the source-root `removed` blocks until the migration has been
 applied and this root produces a clean plan. The retired Redis cluster no longer
 exists; only its residual subnet group is imported here.
 
+Task definition import plans can render historical container environment values.
+Keep their full output out of logs and remove saved plan files promptly.
+
 ## Staged resources
 
 - Legacy admin/client ALBs, target groups, listeners, subnets, and security groups
 - Amazon MQ broker, attached configuration, subnet, and Secrets Manager secret
 - ECS launch templates, IAM roles, policy attachments, and instance profiles
+- All active legacy ECS task definition revisions
 - Empty legacy ECS CloudWatch log groups
 - Stopped NAT and bastion instances
 - Legacy API, admin, Iris, Redis, MQ, DB, Jaeger, and Grafana network resources
