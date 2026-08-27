@@ -1398,8 +1398,10 @@ export class GroupService {
    * @param {number} id 댓글이 달려있는 강의 공지사항의 아이디
    * @param {number} commentId 삭제하려는 댓글의 아이디
    * @returns
-   * @throws {NotFoundException}
-   * - 댓글 아이디, 강의 아이디, 유저 아이디가 일치하는 댓글이 없을 때
+   * @throws {EntityNotExistException}
+   * - 댓글 아이디, 강의 아이디가 일치하는 댓글이 없을 때
+   * @throws {ForbiddenAccessException}
+   * - 댓글 작성자 본인도, 강좌 담당자(Group Leader/Admin/SuperAdmin)도 아닐 때
    */
   async deleteComment({
     userId,
@@ -1417,10 +1419,15 @@ export class GroupService {
     const comment = await this.prisma.courseNoticeComment.findUnique({
       where: {
         id: commentId,
-        courseNoticeId: id,
-        createdById: userId
+        courseNoticeId: id
       },
       select: {
+        createdById: true,
+        courseNotice: {
+          select: {
+            groupId: true
+          }
+        },
         replyOn: {
           select: {
             id: true,
@@ -1447,13 +1454,26 @@ export class GroupService {
       throw new EntityNotExistException('CourseNoticeComment')
     }
 
+    const isCourseStaff =
+      (await this.prisma.userGroup.findFirst({
+        where: {
+          userId,
+          groupId: comment.courseNotice.groupId,
+          isGroupLeader: true
+        }
+      })) !== null
+
+    if (comment.createdById !== userId && !isCourseStaff) {
+      // 댓글 작성자 본인도 아니고, 강좌 담당자(Group Leader/Admin/SuperAdmin)도 아닐 때
+      throw new ForbiddenAccessException('it is not accessible comment')
+    }
+
     if (comment._count.CourseNoticeComment > 0) {
       // 답글이 존재할 때
       return await this.prisma.courseNoticeComment.update({
         where: {
           id: commentId,
-          courseNoticeId: id,
-          createdById: userId
+          courseNoticeId: id
         },
         data: {
           isDeleted: true,
@@ -1481,8 +1501,7 @@ export class GroupService {
     return await this.prisma.courseNoticeComment.delete({
       where: {
         id: commentId,
-        courseNoticeId: id,
-        createdById: userId
+        courseNoticeId: id
       }
     })
   }
