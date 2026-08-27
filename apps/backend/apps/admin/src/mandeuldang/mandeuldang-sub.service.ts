@@ -52,6 +52,32 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
     this.amqpService.startValidatorSubscription()
   }
 
+  private async updateLatestRuns(problemId: number) {
+    const tools = await this.prisma.mandeuldangTool.findMany({
+      where: { problemId }
+    })
+
+    const latestRuns = await Promise.all(
+      tools.map((tool) =>
+        this.prisma.mandeuldangRunRequest.findFirst({
+          where: {
+            problemId,
+            toolType: tool.toolType
+          },
+          orderBy: { submittedAt: 'desc' }
+        })
+      )
+    )
+
+    const allPassed =
+      latestRuns.length > 0 &&
+      latestRuns.every((run) => run?.status === MandeuldangRunStatus.Success)
+
+    await this.prisma.mandeuldangProblem.update({
+      where: { id: problemId },
+      data: { lastRunPass: allPassed }
+    })
+  }
   /**
    * Generator를 실행한 결과 메세지를 class-validator를 통해 검증합니다.
    *
@@ -110,22 +136,18 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
     const isSuccess = msg.resultCode === 0
     const now = new Date()
 
-    await this.prisma.$transaction([
-      this.prisma.mandeuldangRunRequest.update({
-        where: { id: requestId },
-        data: {
-          status: isSuccess
-            ? MandeuldangRunStatus.Success
-            : MandeuldangRunStatus.Failed,
-          resultCode: msg.resultCode,
-          completedAt: now
-        }
-      }),
-      this.prisma.mandeuldangProblem.update({
-        where: { id: request.problemId },
-        data: { lastRunPass: isSuccess }
-      })
-    ])
+    await this.prisma.mandeuldangRunRequest.update({
+      where: { id: requestId },
+      data: {
+        status: isSuccess
+          ? MandeuldangRunStatus.Success
+          : MandeuldangRunStatus.Failed,
+        resultCode: msg.resultCode,
+        completedAt: now
+      }
+    })
+
+    await this.updateLatestRuns(msg.problemId)
 
     this.logger.log(
       {
@@ -158,22 +180,18 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
     const isSuccess = msg.resultCode === 0 && msg.toolResult.isAllValid
     const now = new Date()
 
-    await this.prisma.$transaction([
-      this.prisma.mandeuldangRunRequest.update({
-        where: { id: requestId },
-        data: {
-          status: isSuccess
-            ? MandeuldangRunStatus.Success
-            : MandeuldangRunStatus.Failed,
-          resultCode: msg.resultCode,
-          completedAt: now
-        }
-      }),
-      this.prisma.mandeuldangProblem.update({
-        where: { id: request.problemId },
-        data: { lastRunPass: isSuccess }
-      })
-    ])
+    await this.prisma.mandeuldangRunRequest.update({
+      where: { id: requestId },
+      data: {
+        status: isSuccess
+          ? MandeuldangRunStatus.Success
+          : MandeuldangRunStatus.Failed,
+        resultCode: msg.resultCode,
+        completedAt: now
+      }
+    })
+
+    await this.updateLatestRuns(msg.problemId)
 
     this.logger.log(
       {
@@ -184,8 +202,6 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       },
       'Handled Mandeuldang Validator Result Message'
     )
-
-    // TODO: Validator 실행 결과 수신 후 백엔드 서비스 로직
   }
 
   private logError(error: unknown, message: string) {
