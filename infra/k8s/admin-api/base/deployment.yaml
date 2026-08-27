@@ -51,11 +51,13 @@ spec:
                   
           volumeMounts:
             - name: rabbitmq-ca
-              mountPath: /etc/codedang/certs/rabbitmq-ca.crt
-              subPath: ca.crt
+              mountPath: /etc/codedang/certs
               readOnly: true
 
       volumes:
         - name: rabbitmq-ca
           configMap:
             name: rabbitmq-ca-cert
+            items:
+              - key: ca.crt
+                path: ca.crt
