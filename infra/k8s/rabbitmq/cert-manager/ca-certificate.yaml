@@ -4,7 +4,7 @@ metadata:
   name: rabbitmq-root-ca
   namespace: cert-manager
   annotations:
-    argocd.argoproj.io/sync-wave: "-3"
+    argocd.argoproj.io/sync-wave: '-3'
 spec:
   isCA: true
   commonName: rabbitmq-root-ca
@@ -27,7 +27,7 @@ metadata:
   name: rabbitmq-intermediate-ca
   namespace: cert-manager
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: '-1'
 spec:
   isCA: true
   commonName: rabbitmq-intermediate-ca

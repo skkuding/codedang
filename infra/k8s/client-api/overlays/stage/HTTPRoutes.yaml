@@ -5,22 +5,22 @@ metadata:
   namespace: client-api
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-wildcard
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-wildcard
   hostnames:
-  - stage.codedang.com
+    - stage.codedang.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /api/
-    filters:
-    - type: ExtensionRef
-      extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors
-    backendRefs:
-    - name: client-api-server
-      port: 4000
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: cors
+      backendRefs:
+        - name: client-api-server
+          port: 4000

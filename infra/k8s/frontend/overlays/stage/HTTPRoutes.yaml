@@ -5,16 +5,16 @@ metadata:
   namespace: frontend
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-wildcard
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-wildcard
   hostnames:
-  - stage.codedang.com
+    - stage.codedang.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: frontend
-      port: 5525
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: frontend
+          port: 5525

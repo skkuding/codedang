@@ -3,7 +3,7 @@ kind: ClusterIssuer
 metadata:
   name: rabbitmq-selfsigned-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "-4"
+    argocd.argoproj.io/sync-wave: '-4'
 spec:
   selfSigned: {}
 ---
@@ -12,7 +12,7 @@ kind: ClusterIssuer
 metadata:
   name: rabbitmq-root-ca-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "-2"
+    argocd.argoproj.io/sync-wave: '-2'
 spec:
   ca:
     secretName: rabbitmq-root-ca-secret
@@ -22,7 +22,7 @@ kind: ClusterIssuer
 metadata:
   name: rabbitmq-intermediate-ca-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   ca:
     secretName: rabbitmq-intermediate-ca-secret

@@ -5,16 +5,16 @@ metadata:
   namespace: frontend
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-apex
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-apex
   hostnames:
-  - codedang.com
+    - codedang.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: frontend
-      port: 5525
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: frontend
+          port: 5525

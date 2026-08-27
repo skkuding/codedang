@@ -5,16 +5,16 @@ metadata:
   namespace: rabbitmq
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-stage-wildcard
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-stage-wildcard
   hostnames:
-  - rabbitmq.stage.codedang.com
+    - rabbitmq.stage.codedang.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: rabbitmq
-      port: 15671
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: rabbitmq
+          port: 15671

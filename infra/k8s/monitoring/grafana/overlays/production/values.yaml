@@ -38,7 +38,6 @@ route:
       - path:
           type: PathPrefix
           value: /
-      
 
 limits:
   cpu: 200m

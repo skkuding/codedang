@@ -53,9 +53,9 @@ prometheus:
       hostnames:
         - prometheus.codedang.com
       parentRefs:
-      - name: main-gateway
-        namespace: kube-system
-        sectionName: https-wildcard
+        - name: main-gateway
+          namespace: kube-system
+          sectionName: https-wildcard
       matches:
         - path:
             type: PathPrefix

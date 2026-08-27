@@ -68,19 +68,19 @@ extraManifests:
       namespace: n8n
     spec:
       parentRefs:
-      - name: main-gateway
-        namespace: kube-system
-        sectionName: https-wildcard
+        - name: main-gateway
+          namespace: kube-system
+          sectionName: https-wildcard
       hostnames:
-      - n8n.codedang.com
+        - n8n.codedang.com
       rules:
-      - matches:
-        - path:
-            type: PathPrefix
-            value: /
-        backendRefs:
-        - name: n8n
-          port: 5678
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          backendRefs:
+            - name: n8n
+              port: 5678
 
 # Enable Prometheus monitoring
 serviceMonitor:

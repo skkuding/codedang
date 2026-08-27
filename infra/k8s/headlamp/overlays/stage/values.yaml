@@ -21,14 +21,14 @@ ingress:
       secretName: headlamp-tls
 
 httpRoute:
-    enabled: true
-    parentRefs:
-      - name: main-gateway
-        namespace: kube-system
-        sectionName: https-stage-wildcard
-    hostnames:
-      - k8s.stage.codedang.com
-    rules:
+  enabled: true
+  parentRefs:
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-stage-wildcard
+  hostnames:
+    - k8s.stage.codedang.com
+  rules:
     - matches:
         - path:
             type: PathPrefix

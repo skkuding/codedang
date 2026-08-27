@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   name: rabbitmq
   labels:
-    trust.codedang.com/rabbitmq: "true"
+    trust.codedang.com/rabbitmq: 'true'

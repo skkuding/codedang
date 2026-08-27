@@ -5,18 +5,18 @@ metadata:
   namespace: runner
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-wildcard
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-wildcard
   hostnames:
-  - run.codedang.com
+    - run.codedang.com
   rules:
-  - matches:
-    - path:
-        type: Exact
-        value: /run
-    backendRefs:
-      - group: traefik.io
-        kind: TraefikService
-        name: pod-manager-traefik-service
-        port: 80
+    - matches:
+        - path:
+            type: Exact
+            value: /run
+      backendRefs:
+        - group: traefik.io
+          kind: TraefikService
+          name: pod-manager-traefik-service
+          port: 80

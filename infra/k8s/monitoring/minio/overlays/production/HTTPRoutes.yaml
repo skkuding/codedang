@@ -5,16 +5,16 @@ metadata:
   namespace: monitoring-minio
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-minio-wildcard
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-minio-wildcard
   hostnames:
-  - monitoring.minio.codedang.com
+    - monitoring.minio.codedang.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: minio-console
-      port: 9090
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: minio-console
+          port: 9090

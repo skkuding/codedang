@@ -5,16 +5,16 @@ metadata:
   namespace: cloud-beaver
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: https-stage-wildcard
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-stage-wildcard
   hostnames:
-  - beaver.stage.codedang.com
+    - beaver.stage.codedang.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: cloud-beaver
-      port: 8978
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: cloud-beaver
+          port: 8978

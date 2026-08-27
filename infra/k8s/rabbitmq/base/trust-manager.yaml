@@ -5,7 +5,7 @@ kind: Bundle
 metadata:
   name: rabbitmq-ca-cert
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   sources:
     - secret:
@@ -16,4 +16,4 @@ spec:
       key: ca.crt
     namespaceSelector:
       matchLabels:
-        trust.codedang.com/rabbitmq: "true"
+        trust.codedang.com/rabbitmq: 'true'
