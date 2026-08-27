@@ -4,12 +4,13 @@ import { Button } from '@/components/shadcn/button'
 import { Progress } from '@/components/shadcn/progress'
 import { cn } from '@/libs/utils'
 import FileGrayIcon from '@/public/icons/file_gray.svg'
+import TrashcanIcon from '@/public/icons/trashcan2-gray.svg'
 import UploadIcon from '@/public/icons/upload.svg'
-import XIcon from '@/public/icons/x.svg'
 import { useRef, useState } from 'react'
 import type { MandeuldangRole } from '../_libs/permissions'
 import { useMandeuldangPermission } from '../_libs/useMandeuldangPermission'
 import { MandeuldangRoleSwitchButton } from './MandeuldangRoleSwitchButton'
+import { ValidatorSection } from './ValidatorSection'
 
 type SolutionStatus = 'Pending' | 'Running' | 'Success' | 'Failed'
 
@@ -166,7 +167,7 @@ export function SolutionPage() {
                       className="h-fit p-1"
                       onClick={() => handleDelete(solution.id)}
                     >
-                      <XIcon width={18} height={18} />
+                      <TrashcanIcon width={18} height={18} />
                     </Button>
                   )}
                 </div>
@@ -175,6 +176,8 @@ export function SolutionPage() {
           </div>
         )}
       </section>
+
+      <ValidatorSection />
     </div>
   )
 }
