@@ -81,7 +81,7 @@ spec:
                   path: /spec/parentRefs/0/sectionName
                   value: https-preview-wildcard
                 - op: replace
-                  path: /spec/rules/1/backendRefs/0/name
+                  path: /spec/rules/0/backendRefs/0/name
                   value: 'preview-{{.number}}-frontend'
             - target:
                 kind: Deployment
