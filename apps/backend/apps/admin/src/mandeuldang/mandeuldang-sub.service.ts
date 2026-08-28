@@ -121,7 +121,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           completedAt: now
         }
       }),
-      this.prisma.mandeuldangProblem.update({
+      this.prisma.problem.update({
         where: { id: request.problemId },
         data: { lastRunPass: isSuccess }
       })
@@ -169,7 +169,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           completedAt: now
         }
       }),
-      this.prisma.mandeuldangProblem.update({
+      this.prisma.problem.update({
         where: { id: request.problemId },
         data: { lastRunPass: isSuccess }
       })

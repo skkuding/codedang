@@ -11,7 +11,12 @@ import type {
 } from '@generated'
 import { Language, Level } from '@generated'
 import { faker } from '@faker-js/faker'
-import { Role } from '@prisma/client'
+import {
+  ProblemCreationMode,
+  ProblemStatus,
+  ProblemType,
+  Role
+} from '@prisma/client'
 import { createReadStream } from 'fs'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import type { FileUploadDto } from '../dto/file-upload.dto'
@@ -70,6 +75,10 @@ export const problems: Problem[] = [
   {
     id: 1,
     createdById: user[0].id!,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: 'group problem0',
     description: 'description1',
     inputDescription: 'inputDescription1',
@@ -101,6 +110,10 @@ export const problems: Problem[] = [
   {
     id: 2,
     createdById: user[0].id!,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: 'group problem1',
     description: 'description2',
     inputDescription: 'inputDescription2',
@@ -236,6 +249,10 @@ export const importedProblems: Problem[] = [
   {
     id: 32,
     createdById: user[1].id!,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: '정수 더하기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A+B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A+B를 출력한다. </p>',
@@ -275,6 +292,10 @@ export const importedProblems: Problem[] = [
   {
     id: 33,
     createdById: user[1].id!,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: '정수 빼기',
     description:
       '<p>두 정수 A와 B를 입력받은 다음, A-B를 출력하는 프로그램을 작성하시오. 첫째 줄에 A와 B가 주어진다. (0 < A, B < 10) 첫째 줄에 A-B를 출력한다. </p>',

@@ -3,14 +3,10 @@ import { ToolType } from '@prisma/client'
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
-import {
-  MandeuldangProblem,
-  MandeuldangRunRequest,
-  MandeuldangTool
-} from '@admin/@generated'
+import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
 
-@Resolver(() => MandeuldangProblem)
+@Resolver()
 @UseDisableAdminGuard()
 export class MandeuldangResolver {
   constructor(private readonly mandeuldangService: MandeuldangService) {}

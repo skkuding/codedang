@@ -10,7 +10,13 @@ import {
   Problem
 } from '@generated'
 import { faker } from '@faker-js/faker'
-import { Prisma, ResultStatus } from '@prisma/client'
+import {
+  Prisma,
+  ProblemCreationMode,
+  ProblemStatus,
+  ProblemType,
+  ResultStatus
+} from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -129,6 +135,10 @@ const group: Group = {
 const problem: Problem = {
   id: problemId,
   createdById: 2,
+  creationMode: ProblemCreationMode.Legacy,
+  status: ProblemStatus.Published,
+  lastRunPass: false,
+  problemType: ProblemType.General,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',
