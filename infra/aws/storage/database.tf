@@ -68,14 +68,6 @@ resource "aws_db_parameter_group" "postgres18" {
     apply_method = "pending-reboot"
   }
 
-  # TODO(TAS-2888): Review removal of the migration-only replication tuning
-  # below after the seven-day stability window and Terraform reconciliation.
-  # Resetting static parameters may require a separately approved reboot.
-  parameter {
-    name  = "wal_receiver_timeout"
-    value = "0"
-  }
-
   parameter {
     name         = "max_replication_slots"
     value        = "20"
