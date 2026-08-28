@@ -1414,7 +1414,9 @@ export class GroupService {
     id: number
     commentId: number
   }) {
-    if (await this.isForbiddenNotice({ id, userId })) {
+    const isSiteAdmin = userRole === Role.Admin || userRole === Role.SuperAdmin
+
+    if (!isSiteAdmin && (await this.isForbiddenNotice({ id, userId }))) {
       throw new ForbiddenAccessException('it is not accessible course notice')
     }
 
@@ -1457,8 +1459,7 @@ export class GroupService {
     }
 
     const isCourseStaff =
-      userRole === Role.Admin ||
-      userRole === Role.SuperAdmin ||
+      isSiteAdmin ||
       (await this.prisma.userGroup.findFirst({
         where: {
           userId,
