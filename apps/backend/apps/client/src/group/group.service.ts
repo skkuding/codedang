@@ -1405,10 +1405,12 @@ export class GroupService {
    */
   async deleteComment({
     userId,
+    userRole,
     id,
     commentId
   }: {
     userId: number
+    userRole: Role
     id: number
     commentId: number
   }) {
@@ -1455,6 +1457,8 @@ export class GroupService {
     }
 
     const isCourseStaff =
+      userRole === Role.Admin ||
+      userRole === Role.SuperAdmin ||
       (await this.prisma.userGroup.findFirst({
         where: {
           userId,
