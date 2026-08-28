@@ -3,16 +3,16 @@
 import { cn } from '@/libs/utils'
 import { useState } from 'react'
 import { GeneratorPage } from './GeneratorPage'
-import { OutputPage } from './OutputPage'
+import { OutputCasePage } from './OutputCasePage'
 import { ValidatorPage } from './ValidatorPage'
 
 const SUB_TAB_INFO = [
   { label: 'Generator', text: 'INPUT 생성', Component: GeneratorPage },
   { label: 'Validator', text: '입력 검증', Component: ValidatorPage },
-  { label: 'Output', text: 'OUTPUT 생성', Component: OutputPage }
+  { label: 'Output', text: 'OUTPUT 생성', Component: OutputCasePage }
 ] as const
 
-export function TestCasePage() {
+export function InputCasePage() {
   const [subTab, setSubTab] = useState('Generator')
 
   return (

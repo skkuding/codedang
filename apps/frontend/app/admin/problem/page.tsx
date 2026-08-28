@@ -2,6 +2,7 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CreateProblemEntry } from './_components/CreateProblemEntry'
+import { ProblemModeToggle } from './_components/ProblemModeToggle'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
 import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
@@ -16,7 +17,8 @@ export default function Page() {
             Here&apos;s a problem list you made
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <ProblemModeToggle />
           <ProblemsUploadButton />
           <CreateProblemEntry />
         </div>

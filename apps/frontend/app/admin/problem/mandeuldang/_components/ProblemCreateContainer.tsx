@@ -10,10 +10,10 @@ import UploadIcon from '@/public/icons/upload.svg'
 import { ErrorBoundary, Suspense } from '@suspensive/react'
 import { useState } from 'react'
 import { CollaborationPage } from './CollaborationPage'
+import { InputCasePage } from './InputCasePage'
 import { ProblemCreateContentSkeleton } from './ProblemCreateSkeletons'
 import { SolutionPage } from './SolutionPage'
 import { StatementPage } from './StatementPage'
-import { TestCasePage } from './TestCasePage'
 import { UploadButton } from './UploadButton'
 
 const TAB_INFO = [
@@ -36,7 +36,7 @@ const TAB_INFO = [
     label: 'Tests',
     text: '테스트 케이스 관리',
     subText: 'Input · Output 생성 및 입력 검증',
-    Component: TestCasePage
+    Component: InputCasePage
   },
   {
     Icon: PeopleIcon,

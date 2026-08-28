@@ -3,10 +3,15 @@
 import { cn } from '@/libs/utils'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 export function ProblemTabs() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const query = searchParams.toString()
+
+  const withQuery = (path: string) =>
+    (query ? `${path}?${query}` : path) as Route
 
   const isCurrentTab = (tab: string) => {
     if (tab === '') {
@@ -19,7 +24,7 @@ export function ProblemTabs() {
     <div className="my-16 flex w-full justify-center">
       <div className="flex w-full text-[#333333] md:gap-[60px]">
         <Link
-          href={'/admin/problem' as Route}
+          href={withQuery('/admin/problem')}
           className={cn(
             'flex w-1/2 justify-center p-[18px] py-[22.5px] text-center text-lg',
             isCurrentTab('') &&
@@ -29,7 +34,7 @@ export function ProblemTabs() {
           내가 만든 문제
         </Link>
         <Link
-          href={'/admin/problem/creating' as Route}
+          href={withQuery('/admin/problem/creating')}
           className={cn(
             'flex w-1/2 justify-center p-[18px] py-[22.5px] text-center text-lg',
             isCurrentTab('creating') &&
