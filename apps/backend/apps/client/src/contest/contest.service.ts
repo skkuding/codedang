@@ -176,16 +176,9 @@ export class ContestService {
     }
 
     if (userId) {
-      contestDetailSelect.contestRecord = {
-        where: { userId },
-        select: { userId: true }
-      }
       contestDetailSelect.userContest = {
         where: {
-          userId,
-          role: {
-            in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
-          }
+          userId
         },
         select: { role: true }
       }
@@ -221,15 +214,21 @@ export class ContestService {
         navigate('next')
       ])
 
-      const { invitationCode, contestRecord, userContest, ...contestDetails } =
+      const { invitationCode, userContest, ...contestDetails } =
         contestResult as typeof contestResult & {
-          contestRecord?: { userId: number }[]
           userContest?: { role: ContestRole }[]
         }
 
       const invitationCodeExists = invitationCode != null
-      const isRegistered = !!contestRecord?.length
-      const isPrivilegedRole = !!userContest?.length
+      const isRegistered =
+        userContest?.some((uc) => uc.role === ContestRole.Participant) ?? false
+      const isPrivilegedRole =
+        userContest?.some(
+          (uc) =>
+            uc.role === ContestRole.Admin ||
+            uc.role === ContestRole.Manager ||
+            uc.role === ContestRole.Reviewer
+        ) ?? false
 
       return {
         ...contestDetails,
