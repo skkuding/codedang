@@ -2,8 +2,10 @@ package rabbitmq
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
+	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
@@ -39,13 +41,16 @@ type ProducerConfig struct {
 func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig, err := newAMQPConfig(config.ConnectionName)
-	if err != nil {
-		return nil, fmt.Errorf("producer: TLS config failed: %w", err)
+	amqpConfig := amqp.Config{
+		Properties: amqp.NewConnectionProperties(),
 	}
+	if os.Getenv("RABBITMQ_SSL") == "true" {
+		amqpConfig.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
 	if err != nil {
-		return nil, fmt.Errorf("producer: dial failed: %w", err)
+		return nil, fmt.Errorf("consumer: dial failed: %w", err)
 	}
 
 	return &producer{
