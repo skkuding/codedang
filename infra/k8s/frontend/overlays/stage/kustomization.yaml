@@ -12,10 +12,6 @@ patches:
     target:
       kind: ConfigMap
       name: frontend-env
-  - path: HTTPRoutes.yaml
-    target:
-      kind: HTTPRoute
-      name: frontend-httproute
   - path: ingress.yaml
     target:
       kind: Ingress
