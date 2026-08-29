@@ -5,8 +5,9 @@ namespace: frontend
 resources:
   - configmap.yaml
   - deployment.yaml
-  - ingress.yaml
+  - HTTPRoutes.yaml
   - service.yaml
+  - ingress.yaml
 
 commonAnnotations:
   managed-by: kustomize

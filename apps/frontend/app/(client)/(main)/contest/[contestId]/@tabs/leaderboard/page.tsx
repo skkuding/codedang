@@ -129,8 +129,8 @@ export default function ContestLeaderBoard() {
   }
 
   return (
-    <div className="relative ml-[116px] w-screen pb-[120px]">
-      <div className="mt-[96px] flex flex-row">
+    <div className="w-[1208px] pb-[120px]">
+      <div className="mt-[80px] flex flex-row">
         <div className="h-[34px] text-[24px] font-bold">
           CHECK YOUR RANKING!
         </div>
