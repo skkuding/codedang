@@ -42,7 +42,7 @@ export const CHECK_MESSAGE_TYPE = 'check'
 
 export const MANDEULDANG_EXCHANGE = 'iris.e.direct.judge'
 
-export const MANDEULDANG_REQUEST_KEY = 'judge.submission'
+export const MANDEULDANG_REQUEST_KEY = 'mandeuldang.request'
 export const MANDEULDANG_RESULT_KEY = 'mandeuldang.result'
 
 export const MANDEULDANG_RESULT_QUEUE = 'iris.q.mandeuldang.result'
