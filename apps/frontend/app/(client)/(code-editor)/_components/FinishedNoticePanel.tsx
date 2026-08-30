@@ -22,7 +22,7 @@ export async function FinishedNoticePanel({
   const isProblemPubliclyAvailable =
     (await fetcher.head(`problem/${problemId}`)).status === 200
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-opacity-10 text-center backdrop-blur-md">
+    <div className="bg-dimmed fixed inset-0 z-50 flex flex-col items-center justify-center text-center">
       <p className="h-[58px] text-4xl font-bold text-white">
         The {target} has finished!
       </p>
@@ -60,7 +60,7 @@ function VisitProblemButton({ problemId }: VisitProblemButtonProps) {
     <Link href={`/problem/${problemId}`}>
       <Button
         type="button"
-        className="h-10 w-48 shrink-0 gap-[5px] rounded-[4px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
+        className="h-10 shrink-0 gap-[5px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
       >
         <VisitIcon width={20} height={20} />
         Visit Public Problem
