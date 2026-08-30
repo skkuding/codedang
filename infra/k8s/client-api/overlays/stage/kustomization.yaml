@@ -15,7 +15,7 @@ patches:
     target:
       kind: ConfigMap
       name: client-api-env
-  - path: HTTPRoutes.yaml
+  - path: ingress.yaml
     target:
-      kind: HTTPRoute
-      name: client-api-server-httproute
+      kind: Ingress
+      name: client-api-server-ingress
