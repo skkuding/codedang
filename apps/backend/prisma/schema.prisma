@@ -996,25 +996,25 @@ model PushSubscription {
 }
 
 model CourseQnA {
-  id          Int         @id @default(autoincrement())
-  order       Int
-  createdById Int?        @map("created_by_id")
-  groupId     Int         @map("group_id")
-  problemId   Int?        @map("problem_id")
-  assignmentId Int?       @map("assignment_id")
-  title       String
-  content     String
-  category    QnACategory @default(General)
-  isResolved  Boolean     @default(false) @map("is_resolved")
-  isPrivate   Boolean     @default(false) @map("is_private")
-  createTime  DateTime    @default(now()) @map("create_time")
-  readBy      Int[]       @map("read_by")
+  id           Int         @id @default(autoincrement())
+  order        Int
+  createdById  Int?        @map("created_by_id")
+  groupId      Int         @map("group_id")
+  problemId    Int?        @map("problem_id")
+  assignmentId Int?        @map("assignment_id")
+  title        String
+  content      String
+  category     QnACategory @default(General)
+  isResolved   Boolean     @default(false) @map("is_resolved")
+  isPrivate    Boolean     @default(false) @map("is_private")
+  createTime   DateTime    @default(now()) @map("create_time")
+  readBy       Int[]       @map("read_by")
 
-  createdBy User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
-  group     Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  problem   Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
-  assignment Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
-  comments  CourseQnAComment[]
+  createdBy  User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
+  group      Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  problem    Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
+  assignment Assignment?        @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  comments   CourseQnAComment[]
 
   @@unique([groupId, order])
   @@map("course_qna")

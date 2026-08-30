@@ -274,9 +274,8 @@ export class ContestService {
           invitationCode: true
         }
       }),
-      this.prisma.contestRecord.findFirst({
-        where: { userId, contestId },
-        select: { id: true }
+      this.prisma.userContest.findFirst({
+        where: { contestId, userId, role: ContestRole.Participant }
       })
     ])
 
