@@ -25,10 +25,6 @@ spec:
               memory: 1.5Gi
           securityContext:
             privileged: true
-          volumeMounts:
-            - name: rabbitmq-ca
-              mountPath: /etc/codedang/certs
-              readOnly: true
           envFrom:
             - configMapRef:
                 name: plag-env
@@ -47,10 +43,3 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
-      volumes:
-        - name: rabbitmq-ca
-          configMap:
-            name: rabbitmq-ca-cert
-            items:
-              - key: ca.crt
-                path: ca.crt

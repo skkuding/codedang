@@ -2,5 +2,3 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: iris
-  labels:
-    trust.codedang.com/rabbitmq: 'true'

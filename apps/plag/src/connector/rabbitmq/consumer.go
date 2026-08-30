@@ -1,7 +1,9 @@
 package rabbitmq
 
 import (
+	"crypto/tls"
 	"fmt"
+	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/skkuding/codedang/apps/plag/src/service/logger"
@@ -33,10 +35,13 @@ type ConsumerConfig struct {
 func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig, err := newAMQPConfig(config.ConnectionName)
-	if err != nil {
-		return nil, fmt.Errorf("consumer: TLS config failed: %w", err)
+	amqpConfig := amqp.Config{
+		Properties: amqp.NewConnectionProperties(),
 	}
+	if os.Getenv("RABBITMQ_SSL") == "true" {
+		amqpConfig.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
 	if err != nil {
 		return nil, fmt.Errorf("consumer: dial failed: %w", err)

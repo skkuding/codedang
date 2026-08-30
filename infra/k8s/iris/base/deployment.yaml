@@ -34,9 +34,6 @@ spec:
             - name: cgroup
               mountPath: /sys/fs/cgroup
               readOnly: false
-            - name: rabbitmq-ca
-              mountPath: /etc/codedang/certs
-              readOnly: true
           securityContext:
             privileged: true
           envFrom:
@@ -62,9 +59,3 @@ spec:
           hostPath:
             path: /sys/fs/cgroup
             type: Directory
-        - name: rabbitmq-ca
-          configMap:
-            name: rabbitmq-ca-cert
-            items:
-              - key: ca.crt
-                path: ca.crt
