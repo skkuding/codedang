@@ -63,13 +63,11 @@ export class ContestService {
 
     const registeredContestIds = new Set<number>()
     if (userId) {
-      const userRecords = await this.prisma.contestRecord.findMany({
-        where: { userId },
+      const userContests = await this.prisma.userContest.findMany({
+        where: { userId, role: ContestRole.Participant },
         select: { contestId: true }
       })
-      userRecords.forEach((record) =>
-        registeredContestIds.add(record.contestId)
-      )
+      userContests.forEach((uc) => registeredContestIds.add(uc.contestId))
     }
 
     const searchFilter = search
@@ -274,9 +272,8 @@ export class ContestService {
           invitationCode: true
         }
       }),
-      this.prisma.contestRecord.findFirst({
-        where: { userId, contestId },
-        select: { id: true }
+      this.prisma.userContest.findFirst({
+        where: { contestId, userId, role: ContestRole.Participant }
       })
     ])
 
