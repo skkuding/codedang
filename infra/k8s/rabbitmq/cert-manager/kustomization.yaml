@@ -1,13 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: frontend
 
 resources:
-  - configmap.yaml
-  - deployment.yaml
-  - HTTPRoutes.yaml
-  - service.yaml
-  - ingress.yaml
+  - ca-certificate.yaml
+  - ca-issuer.yaml
 
 commonAnnotations:
   managed-by: kustomize

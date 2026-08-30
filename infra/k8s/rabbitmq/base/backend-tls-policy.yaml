@@ -1,0 +1,19 @@
+# This policy refers to trust-manager.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: rabbitmq-backend-tls-policy
+  namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+spec:
+  targetRefs:
+    - group: ''
+      kind: Service
+      name: rabbitmq
+  validation:
+    hostname: rabbitmq.rabbitmq.svc.cluster.local
+    caCertificateRefs:
+      - group: ''
+        kind: ConfigMap
+        name: rabbitmq-ca-cert
