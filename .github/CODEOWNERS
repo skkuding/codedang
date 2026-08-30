@@ -1,4 +1,4 @@
-# Code ownership for services maintained by @lshtar13.
-/apps/backend/ @lshtar13
-/apps/iris/ @lshtar13
-/apps/plag/ @lshtar13
+# Code ownership for services maintained by @skkuding/backend-maintainers.
+/apps/backend/ @skkuding/backend-maintainers
+/apps/iris/ @skkuding/backend-maintainers
+/apps/plag/ @skkuding/backend-maintainers
