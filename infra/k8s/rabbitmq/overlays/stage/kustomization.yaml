@@ -1,16 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: rabbitmq
 
 resources:
   - ../../base
+  - ../../cert-manager
 
 patches:
   - path: admin-credentials.yaml
     target:
       kind: SealedSecret
       name: admin-credentials
-  - path: ingress.yaml
+  - path: HTTPRoutes.yaml
     target:
-      kind: Ingress
-      name: rabbitmq-console-ingress
+      kind: HTTPRoute
+      name: rabbitmq-console-httproute

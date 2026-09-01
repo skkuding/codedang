@@ -19,6 +19,8 @@ spec:
   template:
     metadata:
       name: 'rabbitmq-{{.env}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '0'
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:
@@ -40,3 +42,4 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - PrunePropagationPolicy=foreground
+          - SkipDryRunOnMissingResource=true
