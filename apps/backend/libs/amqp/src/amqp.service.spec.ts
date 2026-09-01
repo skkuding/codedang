@@ -1,7 +1,7 @@
-import { type ConfigService } from '@nestjs/config'
-import { type AmqpConnection } from '@golevelup/nestjs-rabbitmq'
+import type { ConfigService } from '@nestjs/config'
+import type { AmqpConnection } from '@golevelup/nestjs-rabbitmq'
 import { expect } from 'chai'
-import { type TraceService } from 'nestjs-otel'
+import type { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
 import { DEFAULT_SUBMISSION_KEY, EXCHANGE } from '@libs/constants'
 import { JudgeAMQPService } from './amqp.service'
@@ -30,7 +30,7 @@ describe('JudgeAMQPService', () => {
     sandbox.resetHistory()
   })
 
-  function createService(config: RoutingKeyConfig) {
+  const createService = function (config: RoutingKeyConfig) {
     const configService = {
       get: (key: keyof RoutingKeyConfig) => config[key]
     } as ConfigService
@@ -42,7 +42,7 @@ describe('JudgeAMQPService', () => {
     )
   }
 
-  async function expectRoutingKey(
+  const expectRoutingKey = async function (
     service: JudgeAMQPService,
     routingKey: string,
     isTest = false,
@@ -61,12 +61,20 @@ describe('JudgeAMQPService', () => {
     sandbox.resetHistory()
   }
 
+  const createRoutingKeyConfig = function (
+    entries: [keyof RoutingKeyConfig, string][]
+  ): RoutingKeyConfig {
+    return Object.fromEntries(entries)
+  }
+
   it('uses workload-specific routing keys when configured', async () => {
-    const service = createService({
-      SUBMISSION_KEY: 'submission.key',
-      TEST_KEY: 'test.key',
-      REJUDGE_KEY: 'rejudge.key'
-    })
+    const service = createService(
+      createRoutingKeyConfig([
+        ['SUBMISSION_KEY', 'submission.key'],
+        ['TEST_KEY', 'test.key'],
+        ['REJUDGE_KEY', 'rejudge.key']
+      ])
+    )
 
     await expectRoutingKey(service, 'submission.key')
     await expectRoutingKey(service, 'test.key', true)
@@ -75,9 +83,11 @@ describe('JudgeAMQPService', () => {
   })
 
   it('falls back to the legacy submission routing key for every workload', async () => {
-    const service = createService({
-      JUDGE_SUBMISSION_ROUTING_KEY: 'legacy.submission.key'
-    })
+    const service = createService(
+      createRoutingKeyConfig([
+        ['JUDGE_SUBMISSION_ROUTING_KEY', 'legacy.submission.key']
+      ])
+    )
 
     await expectRoutingKey(service, 'legacy.submission.key')
     await expectRoutingKey(service, 'legacy.submission.key', true)
