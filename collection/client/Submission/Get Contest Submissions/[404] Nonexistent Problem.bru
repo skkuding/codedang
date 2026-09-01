@@ -10,7 +10,7 @@ get {
   auth: none
 }
 
-query {
+params:query {
   problemId: 9999
   ~take: 10
   ~cursor: 5
@@ -23,4 +23,75 @@ assert {
 
 script:pre-request {
   await require("./login").loginUser(req);
+}
+
+docs {
+  # [404] Nonexistent Problem
+  
+  존재하지 않는 Problem의 제출 내역을 가져옵니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |    ✅    | 문제 ID |
+  | `cursor` | number |        | cursor 값 다음의 ID를 가진 제출 내역들을 반환 |
+  | `take` | number |        | 가져올 제출 내역 개수 (default: 10)|
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `contestId` | number | ✅       | ID of the assignment |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "user": {
+          "username": "user01"
+        },
+        "createTime": "2026-01-07T11:03:16.671Z",
+        "language": "C",
+        "result": "Accepted",
+        "codeSize": null,
+        "problemId": 1,
+        "problem": {
+          "title": "정수 더하기"
+        }
+      }
+    ],
+    "total": 1
+  }
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `data` | array | ✅       | 각 제출의 목록 |
+  | `id` | number | ✅       | 제출의 id |
+  | `username` | string | ✅       | 제출자 이름 |
+  | `createTime` | date | ✅       | 제출 시간 |
+  | `language` | string | ✅       | 제출 언어 |
+  | `result` | string | ✅       | 제출 결과 |
+  | `codeSize` | number | ✅       | 제출 코드 길이 |
+  | `problemId` | string | ✅       | 문제 id |
+  | `title` | number | ✅       | 문제 제목 |
+  | `total` | number | ✅       | 전체 제출 수 |
 }

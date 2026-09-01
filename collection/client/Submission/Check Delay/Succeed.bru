@@ -15,22 +15,43 @@ script:pre-request {
 }
 
 docs {
-  # Check Delay
+  # 📘 Check Delay
   
-  채점 지연의 원인을 파악해 반환합니다.
+  **Get** `/submission/delay-cause`
   
-  ## Response
+  Returns whether judge process is delayed.
   
-  ```
+  특정 큐 상태를 조회 하여 채점 서버의 지연 여부를 반환합니다.
+  
+  응답 상태가 200(성공)인 경우:
+     - 소비자 용량이 설정된 임계값보다 높으면 지연이 없는 것으로 판단
+     - 그렇지 않으면 지연이 있다고 판단하고, 원인을 'Judge server is not working.'으로 설정
+  
+  응답 상태가 200이 아닌 경우 RabbitMQ 서버 자체의 문제로 판단하여 지연이 있다고 판단합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
   {
-    "isDelay": true | false
-    "cause": "<message>"
+    "isDelay": true,
+    "cause": "Judge server is not working."
   }
+  
+  
   ```
   
-  - `isDelay`가 true인 경우 `cause`에 메시지가 추가됩니다.
-  - `cause`로 가능한 메시지
-    - Judge server is not working.
-    - RabbitMQ is not working.
-  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `isDelay` | boolean | ✅       |  지연 여부|
+  | `cause` | string | ✅       | 지연 이유 |
 }
