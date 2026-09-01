@@ -16,8 +16,10 @@ body:json {
     "password": "it'smehi",
     "email": "nicole2974@g.skku.edu",
     "realName": "MyeongRyunLee",
+    "nickname": "test",
+    "jobType": "CollegeStudent",
     "studentId": "2019000111",
-    "affiliation": "College of Computing and Informatics",
+    "college": "test",
     "major": "Software"
   }
 }
@@ -30,20 +32,64 @@ script:pre-request {
   const axios = require('axios')
   const baseUrl = bru.getEnvVar('baseUrl')
   const res = await axios.post(baseUrl + '/email-auth/verify-pin',{
-    "pin": "414775", // email 속의 pin
+    "pin": "333269", // email 속의 pin
     "email": "nicole2974@g.skku.edu" // email 주소
   })
   req.setHeader('email-auth', res.headers['email-auth'])
 }
 
 docs {
-  # Sign up
+  # 📘 Sign up
   
-  - 새로운 사용자 계정을 생성합니다.
-  - API를 테스트하고 싶으시다면, Send Pin for New Email을 통해 이메일로 받은 Pin과 해당 이메일을 Pre-script 속 pin과 email에 입력해주세요.
-  - password가 올바르지 않은 형식이라면 `422`를 반환합니다.
-  - 인증이 올바르지 않는다면 `401`을 반환합니다.
-  - username이 올바르지 않다면 `400`을 반환합니다.
-  - email_auth 속 email과 회원가입하려는 email 주소가 다른 경우에는 `422`를 반환합니다.
-  - userrname이 중복이라면 `409`를 반환합니다.
+  **Post** `/user/sign-up`
+  
+  sign up new user
+  
+  새로운 사용자 계정을 생성합니다.
+  
+  API를 테스트하고 싶으시다면, Send Pin for New Email을 통해 이메일로 받은 Pin과 해당 이메일을 Pre-script 속 pin과 email에 입력해주세요.
+  
+  jobType이 CollegeStudent라면 college이 필요합니다.
+  college에 "성균관대학교"가 포함되면 studentId, major, @skku.edu 이메일이 모두 필요합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "username": "test",
+    "password": "it'smehi",
+    "email": "nicole2974@g.skku.edu",
+    "realName": "MyeongRyunLee",
+    "nickname": "test",
+    "jobType": "CollegeStudent",
+    "studentId": "2019000111",
+    "college": "test",
+    "major": "Software"
+  }
+  
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `username` | string | ✅ | 사용자 아이디 |
+  | `password` | string | ✅ | 비밀번호 |
+  | `email` | string | ✅ | 이메일 주소 |
+  | `realName` | string | ✅ | 사용자의 이름 |
+  | `nickname` | string | ✅ | 사용자의 닉네임 |
+  | `jobType` | string | ✅ | 사용자의 직업 유형 |
+  | `college` | string | 조건부 | `jobType`이 `CollegeStudent`인 경우 필수 |
+  | `studentId` | string | 조건부 | `college`에 `성균관대학교`가 포함된 경우 필수 |
+  | `major` | string | 조건부 | `college`에 `성균관대학교`가 포함된 경우 필수 |
+  
 }
