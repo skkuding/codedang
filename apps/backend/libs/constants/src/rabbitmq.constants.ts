@@ -3,7 +3,7 @@ export const CONSUME_CHANNEL = 'result-consume-channel'
 
 export const EXCHANGE = 'iris.e.direct.judge'
 
-export const SUBMISSION_KEY = 'judge.submission'
+export const DEFAULT_SUBMISSION_KEY = 'judge.submission'
 export const RESULT_KEY = 'judge.result'
 
 export const RESULT_QUEUE = 'iris.q.judge.result'
