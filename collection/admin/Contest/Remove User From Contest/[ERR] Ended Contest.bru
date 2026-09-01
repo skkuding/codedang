@@ -1,5 +1,5 @@
 meta {
-  name: [ERR] Started Contest
+  name: [ERR] Ended Contest
   type: graphql
   seq: 2
 }
@@ -26,8 +26,8 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "contestId": 1,
-    "userId": 7
+    "contestId": 6,
+    "userId": 6
   }
 }
 
@@ -36,17 +36,17 @@ assert {
 }
 
 script:pre-request {
-  await require("./login").loginAdmin(req);
+  await require("./login").loginContestAdmin(req);
 }
 
 docs {
-  # 📙 [ERR] Started Contest
-
+  # 📙 \[ERR\] Ended Contest
+  
   **POST** `/graphql (mutation: removeUserFromContest)`
-
-  Cannot unregister from ongoing or ended contest.
-
-  이미 시작되었거나 종료된 대회에서 사용자를 제외하려고 할 때,
-
+  
+  Cannot unregister from ended contest.
+  
+  이미 종료된 대회에서 사용자를 제외하려고 할 때,
+  
   `ForbiddenAccessException`이 발생합니다.
 }

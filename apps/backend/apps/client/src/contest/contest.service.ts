@@ -404,7 +404,14 @@ export class ContestService {
     const maxScore = sum._sum?.score ?? 0
 
     const contestRecordsPromise = this.prisma.contestRecord.findMany({
-      where: { contestId },
+      where: {
+        contestId,
+        user: {
+          userContest: {
+            some: { contestId }
+          }
+        }
+      },
       select: {
         userId: true,
         user: {
