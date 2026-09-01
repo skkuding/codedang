@@ -140,14 +140,14 @@ func main() {
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_CONSUMER_CONNECTION_NAME", logProvider),
-			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_QUEUE_NAME", logProvider),
-			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_TAG", logProvider),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_PRODUCER_CONNECTION_NAME", logProvider),
-			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_EXCHANGE_NAME", logProvider),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
 		},
 	).Connect(context.Background())

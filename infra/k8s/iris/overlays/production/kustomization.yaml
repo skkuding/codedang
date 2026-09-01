@@ -16,3 +16,11 @@ patches:
     target:
       kind: Deployment
       name: iris
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris-test
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris-rejudge
