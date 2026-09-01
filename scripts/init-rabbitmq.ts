@@ -36,10 +36,15 @@ async function setupRabbitMQ() {
       process.env.SUBMISSION_KEY ??
       process.env.JUDGE_SUBMISSION_ROUTING_KEY ??
       'judge.submission'
-    const requestQueues: { name: string; routingKey: string }[] = [
+    const requestQueues: {
+      name: string
+      routingKey: string
+      maxPriority?: number
+    }[] = [
       {
         name: requireEnv('JUDGE_SUBMISSION_QUEUE_NAME'),
-        routingKey: submissionRoutingKey
+        routingKey: submissionRoutingKey,
+        maxPriority: 3
       }
     ]
 
@@ -60,7 +65,12 @@ async function setupRabbitMQ() {
     }
 
     for (const requestQueue of requestQueues) {
-      await channel.assertQueue(requestQueue.name, { durable: true })
+      await channel.assertQueue(requestQueue.name, {
+        durable: true,
+        ...(requestQueue.maxPriority && {
+          arguments: { 'x-max-priority': requestQueue.maxPriority }
+        })
+      })
       await channel.bindQueue(
         requestQueue.name,
         exchangeName,
