@@ -61,8 +61,7 @@ const profile: UserProfile = {
   id: ID,
   userId: ID,
   realName: 'real name',
-  profileImageUrl:
-    'https://api.dicebear.com/9.x/notionists/svg?seed=${user.username}',
+  profileImageUrl: `https://api.dicebear.com/9.x/notionists/svg?seed=${user.username}`,
   createTime: faker.date.past(),
   updateTime: faker.date.past()
 }
