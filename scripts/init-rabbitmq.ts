@@ -8,6 +8,12 @@ const config = {
   vhost: process.env.RABBITMQ_DEFAULT_VHOST
 }
 
+function requireEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) throw new Error(`${name} is required`)
+  return value
+}
+
 async function setupRabbitMQ() {
   const url = `amqp://${config.username}:${config.password}@${config.host}:${config.port}/${config.vhost}`
   const connection = await connect(url)
@@ -17,48 +23,71 @@ async function setupRabbitMQ() {
 
     console.log('Connection to RabbitMQ successful.')
 
-    const exchangeName = process.env.JUDGE_EXCHANGE_NAME!
+    const exchangeName = requireEnv('JUDGE_EXCHANGE_NAME')
     await channel.assertExchange(exchangeName, 'direct', { durable: true })
 
-    const resultQueueName = process.env.JUDGE_RESULT_QUEUE_NAME!
+    const resultQueueName = requireEnv('JUDGE_RESULT_QUEUE_NAME')
     await channel.assertQueue(resultQueueName, { durable: true })
 
-    const submissionQueueName = process.env.JUDGE_SUBMISSION_QUEUE_NAME!
-    await channel.assertQueue(submissionQueueName, {
-      durable: true,
-      arguments: { 'x-max-priority': 3 }
-    })
-
-    const resultRoutingKey = process.env.JUDGE_RESULT_ROUTING_KEY!
+    const resultRoutingKey = requireEnv('JUDGE_RESULT_ROUTING_KEY')
     await channel.bindQueue(resultQueueName, exchangeName, resultRoutingKey)
 
-    const submissionRoutingKey = process.env.JUDGE_SUBMISSION_ROUTING_KEY!
-    await channel.bindQueue(
-      submissionQueueName,
-      exchangeName,
-      submissionRoutingKey
-    )
+    const submissionRoutingKey =
+      process.env.SUBMISSION_KEY ??
+      process.env.JUDGE_SUBMISSION_ROUTING_KEY ??
+      'judge.submission'
+    const requestQueues: { name: string; routingKey: string }[] = [
+      {
+        name: requireEnv('JUDGE_SUBMISSION_QUEUE_NAME'),
+        routingKey: submissionRoutingKey
+      }
+    ]
 
-    const checkExchangeName = process.env.CHECK_EXCHANGE_NAME!
+    const testRoutingKey = process.env.TEST_KEY
+    if (testRoutingKey && testRoutingKey !== submissionRoutingKey) {
+      requestQueues.push({
+        name: requireEnv('JUDGE_TEST_QUEUE_NAME'),
+        routingKey: testRoutingKey
+      })
+    }
+
+    const rejudgeRoutingKey = process.env.REJUDGE_KEY
+    if (rejudgeRoutingKey && rejudgeRoutingKey !== submissionRoutingKey) {
+      requestQueues.push({
+        name: requireEnv('JUDGE_REJUDGE_QUEUE_NAME'),
+        routingKey: rejudgeRoutingKey
+      })
+    }
+
+    for (const requestQueue of requestQueues) {
+      await channel.assertQueue(requestQueue.name, { durable: true })
+      await channel.bindQueue(
+        requestQueue.name,
+        exchangeName,
+        requestQueue.routingKey
+      )
+    }
+
+    const checkExchangeName = requireEnv('CHECK_EXCHANGE_NAME')
     await channel.assertExchange(checkExchangeName, 'direct', { durable: true })
 
-    const checkResultQueueName = process.env.CHECK_RESULT_QUEUE_NAME!
+    const checkResultQueueName = requireEnv('CHECK_RESULT_QUEUE_NAME')
     await channel.assertQueue(checkResultQueueName, { durable: true })
 
-    const checkRequestQueueName = process.env.CHECK_QUEUE_NAME!
+    const checkRequestQueueName = requireEnv('CHECK_QUEUE_NAME')
     await channel.assertQueue(checkRequestQueueName, {
       durable: true,
       arguments: { 'x-max-priority': 1 }
     })
 
-    const checkResultRoutingKey = process.env.CHECK_RESULT_ROUTING_KEY!
+    const checkResultRoutingKey = requireEnv('CHECK_RESULT_ROUTING_KEY')
     await channel.bindQueue(
       checkResultQueueName,
       checkExchangeName,
       checkResultRoutingKey
     )
 
-    const checkRequestRoutingKey = process.env.CHECK_ROUTING_KEY!
+    const checkRequestRoutingKey = requireEnv('CHECK_ROUTING_KEY')
     await channel.bindQueue(
       checkRequestQueueName,
       checkExchangeName,

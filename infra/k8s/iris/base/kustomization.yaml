@@ -6,6 +6,8 @@ resources:
   - configmap.yaml
   - deployment.yaml
   - HTTPRoutes.yaml
+  - deployment-test.yaml
+  - deployment-rejudge.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
   - service.yaml
