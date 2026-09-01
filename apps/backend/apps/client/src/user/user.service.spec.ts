@@ -674,6 +674,9 @@ describe('UserService', () => {
   })
 
   describe('updateUser', () => {
+    afterEach(() => {
+      db.user.update = stub().resolves(user)
+    })
     it('should update user successfully', async () => {
       db.user.update.resolves({
         nickname: 'newnickname',
