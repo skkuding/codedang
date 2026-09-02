@@ -84,8 +84,8 @@ locals {
   ])
 }
 
-# No ECS cluster remains in the account, so all active task definition revisions
-# are staged together with the roles and log groups that they reference.
+# No ECS cluster remains in the account. Keep these revisions in a disabled
+# historical Terraform inventory without managing their referenced resources.
 resource "aws_ecs_task_definition" "legacy" {
   for_each = local.legacy_ecs_task_definitions
 
@@ -95,11 +95,6 @@ resource "aws_ecs_task_definition" "legacy" {
     image  = "terraform-import-placeholder"
     memory = 128
   }])
-
-  depends_on = [
-    aws_cloudwatch_log_group.legacy_ecs,
-    aws_iam_role.ecs_task_execution,
-  ]
 
   lifecycle {
     prevent_destroy = true

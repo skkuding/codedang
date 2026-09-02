@@ -20,15 +20,11 @@ Do not remove the source-root `removed` blocks until the migration has been
 applied and this root produces a clean plan. The retired Redis cluster no longer
 exists; only its residual subnet group is imported here.
 
-Task definition import plans can render historical container environment values.
-Keep their full output out of logs and remove saved plan files promptly.
-
 ## Staged resources
 
 - Legacy admin/client ALBs, target groups, listeners, subnets, and security groups
 - Amazon MQ broker, attached configuration, subnet, and Secrets Manager secret
 - ECS launch templates, IAM roles, policy attachments, and instance profiles
-- All active legacy ECS task definition revisions
 - Empty legacy ECS CloudWatch log groups
 - Stopped NAT and bastion instances
 - Legacy API, admin, Iris, Redis, MQ, DB, Jaeger, and Grafana network resources
@@ -45,8 +41,8 @@ Keep their full output out of logs and remove saved plan files promptly.
 4. Delete stopped instances before their subnets and security groups.
    The blackholed NAT route remains inline in the active private route table
    and must be removed from `infra/aws/vpc` separately.
-5. Delete the legacy ECS log groups only after their task definitions are
-   deregistered and no service can publish to them.
+5. Delete the legacy ECS log groups only after confirming that no service can
+   publish to them. The retained task definitions may keep stale references.
 6. Preserve the ACM validation CNAME managed by `infra/aws/dns`; the active
    wildcard certificate currently shares it.
 7. Do not include RDS snapshots, active S3 buckets, the cross-account VPC
