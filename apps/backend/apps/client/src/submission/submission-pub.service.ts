@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import type { Submission, TestSubmission } from '@prisma/client'
 import { Span } from 'nestjs-otel'
 import { JudgeAMQPService } from '@libs/amqp'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './class/create-submission.dto'
 import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
@@ -69,18 +72,29 @@ export class SubmissionPublicationService {
       throw new EntityNotExistException('Problem')
     }
 
+    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable) —
+    // 채점 요청을 만들려면 이 값이 반드시 있어야 하므로 여기서 명확히 막는다.
+    // 원래는 발행 검증(publish validation)에서 걸러졌어야 할 상태다.
+    const { timeLimit, memoryLimit } = problem
+    if (timeLimit == null || memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be judged'
+      )
+    }
+    const judgeableProblem = { ...problem, timeLimit, memoryLimit }
+
     const judgeRequest = isUserTest
       ? new UserTestcaseJudgeRequest(
           code,
           submission.language,
-          problem,
+          judgeableProblem,
           userTestcases!,
           stopOnNotAccepted
         )
       : new JudgeRequest(
           code,
           submission.language,
-          problem,
+          judgeableProblem,
           stopOnNotAccepted,
           judgeOnlyHiddenTestcases,
           containHiddenTestcases
