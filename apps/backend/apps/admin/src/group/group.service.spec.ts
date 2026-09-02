@@ -164,12 +164,14 @@ const db = {
   getPaginator: PrismaService.prototype.getPaginator,
   $transaction: stub().callsFake(async (input) => {
     if (Array.isArray(input)) {
-      return input.map((query) => {
-        if (typeof query === 'function') {
-          return query(db)
-        }
-        return query
-      })
+      return Promise.all(
+        input.map((query) => {
+          if (typeof query === 'function') {
+            return query(db)
+          }
+          return query
+        })
+      )
     } else if (typeof input === 'function') {
       return input(db)
     }
