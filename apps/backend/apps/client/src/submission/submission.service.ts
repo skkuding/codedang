@@ -7,6 +7,7 @@ import {
   Language,
   Prisma,
   Problem,
+  ProblemStatus,
   ResultStatus,
   Role,
   Submission,
@@ -86,7 +87,10 @@ export class SubmissionService {
         id: problemId,
         visibleLockTime: {
           equals: MIN_DATE
-        }
+        },
+        // 만들당 Draft/Ready 문제는 발행 전이라 제출을 받으면 안 된다.
+        // 레거시 문제는 status가 항상 Published(스키마 기본값)라 영향 없다.
+        status: ProblemStatus.Published
       }
     })
     if (!problem) {
@@ -206,6 +210,10 @@ export class SubmissionService {
       throw new EntityNotExistException('ContestProblem')
     }
     const { problem } = contestProblem
+    // 만들당 Draft/Ready 문제는 발행 전이라 제출을 받으면 안 된다.
+    if (problem.status !== ProblemStatus.Published) {
+      throw new EntityNotExistException('Problem')
+    }
 
     const submission = await this.createSubmission({
       submissionDto,
@@ -332,6 +340,10 @@ export class SubmissionService {
       throw new EntityNotExistException('AssignmentProblem')
     }
     const { problem } = assignmentProblem
+    // 만들당 Draft/Ready 문제는 발행 전이라 제출을 받으면 안 된다.
+    if (problem.status !== ProblemStatus.Published) {
+      throw new EntityNotExistException('Problem')
+    }
 
     await this.prisma.assignmentProblemRecord.upsert({
       where: {
@@ -415,7 +427,11 @@ export class SubmissionService {
       throw new EntityNotExistException('WorkbookProblem')
     }
     const { problem } = workbookProblem
-    if (problem.visibleLockTime.getTime() !== MIN_DATE.getTime()) {
+    // 만들당 Draft/Ready 문제는 발행 전이라 제출을 받으면 안 된다.
+    if (
+      problem.visibleLockTime.getTime() !== MIN_DATE.getTime() ||
+      problem.status !== ProblemStatus.Published
+    ) {
       throw new EntityNotExistException('Problem')
     }
 
