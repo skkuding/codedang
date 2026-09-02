@@ -7,11 +7,11 @@ import {
   ProblemWhereInput,
   UpdateHistory
 } from '@generated'
-import { ContestRole, ProblemField, ProblemStatus, Role } from '@prisma/client'
+import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { Response } from 'express'
 import { Readable } from 'stream'
-import { MAX_DATE, MIN_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE, PUBLISHED_PROBLEM_WHERE } from '@libs/constants'
 import {
   EntityNotExistException,
   UnprocessableDataException,
@@ -299,7 +299,7 @@ export class ProblemService {
 
     // 만들당 Draft/Ready 문제는 전용 화면(제작 중인 문제)에서만 다룬다 — 기존 문제 목록/조회에는
     // 노출하지 않는다. 기존 Legacy 문제는 status가 항상 Published(스키마 기본값)라 영향이 없다.
-    whereOptions.status = { equals: ProblemStatus.Published }
+    Object.assign(whereOptions, PUBLISHED_PROBLEM_WHERE)
 
     if (input.difficulty) {
       whereOptions.difficulty = {
@@ -407,7 +407,7 @@ export class ProblemService {
       where: {
         id,
         // 만들당 Draft/Ready 문제는 전용 화면에서만 조회한다 (getProblems와 동일한 정책).
-        status: ProblemStatus.Published
+        ...PUBLISHED_PROBLEM_WHERE
       },
       include: {
         sharedGroups: true

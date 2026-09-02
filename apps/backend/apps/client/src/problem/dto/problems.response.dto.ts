@@ -10,7 +10,8 @@ class Problem {
   id: number
   title: string
   engTitle: string | null
-  difficulty: Level | null
+  // 목록도 status=Published 문제만 반환하므로 기존 non-null 계약을 유지한다.
+  difficulty: Level
   submissionCount: number
   acceptedRate: number
   tags: Partial<Tag>[]
