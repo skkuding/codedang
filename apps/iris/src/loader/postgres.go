@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/lib/pq"
@@ -27,6 +28,13 @@ func NewPostgresDataSource(logProvider logger.Logger) (*Postgres, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to access database: %w", err)
+	}
+	if connectionLimit := os.Getenv("DATABASE_CONNECTION_LIMIT"); connectionLimit != "" {
+		maxOpenConnections, err := strconv.Atoi(connectionLimit)
+		if err != nil || maxOpenConnections <= 0 {
+			return nil, fmt.Errorf("invalid database connection limit %q", connectionLimit)
+		}
+		db.SetMaxOpenConns(maxOpenConnections)
 	}
 
 	return &Postgres{client: db, logger: logProvider}, nil

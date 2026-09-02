@@ -4,36 +4,49 @@ import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/con
 import { Button } from '@/components/shadcn/button'
 import { Textarea } from '@/components/shadcn/textarea'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { BsFillCaretRightFill } from 'react-icons/bs'
 import { toast } from 'sonner'
 
 interface CreateCommentsProps {
   qnaOrder: number
+  contestId?: number
+  courseId?: number
 }
-export function CreateComments({ qnaOrder }: CreateCommentsProps) {
-  const contestId = Number(usePathname().split('/')[2])
+
+export function CreateComments({
+  qnaOrder,
+  contestId,
+  courseId
+}: CreateCommentsProps) {
   const [commentData, setCommentData] = useState('')
   const [loading, setLoading] = useState(false)
   const triggerQnaRefresh = useQnaCommentsSync((state) => state.triggerRefresh)
 
   const handleSubmit = async () => {
-    setLoading(true)
-    try {
-      const response = await safeFetcherWithAuth.post(
-        `contest/${contestId}/qna/${qnaOrder}/comment`,
-        {
-          body: JSON.stringify({ content: commentData }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
+    let apiUrl = ''
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
+    if (contestId) {
+      apiUrl = `contest/${contestId}/qna/${qnaOrder}/comment`
+    } else if (courseId) {
+      apiUrl = `course/${courseId}/qna/${qnaOrder}/comment`
+    }
+
+    if (!apiUrl) {
+      toast.error('Submission failed! Please try again later.')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      await safeFetcherWithAuth.post(apiUrl, {
+        body: JSON.stringify({ content: commentData }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
       triggerQnaRefresh()
       setCommentData('')
       toast.success('Comment created successfully')
@@ -44,6 +57,7 @@ export function CreateComments({ qnaOrder }: CreateCommentsProps) {
       setLoading(false)
     }
   }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCommentData(e.target.value)
   }

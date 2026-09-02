@@ -55,3 +55,19 @@ const (
 )
 
 const MAX_OUTPUT = 1048576 // 1MB
+
+type MessageType string
+
+const (
+	Judge         MessageType = "judge"
+	Submission    MessageType = "submission"
+	SpecialJudge  MessageType = "specialJudge"
+	Run           MessageType = "run"
+	Interactive   MessageType = "interactive"
+	UserTestCase  MessageType = "userTestCase"
+	RunSubmission MessageType = "runSubmission"
+	Generate      MessageType = "generate"
+	Validate      MessageType = "validate"
+	Check         MessageType = "check"
+	Default       MessageType = Judge
+)

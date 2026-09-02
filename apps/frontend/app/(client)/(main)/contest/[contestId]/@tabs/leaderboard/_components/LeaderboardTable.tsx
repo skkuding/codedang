@@ -1,6 +1,5 @@
 'use client'
 
-import { useWindowSize } from '@/libs/hooks/useWindowSize'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { LeaderboardUser } from '../_libs/apis/getContestLeaderboard'
@@ -11,6 +10,8 @@ import { LeaderboardTableHeader } from './LeaderboardTableHeader'
 
 const DEFAULT_COL_HEADER_SIZE = 41
 const DEFAULT_ROW_SIZE = 313
+// leaderboard 탭 컨테이너 폭(w-[1208px])에 맞춘 가로 스크롤 가능 영역 너비
+const CONTAINER_WIDTH = 1208
 
 interface LeaderboardTableProps {
   problemSize: number
@@ -41,8 +42,6 @@ export function LeaderboardTable({
     setOrders(sortedOrders)
   }, [problemRecord])
 
-  const windowSize = useWindowSize()
-
   const countSolvedList = countSolved({
     solvedList,
     numProblems: problemSize
@@ -59,7 +58,7 @@ export function LeaderboardTable({
 
   const scrollLimit = DEFAULT_COL_HEADER_SIZE + problemSize * 114 - 300
   const [resizableScrollLimit, setResizableScrollLimit] = useState(
-    DEFAULT_COL_HEADER_SIZE + problemSize * 114 - windowSize.width + 500
+    DEFAULT_COL_HEADER_SIZE + problemSize * 114 - CONTAINER_WIDTH + 500
   )
 
   const [isDragging, setIsDragging] = useState(false)
@@ -70,9 +69,9 @@ export function LeaderboardTable({
     setColHeaderSize(DEFAULT_COL_HEADER_SIZE + problemSize * 114)
     setResizableRowSize(DEFAULT_ROW_SIZE + problemSize * 114)
     setResizableScrollLimit(
-      DEFAULT_COL_HEADER_SIZE + problemSize * 114 - windowSize.width + 500
+      DEFAULT_COL_HEADER_SIZE + problemSize * 114 - CONTAINER_WIDTH + 500
     )
-  }, [problemSize, windowSize.width])
+  }, [problemSize])
 
   const horizontalScroll = useCallback(
     (amount: number) => {
@@ -90,8 +89,8 @@ export function LeaderboardTable({
       // 가로 스크롤 중 마지막 위치에서 왼쪽으로의 이동을 막는 코드
       if (resizableScrollLimit < scrollLimit && -dx > resizableScrollLimit) {
         setDx(-resizableScrollLimit)
-        setColHeaderSize(DEFAULT_COL_HEADER_SIZE + windowSize.width - 541)
-        setResizableRowSize(DEFAULT_ROW_SIZE + windowSize.width - 541)
+        setColHeaderSize(DEFAULT_COL_HEADER_SIZE + CONTAINER_WIDTH - 541)
+        setResizableRowSize(DEFAULT_ROW_SIZE + CONTAINER_WIDTH - 541)
         return
       }
       if (-dx > scrollLimit) {
@@ -107,7 +106,7 @@ export function LeaderboardTable({
       setColHeaderSize((prev) => prev + amount)
       setResizableRowSize((prev) => prev + amount)
     },
-    [dx, problemSize, resizableScrollLimit, windowSize.width]
+    [dx, problemSize, resizableScrollLimit]
   )
 
   // 스크롤 이벤트를 감지할 div에 사용할 ref

@@ -11,6 +11,7 @@ import {
 } from '@/components/shadcn/table'
 import { cn } from '@/libs/utils'
 import type { ProblemDataTop } from '@/types/type'
+import type { ContestQnaListItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -23,7 +24,6 @@ import type { Session } from 'next-auth'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { QnACategoryFilter } from './QnACategoryFilter'
-import type { QnAItem } from './QnAMainTable'
 import { QnAPostButton } from './QnAPostButton'
 
 interface QnADataTableProps<TData, TValue> {
@@ -45,7 +45,7 @@ interface QnADataTableProps<TData, TValue> {
   canCreateQnA: boolean | null
 }
 
-export function QnADataTable<TData extends QnAItem, TValue>({
+export function QnADataTable<TData extends ContestQnaListItem, TValue>({
   session,
   contestId,
   columns,

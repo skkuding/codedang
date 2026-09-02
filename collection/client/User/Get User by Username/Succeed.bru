@@ -1,0 +1,33 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/user/username?username=user01
+  body: none
+  auth: none
+}
+
+params:query {
+  username: user01
+}
+
+assert {
+  res.status: eq 200
+  res("id"): isNumber
+  res("username"): eq user01
+  res("email"): isString
+  res("userProfile.realName"): isString
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Get User by Username
+  
+  전달된 사용자 이름에 해당하는 사용자의 정보를 불러옵니다.
+}
