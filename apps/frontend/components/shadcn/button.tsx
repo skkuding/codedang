@@ -20,7 +20,7 @@ const buttonVariants = cva(
           'bg-color-common-100 text-color-common-0 disabled:bg-color-neutral-90 disabled:text-color-neutral-40 hover:bg-[#EBEBEB] dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-[#EBEBEB] dark:hover:text-gray-50',
         lined:
           'border border-primary bg-color-common-100 text-primary disabled:bg-color-neutral-90 disabled:border-primary-light disabled:text-primary-light hover:bg-[#EBEBEB] dark:bg-primary/20 dark:text-gray-50 dark:hover:bg-gray-800/80',
-        icon: 'p-4 rounded-full bg-color-common-100 text-primary hover:bg-[#EBEBEB] active:bg-primary active:text-color-common-100 disabled:',
+        icon: 'rounded-full bg-color-common-100 text-primary hover:bg-[#EBEBEB] active:bg-primary active:text-color-common-100 disabled:',
         primary_sub:
           'bg-primary text-color-common-100 hover:bg-primary-strong disabled:bg-color-neutral-95 disabled:text-color-neutral-70',
         lined_sub:
@@ -39,13 +39,14 @@ const buttonVariants = cva(
         lg: 'h-11  px-8',
         icon: 'h-[30px] w-[30px]',
         editor: 'h-8 px-2',
-        large: 'w-93 h-14 gap-1.5 rounded-large px-6 py-4',
-        middle: 'w-30 h-[46px] gap-1 rounded-middle px-4 py-3',
-        small: 'w-[102px] h-[38px] px-[10px] gap-1 rounded-small py-2 text-sm',
-        icons: '',
-        large_sub: 'w-[131px] h-[52px] gap-1.5 rounded-small',
-        middle_sub: 'w-[131px] h-[48px] gap-1.5 rounded-small',
-        small_sub: 'w-[110px] h-[40px] gap-1.5 rounded-small'
+        large: 'h-14 gap-1.5 rounded-large px-6 py-4',
+        middle: 'h-[46px] gap-1 rounded-middle px-4 py-3',
+        small: 'h-[38px] px-[10px] gap-1 rounded-small py-2 text-sm',
+        icon_large: 'w-[56px] h-[56px]',
+        icon_small: 'w-[52px] h-[52px]',
+        large_sub: 'h-[52px] gap-1.5 rounded-small',
+        middle_sub: 'h-[48px] gap-1.5 rounded-small',
+        small_sub: 'h-[40px] gap-1.5 rounded-small'
       }
     },
     defaultVariants: {
