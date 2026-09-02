@@ -10,7 +10,7 @@ class Problem {
   id: number
   title: string
   engTitle: string | null
-  difficulty: Level
+  difficulty: Level | null
   submissionCount: number
   acceptedRate: number
   tags: Partial<Tag>[]
