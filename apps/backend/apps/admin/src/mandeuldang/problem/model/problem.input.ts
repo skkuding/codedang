@@ -1,5 +1,5 @@
-import { Field, InputType } from '@nestjs/graphql'
-import { ProblemType } from '@generated'
+import { Field, InputType, Int } from '@nestjs/graphql'
+import { Language, Level, ProblemType } from '@generated'
 
 @InputType()
 export class CreateMandeuldangProblemInput {
@@ -8,4 +8,25 @@ export class CreateMandeuldangProblemInput {
 
   @Field(() => ProblemType, { nullable: false })
   problemType!: ProblemType
+
+  @Field(() => String, { nullable: true })
+  description?: string | null
+
+  @Field(() => String, { nullable: true })
+  inputDescription?: string | null
+
+  @Field(() => String, { nullable: true })
+  outputDescription?: string | null
+
+  @Field(() => Int, { nullable: true })
+  timeLimit?: number | null
+
+  @Field(() => Int, { nullable: true })
+  memoryLimit?: number | null
+
+  @Field(() => Level, { nullable: true })
+  difficulty?: keyof typeof Level | null
+
+  @Field(() => [Language], { nullable: true })
+  languages?: Array<keyof typeof Language> | null
 }
