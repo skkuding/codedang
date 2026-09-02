@@ -49,7 +49,7 @@ resource "aws_mq_broker" "judge_queue" {
   }
 }
 
-# This broker credential is retired after the iris-legacy consumer is removed.
+# This broker credential is retired after the live iris-legacy namespace is removed.
 resource "aws_secretsmanager_secret" "judge_queue" {
   name = "Codedang-JudgeQueue-Secret"
 
