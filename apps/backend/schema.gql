@@ -1995,6 +1995,7 @@ input DuplicateCourseInput {
   classNum: Int!
   courseNum: String!
   semester: String!
+  studentWhitelist: [StudentWhitelistInput!]!
 }
 
 type DuplicatedAssignmentResponse {

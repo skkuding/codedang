@@ -533,7 +533,19 @@ export class GroupService {
           },
           courseInfo: {
             create: duplicatedCourseInfo
-          }
+          },
+          GroupWhitelist: input.studentWhitelist.length
+            ? {
+                createMany: {
+                  data: input.studentWhitelist.map(
+                    ({ studentId, studentName }) => ({
+                      studentId,
+                      studentName
+                    })
+                  )
+                }
+              }
+            : undefined
         },
         select: {
           id: true,

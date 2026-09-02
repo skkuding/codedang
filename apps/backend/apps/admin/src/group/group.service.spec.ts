@@ -376,7 +376,13 @@ describe('GroupService', () => {
     const duplicateInput = {
       courseNum: 'SWE3099',
       semester: '2026 Spring',
-      classNum: 1
+      classNum: 1,
+      studentWhitelist: [
+        {
+          studentId: '20250001',
+          studentName: '홍길동'
+        }
+      ]
     }
 
     it('should throw NotFoundException if user does not exist', async () => {
@@ -472,6 +478,9 @@ describe('GroupService', () => {
       )
       expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
         duplicateInput.classNum
+      )
+      expect(createCallArgs.data.GroupWhitelist.createMany.data).to.deep.equal(
+        duplicateInput.studentWhitelist
       )
     })
   })

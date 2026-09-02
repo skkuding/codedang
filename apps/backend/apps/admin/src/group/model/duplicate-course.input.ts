@@ -1,6 +1,7 @@
 import { Field, Int } from '@nestjs/graphql'
 import { InputType } from '@nestjs/graphql'
 import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator'
+import { StudentWhitelistInput } from './group.input'
 
 @InputType()
 export class DuplicateCourseInput {
@@ -19,4 +20,7 @@ export class DuplicateCourseInput {
   @Min(1)
   @Max(99)
   classNum: number
+
+  @Field(() => [StudentWhitelistInput], { nullable: false })
+  studentWhitelist: StudentWhitelistInput[]
 }
