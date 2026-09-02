@@ -11,20 +11,23 @@ import { Exclude, Expose } from 'class-transformer'
 export class ProblemResponseDto {
   id: number
   title: string
-  description: string
-  inputDescription: string
-  outputDescription: string
-  hint: string
+  // 만들당 Draft/Ready 문제는 이 필드들이 아직 채워지지 않을 수 있다(nullable).
+  // 이 DTO는 status=Published 문제만 반환하는 getProblem()에서 쓰이므로, 정상적으로는
+  // 항상 값이 채워져 있어야 한다 — 다만 스키마 자체는 nullable이라 타입도 그에 맞춘다.
+  description: string | null
+  inputDescription: string | null
+  outputDescription: string | null
+  hint: string | null
   engTitle: string | null
   engDescription: string | null
   engInputDescription: string | null
   engOutputDescription: string | null
   engHint: string | null
   languages: Language[]
-  timeLimit: number
-  memoryLimit: number
-  difficulty: Level
-  source: string
+  timeLimit: number | null
+  memoryLimit: number | null
+  difficulty: Level | null
+  source: string | null
   submissionCount: number
   acceptedCount: number
   acceptedRate: number
