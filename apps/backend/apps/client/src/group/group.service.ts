@@ -316,6 +316,7 @@ export class GroupService {
    * @param userId - 사용자 ID
    * @param groupId - 가입할 그룹 ID
    * @param invitation - (선택) 초대 코드
+   * @param studentId - 학생이 입력한 학번
    * @returns 가입 결과 (바로 가입되었는지 `isJoined: true`, 요청 상태인지 `isJoined: false`)
    *
    * @throws ForbiddenAccessException - 초대 코드가 유효하지 않거나, 화이트리스트에 없는 경우
@@ -329,8 +330,12 @@ export class GroupService {
   async joinGroupById(
     userId: number,
     groupId: number,
-    invitation: string
+    invitation: string,
+    studentId: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
+    // The enrollment verification task will use this value for roster matching.
+    void studentId
+
     const invitedGroupId = await this.cacheManager.get<number>(
       invitationCodeKey(invitation)
     )
@@ -1495,23 +1500,32 @@ export class CourseService {
   /**
    * 강좌 내 Q&A 게시글을 생성합니다.
    *
-   * @param userId - 작성자 ID
-   * @param courseId - 강좌 ID
-   * @param data - 게시글 제목, 내용 등 생성 데이터
-   * @param problemId - (선택) 질문과 연관된 문제 ID
-   * @returns 생성된 Q&A 정보 (연관된 과제 정보 포함)
+   * @param {number} userId 작성자 아이디
+   * @param {number} courseId 강좌 아이디
+   * @param {CreateCourseQnADto} data 게시글 생성 데이터
+   * @param {number} [problemId] 질문과 연관된 문제 아이디
+   * @param {number} [assignmentId] 연관된 과제 아이디
+   * @returns 생성된 Q&A 게시글 정보(과제 및 문제 연관 정보 포함)를 반환, 연관 과제가 없을 경우 해당 필드들은 null 반환
    *
-   * @remarks
-   * - `isExercise` 필드를 포함하여 과제 유형을 반환합니다.
-   * - 문제가 여러 과제에 포함된 경우, 가장 최근 과제(assignmentId desc) 정보를 기준으로 매핑합니다.
+   * @throws {UnprocessableDataException} `problemId`와 `assignmentId` 중 하나만 전달된 경우
+   * @throws {EntityNotExistException} 해당 강좌(Course)가 존재하지 않거나 과제-문제 연관 관계가 올바르지 않은 경우
+   * @throws {ForbiddenAccessException} 질문 작성자가 해당 강좌의 수강생/멤버가 아닌 경우
+   *
    */
   async createCourseQnA(
     userId: number,
     courseId: number,
     data: CreateCourseQnADto,
-    problemId?: number
+    problemId?: number,
+    assignmentId?: number
   ) {
     const groupId = courseId
+
+    if ((problemId == null) !== (assignmentId == null)) {
+      throw new UnprocessableDataException(
+        'problemId and assignmentId must be provided together'
+      )
+    }
 
     const group = await this.prisma.group.findUnique({
       where: { id: groupId, courseInfo: { isNot: null } }
@@ -1527,12 +1541,21 @@ export class CourseService {
       throw new ForbiddenAccessException('Not a member of this course')
     }
 
-    if (problemId) {
-      const problem = await this.prisma.problem.findUnique({
-        where: { id: problemId }
+    if (problemId && assignmentId) {
+      const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          assignmentId_problemId: { assignmentId, problemId }
+        },
+        select: {
+          assignment: { select: { groupId: true } }
+        }
       })
-      if (!problem) {
-        throw new EntityNotExistException('Problem')
+      if (
+        !assignmentProblem ||
+        assignmentProblem.assignment.groupId !== groupId
+      ) {
+        throw new EntityNotExistException('AssignmentProblem')
       }
     }
 
@@ -1551,10 +1574,11 @@ export class CourseService {
           group: { connect: { id: group.id } },
           order: newOrder,
           readBy: [userId],
-          ...(problemId
+          ...(problemId && assignmentId
             ? {
                 category: QnACategory.Problem,
-                problem: { connect: { id: problemId } }
+                problem: { connect: { id: problemId } },
+                assignment: { connect: { id: assignmentId } }
               }
             : {
                 category: QnACategory.General
@@ -1572,40 +1596,25 @@ export class CourseService {
           createTime: true,
           readBy: true,
           createdBy: { select: { username: true } },
-          problem: {
+          assignment: {
             select: {
-              assignmentProblem: {
-                where: {
-                  assignment: {
-                    groupId: group.id
-                  }
-                },
-                orderBy: { assignmentId: 'desc' },
-                take: 1,
-                select: {
-                  assignment: {
-                    select: {
-                      id: true,
-                      title: true,
-                      isExercise: true
-                    }
-                  }
-                }
-              }
+              id: true,
+              title: true,
+              isExercise: true
             }
           }
         }
       })
 
-      const assignment = newQnA.problem?.assignmentProblem?.[0]?.assignment
+      const assignment = newQnA.assignment
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { problem, ...rest } = newQnA
+      const { assignment: _, ...rest } = newQnA
 
       return {
         ...rest,
-        assignmentId: assignment?.id,
-        assignmentTitle: assignment?.title,
-        isExercise: assignment?.isExercise
+        assignmentId: assignment?.id ?? null,
+        assignmentTitle: assignment?.title ?? null,
+        isExercise: assignment?.isExercise ?? null
       }
     })
   }
@@ -1613,12 +1622,12 @@ export class CourseService {
   /**
    * 강좌의 Q&A 목록을 조회합니다.
    *
-   * @param userId - 조회하는 사용자 ID (읽음 여부 확인용)
-   * @param courseId - 강좌 ID
-   * @param filter - 검색어, 카테고리, 답변 여부 등 필터 옵션
-   * @param cursor - 페이지네이션 커서 (마지막으로 로드된 QnA ID)
-   * @param take - 한 번에 가져올 개수
-   * @returns Q&A 목록 (연관된 과제 정보 및 읽음 여부 포함)
+   * @param {number | null} userId - 조회하는 사용자 ID (읽음 여부 확인용)
+   * @param {number} courseId - 강좌 ID
+   * @param {GetCourseQnAsFilterDto} filter - 검색어, 카테고리, 답변 여부 등 필터 옵션
+   * @param {number | null} cursor - 페이지네이션 커서 (마지막으로 로드된 QnA ID)
+   * @param {number} take - 한 번에 가져올 개수
+   * @returns Q&A 목록 (연관된 과제 정보 및 읽음 여부 포함, 연관 과제가 없을 경우 해당 필드들은 null 반환)
    *
    */
   async getCourseQnAs(
@@ -1703,26 +1712,11 @@ export class CourseService {
         createdBy: { select: { username: true } },
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: { select: { comments: true } },
-        problem: {
+        assignment: {
           select: {
-            assignmentProblem: {
-              where: {
-                assignment: {
-                  groupId
-                }
-              },
-              orderBy: { assignmentId: 'desc' },
-              take: 1,
-              select: {
-                assignment: {
-                  select: {
-                    id: true,
-                    title: true,
-                    isExercise: true
-                  }
-                }
-              }
-            }
+            id: true,
+            title: true,
+            isExercise: true
           }
         }
       },
@@ -1732,14 +1726,13 @@ export class CourseService {
       }
     })
 
-    return qnas.map(({ readBy, problem, ...rest }) => {
-      const assignment = problem?.assignmentProblem?.[0]?.assignment
+    return qnas.map(({ readBy, assignment, ...rest }) => {
       return {
         ...rest,
         isRead: userId == null || readBy.includes(userId),
-        assignmentId: assignment?.id,
-        assignmentTitle: assignment?.title,
-        isExercise: assignment?.isExercise
+        assignmentId: assignment?.id ?? null,
+        assignmentTitle: assignment?.title ?? null,
+        isExercise: assignment?.isExercise ?? null
       }
     })
   }
@@ -1747,10 +1740,10 @@ export class CourseService {
   /**
    * 특정 Q&A 게시글의 상세 정보를 조회합니다.
    *
-   * @param userId - 조회하는 사용자 ID
-   * @param courseId - 강좌 ID
-   * @param order - 게시글 순서 번호
-   * @returns Q&A 상세 정보 (댓글, 연관 과제 정보 포함)
+   * @param {number | null} userId - 조회하는 사용자 ID
+   * @param {number} courseId - 강좌 ID
+   * @param {number} order - 게시글 순서 번호
+   * @returns Q&A 상세 정보 (댓글, 연관 과제 정보 포함, 연관 과제가 없을 경우 해당 필드들은 null 반환)
    *
    * @throws EntityNotExistException - 게시글이 존재하지 않는 경우
    * @throws ForbiddenAccessException - 비공개 게시글에 대한 접근 권한이 없는 경우
@@ -1793,24 +1786,11 @@ export class CourseService {
           include: { createdBy: { select: { username: true } } },
           orderBy: { order: 'asc' }
         },
-        problem: {
+        assignment: {
           select: {
-            assignmentProblem: {
-              where: {
-                assignment: { groupId }
-              },
-              orderBy: { assignmentId: 'desc' },
-              take: 1,
-              select: {
-                assignment: {
-                  select: {
-                    id: true,
-                    title: true,
-                    isExercise: true
-                  }
-                }
-              }
-            }
+            id: true,
+            title: true,
+            isExercise: true
           }
         }
       }
@@ -1843,15 +1823,14 @@ export class CourseService {
       })
     }
 
-    const assignment = qna.problem?.assignmentProblem?.[0]?.assignment
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { problem, readBy, ...rest } = qna
+    const { assignment, readBy, ...rest } = qna
 
     return {
       ...rest,
-      assignmentId: assignment?.id,
-      assignmentTitle: assignment?.title,
-      isExercise: assignment?.isExercise
+      assignmentId: assignment?.id ?? null,
+      assignmentTitle: assignment?.title ?? null,
+      isExercise: assignment?.isExercise ?? null
     }
   }
 
