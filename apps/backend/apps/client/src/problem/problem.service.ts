@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
-import { Prisma, ProblemStatus, ResultStatus } from '@prisma/client'
+import { Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
@@ -108,10 +108,7 @@ export class ProblemService {
           // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
           contains: search
         },
-        visibleLockTime: MIN_DATE,
-        // 만들당 Draft/Ready 문제는 학생에게 아직 공개되면 안 된다.
-        // 레거시 문제는 status가 항상 Published(스키마 기본값)라 영향 없다.
-        status: ProblemStatus.Published
+        visibleLockTime: MIN_DATE
       },
       select: {
         ...problemsSelectOption,
@@ -218,9 +215,7 @@ export class ProblemService {
     const data = await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        visibleLockTime: MIN_DATE,
-        // 만들당 Draft/Ready 문제는 학생에게 아직 공개되면 안 된다.
-        status: ProblemStatus.Published
+        visibleLockTime: MIN_DATE
       },
       select: problemSelectOption
     })

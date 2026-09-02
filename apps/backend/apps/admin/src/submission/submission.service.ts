@@ -19,7 +19,6 @@ import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
-  UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -959,17 +958,7 @@ export class SubmissionService {
       }
     }
 
-    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable).
-    // 재채점은 이 값을 Iris로 그대로 보내야 하므로, 없으면 여기서 명확히 막는다 —
-    // 원래는 발행 검증(publish validation)에서 걸러졌어야 할 상태다.
-    const { timeLimit, memoryLimit } = problem
-    if (timeLimit == null || memoryLimit == null) {
-      throw new UnprocessableDataException(
-        'Problem is missing timeLimit/memoryLimit and cannot be rejudged'
-      )
-    }
-
-    return { assignment, problem: { ...problem, timeLimit, memoryLimit } }
+    return { assignment, problem }
   }
 
   /**
