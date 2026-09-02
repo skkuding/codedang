@@ -8,7 +8,6 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
-import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
@@ -77,6 +76,43 @@ export class UserService {
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
+  }
+
+  /**
+   * 사용자 이름에 해당하는 사용자 정보를 조회합니다.
+   *
+   * @param {string} username 사용자 이름
+   * @returns 조회한 사용자 정보
+   */
+  async getUserByUsername({ username }: UsernameDto) {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          username
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          userProfile: {
+            select: {
+              realName: true
+            }
+          }
+        }
+      })
+
+      this.logger.debug({ userId: user.id }, 'getUserByUsername')
+      return user
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('User')
+      }
+      throw error
+    }
   }
 
   /**

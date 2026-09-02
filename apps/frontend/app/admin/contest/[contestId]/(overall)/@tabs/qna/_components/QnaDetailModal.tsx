@@ -59,7 +59,7 @@ export function QnaDetailModal({
     try {
       await deleteContestQna()
       onOpenChange(false)
-      toast.success(`question is deleted successfully!`)
+      toast.success(`Question is deleted successfully!`)
     } catch (error) {
       toast.error(`Error in deleting question!: ${error}`)
     } finally {

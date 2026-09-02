@@ -295,6 +295,7 @@ export class CourseController {
   ) {
     return await this.groupService.deleteComment({
       userId: req.user.id,
+      userRole: req.user.role,
       id,
       commentId
     })

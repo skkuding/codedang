@@ -1,7 +1,7 @@
 'use client'
 
-//import { AlertModal } from '@/components/AlertModal'
 import { useQnaCommentsSync } from '@/app/(client)/(code-editor)/_components/context/RefetchingQnaCommentsStoreProvider'
+import { AlertModal } from '@/components/AlertModal'
 import { Input } from '@/components/shadcn/input'
 import { Textarea } from '@/components/shadcn/textarea'
 import { cn } from '@/libs/utils'
@@ -11,11 +11,17 @@ import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 interface CreateQnaTextAreaProps {
-  contestId: number
-  problemOrder: number | null
+  courseId?: number
+  problemId?: number
+  contestId?: number
+  assignmentId?: number
+  problemOrder?: number | null
 }
 
 export function CreateQnaTextArea({
+  courseId,
+  problemId,
+  assignmentId,
   contestId,
   problemOrder
 }: CreateQnaTextAreaProps) {
@@ -24,9 +30,8 @@ export function CreateQnaTextArea({
     content: ''
   })
   const [loading, setLoading] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const triggerRefresh = useQnaCommentsSync((s) => s.triggerRefresh)
-
-  //const [postModalOpen, setPostModalOpen] = useState(false)
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -37,63 +42,78 @@ export function CreateQnaTextArea({
       [name]: value
     }))
   }
-  const handleSubmit = async () => {
+
+  const submitQuestion = async () => {
     setLoading(true)
-    const apiUrl =
-      problemOrder === null
-        ? `contest/${contestId}/qna`
-        : `contest/${contestId}/qna?problem-order=${problemOrder}`
+    let apiUrl = ''
+    if (contestId) {
+      apiUrl =
+        problemOrder === null
+          ? `contest/${contestId}/qna`
+          : `contest/${contestId}/qna?problem-order=${problemOrder}`
+    } else if (courseId && problemId) {
+      apiUrl = `course/${courseId}/qna?problemId=${problemId}&assignmentId=${assignmentId}`
+    } else {
+      toast.error('Submission failed! Please try again later.')
+      setLoading(false)
+      return
+    }
+
     const requestBody = {
       title: qnaFormdata.title,
       content: qnaFormdata.content
     }
+
     try {
-      const response = await safeFetcherWithAuth.post(apiUrl, {
+      await safeFetcherWithAuth.post(apiUrl, {
         body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json'
         }
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const result = await response.json()
-      console.log('Success:', result)
       toast.success('Question submitted successfully')
-      setQnaFormData({ title: '', content: '' })
+      setIsConfirmOpen(false)
+      setQnaFormData({
+        title: '',
+        content: ''
+      })
       triggerRefresh()
     } catch (error) {
       console.error('Error submitting question:', error)
       toast.error('Failed to submit question')
     } finally {
       setLoading(false)
-      //setPostModalOpen(false)
     }
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsConfirmOpen(true)
   }
 
   return (
     <div className="rounded-lg bg-[#222939] p-5 text-white">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Post a Question</h3>
-        <button
-          onClick={() => handleSubmit()}
-          className={cn(
-            'h-9 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
-            loading || !qnaFormdata.title || !qnaFormdata.content
-              ? 'border-1 border-[#4C5565] bg-gray-900'
-              : 'bg-primary'
-          )}
-          disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
-        >
-          <div className="flex items-center justify-center gap-1">
-            <PenIcon className="h-[18px]" />
-            <p>Post</p>
-          </div>
-        </button>
-      </div>
-
       <form onSubmit={handleSubmit}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-xl font-semibold">Post a Question</h3>
+          <button
+            type="submit"
+            className={cn(
+              'h-9 rounded px-4 py-2 text-sm font-semibold text-white transition duration-300 ease-in-out hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50',
+              loading || !qnaFormdata.title || !qnaFormdata.content
+                ? 'border-1 border-[#4C5565] bg-gray-900'
+                : 'bg-primary'
+            )}
+            disabled={loading || !qnaFormdata.title || !qnaFormdata.content}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <PenIcon className="h-[18px]" />
+              <p>Post</p>
+            </div>
+          </button>
+        </div>
+
         <div className="mb-2">
           <Input
             type="text"
@@ -125,6 +145,24 @@ export function CreateQnaTextArea({
           </span>
         </div>
       </form>
+
+      <AlertModal
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        size="sm"
+        type="confirm"
+        showIcon={false}
+        showCancelButton
+        title="Do you want to register question?"
+        description={
+          'Pranky questions, swear words,\nand accusations can be sanctioned.\nDo you really want to register your questions?'
+        }
+        primaryButton={{
+          text: 'Register',
+          onClick: submitQuestion,
+          disabled: loading || !qnaFormdata.title || !qnaFormdata.content
+        }}
+      />
     </div>
   )
 }

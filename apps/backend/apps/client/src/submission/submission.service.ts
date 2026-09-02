@@ -23,7 +23,11 @@ import {
   userTestKey,
   userTestcasesKey
 } from '@libs/cache'
-import { MIN_DATE, TEST_SUBMISSION_EXPIRE_TIME } from '@libs/constants'
+import {
+  MIN_DATE,
+  PERCENTAGE_SCALE,
+  TEST_SUBMISSION_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -37,6 +41,7 @@ import {
   Snippet,
   Template
 } from './class/create-submission.dto'
+import { SubmissionFinalizationService } from './submission-finalization.service'
 import { SubmissionPublicationService } from './submission-pub.service'
 
 @Injectable()
@@ -49,6 +54,7 @@ export class SubmissionService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly publish: SubmissionPublicationService,
+    private readonly finalization: SubmissionFinalizationService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
@@ -124,7 +130,7 @@ export class SubmissionService {
    * @returns {Promise<Submission>} 생성된 제출 객체
    * @throws {EntityNotExistException} 아래의 경우에 발생합니다
    *   - 유효한 진행 중인 대회가 없을 경우 (Contest)
-   *   - 사용자가 대회에 등록되어 있지 않은 경우 (ContestRecord)
+   *   - 사용자가 대회에 등록되어 있지 않은 경우 (UserContest)
    *   - 문제를 찾을 수 없거나 대회와 매칭되지 않는 경우 (ContestProblem)
    * @throws {ConflictFoundException} 아래의 경우에 발생합니다
    *   - 대회가 진행중이지 않을 경우
@@ -160,30 +166,17 @@ export class SubmissionService {
 
     if (!isStaff) {
       // 대회에 등록되어 있는지 확인합니다.
-      const contestRecord = await this.prisma.contestRecord.findUnique({
+      const userContest = await this.prisma.userContest.findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
-          }
-        },
-        select: {
-          contest: {
-            select: {
-              startTime: true,
-              endTime: true
-            }
-          }
+          userId_contestId: { userId, contestId }
         }
       })
-      if (!contestRecord) {
-        throw new EntityNotExistException('ContestRecord')
+
+      if (!userContest) {
+        throw new EntityNotExistException('UserContest')
       }
-      if (
-        contestRecord.contest.startTime > now ||
-        contestRecord.contest.endTime <= now
-      ) {
+      if (contest.startTime > now || contest.endTime <= now) {
         throw new ConflictFoundException(
           'Submission is only allowed to ongoing contests'
         )
@@ -495,7 +488,6 @@ export class SubmissionService {
 
     const submissionData = {
       code: code.map((snippet) => ({ ...snippet })), // convert to plain object
-      result: ResultStatus.Judging,
       userId,
       userIp,
       problemId: problem.id,
@@ -504,16 +496,29 @@ export class SubmissionService {
     }
 
     try {
+      const testcases = await this.getJudgeableTestcases(
+        problem.id,
+        judgeOnlyHiddenTestcases
+      )
+
+      if (testcases.length === 0) {
+        return await this.createSubmissionWithoutTestcases(
+          submissionData,
+          idOptions
+        )
+      }
+
       const submission = await this.prisma.submission.create({
         data: {
           ...submissionData,
+          result: ResultStatus.Judging,
           contestId: idOptions?.contestId,
           assignmentId: idOptions?.assignmentId,
           workbookId: idOptions?.workbookId
         }
       })
 
-      await this.createSubmissionResults(submission, judgeOnlyHiddenTestcases)
+      await this.createSubmissionResults(submission, testcases)
 
       await this.publish.publishJudgeRequestMessage({
         code,
@@ -531,39 +536,88 @@ export class SubmissionService {
   }
 
   /**
-   * 전달한 제출 기록에 대해 아직 채점되지 않은 테스트케이스 채점 결과들을 생성합니다.
+   * 채점 가능한 테스트케이스가 없는 제출을 곧바로 정답 상태로 생성하고, 관련 통계 및 기록에 반영합니다.
    *
-   * 제출된 문제에 연결된 모든 테스트 케이스를 조회한 후,
-   * 각 테스트 케이스에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정
+   * 채점할 것이 없으므로 Judging 상태를 거치지 않고 처음부터 Accepted로 생성합니다.
+   * Iris 채점 서버로부터 결과를 받는 흐름을 거치지 않으므로,
+   * `SubmissionSubscriptionService.updateSubmissionResult`가 아닌 이 메서드가 직접 처리합니다.
    *
-   * @param {Submission} submission - 테스트 케이스 결과를 생성할 제출 기록
-   * @returns {Promise<void>}
+   * @param {Omit<Prisma.SubmissionUncheckedCreateInput, 'result' | 'score' | 'contestId' | 'assignmentId' | 'workbookId'>} submissionData
+   *   - 제출 생성에 필요한 데이터 (결과/점수/대회·과제·워크북 ID 제외)
+   * @param {{ contestId?: number; assignmentId?: number; workbookId?: number }} [idOptions] 제출 종류에 따라 전달하는 옵셔널 파라미터
+   * @returns {Promise<Submission>} 정답으로 생성된 제출 기록
    */
   @Span()
-  async createSubmissionResults(
-    submission: Submission,
+  async createSubmissionWithoutTestcases(
+    submissionData: Omit<
+      Prisma.SubmissionUncheckedCreateInput,
+      'result' | 'score' | 'contestId' | 'assignmentId' | 'workbookId'
+    >,
+    idOptions?: {
+      contestId?: number
+      assignmentId?: number
+      workbookId?: number
+    }
+  ): Promise<Submission> {
+    const submission = await this.prisma.submission.create({
+      data: {
+        ...submissionData,
+        result: ResultStatus.Accepted,
+        score: PERCENTAGE_SCALE,
+        contestId: idOptions?.contestId,
+        assignmentId: idOptions?.assignmentId,
+        workbookId: idOptions?.workbookId
+      }
+    })
+
+    await this.finalization.applyFinalizationEffects(submission, true)
+
+    return submission
+  }
+
+  /**
+   * 제출된 문제에 대해 채점 대상이 되는(outdated가 아닌) 테스트케이스를 조회합니다.
+   * judgeOnlyHiddenTestcases가 true면 hidden 테스트케이스만 남깁니다.
+   *
+   * @param {number} problemId - 테스트케이스를 조회할 문제의 ID
+   * @param {boolean} judgeOnlyHiddenTestcases - 숨김 테스트 케이스만 채점 대상으로 선별할지 여부
+   * @returns {Promise<Array<{ id: number; isHidden: boolean }>>} - 채점 대상 테스트케이스 목록
+   */
+  @Span()
+  async getJudgeableTestcases(
+    problemId: number,
     judgeOnlyHiddenTestcases: boolean
-  ): Promise<void> {
-    let testcases = await this.prisma.problemTestcase.findMany({
+  ): Promise<Array<{ id: number; isHidden: boolean }>> {
+    const testcases = await this.prisma.problemTestcase.findMany({
       where: {
-        problemId: submission.problemId,
+        problemId,
         isOutdated: false
       },
       select: { id: true, isHidden: true }
     })
 
-    if (judgeOnlyHiddenTestcases) {
-      testcases = testcases.filter((testcase) => testcase.isHidden)
-    }
+    return judgeOnlyHiddenTestcases
+      ? testcases.filter((testcase) => testcase.isHidden)
+      : testcases
+  }
 
+  /**
+   * 전달받은 테스트케이스들에 대해 제출 결과 레코드를 생성하고 초기 상태(ResultStatus.Judging)로 설정합니다.
+   *
+   * @param {Submission} submission - 테스트 케이스 결과를 생성할 제출 기록
+   * @param {Array<{ id: number }>} testcases - 결과 레코드를 생성할 테스트케이스 목록
+   */
+  @Span()
+  async createSubmissionResults(
+    submission: Submission,
+    testcases: Array<{ id: number }>
+  ): Promise<void> {
     await this.prisma.submissionResult.createMany({
-      data: testcases.map((testcase) => {
-        return {
-          submissionId: submission.id,
-          result: ResultStatus.Judging,
-          problemTestcaseId: testcase.id
-        }
-      })
+      data: testcases.map((testcase) => ({
+        submissionId: submission.id,
+        result: ResultStatus.Judging,
+        problemTestcaseId: testcase.id
+      }))
     })
   }
 

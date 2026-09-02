@@ -1,0 +1,23 @@
+meta {
+  name: [404] Not Found
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/user/username?username=unknownuser
+  body: none
+  auth: none
+}
+
+params:query {
+  username: unknownuser
+}
+
+assert {
+  res.status: eq 404
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
