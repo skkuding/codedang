@@ -32,6 +32,10 @@ JUDGE_REQUEST_CONSUMER_TAG=iris-rejudge-consumer-tag \
 go run .
 ```
 
+Inside the devcontainer, the VS Code launch configurations `Iris Submission`,
+`Iris Test`, and `Iris Rejudge` provide the same three worker processes. Run
+all three configurations to exercise the split topology locally.
+
 `SUBMISSION_KEY`, `TEST_KEY`, and `REJUDGE_KEY` default to distinct routing
 keys in `.envrc`, so each workload reaches only its corresponding queue.
 
