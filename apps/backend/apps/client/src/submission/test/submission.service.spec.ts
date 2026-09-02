@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import type { Contest, User, Assignment } from '@prisma/client'
-import { Language, Role } from '@prisma/client'
+import { Language, ProblemStatus, Role } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
@@ -244,6 +244,24 @@ describe('SubmissionService', () => {
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
+
+    it('should only look up Published problems (excludes Draft/Ready mandeuldang problems)', async () => {
+      db.problem.findFirst.resolves(problems[0])
+      stub(service, 'createSubmission')
+
+      await service.submitToProblem({
+        submissionDto,
+        userIp: USERIP,
+        userId: submissions[0].userId,
+        problemId: problems[0].id
+      })
+
+      expect(
+        db.problem.findFirst.calledWithMatch({
+          where: { status: ProblemStatus.Published }
+        })
+      ).to.be.true
+    })
   })
 
   describe('submitToContest', () => {
@@ -273,6 +291,33 @@ describe('SubmissionService', () => {
     it('should throw exception if contest is not ongoing', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.contest.findFirst.resolves(null)
+
+      await expect(
+        service.submitToContest({
+          submissionDto,
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          contestId: CONTEST_ID
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(createSpy.called).to.be.false
+    })
+
+    it('should throw exception if the problem is not yet published', async () => {
+      const createSpy = stub(service, 'createSubmission')
+      db.contest.findFirst.resolves(mockContest)
+      db.userContest.findFirst.resolves(null)
+      db.contestRecord.findUnique.resolves({
+        contest: {
+          groupId: 1,
+          startTime: new Date(Date.now() - 10000),
+          endTime: new Date(Date.now() + 10000)
+        }
+      })
+      db.contestProblem.findUnique.resolves({
+        problem: { ...problems[0], status: ProblemStatus.Draft }
+      })
 
       await expect(
         service.submitToContest({
@@ -327,6 +372,34 @@ describe('SubmissionService', () => {
       ).to.be.rejectedWith(EntityNotExistException)
       expect(createSpy.called).to.be.false
     })
+
+    it('should throw exception if the problem is not yet published', async () => {
+      const createSpy = stub(service, 'createSubmission')
+      db.assignment.findFirst.resolves(mockAssignment)
+      db.assignmentRecord.findUnique.resolves({
+        id: 1,
+        assignment: {
+          groupId: 1,
+          startTime: new Date(Date.now() - 10000),
+          endTime: new Date(Date.now() + 10000),
+          dueTime: new Date(Date.now() + 5000)
+        }
+      })
+      db.assignmentProblem.findUnique.resolves({
+        problem: { ...problems[0], status: ProblemStatus.Draft }
+      })
+
+      await expect(
+        service.submitToAssignment({
+          submissionDto,
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          assignmentId: ASSIGNMENT_ID
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(createSpy.called).to.be.false
+    })
   })
 
   describe('submitToWorkbook', () => {
@@ -347,6 +420,24 @@ describe('SubmissionService', () => {
     it('should throw exception if groupId does not match or problem is not exposed', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.workbookProblem.findUnique.resolves(null)
+
+      await expect(
+        service.submitToWorkbook({
+          submissionDto,
+          userIp: USERIP,
+          userId: submissions[0].userId,
+          problemId: problems[0].id,
+          workbookId: WORKBOOK_ID
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(createSpy.called).to.be.false
+    })
+
+    it('should throw exception if the problem is not yet published', async () => {
+      const createSpy = stub(service, 'createSubmission')
+      db.workbookProblem.findUnique.resolves({
+        problem: { ...problems[0], status: ProblemStatus.Draft }
+      })
 
       await expect(
         service.submitToWorkbook({
