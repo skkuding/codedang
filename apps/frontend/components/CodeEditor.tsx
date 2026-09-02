@@ -299,6 +299,7 @@ export function CodeEditor({
                     <TooltipTrigger asChild>
                       <MotionButton
                         variant="ghost"
+                        size="icon"
                         className="h-7 w-7 rounded-lg text-slate-100/60 hover:bg-slate-500/30 active:bg-slate-500/40"
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -327,6 +328,7 @@ export function CodeEditor({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
+                  size="icon"
                   className="h-7 w-7 rounded-lg text-slate-100/60 hover:bg-slate-500/30 active:bg-slate-500/40"
                   onPointerDown={() => startLongPlus()}
                   onPointerUp={() => stopLongPlus()}
@@ -343,6 +345,7 @@ export function CodeEditor({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
+                  size="icon"
                   className="h-7 w-7 rounded-lg text-slate-100/60 hover:bg-slate-500/30 active:bg-slate-500/40"
                   onPointerDown={() => startLongMinus()}
                   onPointerUp={() => stopLongMinus()}
