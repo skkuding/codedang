@@ -867,19 +867,24 @@ export class WhitelistService {
   }
 
   async createWhitelist(groupId: number, studentIds: [string]) {
-    this.deleteWhitelist(groupId)
-
     const whitelistData = studentIds.map((studentId) => ({
       groupId,
       studentId
     }))
 
     try {
-      return (
-        await this.prisma.groupWhitelist.createMany({
+      // Replace the whitelist atomically so creation failure rolls back deletion
+      // and a delayed deletion cannot remove newly created entries.
+      const [, created] = await this.prisma.$transaction([
+        this.prisma.groupWhitelist.deleteMany({
+          where: { groupId }
+        }),
+        this.prisma.groupWhitelist.createMany({
           data: whitelistData
         })
-      ).count
+      ])
+
+      return created.count
     } catch (err) {
       if (err.code === 'P2002') {
         throw new UnprocessableDataException('Duplicate studentId(s) detected')

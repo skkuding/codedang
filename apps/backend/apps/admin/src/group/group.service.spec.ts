@@ -606,6 +606,8 @@ describe('WhitelistService', () => {
       const result = await service.createWhitelist(groupId, studentIds)
       expect(result).to.equal(studentIds.length)
 
+      expect(db.$transaction.called).to.be.true
+
       expect(
         db.groupWhitelist.deleteMany.calledWith({
           where: { groupId }
