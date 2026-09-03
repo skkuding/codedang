@@ -11,17 +11,95 @@ resource "random_password" "postgres_password" {
 
 }
 
+# TODO(TAS-2888): Remove this group after the retained PostgreSQL 14 old blue
+# instance is deleted, no earlier than 2026-09-03 23:40 KST and only with
+# separate approval.
+resource "aws_db_parameter_group" "postgres14_logical" {
+  name        = "codedang-postgres14-logical"
+  family      = "postgres14"
+  description = "PostgreSQL 14 source parameters for the PostgreSQL 18 blue-green migration"
+
+  parameter {
+    name         = "rds.logical_replication"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "wal_sender_timeout"
+    value = "0"
+  }
+
+  parameter {
+    name         = "max_replication_slots"
+    value        = "20"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_wal_senders"
+    value        = "20"
+    apply_method = "pending-reboot"
+  }
+
+  # Three user databases plus one table-synchronization reserve.
+  parameter {
+    name         = "max_logical_replication_workers"
+    value        = "4"
+    apply_method = "pending-reboot"
+  }
+
+  # Eight parallel workers, four logical workers, one launcher, and three spare.
+  parameter {
+    name         = "max_worker_processes"
+    value        = "16"
+    apply_method = "pending-reboot"
+  }
+}
+
+resource "aws_db_parameter_group" "postgres18" {
+  name        = "codedang-postgres18"
+  family      = "postgres18"
+  description = "PostgreSQL 18 target parameters for the blue-green migration"
+
+  parameter {
+    name         = "rds.force_ssl"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_replication_slots"
+    value        = "20"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_logical_replication_workers"
+    value        = "4"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_worker_processes"
+    value        = "16"
+    apply_method = "pending-reboot"
+  }
+}
+
 resource "aws_db_instance" "postgres" {
   identifier = "terraform-20250506182211604800000001"
 
   db_name = "codedang_db"
   engine  = "postgres"
   # Pinned version — check for updates quarterly: https://docs.aws.amazon.com/AmazonRDS/latest/PostgreSQLReleaseNotes/
-  engine_version             = "14.22"
+  engine_version             = "18.4"
   auto_minor_version_upgrade = false
-  allocated_storage          = 10
-  max_allocated_storage      = 25
+  allocated_storage          = 30
+  max_allocated_storage      = 100
+  storage_type               = "gp3"
   instance_class             = "db.t4g.small"
+  parameter_group_name       = aws_db_parameter_group.postgres18.name
 
   username = var.postgres_username
   password = random_password.postgres_password.result
