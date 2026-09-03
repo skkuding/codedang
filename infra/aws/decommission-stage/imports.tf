@@ -29,11 +29,6 @@ import {
 }
 
 import {
-  to = aws_mq_broker.judge_queue
-  id = "b-12da81e3-d6b9-4309-a60b-e9e294c60613"
-}
-
-import {
   to = aws_mq_configuration.judge_queue
   id = "c-dd22323f-9824-4a9d-aeb0-ebf7f611b526"
 }
