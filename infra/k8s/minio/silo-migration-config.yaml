@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: silo-migration
+  namespace: minio
+data:
+  root-aliases.sh: |
+    target_user=$MINIO_ROOT_USER
+    target_password=$MINIO_ROOT_PASSWORD
+    . /source/config.env
+    source_user=$MINIO_ROOT_USER
+    source_password=$MINIO_ROOT_PASSWORD
+
+    export MC_CONFIG_DIR=/tmp/mcli
+    mcli alias set source http://minio:80 "$source_user" "$source_password" >/dev/null
+    mcli alias set target http://silo-shadow:80 "$target_user" "$target_password" >/dev/null
+  migration-aliases.sh: |
+    migration_user=$(cat /migration/CONSOLE_ACCESS_KEY)
+    migration_password=$(cat /migration/CONSOLE_SECRET_KEY)
+
+    export MC_CONFIG_DIR=/tmp/mcli
+    mcli alias set source http://minio:80 "$migration_user" "$migration_password" >/dev/null
+    mcli alias set target http://silo-shadow:80 "$migration_user" "$migration_password" >/dev/null
+  source-migration-policy.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": ["s3:Get*", "s3:List*"],
+          "Resource": [
+            "arn:aws:s3:::codedang-testcase",
+            "arn:aws:s3:::codedang-testcase/*",
+            "arn:aws:s3:::codedang-media",
+            "arn:aws:s3:::codedang-media/*",
+            "arn:aws:s3:::codedang-plag-checks",
+            "arn:aws:s3:::codedang-plag-checks/*"
+          ]
+        }
+      ]
+    }
+  target-migration-policy.json: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": ["s3:*"],
+          "Resource": [
+            "arn:aws:s3:::codedang-testcase",
+            "arn:aws:s3:::codedang-testcase/*",
+            "arn:aws:s3:::codedang-media",
+            "arn:aws:s3:::codedang-media/*",
+            "arn:aws:s3:::codedang-plag-checks",
+            "arn:aws:s3:::codedang-plag-checks/*"
+          ]
+        }
+      ]
+    }
+  bootstrap.sh: |
+    #!/bin/sh
+    set -eu
+    . /scripts/root-aliases.sh
+
+    until mcli ready target >/dev/null 2>&1; do
+      sleep 5
+    done
+
+    for bucket in codedang-testcase codedang-media codedang-plag-checks; do
+      mcli mb --ignore-existing --region ap-northeast-2 "target/$bucket" >/dev/null
+      mcli anonymous get-json "source/$bucket" > "/tmp/$bucket-policy.json"
+      mcli anonymous set-json "/tmp/$bucket-policy.json" "target/$bucket" >/dev/null
+    done
+
+    migration_user=$(cat /migration/CONSOLE_ACCESS_KEY)
+    migration_password=$(cat /migration/CONSOLE_SECRET_KEY)
+    until mcli admin user info source "$migration_user" >/dev/null 2>&1; do
+      sleep 5
+    done
+    mcli admin policy create source silo-migration-read /scripts/source-migration-policy.json >/dev/null
+    mcli admin policy attach source silo-migration-read --user "$migration_user" >/dev/null
+    mcli admin policy detach source consoleAdmin --user "$migration_user" >/dev/null 2>&1 || true
+
+    if ! mcli admin user info target "$migration_user" >/dev/null 2>&1; then
+      mcli admin user add target "$migration_user" "$migration_password" >/dev/null
+    fi
+    mcli admin policy create target silo-migration-write /scripts/target-migration-policy.json >/dev/null
+    mcli admin policy attach target silo-migration-write --user "$migration_user" >/dev/null
+
+    for secret in admin-api client-api iris plag; do
+      access_key=$(cat "/users/$secret/CONSOLE_ACCESS_KEY")
+      secret_key=$(cat "/users/$secret/CONSOLE_SECRET_KEY")
+      if ! mcli admin user info target "$access_key" >/dev/null 2>&1; then
+        mcli admin user add target "$access_key" "$secret_key" >/dev/null
+      fi
+      mcli admin policy attach target consoleAdmin --user "$access_key" >/dev/null
+    done
+  mirror.sh: |
+    #!/bin/sh
+    set -eu
+    bucket=$1
+    . /scripts/migration-aliases.sh
+    exec mcli mirror --watch --overwrite --preserve "source/$bucket" "target/$bucket"

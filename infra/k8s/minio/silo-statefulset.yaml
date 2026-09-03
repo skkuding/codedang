@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: silo-shadow
+  namespace: minio
+spec:
+  serviceName: silo-shadow-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: silo-shadow
+  template:
+    metadata:
+      labels:
+        app: silo-shadow
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: skkuding-3
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: silo
+          # PGSTY Silo RELEASE.2026-08-06T00-00-00Z.
+          image: docker.io/pgsty/silo@sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac
+          args:
+            - server
+            - /data
+            - --console-address
+            - :9001
+          envFrom:
+            - secretRef:
+                name: silo-root-credentials
+          env:
+            - name: MINIO_UPDATE
+              value: 'off'
+          ports:
+            - name: api
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          startupProbe:
+            httpGet:
+              path: /minio/health/live
+              port: api
+            periodSeconds: 5
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: api
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: api
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: '2'
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: silo-shadow-data
