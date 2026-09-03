@@ -7,3 +7,13 @@ removed {
     destroy = false
   }
 }
+
+# Preserve the ACTIVE task definitions while moving their Terraform ownership
+# to the disabled legacy state.
+removed {
+  from = aws_ecs_task_definition.legacy
+
+  lifecycle {
+    destroy = false
+  }
+}

@@ -1,11 +1,11 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { dateFormatter } from '@/libs/utils'
 import LockGrayIcon from '@/public/icons/lock-gray.svg'
-import type { CourseQnAItem } from '@/types/type'
+import type { CourseQnaListItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
 export const courseQnAColumns: ColumnDef<
-  CourseQnAItem & { assignmentTitle?: string; problemTitle?: string }
+  CourseQnaListItem & { assignmentTitle?: string; problemTitle?: string }
 >[] = [
   {
     accessorKey: 'assignmentTitle',

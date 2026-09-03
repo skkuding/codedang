@@ -54,7 +54,7 @@ func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage hand
 		sendMessage(handler.ResultMessage{EncodedResponse: judgeResponse.Marshal()})
 	}
 	defer func() {
-		sendMessage(handler.ResultMessage{EncodedResponse: response.NewSubmissionResponse(messageID, judgeResults).Marshal()}, constants.Submission)
+		sendMessage(handler.ResultMessage{EncodedResponse: response.NewSubmissionResponse(messageID, judgeResults).Marshal()}, constants.RunSubmission)
 	}()
 
 	validReq := t.req
@@ -110,7 +110,7 @@ func (t *Task) SendSetupFailure(messageID string, taskErr error, sendMessage han
 	sendMessage(handler.ResultMessage{EncodedResponse: judgeResponse.Marshal()})
 	sendMessage(handler.ResultMessage{
 		EncodedResponse: response.NewSubmissionResponse(messageID, []*response.JudgeResponse{judgeResponse}).Marshal(),
-	}, constants.Submission)
+	}, constants.RunSubmission)
 }
 
 type runTestcaseResult struct {

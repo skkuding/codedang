@@ -469,8 +469,7 @@ describe('ContestProblemService', () => {
       const upcomingContest = {
         ...mockContest,
         startTime: faker.date.future(),
-        isRegistered: true,
-        isPrivilegedRole: false
+        userContest: [{ role: 'Participant' }]
       }
       db.contest.findUniqueOrThrow.resolves(upcomingContest)
 
@@ -489,8 +488,7 @@ describe('ContestProblemService', () => {
         ...mockContest,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        isRegistered: false,
-        isPrivilegedRole: false
+        userContest: []
       }
       db.contest.findUniqueOrThrow.resolves(ongoingContest)
 
@@ -512,8 +510,7 @@ describe('ContestProblemService', () => {
         ...mockContest,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        contestRecord: [{ userId }],
-        userContest: [],
+        userContest: [{ role: 'Participant' }],
         invitationCode: 123456
       }
       db.contest.findUniqueOrThrow.resolves(contestMock)
@@ -541,7 +538,6 @@ describe('ContestProblemService', () => {
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        contestRecord: [],
         userContest: [{ role: 'Reviewer' }],
         isJudgeResultVisible: true,
         invitationCode: 123456
@@ -588,8 +584,7 @@ describe('ContestProblemService', () => {
         id: contestId,
         startTime: faker.date.future(),
         endTime: faker.date.future(),
-        contestRecord: [{ userId }],
-        userContest: [],
+        userContest: [{ role: 'Participant' }],
         isJudgeResultVisible: true,
         invitationCode: 123456
       }
@@ -612,7 +607,6 @@ describe('ContestProblemService', () => {
         id: contestId,
         startTime: faker.date.past(),
         endTime: faker.date.future(),
-        contestRecord: [],
         userContest: [],
         isJudgeResultVisible: true,
         invitationCode: 123456

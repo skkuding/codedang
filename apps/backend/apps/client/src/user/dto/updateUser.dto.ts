@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumberString, Matches } from 'class-validator'
+import { IsEmpty, IsOptional, IsString, Matches } from 'class-validator'
 
 export class UpdateUserDto {
   @IsOptional()
@@ -14,9 +14,10 @@ export class UpdateUserDto {
   @IsString()
   readonly realName?: string
 
-  @IsOptional()
-  @IsNumberString()
-  readonly studentId?: string
+  // Student IDs are intentionally immutable after sign-up
+  // to keep whitelist matching reliable.
+  @IsEmpty({ message: 'studentId cannot be updated' })
+  readonly studentId?: never
 
   @IsOptional()
   @IsString()
