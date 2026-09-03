@@ -233,15 +233,11 @@ describe('GroupService', () => {
       expect(res).to.deep.equal(group)
 
       expect(
-        db.group.create.calledWithMatch({
-          data: {
-            GroupWhitelist: {
-              createMany: {
-                data: courseInput.studentWhitelist
-              }
-            }
-          }
-        })
+        whitelistServiceMock.updateWhitelist.calledWith(
+          group.id,
+          courseInput.studentWhitelist,
+          db
+        )
       ).to.be.true
     })
 
@@ -481,9 +477,13 @@ describe('GroupService', () => {
       expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
         duplicateInput.classNum
       )
-      expect(createCallArgs.data.GroupWhitelist.createMany.data).to.deep.equal(
-        duplicateInput.studentWhitelist
-      )
+      expect(
+        whitelistServiceMock.updateWhitelist.calledWith(
+          groupWithAssignment.id,
+          duplicateInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
     })
   })
 })

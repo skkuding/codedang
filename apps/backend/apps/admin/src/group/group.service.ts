@@ -170,55 +170,51 @@ export class GroupService {
     }
 
     try {
-      const createdCourse = await this.prisma.group.create({
-        data: {
-          groupName: input.courseTitle,
-          groupType: GroupType.Course,
-          config: JSON.parse(JSON.stringify(input.config)),
-          courseInfo: {
-            create: {
-              courseNum: input.courseNum,
-              classNum: input.classNum,
-              professor: input.professor,
-              semester: input.semester,
-              week: input.week,
-              email: input.email,
-              website: input.website,
-              office: input.office,
-              phoneNum: input.phoneNum
+      return await this.prisma.$transaction(async (tx) => {
+        const createdCourse = await tx.group.create({
+          data: {
+            groupName: input.courseTitle,
+            groupType: GroupType.Course,
+            config: JSON.parse(JSON.stringify(input.config)),
+            courseInfo: {
+              create: {
+                courseNum: input.courseNum,
+                classNum: input.classNum,
+                professor: input.professor,
+                semester: input.semester,
+                week: input.week,
+                email: input.email,
+                website: input.website,
+                office: input.office,
+                phoneNum: input.phoneNum
+              }
+            },
+            userGroup: {
+              create: {
+                user: {
+                  connect: { id: user.id }
+                },
+                isGroupLeader: true
+              }
             }
           },
-          GroupWhitelist: input.studentWhitelist.length
-            ? {
-                createMany: {
-                  data: input.studentWhitelist.map(
-                    ({ studentId, studentName }) => ({
-                      studentId,
-                      studentName
-                    })
-                  )
-                }
-              }
-            : undefined,
-          userGroup: {
-            create: {
-              user: {
-                connect: { id: user.id }
-              },
-              isGroupLeader: true
-            }
+          select: {
+            id: true,
+            groupName: true,
+            groupType: true,
+            config: true,
+            courseInfo: true
           }
-        },
-        select: {
-          id: true,
-          groupName: true,
-          groupType: true,
-          config: true,
-          courseInfo: true
-        }
-      })
+        })
 
-      return createdCourse
+        await this.whitelistService.updateWhitelist(
+          createdCourse.id,
+          input.studentWhitelist,
+          tx
+        )
+
+        return createdCourse
+      })
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
@@ -533,19 +529,7 @@ export class GroupService {
           },
           courseInfo: {
             create: duplicatedCourseInfo
-          },
-          GroupWhitelist: input.studentWhitelist.length
-            ? {
-                createMany: {
-                  data: input.studentWhitelist.map(
-                    ({ studentId, studentName }) => ({
-                      studentId,
-                      studentName
-                    })
-                  )
-                }
-              }
-            : undefined
+          }
         },
         select: {
           id: true,
@@ -555,6 +539,12 @@ export class GroupService {
           courseInfo: true
         }
       })
+
+      await this.whitelistService.updateWhitelist(
+        duplicatedCourse.id,
+        input.studentWhitelist,
+        tx
+      )
 
       await tx.userGroup.create({
         data: {
