@@ -9,3 +9,4 @@ schema.gql
 collection/
 .next/
 components.json
+mockServiceWorker.js

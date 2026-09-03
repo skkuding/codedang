@@ -1,6 +1,6 @@
 'use client'
 
-import { CREATE_COURSE } from '@/graphql/course/mutation'
+import { CREATE_COURSE, CREATE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useMutation } from '@apollo/client'
 import type { CourseInput } from '@generated/graphql'
@@ -9,6 +9,7 @@ import type { ReactNode } from 'react'
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
 import { courseSchema } from '../_libs/schema'
+import type { RosterRow } from './StudentRosterModal'
 
 export function CreateCourseForm({
   children,
@@ -23,6 +24,7 @@ export function CreateCourseForm({
     phoneNum3?: string
     emailLocal?: string
     emailDomain?: string
+    roster?: RosterRow[]
   }
 
   const methods = useForm<FormValues>({
@@ -43,6 +45,7 @@ export function CreateCourseForm({
       website: '',
       emailLocal: '',
       emailDomain: '',
+      roster: [],
       config: {
         showOnList: true,
         allowJoinFromSearch: true,
@@ -53,6 +56,7 @@ export function CreateCourseForm({
   })
 
   const [createCourse] = useMutation(CREATE_COURSE)
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
   const client = useApolloClient()
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -69,7 +73,7 @@ export function CreateCourseForm({
     data.email = local || domain ? `${local}@${domain}` : ''
 
     try {
-      await createCourse({
+      const { data: created } = await createCourse({
         variables: {
           input: {
             courseTitle: data.courseTitle,
@@ -86,6 +90,21 @@ export function CreateCourseForm({
           }
         }
       })
+
+      const groupId = created?.createCourse.id
+      // valibotResolver strips keys not declared in courseSchema, so read
+      // roster directly from form state instead of the resolver output.
+      const roster = methods.getValues('roster') ?? []
+      if (groupId && roster.length > 0) {
+        await createWhitelist({
+          variables: {
+            groupId: Number(groupId),
+            studentIds: roster.map((row) => row.studentId),
+            names: roster.map((row) => row.name)
+          }
+        })
+      }
+
       toast.success('Course created successfully!')
       client.refetchQueries({
         include: [GET_COURSES_USER_LEAD]
