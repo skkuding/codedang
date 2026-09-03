@@ -32,6 +32,8 @@ spec:
           env:
             - name: MINIO_UPDATE
               value: 'off'
+            - name: MINIO_BROWSER_REDIRECT_URL
+              value: 'https://silo-console.stage.codedang.com'
           ports:
             - name: api
               containerPort: 9000

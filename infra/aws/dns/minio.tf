@@ -13,3 +13,11 @@ resource "aws_route53_record" "minio_console_stage" {
   records = local.stage_cluster_ip
   ttl     = 300
 }
+
+resource "aws_route53_record" "silo_console_stage" {
+  name    = "silo-console.stage.codedang.com"
+  zone_id = data.aws_route53_zone.codedang.zone_id
+  type    = "A"
+  records = local.stage_cluster_ip
+  ttl     = 300
+}

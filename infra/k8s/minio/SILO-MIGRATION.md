@@ -45,6 +45,13 @@ curl --fail --silent --show-error http://127.0.0.1:9000/minio/health/live
 curl --fail --silent --show-error http://127.0.0.1:9000/minio/health/ready
 ```
 
+The isolated Console is available without changing either stable MinIO route:
+
+```bash
+curl --fail --silent --show-error --output /dev/null \
+  https://silo-console.stage.codedang.com/
+```
+
 Confirm that:
 
 - `silo-shadow-data` is Bound to a distinct PV on `skkuding-3`;
@@ -52,7 +59,8 @@ Confirm that:
 - the source PVC remains Bound on `skkuding-1`;
 - the target restarts successfully without changing its PV identity;
 - `silo-mirror` has zero replicas;
-- the stable API and Console hosts still route only to source MinIO.
+- `silo-console.stage.codedang.com` routes only to `silo-shadow:9090`;
+- the stable API and MinIO Console hosts still route only to source MinIO.
 
 Do not activate synchronization if any check fails.
 
