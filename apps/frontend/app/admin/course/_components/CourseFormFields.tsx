@@ -44,36 +44,40 @@ export function CourseFormFields() {
 
   return (
     <div className="flex flex-col gap-[10px] px-1">
-      <FormSection isFlexColumn title="Professor" className="gap-[6px]">
-        <InputForm placeholder="홍길동" name="professor" type="text" />
-      </FormSection>
-      <FormSection isFlexColumn title="Course Title" className="gap-[6px]">
-        <InputForm placeholder="홍길동개론" name="courseTitle" type="text" />
-      </FormSection>
+      <InputForm
+        placeholder="홍길동"
+        label="Professor"
+        name="professor"
+        size="large"
+        type="text"
+      />
+      <InputForm
+        placeholder="홍길동개론"
+        label="Course Title"
+        name="courseTitle"
+        size="middle"
+        type="text"
+      />
       <div className="flex justify-between gap-[10px]">
-        <FormSection
-          isFlexColumn
-          title="Course Code"
-          className="w-full gap-[6px]"
-        >
-          <InputForm
-            placeholder="SWE1234"
-            name="courseNum"
-            type="text"
-            maxLength={7}
-            value={courseNumber}
-            onChange={handleCourseNumberChange}
-          />
-        </FormSection>
-      </div>
-      <FormSection isFlexColumn title="Course Section" className="gap-[6px]">
         <InputForm
-          placeholder="1"
-          name="classNum"
-          type="number"
-          maxLength={2}
+          placeholder="SWE1234"
+          name="courseNum"
+          size="small"
+          type="text"
+          label="Course Code"
+          maxLength={7}
+          value={courseNumber}
+          onChange={handleCourseNumberChange}
         />
-      </FormSection>
+      </div>
+      <InputForm
+        placeholder="1"
+        name="classNum"
+        label="Course Section"
+        type="number"
+        maxLength={2}
+        disabled
+      />
       <FormSection isFlexColumn title="Week" className="gap-[6px]">
         <DropdownForm name="week" items={weekOptions} />
       </FormSection>
