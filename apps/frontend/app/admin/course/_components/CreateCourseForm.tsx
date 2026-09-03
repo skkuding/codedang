@@ -82,7 +82,8 @@ export function CreateCourseForm({
             website: data.website,
             office: data.office,
             phoneNum: data.phoneNum,
-            config: data.config
+            config: data.config,
+            studentWhitelist: []
           }
         }
       })

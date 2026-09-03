@@ -42,7 +42,10 @@ const GET_COURSE = gql(`
 
 const GET_WHITE_LIST = gql(`
   query getWhitelist ($groupId: Int!){
-    getWhitelist(groupId: $groupId)
+    getWhitelist(groupId: $groupId) {
+      studentId
+      studentName
+    }
   }
 `)
 

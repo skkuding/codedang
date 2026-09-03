@@ -24,6 +24,15 @@ export class CreateGroupInput extends GroupCreateInput {
 }
 
 @InputType()
+export class StudentWhitelistInput {
+  @Field(() => String, { nullable: false })
+  studentId: string
+
+  @Field(() => String, { nullable: false })
+  studentName: string
+}
+
+@InputType()
 export class CourseInput {
   @Field(() => String, { nullable: false })
   courseTitle: string
@@ -42,6 +51,9 @@ export class CourseInput {
 
   @Field(() => Int, { nullable: false })
   week: number
+
+  @Field(() => [StudentWhitelistInput], { nullable: false })
+  studentWhitelist: StudentWhitelistInput[]
 
   @Field(() => String, { nullable: true })
   email?: string

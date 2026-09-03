@@ -3,7 +3,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { GroupType, type Group } from '@generated'
 import type { User } from '@generated'
 import { faker } from '@faker-js/faker'
-import { Role } from '@prisma/client'
+import { Role, type Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
@@ -31,6 +31,16 @@ const courseInput = {
   professor: '김우주',
   semester: '2025 Spring',
   week: 16,
+  studentWhitelist: [
+    {
+      studentId: '20250001',
+      studentName: '홍길동'
+    },
+    {
+      studentId: '20250002',
+      studentName: '김코딩'
+    }
+  ],
   email: 'johndoe@example.com',
   website: 'https://example.com',
   office: 'Room 301',
@@ -88,11 +98,13 @@ const group = {
   GroupWhitelist: [
     {
       groupId: faker.number.int(),
-      studentId: faker.string.numeric()
+      studentId: faker.string.numeric(),
+      studentName: faker.person.fullName()
     },
     {
       groupId: faker.number.int(),
-      studentId: faker.string.numeric()
+      studentId: faker.string.numeric(),
+      studentName: faker.person.fullName()
     }
   ],
   courseInfo
@@ -120,6 +132,10 @@ const userWithOutCanCreate: User = {
   ...user,
   canCreateCourse: false,
   canCreateContest: false
+}
+
+const whitelistServiceMock = {
+  updateWhitelist: stub().resolves()
 }
 
 const db = {
@@ -187,6 +203,7 @@ describe('GroupService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
+        { provide: WhitelistService, useValue: whitelistServiceMock },
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,
@@ -214,6 +231,14 @@ describe('GroupService', () => {
 
       const res = await service.createCourse(courseInput, userReq)
       expect(res).to.deep.equal(group)
+
+      expect(
+        whitelistServiceMock.updateWhitelist.calledWith(
+          group.id,
+          courseInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
     })
 
     it('should throw error when user does not have can create course', async () => {
@@ -315,11 +340,18 @@ describe('GroupService', () => {
   describe('updateCourse', () => {
     const updated = { ...group, groupName: 'Updated' }
     it('should return updated group', async () => {
-      db.group.findFirst.resolves(null)
       db.group.update.resolves(updated)
 
       const res = await service.updateCourse(groupId, courseInput)
       expect(res).to.deep.equal(updated)
+
+      expect(
+        whitelistServiceMock.updateWhitelist.calledWith(
+          groupId,
+          courseInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
     })
   })
 
@@ -342,7 +374,13 @@ describe('GroupService', () => {
     const duplicateInput = {
       courseNum: 'SWE3099',
       semester: '2026 Spring',
-      classNum: 1
+      classNum: 1,
+      studentWhitelist: [
+        {
+          studentId: '20250001',
+          studentName: '홍길동'
+        }
+      ]
     }
 
     it('should throw NotFoundException if user does not exist', async () => {
@@ -439,6 +477,13 @@ describe('GroupService', () => {
       expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
         duplicateInput.classNum
       )
+      expect(
+        whitelistServiceMock.updateWhitelist.calledWith(
+          groupWithAssignment.id,
+          duplicateInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
     })
   })
 })
@@ -578,19 +623,101 @@ describe('WhitelistService', () => {
   })
 
   describe('getWhitelist', () => {
-    it('should return student Ids in the whitelist', async () => {
+    it('should return students in the whitelist', async () => {
       const groupId = faker.number.int()
       const mockData = [
-        { studentId: faker.string.numeric() },
-        { studentId: faker.string.numeric() }
+        {
+          studentId: faker.string.numeric(),
+          studentName: faker.person.fullName()
+        },
+        {
+          studentId: faker.string.numeric(),
+          studentName: faker.person.fullName()
+        }
       ]
+
       db.groupWhitelist.findMany.resolves(mockData)
+
       const res = await service.getWhitelist(groupId)
-      expect(res).to.deep.equal(mockData.map((item) => item.studentId))
+
+      expect(res).to.deep.equal(mockData)
       expect(
         db.groupWhitelist.findMany.calledWith({
           where: { groupId },
-          select: { studentId: true }
+          select: {
+            studentId: true,
+            studentName: true
+          }
+        })
+      ).to.be.true
+    })
+  })
+
+  describe('updateWhitelist', () => {
+    it('should add, delete, and rename students', async () => {
+      const groupId = faker.number.int()
+      const currentWhitelist = [
+        {
+          studentId: '20250001',
+          studentName: '삭제할 학생'
+        },
+        {
+          studentId: '20250002',
+          studentName: '이전 이름'
+        },
+        {
+          studentId: '20250003',
+          studentName: '유지할 학생'
+        }
+      ]
+      const newWhitelist = [
+        {
+          studentId: '20250002',
+          studentName: '변경된 이름'
+        },
+        {
+          studentId: '20250003',
+          studentName: '유지할 학생'
+        },
+        {
+          studentId: '20250004',
+          studentName: '추가할 학생'
+        }
+      ]
+
+      db.groupWhitelist.findMany.resolves(currentWhitelist)
+      db.groupWhitelist.deleteMany.resolves({ count: 2 })
+      db.groupWhitelist.createMany.resolves({ count: 2 })
+
+      const tx = db as unknown as Prisma.TransactionClient
+
+      await service.updateWhitelist(groupId, newWhitelist, tx)
+
+      expect(
+        db.groupWhitelist.deleteMany.calledWith({
+          where: {
+            groupId,
+            studentId: {
+              in: ['20250001', '20250002']
+            }
+          }
+        })
+      ).to.be.true
+
+      expect(
+        db.groupWhitelist.createMany.calledWith({
+          data: [
+            {
+              groupId,
+              studentId: '20250002',
+              studentName: '변경된 이름'
+            },
+            {
+              groupId,
+              studentId: '20250004',
+              studentName: '추가할 학생'
+            }
+          ]
         })
       ).to.be.true
     })

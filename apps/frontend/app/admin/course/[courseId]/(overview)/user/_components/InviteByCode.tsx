@@ -41,7 +41,9 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   useQuery(GET_WHITE_LIST, {
     variables: { groupId: Number(courseId) },
     onCompleted: (data) => {
-      setWhiteListStudentIds(data?.getWhitelist)
+      setWhiteListStudentIds(
+        data?.getWhitelist.map(({ studentId }) => studentId) ?? []
+      )
       setIsWhiteListEnabled(Boolean(data?.getWhitelist?.length))
     },
     onError: (error) => {
