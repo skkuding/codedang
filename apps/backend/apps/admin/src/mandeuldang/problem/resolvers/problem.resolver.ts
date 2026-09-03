@@ -3,6 +3,7 @@ import { ProblemStatus } from '@prisma/client'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { CreateMandeuldangProblemInput } from '../model/problem.input'
+import { UpdateMandeuldangProblemInput } from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
 import { MandeuldangProblemService } from '../services/problem.service'
 
@@ -76,5 +77,16 @@ export class MandeuldangProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.mandeuldangProblemService.deleteProblem(id, req.user.id)
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async updateMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: UpdateMandeuldangProblemInput
+  ) {
+    return await this.mandeuldangProblemService.updateProblem(
+      input,
+      req.user.id
+    )
   }
 }
