@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frigate
+  namespace: frigate
+  labels:
+    app: frigate
+spec:
+  replicas: 1
+
+  strategy:
+    type: Recreate
+
+  selector:
+    matchLabels:
+      app: frigate
+
+  template:
+    metadata:
+      labels:
+        app: frigate
+
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 30
+
+      nodeSelector:
+        kubernetes.io/hostname: skkuding-1
+
+      securityContext:
+        supplementalGroups:
+          - 44
+
+      containers:
+        - name: frigate
+          image: ghcr.io/blakeblackshear/frigate:stable
+          imagePullPolicy: Always
+
+          env:
+            - name: TZ
+              value: Asia/Seoul
+
+          ports:
+            - name: http
+              containerPort: 8971
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+
+          volumeMounts:
+            - name: camera
+              mountPath: /dev/video0
+
+            - name: config-data
+              mountPath: /config
+
+            - name: config-file
+              mountPath: /config/config.yml
+              subPath: config.yml
+              readOnly: true
+
+            - name: media
+              mountPath: /media/frigate
+
+            - name: cache
+              mountPath: /tmp/cache
+
+            - name: shm
+              mountPath: /dev/shm
+
+      volumes:
+        - name: camera
+          hostPath:
+            path: /dev/video0
+            type: CharDevice
+
+        - name: config-data
+          persistentVolumeClaim:
+            claimName: frigate-config-data
+
+        - name: config-file
+          configMap:
+            name: frigate-config
+            defaultMode: 0444
+
+        - name: media
+          persistentVolumeClaim:
+            claimName: frigate-media
+
+        - name: cache
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi

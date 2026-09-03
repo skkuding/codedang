@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frigate
+  namespace: frigate
+  labels:
+    app: frigate
+spec:
+  type: ClusterIP
+
+  selector:
+    app: frigate
+
+  ports:
+    - name: http
+      port: 8971
+      targetPort: http
+      protocol: TCP
