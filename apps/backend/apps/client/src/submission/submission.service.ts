@@ -130,7 +130,7 @@ export class SubmissionService {
    * @returns {Promise<Submission>} 생성된 제출 객체
    * @throws {EntityNotExistException} 아래의 경우에 발생합니다
    *   - 유효한 진행 중인 대회가 없을 경우 (Contest)
-   *   - 사용자가 대회에 등록되어 있지 않은 경우 (ContestRecord)
+   *   - 사용자가 대회에 등록되어 있지 않은 경우 (UserContest)
    *   - 문제를 찾을 수 없거나 대회와 매칭되지 않는 경우 (ContestProblem)
    * @throws {ConflictFoundException} 아래의 경우에 발생합니다
    *   - 대회가 진행중이지 않을 경우
@@ -166,30 +166,17 @@ export class SubmissionService {
 
     if (!isStaff) {
       // 대회에 등록되어 있는지 확인합니다.
-      const contestRecord = await this.prisma.contestRecord.findUnique({
+      const userContest = await this.prisma.userContest.findUnique({
         where: {
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
-          }
-        },
-        select: {
-          contest: {
-            select: {
-              startTime: true,
-              endTime: true
-            }
-          }
+          userId_contestId: { userId, contestId }
         }
       })
-      if (!contestRecord) {
-        throw new EntityNotExistException('ContestRecord')
+
+      if (!userContest) {
+        throw new EntityNotExistException('UserContest')
       }
-      if (
-        contestRecord.contest.startTime > now ||
-        contestRecord.contest.endTime <= now
-      ) {
+      if (contest.startTime > now || contest.endTime <= now) {
         throw new ConflictFoundException(
           'Submission is only allowed to ongoing contests'
         )
