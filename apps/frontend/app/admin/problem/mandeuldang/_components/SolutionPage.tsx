@@ -10,7 +10,6 @@ import { useRef, useState } from 'react'
 import type { MandeuldangRole } from '../_libs/permissions'
 import { useMandeuldangPermission } from '../_libs/useMandeuldangPermission'
 import { MandeuldangRoleSwitchButton } from './MandeuldangRoleSwitchButton'
-import { ValidatorSection } from './ValidatorSection'
 
 type SolutionStatus = 'Pending' | 'Running' | 'Success' | 'Failed'
 
@@ -176,8 +175,6 @@ export function SolutionPage() {
           </div>
         )}
       </section>
-
-      <ValidatorSection />
     </div>
   )
 }
