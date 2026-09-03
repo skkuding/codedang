@@ -100,4 +100,7 @@ data:
     set -eu
     bucket=$1
     . /scripts/migration-aliases.sh
-    exec mcli mirror --watch --overwrite --preserve "source/$bucket" "target/$bucket"
+    while true; do
+      mcli mirror --overwrite --preserve "source/$bucket" "target/$bucket"
+      sleep 30
+    done

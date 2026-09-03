@@ -4,8 +4,7 @@ metadata:
   name: silo-mirror
   namespace: minio
 spec:
-  # Activate only after the isolated Silo target passes its validation gate.
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:

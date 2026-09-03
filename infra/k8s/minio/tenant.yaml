@@ -15,6 +15,7 @@ spec:
     - name: client-api-user
     - name: iris-user
     - name: plag-user
+    - name: silo-migration-credentials
   buckets:
     - name: 'codedang-testcase'
       region: 'ap-northeast-2'
