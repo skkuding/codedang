@@ -20,23 +20,6 @@ export class MandeuldangProblemService {
     private readonly publishCheckService: PublishCheckService
   ) {}
 
-  // 수정 권한이 있는지 확인
-  private async assertEditable(problemId: number, userId: number) {
-    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { problemId_userId: { problemId, userId } }
-    })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role === CollaboratorRole.Reviewer
-    ) {
-      throw new ForbiddenAccessException(
-        'Only Owner or Editor can set a problem to public'
-      )
-    }
-  }
-
   async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
     const { id, tags, template, ...data } = input
 
@@ -44,7 +27,18 @@ export class MandeuldangProblemService {
       where: { id, creationMode: ProblemCreationMode.Mandeuldang }
     })
 
-    await this.assertEditable(id, userId)
+    // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
+    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_userId: { problemId: id, userId } }
+    })
+    if (
+      !collaborator ||
+      collaborator.status !== CollaboratorStatus.Approved ||
+      collaborator.role === CollaboratorRole.Reviewer
+    ) {
+      throw new ForbiddenAccessException('Only Owner or Editor can edit')
+    }
 
     return await this.prisma.$transaction(async (tx) => {
       const updated = await tx.problem.update({
@@ -88,6 +82,48 @@ export class MandeuldangProblemService {
         })
       }
       return updated
+    })
+  }
+
+  async publishProblem(problemId: number, userId: number) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang }
+    })
+
+    // 발행 권한이 있는지 확인 (Owner만 가능)
+    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_userId: { problemId, userId } }
+    })
+    if (
+      !collaborator ||
+      collaborator.status !== CollaboratorStatus.Approved ||
+      collaborator.role !== CollaboratorRole.Owner
+    ) {
+      throw new ForbiddenAccessException('Only Owner can publish a problem')
+    }
+
+    if (problem.status !== ProblemStatus.Ready) {
+      throw new UnprocessableDataException(
+        'Only a Ready problem can be published'
+      )
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const { canPublish, missing } = await this.publishCheckService.check(
+        problem.id,
+        tx
+      )
+      if (!canPublish) {
+        throw new UnprocessableDataException(
+          `Cannot publish: missing ${missing.join(', ')}`
+        )
+      }
+
+      return await tx.problem.update({
+        where: { id: problem.id },
+        data: { status: ProblemStatus.Published }
+      })
     })
   }
 }
