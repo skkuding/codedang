@@ -43,3 +43,10 @@ spec:
           - CreateNamespace=true
           - PrunePropagationPolicy=foreground
           - SkipDryRunOnMissingResource=true
+        retry:
+          limit: 10
+          refresh: true
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 2m
