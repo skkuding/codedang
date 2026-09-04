@@ -8,9 +8,7 @@ resources:
   - ingress.yaml
   - namespace.yaml
   - silo-console-ingress.yaml
-  - silo-migration-config.yaml
   - silo-migration-credentials.yaml
-  - silo-mirror.yaml
   - silo-pvc.yaml
   - silo-root-credentials.yaml
   - silo-services.yaml
