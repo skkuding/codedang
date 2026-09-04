@@ -32,6 +32,11 @@ export class GeneratorToolResultDto {
   @ValidateNested({ each: true })
   @Type(() => GeneratorTestcaseErrorDto)
   errors?: GeneratorTestcaseErrorDto[]
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  testcaseIds?: number[]
 }
 
 export class GeneratorResultDto {
