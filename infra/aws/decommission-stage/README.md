@@ -33,8 +33,9 @@ exists; only its residual subnet group is imported here.
 
 ## Before deletion
 
-1. Remove the live `iris-legacy` namespace. Its hourly ExternalSecret refresh is
-   the remaining consumer of `Codedang-JudgeQueue-Secret`.
+1. Manually remove the live production `iris-legacy` namespace. It is not
+   managed by Argo CD, and its hourly ExternalSecret refresh is the remaining
+   consumer of `Codedang-JudgeQueue-Secret`.
 2. Delete the ALB listeners and load balancers before their security groups and
    public subnets.
 3. Delete the MQ broker before its configuration, secret, and subnet.
