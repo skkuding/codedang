@@ -4,7 +4,7 @@ metadata:
   name: silo-mirror
   namespace: minio
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
