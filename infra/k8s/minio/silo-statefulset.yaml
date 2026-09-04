@@ -16,6 +16,14 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: skkuding-3
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
       terminationGracePeriodSeconds: 120
       containers:
         - name: silo
@@ -66,10 +74,20 @@ spec:
             limits:
               cpu: '2'
               memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: silo-shadow-data
+        - name: tmp
+          emptyDir: {}
