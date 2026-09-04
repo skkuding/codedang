@@ -1,0 +1,33 @@
+meta {
+  name: [400] Missing Student ID
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/course/2/join?invitation
+  body: json
+  auth: none
+}
+
+params:query {
+  invitation:
+}
+
+body:json {
+  {}
+}
+
+assert {
+  res.status: eq 400
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Join Group by Id - Missing Student ID
+  ---
+  - `studentId`가 누락되면 `400 Bad Request`를 반환합니다.
+}

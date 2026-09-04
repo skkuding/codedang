@@ -316,6 +316,7 @@ export class GroupService {
    * @param userId - 사용자 ID
    * @param groupId - 가입할 그룹 ID
    * @param invitation - (선택) 초대 코드
+   * @param studentId - 학생이 입력한 학번
    * @returns 가입 결과 (바로 가입되었는지 `isJoined: true`, 요청 상태인지 `isJoined: false`)
    *
    * @throws ForbiddenAccessException - 초대 코드가 유효하지 않거나, 화이트리스트에 없는 경우
@@ -329,8 +330,12 @@ export class GroupService {
   async joinGroupById(
     userId: number,
     groupId: number,
-    invitation: string
+    invitation: string,
+    studentId: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
+    // The enrollment verification task will use this value for roster matching.
+    void studentId
+
     const invitedGroupId = await this.cacheManager.get<number>(
       invitationCodeKey(invitation)
     )

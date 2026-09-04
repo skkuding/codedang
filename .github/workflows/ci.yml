@@ -148,7 +148,7 @@ jobs:
 
       - name: Lint pull request title
         if: ${{ github.event_name == 'pull_request' }}
-        run: echo "${{ github.event.pull_request.title }}" | pnpm commitlint --verbose
+        run: printf '%s\n' "${{ github.event.pull_request.title }}" | sed 's/[[:space:]]*$//' | pnpm commitlint --verbose
 
   lint-node:
     name: Lint Node.js
