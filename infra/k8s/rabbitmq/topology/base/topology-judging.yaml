@@ -4,6 +4,8 @@ kind: Exchange
 metadata:
   name: iris
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   name: iris.e.direct.judge
   type: direct
@@ -19,6 +21,8 @@ kind: Queue
 metadata:
   name: submission-queue
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   name: client.q.judge.submission
   vhost: vh
@@ -33,6 +37,8 @@ kind: Queue
 metadata:
   name: result-queue
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   name: iris.q.judge.result
   vhost: vh
@@ -47,6 +53,8 @@ kind: Binding
 metadata:
   name: binding-submission
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
 spec:
   vhost: vh
   source: iris.e.direct.judge
@@ -62,6 +70,8 @@ kind: Binding
 metadata:
   name: binding-result
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
 spec:
   vhost: vh
   source: iris.e.direct.judge

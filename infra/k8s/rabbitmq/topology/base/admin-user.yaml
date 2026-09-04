@@ -3,6 +3,8 @@ kind: User
 metadata:
   name: admin-user
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
 spec:
   tags:
     - administrator
@@ -16,6 +18,8 @@ kind: Permission
 metadata:
   name: admin-user-permission
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   vhost: 'vh'
   user: 'admin'

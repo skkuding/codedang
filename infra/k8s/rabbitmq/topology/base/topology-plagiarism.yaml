@@ -4,6 +4,8 @@ kind: Exchange
 metadata:
   name: plag
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   name: plag.e.direct.check
   type: direct
@@ -19,6 +21,8 @@ kind: Queue
 metadata:
   name: check-request-queue
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   name: plag.q.check.request
   vhost: vh
@@ -35,6 +39,8 @@ kind: Queue
 metadata:
   name: check-result-queue
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   name: plag.q.check.result
   vhost: vh
@@ -49,6 +55,8 @@ kind: Binding
 metadata:
   name: binding-check-request
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
 spec:
   vhost: vh
   source: plag.e.direct.check
@@ -64,6 +72,8 @@ kind: Binding
 metadata:
   name: binding-check-result
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
 spec:
   vhost: vh
   source: plag.e.direct.check
