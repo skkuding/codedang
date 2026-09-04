@@ -40,7 +40,7 @@ export const CHECK_MESSAGE_TYPE = 'check'
  * Mandeuldang Tool 업로드 -> Queue
  */
 
-export const MANDEULDANG_EXCHANGE = 'iris.e.direct.judge'
+export const MANDEULDANG_EXCHANGE = 'iris.e.direct.mandeuldang'
 
 export const MANDEULDANG_REQUEST_KEY = 'mandeuldang.request'
 export const MANDEULDANG_RESULT_KEY = 'mandeuldang.result'
