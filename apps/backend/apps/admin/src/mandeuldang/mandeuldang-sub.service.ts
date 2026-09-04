@@ -1,11 +1,12 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { MandeuldangRunStatus } from '@prisma/client'
+import { MandeuldangRunStatus, TestFileType } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import {
   GeneratorResultDto,
   ValidatorResultDto
@@ -17,7 +18,8 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: MandeuldangAMQPService
+    private readonly amqpService: MandeuldangAMQPService,
+    private readonly storageService: StorageService
   ) {}
 
   onModuleInit() {
@@ -159,6 +161,45 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       },
       'Handled Mandeuldang Generator Result Message'
     )
+
+    if (isSuccess && msg.toolResult.testcaseIds?.length) {
+      const fileRequests = msg.toolResult.testcaseIds.flatMap((testcaseId) => {
+        const baseName = String(testcaseId)
+        return (['in', 'out'] as const).map((ext) => ({
+          fileName: `${baseName}.${ext}`,
+          baseName,
+          ext
+        }))
+      })
+
+      const testFileData = await Promise.all(
+        fileRequests.map(async ({ fileName, baseName, ext }) => {
+          const filePath = `${msg.problemId}/${fileName}`
+          const fileSize = await this.storageService.getObjectSize(
+            filePath,
+            'testcase'
+          )
+
+          return {
+            problemId: msg.problemId,
+            fileName,
+            baseName,
+            fileType: ext === 'in' ? TestFileType.IN : TestFileType.OUT,
+            filePath,
+            fileSize: BigInt(fileSize)
+          }
+        })
+      )
+
+      if (testFileData.length > 0) {
+        await this.prisma.$transaction([
+          this.prisma.mandeuldangTestFile.deleteMany({
+            where: { problemId: msg.problemId }
+          }),
+          this.prisma.mandeuldangTestFile.createMany({ data: testFileData })
+        ])
+      }
+    }
   }
 
   @Span()
