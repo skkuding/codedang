@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - base
   - cert-manager
+  - topology/base

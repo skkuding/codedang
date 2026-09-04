@@ -3,10 +3,9 @@ kind: Kustomization
 
 resources:
   - ../../base
-  - ../../cert-manager
 
 patches:
-  - path: HTTPRoutes.yaml
+  - path: admin-credentials.yaml
     target:
-      kind: HTTPRoute
-      name: rabbitmq-console-httproute
+      kind: SealedSecret
+      name: admin-credentials
