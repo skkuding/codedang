@@ -3,6 +3,8 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '3'
 spec:
   tls:
     secretName: rabbitmq-server-certs
