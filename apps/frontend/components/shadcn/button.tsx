@@ -4,18 +4,27 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-3xl text-base font-medium ring-offset-white transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-color-neutral-95 disabled:text-color-neutral-70 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300',
+  'inline-flex items-center justify-center whitespace-nowrap text-base font-semibold ring-offset-white transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300',
   {
     variants: {
       variant: {
         default:
-          'rounded-full bg-primary text-gray-50 hover:bg-primary-strong dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90',
+          'rounded-full bg-primary text-color-common-100 hover:bg-primary-strong disabled:bg-color-neutral-95 disabled:text-color-neutral-60 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90',
+        secondary:
+          'bg-color-neutral-20 text-color-common-100 disabled:bg-color-neutral-20 disabled:text-color-neutral-40 hover:bg-color-neutral-15 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90',
         destructive:
           'bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90',
         outline:
           'rounded-full border  bg-white hover:bg-[#EBEBEB] dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-[#EBEBEB] dark:hover:text-gray-50 text-[#8A8A8A]',
-        secondary:
-          'rounded-full border border-primary bg-gray-100 text-gray-900 hover:bg-gray-100/80 dark:bg-primary/20 dark:text-gray-50 dark:hover:bg-gray-800/80',
+        tertiary:
+          'bg-color-common-100 text-color-common-0 disabled:bg-color-neutral-90 disabled:text-color-neutral-40 hover:bg-[#EBEBEB] dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-[#EBEBEB] dark:hover:text-gray-50',
+        lined:
+          'border border-primary bg-color-common-100 text-primary disabled:bg-color-neutral-90 disabled:border-primary-light disabled:text-primary-light hover:bg-[#EBEBEB] dark:bg-primary/20 dark:text-gray-50 dark:hover:bg-gray-800/80',
+        icon: 'rounded-full bg-color-common-100 text-primary hover:bg-[#EBEBEB] active:bg-primary active:text-color-common-100 disabled:',
+        primary_sub:
+          'bg-primary text-color-common-100 hover:bg-primary-strong disabled:bg-color-neutral-95 disabled:text-color-neutral-70',
+        lined_sub:
+          'border border-primary-light bg-color-common-100 text-primary hover:bg-[#EBEBEB] disabled:bg-color-neutral-95 disabled:text-color-neutral-70',
         ghost:
           'rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-50',
         link: 'text-gray-900 underline-offset-4 hover:underline dark:text-gray-50',
@@ -29,7 +38,15 @@ const buttonVariants = cva(
         sm: 'h-9  px-3',
         lg: 'h-11  px-8',
         icon: 'h-[30px] w-[30px]',
-        editor: 'h-8 px-2'
+        editor: 'h-8 px-2',
+        large: 'h-14 gap-1.5 rounded-large px-6 py-4',
+        middle: 'h-[46px] gap-1 rounded-middle px-4 py-3',
+        small: 'h-[38px] px-[10px] gap-1 rounded-small py-2 text-sm',
+        icon_large: 'w-[56px] h-[56px]',
+        icon_small: 'w-[52px] h-[52px]',
+        large_sub: 'h-[52px] gap-1.5 rounded-small',
+        middle_sub: 'h-[48px] gap-1.5 rounded-small',
+        small_sub: 'h-[40px] gap-1.5 rounded-small'
       }
     },
     defaultVariants: {
