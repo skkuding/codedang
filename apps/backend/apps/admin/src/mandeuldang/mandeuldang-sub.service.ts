@@ -1,4 +1,5 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
+import { MandeuldangRunStatus } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
@@ -31,7 +32,6 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           await this.handleGeneratorResult(res)
         } catch (error) {
           this.logError(error, 'Unexpected generator result error')
-          throw error
         }
       },
       onValidateResult: async (msg: object) => {
@@ -44,7 +44,6 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           await this.handleValidatorResult(res)
         } catch (error) {
           this.logError(error, 'Unexpected validator result error')
-          throw error
         }
       }
     })
@@ -95,28 +94,47 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
   @Span()
   async handleGeneratorResult(msg: GeneratorResultDto): Promise<void> {
-    const problemId = Number(msg.messageId)
-    if (!Number.isInteger(problemId)) {
+    const requestId = Number(msg.messageId)
+    if (isNaN(requestId)) {
       throw new UnprocessableDataException(
-        'Invalid generator exercution messageId'
+        `Invalid messageId format: ${msg.messageId}`
       )
     }
 
-    const lastRunPass = msg.resultCode === 0
-
-    await this.prisma.mandeuldangProblem.update({
-      where: { id: problemId },
-      data: { lastRunPass }
+    const request = await this.prisma.mandeuldangRunRequest.findUniqueOrThrow({
+      where: {
+        id: requestId
+      }
     })
+
+    const isSuccess = msg.resultCode === 0
+    const now = new Date()
+
+    await this.prisma.$transaction([
+      this.prisma.mandeuldangRunRequest.update({
+        where: { id: requestId },
+        data: {
+          status: isSuccess
+            ? MandeuldangRunStatus.Success
+            : MandeuldangRunStatus.Failed,
+          resultCode: msg.resultCode,
+          completedAt: now
+        }
+      }),
+      this.prisma.mandeuldangProblem.update({
+        where: { id: request.problemId },
+        data: { lastRunPass: isSuccess }
+      })
+    ])
 
     this.logger.log(
       {
-        messageId: msg.messageId,
-        problemId,
+        requestId: request.id,
+        problemId: request.problemId,
         resultCode: msg.resultCode,
-        lastRunPass,
-        generatedTestCases: msg.judgeResult.generatedTestCases,
-        totalTestCases: msg.judgeResult.totalTestCases
+        isSuccess,
+        generatedCount: msg.toolResult.generatedCount,
+        requestedCount: msg.toolResult.requestedCount
       },
       'Handled Mandeuldang Generator Result Message'
     )
@@ -124,26 +142,45 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
   @Span()
   async handleValidatorResult(msg: ValidatorResultDto): Promise<void> {
-    const problemId = Number(msg.messageId)
-    if (!Number.isInteger(problemId)) {
+    const requestId = Number(msg.messageId)
+    if (isNaN(requestId)) {
       throw new UnprocessableDataException(
-        'Invalid validator execution messageId'
+        `Invalid messageId format: ${msg.messageId}`
       )
     }
 
-    const lastRunPass = msg.resultCode === 0
-
-    await this.prisma.mandeuldangProblem.update({
-      where: { id: problemId },
-      data: { lastRunPass }
+    const request = await this.prisma.mandeuldangRunRequest.findUniqueOrThrow({
+      where: {
+        id: requestId
+      }
     })
+
+    const isSuccess = msg.resultCode === 0 && msg.toolResult.isAllValid
+    const now = new Date()
+
+    await this.prisma.$transaction([
+      this.prisma.mandeuldangRunRequest.update({
+        where: { id: requestId },
+        data: {
+          status: isSuccess
+            ? MandeuldangRunStatus.Success
+            : MandeuldangRunStatus.Failed,
+          resultCode: msg.resultCode,
+          completedAt: now
+        }
+      }),
+      this.prisma.mandeuldangProblem.update({
+        where: { id: request.problemId },
+        data: { lastRunPass: isSuccess }
+      })
+    ])
 
     this.logger.log(
       {
-        messageId: msg.messageId,
-        resultCode: msg.resultCode,
-        isValid: msg.judgeResult.isValid,
-        testcaseCount: msg.judgeResult.testcaseCount
+        requestId: request.id,
+        problemId: request.problemId,
+        isAllValid: msg.toolResult.isAllValid,
+        testcaseCount: msg.toolResult.testcaseCount
       },
       'Handled Mandeuldang Validator Result Message'
     )
