@@ -89,4 +89,15 @@ export class MandeuldangProblemResolver {
       req.user.id
     )
   }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async publishMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('id', { type: () => Int }) id: number
+  ) {
+    return await this.mandeuldangProblemService.publishProblem(
+      id,
+      req.user.id
+    )
+  }
 }
