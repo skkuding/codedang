@@ -11,6 +11,10 @@ import { Exclude, Expose } from 'class-transformer'
 export class ProblemResponseDto {
   id: number
   title: string
+  // 이 DTO는 status=Published 문제만 반환하는 getProblem()에서만 쓰인다.
+  // 스키마상 nullable이지만 발행된 문제라면 아래 필드가 항상 채워져 있으므로
+  // (getProblem에서 assertPublishedProblemContent로 보장) 기존 non-null 계약을 유지한다.
+  // 발행 전(Draft/Ready) 만들당 문제는 이 DTO가 아니라 만들당 전용 조회 API로 다룬다.
   description: string
   inputDescription: string
   outputDescription: string

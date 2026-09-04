@@ -1,8 +1,11 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
-import { Prisma, ResultStatus } from '@prisma/client'
+import { Prisma, ResultStatus, type Level } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
-import { MIN_DATE } from '@libs/constants'
-import { ForbiddenAccessException } from '@libs/exception'
+import { MIN_DATE, PUBLISHED_PROBLEM_WHERE } from '@libs/constants'
+import {
+  ForbiddenAccessException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
@@ -48,6 +51,53 @@ const problemSelectOption: Prisma.ProblemSelect = {
       output: true
     }
   }
+}
+
+type PublishedProblemContent = {
+  description: string
+  inputDescription: string
+  outputDescription: string
+  hint: string
+  timeLimit: number
+  memoryLimit: number
+  difficulty: Level
+  source: string
+}
+
+type NullableProblemContent = {
+  [K in keyof PublishedProblemContent]: PublishedProblemContent[K] | null
+}
+
+/**
+ * status=Published 문제가 응답에 필요한 필수 콘텐츠 필드를 모두 갖췄는지 검증하고,
+ * 해당 필드들이 non-null로 좁혀진 동일 객체를 반환합니다.
+ *
+ * 스키마상 nullable이지만 발행된 문제라면 항상 채워져 있어야 하며(레거시 문제는 생성
+ * 시점에, 만들당 문제는 발행 검증에서 보장), 비어 있다면 발행 검증(publish validation)
+ * 쪽 버그이므로 nullable 값을 응답 계약에 흘리지 않고 예외를 던집니다.
+ *
+ * @throws {UnprocessableDataException} 필수 필드가 비어 있는 경우
+ */
+const ensurePublishedProblemContent = <T extends NullableProblemContent>(
+  problem: T
+): T & PublishedProblemContent => {
+  const requiredFields = [
+    'description',
+    'inputDescription',
+    'outputDescription',
+    'hint',
+    'timeLimit',
+    'memoryLimit',
+    'difficulty',
+    'source'
+  ] as const
+  const missingFields = requiredFields.filter((field) => problem[field] == null)
+  if (missingFields.length > 0) {
+    throw new UnprocessableDataException(
+      `Published problem is missing required fields: ${missingFields.join(', ')}`
+    )
+  }
+  return problem as T & PublishedProblemContent
 }
 
 @Injectable()
@@ -108,7 +158,9 @@ export class ProblemService {
           // 아니면 텍스트가 많은 field에서는 full-text search를 사용하고, 텍스트가 적은 field에서는 contains를 사용하는 방법도 고려해보자.
           contains: search
         },
-        visibleLockTime: MIN_DATE
+        visibleLockTime: MIN_DATE,
+        // 발행 전(Draft/Ready) 만들당 문제는 목록에 노출하지 않는다.
+        ...PUBLISHED_PROBLEM_WHERE
       },
       select: {
         ...problemsSelectOption,
@@ -149,6 +201,13 @@ export class ProblemService {
         submissionCount,
         title
       } = problem
+      // 목록은 status=Published 문제만 조회하므로 difficulty가 항상 존재해야 한다.
+      // 비어 있으면 발행 검증 쪽 버그이므로 nullable 값을 응답에 흘리지 않고 막는다.
+      if (difficulty == null) {
+        throw new UnprocessableDataException(
+          `Published problem ${id} is missing required field: difficulty`
+        )
+      }
       let hasPassed: boolean | null = null
       const problemTags = problemTag.map((tag) => tag.tagId)
       const tags = tagList.filter((tagItem) => problemTags.includes(tagItem.id))
@@ -215,10 +274,14 @@ export class ProblemService {
     const data = await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId,
-        visibleLockTime: MIN_DATE
+        visibleLockTime: MIN_DATE,
+        // 발행 전(Draft/Ready) 만들당 문제는 학생에게 공개되면 안 된다.
+        ...PUBLISHED_PROBLEM_WHERE
       },
       select: problemSelectOption
     })
+
+    const problem = ensurePublishedProblemContent(data)
 
     const tags = (
       await this.prisma.problemTag.findMany({
@@ -239,7 +302,7 @@ export class ProblemService {
     const updateHistory = await this.getProblemUpdateHistory(problemId)
 
     return {
-      ...data,
+      ...problem,
       tags,
       updateHistory
     }
@@ -1019,6 +1082,9 @@ export class WorkbookProblemService {
       }
     })
 
+    // 워크북 문제 상세도 발행된(Published) 문제만 노출한다 — 필수 콘텐츠 필드가 채워져 있어야 한다.
+    const publishedProblem = ensurePublishedProblemContent(data.problem)
+
     const tags = (
       await this.prisma.problemTag.findMany({
         where: {
@@ -1045,7 +1111,7 @@ export class WorkbookProblemService {
       'visibleLockTime',
       'solution'
     ]
-    const problem = { ...data.problem }
+    const problem = { ...publishedProblem }
     excludedFields.forEach((key) => {
       delete problem[key]
     })

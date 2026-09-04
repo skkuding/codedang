@@ -11,7 +11,7 @@ import { ContestRole, ProblemField, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { Response } from 'express'
 import { Readable } from 'stream'
-import { MAX_DATE, MIN_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE, PUBLISHED_PROBLEM_WHERE } from '@libs/constants'
 import {
   EntityNotExistException,
   UnprocessableDataException,
@@ -297,6 +297,10 @@ export class ProblemService {
     const whereOptions: ProblemWhereInput =
       await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
 
+    // 만들당 Draft/Ready 문제는 전용 화면(제작 중인 문제)에서만 다룬다 — 기존 문제 목록/조회에는
+    // 노출하지 않는다. 기존 Legacy 문제는 status가 항상 Published(스키마 기본값)라 영향이 없다.
+    Object.assign(whereOptions, PUBLISHED_PROBLEM_WHERE)
+
     if (input.difficulty) {
       whereOptions.difficulty = {
         in: input.difficulty
@@ -401,7 +405,9 @@ export class ProblemService {
   async getProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        id
+        id,
+        // 만들당 Draft/Ready 문제는 전용 화면에서만 조회한다 (getProblems와 동일한 정책).
+        ...PUBLISHED_PROBLEM_WHERE
       },
       include: {
         sharedGroups: true
@@ -736,7 +742,8 @@ export class ProblemService {
     }
 
     // Problem description에 이미지가 포함되어 있다면 삭제
-    const uuidImageFileNames = this.extractUUIDs(problem.description)
+    // 만들당 Draft 문제는 description이 아직 없을 수 있다 (nullable) — 그 경우 추출할 이미지가 없다.
+    const uuidImageFileNames = this.extractUUIDs(problem.description ?? '')
     if (uuidImageFileNames) {
       await this.prisma.file.deleteMany({
         where: {
