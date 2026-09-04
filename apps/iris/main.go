@@ -149,6 +149,7 @@ func main() {
 			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_PRODUCER_CONNECTION_NAME", logProvider),
 			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
+			MandeuldangKey: utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_KEY", logProvider),
 		},
 	).Connect(context.Background())
 
