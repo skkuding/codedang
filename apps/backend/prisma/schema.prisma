@@ -74,7 +74,7 @@ model User {
   contestRecord                ContestRecord[]
   workbook                     Workbook[]
   submission                   Submission[]
-  useroauth                    UserOAuth?
+  useroauth                    UserOAuth[]
   file                         File[]
   testSubmission               TestSubmission[]
   UpdateHistory                UpdateHistory[]
