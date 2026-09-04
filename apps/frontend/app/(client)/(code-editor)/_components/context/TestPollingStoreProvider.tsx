@@ -8,6 +8,18 @@ interface TestPollingState {
   userPollingEnabled: boolean
   startPolling: () => void
   stopPolling: (type: 'non-user' | 'user') => void
+  submissionProgress: SubmissionProgress | null
+  setSubmissionProgress: (progress: SubmissionProgress | null) => void
+}
+
+export interface SubmissionProgress {
+  stage: 'waiting' | 'grading' | 'finished'
+  completed: number
+  total: number
+  result?: string
+  runtime?: number
+  memoryUsage?: number
+  failedCase?: number
 }
 
 const createTestPollingStore = () =>
@@ -16,6 +28,9 @@ const createTestPollingStore = () =>
     setIsTesting: (isTesting) => set((state) => ({ ...state, isTesting })),
     nonUserPollingEnabled: false,
     userPollingEnabled: false,
+    submissionProgress: null,
+    setSubmissionProgress: (submissionProgress) =>
+      set((state) => ({ ...state, submissionProgress })),
     startPolling: () => {
       set((state) => ({
         ...state,
