@@ -4,10 +4,10 @@ This document outlines the RabbitMQ topology used in the Codedang project, manag
 
 ## Overview
 
-We use RabbitMQ for asynchronous communication between services, primarily for code submission judging and plagiarism checks. The topology is defined in the `base/` directory and managed by Kustomize.
+We use RabbitMQ for asynchronous communication between services, primarily for code submission judging and plagiarism checks. The topology is defined in the `topology/base/` directory and managed by Kustomize.
 
-- **`base/topology-judging.yaml`**: Defines all resources (Exchange, Queues, Bindings) related to the code **judging feature**.
-- **`base/topology-plagiarism.yaml`**: Defines all resources for the **plagiarism check feature**.
+- **`topology/base/topology-judging.yaml`**: Defines all resources (Exchange, Queues, Bindings) related to the code **judging feature**.
+- **`topology/base/topology-plagiarism.yaml`**: Defines all resources for the **plagiarism check feature**.
 
 ## 1. Judging Topology
 
