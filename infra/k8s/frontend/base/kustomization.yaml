@@ -7,7 +7,6 @@ resources:
   - deployment.yaml
   - HTTPRoutes.yaml
   - service.yaml
-  - ingress.yaml
 
 commonAnnotations:
   managed-by: kustomize
