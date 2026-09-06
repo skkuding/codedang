@@ -1,14 +1,17 @@
-import { Args, Context, Int, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ProblemStatus } from '@prisma/client'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { CreateMandeuldangProblemInput } from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
 import { MandeuldangProblemService } from '../services/problem.service'
 
 @Resolver(() => MandeuldangProblemOutput)
 @UseDisableAdminGuard()
 export class MandeuldangProblemResolver {
-  constructor(private readonly problemService: MandeuldangProblemService) {}
+  constructor(
+    private readonly mandeuldangProblemService: MandeuldangProblemService
+  ) {}
 
   @Query(() => [MandeuldangProblemOutput])
   async getMyMandeuldangProblems(
@@ -19,7 +22,7 @@ export class MandeuldangProblemResolver {
     @Args('status', { nullable: true, type: () => ProblemStatus })
     status?: ProblemStatus
   ) {
-    return await this.problemService.getMyProblems(
+    return await this.mandeuldangProblemService.getMyProblems(
       req.user.id,
       cursor,
       take,
@@ -36,7 +39,7 @@ export class MandeuldangProblemResolver {
     @Args('status', { nullable: true, type: () => ProblemStatus })
     status?: ProblemStatus
   ) {
-    return await this.problemService.getInProgressProblems(
+    return await this.mandeuldangProblemService.getInProgressProblems(
       req.user.id,
       cursor,
       take,
@@ -49,6 +52,21 @@ export class MandeuldangProblemResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.problemService.getProblem(id, req.user.id, req.user.role)
+    return await this.mandeuldangProblemService.getProblem(
+      id,
+      req.user.id,
+      req.user.role
+    )
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async createMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: CreateMandeuldangProblemInput
+  ) {
+    return await this.mandeuldangProblemService.createProblem(
+      input,
+      req.user.id
+    )
   }
 }

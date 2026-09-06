@@ -6,11 +6,14 @@ import {
   ProblemStatus,
   Role
 } from '@prisma/client'
+import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import type { CreateMandeuldangProblemInput } from '../model/problem.input'
 import type { MandeuldangProblemOutput } from '../model/problem.output'
 
 /** 목록/상세 조회 모두에서 재사용하는, "요청자의 협업 역할" 계산 로직. */
@@ -39,7 +42,6 @@ const resolveMyRole = (
 @Injectable()
 export class MandeuldangProblemService {
   constructor(private readonly prisma: PrismaService) {}
-
   /**
    * 내가 만든(Owner인) 만들당 문제 목록. 기본적으로 상태와 무관하게 전부 보여준다.
    * "management -> 내가 만든 문제" 화면용. `status`를 넘기면 그 상태로만 좁혀 조회한다.
@@ -167,6 +169,60 @@ export class MandeuldangProblemService {
       testFileCount,
       canPublish: missingForPublish.length === 0,
       missingForPublish
+    }
+  }
+
+  async createProblem(
+    input: CreateMandeuldangProblemInput,
+    userId: number
+  ): Promise<MandeuldangProblemOutput> {
+    const { title, languages, ...data } = input
+
+    // 제목은 빈 문자열일 수 없다.
+    const normalizedTitle = title.trim()
+    if (!normalizedTitle) {
+      throw new UnprocessableDataException('Title cannot be empty')
+    }
+
+    // 시간 제한과 메모리 제한은 양수여야 한다.
+    if (input.timeLimit != null && input.timeLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Time limit must be greater than zero'
+      )
+    }
+
+    if (input.memoryLimit != null && input.memoryLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Memory limit must be greater than zero'
+      )
+    }
+
+    const problem = await this.prisma.problem.create({
+      data: {
+        ...data,
+        title: normalizedTitle,
+        languages: languages ?? undefined,
+        creationMode: ProblemCreationMode.Mandeuldang,
+        status: ProblemStatus.Draft,
+        createdById: userId,
+        visibleLockTime: MAX_DATE,
+        mandeuldangCollaborators: {
+          create: {
+            userId,
+            role: CollaboratorRole.Owner,
+            status: CollaboratorStatus.Approved
+          }
+        }
+      },
+      include: {
+        mandeuldangCollaborators: true
+      }
+    })
+
+    return {
+      ...problem,
+      myRole: CollaboratorRole.Owner,
+      testFileCount: 0
     }
   }
 }
