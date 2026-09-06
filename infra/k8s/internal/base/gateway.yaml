@@ -13,7 +13,7 @@ spec:
       port: 8000
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
 
       # apex domain listener
     - name: https-apex
@@ -26,7 +26,15 @@ spec:
           - name: apex-tls-secret
       allowedRoutes:
         namespaces:
-          from: All
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - admin-api
+                  - client-api
+                  - frontend
 
     # wildcard listener
     - name: https-wildcard
@@ -39,7 +47,22 @@ spec:
           - name: wildcard-tls-secret
       allowedRoutes:
         namespaces:
-          from: All
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - admin-api
+                  - argocd
+                  - client-api
+                  - frontend
+                  - headlamp
+                  - monitoring-grafana
+                  - monitoring-prometheus
+                  - n8n
+                  - rabbitmq
+                  - runner
 
       # stage domain listener
     - name: https-stage-wildcard
@@ -52,7 +75,19 @@ spec:
           - name: stage-wildcard-tls-secret
       allowedRoutes:
         namespaces:
-          from: All
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - cloud-beaver
+                  - headlamp
+                  - minio
+                  - monitoring-grafana
+                  - monitoring-prometheus
+                  - rabbitmq
+                  - runner
 
       # preview domain listener
     - name: https-preview-wildcard
@@ -65,7 +100,13 @@ spec:
           - name: preview-wildcard-tls-secret
       allowedRoutes:
         namespaces:
-          from: All
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - frontend-preview
 
       # minio domain listener
     - name: https-minio-wildcard
@@ -78,4 +119,10 @@ spec:
           - name: minio-wildcard-tls-secret
       allowedRoutes:
         namespaces:
-          from: All
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - monitoring-minio
