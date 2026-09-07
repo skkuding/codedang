@@ -6,6 +6,7 @@ resources:
   - ../../base
   - secrets/aws-credentials.yaml
   - secrets/security-keys.yaml
+  - ingress.yaml
 
 patches:
   - path: configmap.yaml
