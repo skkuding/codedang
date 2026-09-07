@@ -79,12 +79,12 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
 
   const [createWhitelist] = useMutation(CREATE_WHITE_LIST, {
     refetchQueries: [
-      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+      { query: GET_WHITE_LIST, variables: { groupId: Number(courseId) } }
     ]
   })
   const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
     refetchQueries: [
-      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+      { query: GET_WHITE_LIST, variables: { groupId: Number(courseId) } }
     ]
   })
 
