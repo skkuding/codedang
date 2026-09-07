@@ -34,6 +34,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   const [whiteListStudentIds, setWhiteListStudentIds] = useState<string[]>([])
   const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
   const [whitelistInput, setWhitelistInput] = useState('')
+  const [isSubmittingWhitelist, setIsSubmittingWhitelist] = useState(false)
 
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
@@ -162,7 +163,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       return
     }
 
-    setWhiteListStudentIds(studentIdList)
+    setIsSubmittingWhitelist(true)
     try {
       const { data } = await createWhitelist({
         variables: {
@@ -170,17 +171,21 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
           studentIds: studentIdList
         }
       })
+      setWhiteListStudentIds(studentIdList)
       setWhitelistCount(data?.createWhitelist ?? 0)
       setIsUploaded(true)
       setWhitelistInput('')
     } catch (error) {
       console.error('Create white list error:', error)
+      toast.error('Failed to register whitelist. Please try again.')
+    } finally {
+      setIsSubmittingWhitelist(false)
     }
   }
 
   useEffect(() => {
     if (isUploaded && whitelistCount) {
-      toast.success(`${whitelistCount} whiteListStudentIds are registered.`)
+      toast.success('Successfully registered.')
     }
   }, [courseId, isUploaded, whitelistCount])
 
@@ -312,12 +317,14 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                   value={whitelistInput}
                   onChange={(e) => setWhitelistInput(e.target.value)}
                   placeholder={'e.g.\n2024123456\n2024123457\n2024123458'}
-                  className="min-h-[120px] bg-white"
+                  disabled={isSubmittingWhitelist}
+                  className="h-[120px] resize-none overflow-y-auto bg-white"
                 />
                 <Button
                   type="button"
                   className="bg-primary h-[40px] w-full rounded-full"
                   onClick={handleWhitelistSubmit}
+                  disabled={isSubmittingWhitelist}
                 >
                   Submit
                 </Button>
