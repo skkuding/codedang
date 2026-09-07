@@ -1,6 +1,7 @@
 import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
 import { Switch } from '@/components/shadcn/switch'
+import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_COURSE, GET_WHITE_LIST } from '@/graphql/course/queries'
 import { ISSUE_INVITATION, REVOKE_INVITATION } from '@/graphql/user/mutation'
@@ -8,9 +9,8 @@ import { useMutation, useQuery } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { CSVLink } from 'react-csv'
 import { useForm } from 'react-hook-form'
-import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
+import { IoCopyOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
-import * as XLSX from 'xlsx'
 
 interface InviteByCodeProps {
   courseId: string
@@ -33,7 +33,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   const [isUploaded, setIsUploaded] = useState(false)
   const [whiteListStudentIds, setWhiteListStudentIds] = useState<string[]>([])
   const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
-  const [fileName, setFileName] = useState<string>('Whitelist.csv')
+  const [whitelistInput, setWhitelistInput] = useState('')
 
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
@@ -87,63 +87,95 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
     ]
   })
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) {
+  // NOTE: 엑셀 업로드 방식에서 텍스트 붙여넣기 방식으로 변경 (기존 로직은 롤백 대비용으로 주석 보존)
+  // const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0]
+  //   if (!file) {
+  //     return
+  //   }
+  //   setFileName(file.name.replace(/\.[^/.]+$/, '.csv')) // 파일 이름 저장
+  //
+  //   const reader = new FileReader()
+  //   reader.onload = async (e) => {
+  //     const data = new Uint8Array(e.target?.result as ArrayBuffer)
+  //     const workbook = XLSX.read(data, { type: 'array' })
+  //     const sheetName = workbook.SheetNames[0]
+  //     const sheet = workbook.Sheets[sheetName]
+  //
+  //     // Excel 데이터를 JSON 형태로 변환
+  //     const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
+  //
+  //     // 첫 번째 행을 헤더로 설정
+  //     const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
+  //     const dataRows = jsonData.slice(1) // 실제 데이터 행
+  //
+  //     // "studentId" 컬럼 찾기 (유동적으로)
+  //     const studentIdIndex = headers.findIndex((header) =>
+  //       header.includes('studentId')
+  //     )
+  //
+  //     if (studentIdIndex === -1) {
+  //       toast.error("Cannot find 'studentId' Column")
+  //       return
+  //     }
+  //
+  //     // studentId 데이터만 추출 (문자열에서 숫자만 추출)
+  //     const studentIdList = Array.from(
+  //       new Set(
+  //         dataRows
+  //           .map((row) => row[studentIdIndex]?.toString() ?? '') // null 또는 undefined 방지
+  //           .filter((id) => id.trim() !== '') // 빈 문자열 제거
+  //       )
+  //     )
+  //
+  //     setWhiteListStudentIds(studentIdList ?? [])
+  //     /** 화이트리스트 생성 요청 */
+  //     try {
+  //       const { data } = await createWhitelist({
+  //         variables: {
+  //           groupId: Number(courseId),
+  //           studentIds: studentIdList
+  //         }
+  //       })
+  //       setWhitelistCount(data?.createWhitelist ?? 0)
+  //       setIsUploaded(true)
+  //     } catch (error) {
+  //       console.error('Create white list error:', error)
+  //     }
+  //   }
+  //
+  //   reader.readAsArrayBuffer(file)
+  // }
+
+  const handleWhitelistSubmit = async () => {
+    const studentIdList = Array.from(
+      new Set(
+        whitelistInput
+          .split(/[\n,\t]+/)
+          .map((id) => id.trim())
+          .filter((id) => id !== '')
+      )
+    )
+
+    if (studentIdList.length === 0) {
+      toast.error('Please enter at least one student ID')
       return
     }
-    setFileName(file.name.replace(/\.[^/.]+$/, '.csv')) // 파일 이름 저장
 
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      const data = new Uint8Array(e.target?.result as ArrayBuffer)
-      const workbook = XLSX.read(data, { type: 'array' })
-      const sheetName = workbook.SheetNames[0]
-      const sheet = workbook.Sheets[sheetName]
-
-      // Excel 데이터를 JSON 형태로 변환
-      const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
-
-      // 첫 번째 행을 헤더로 설정
-      const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
-      const dataRows = jsonData.slice(1) // 실제 데이터 행
-
-      // "studentId" 컬럼 찾기 (유동적으로)
-      const studentIdIndex = headers.findIndex((header) =>
-        header.includes('studentId')
-      )
-
-      if (studentIdIndex === -1) {
-        toast.error("Cannot find 'studentId' Column")
-        return
-      }
-
-      // studentId 데이터만 추출 (문자열에서 숫자만 추출)
-      const studentIdList = Array.from(
-        new Set(
-          dataRows
-            .map((row) => row[studentIdIndex]?.toString() ?? '') // null 또는 undefined 방지
-            .filter((id) => id.trim() !== '') // 빈 문자열 제거
-        )
-      )
-
-      setWhiteListStudentIds(studentIdList ?? [])
-      /** 화이트리스트 생성 요청 */
-      try {
-        const { data } = await createWhitelist({
-          variables: {
-            groupId: Number(courseId),
-            studentIds: studentIdList
-          }
-        })
-        setWhitelistCount(data?.createWhitelist ?? 0)
-        setIsUploaded(true)
-      } catch (error) {
-        console.error('Create white list error:', error)
-      }
+    setWhiteListStudentIds(studentIdList)
+    try {
+      const { data } = await createWhitelist({
+        variables: {
+          groupId: Number(courseId),
+          studentIds: studentIdList
+        }
+      })
+      setWhitelistCount(data?.createWhitelist ?? 0)
+      setIsUploaded(true)
+      setWhitelistInput('')
+    } catch (error) {
+      console.error('Create white list error:', error)
     }
-
-    reader.readAsArrayBuffer(file)
   }
 
   useEffect(() => {
@@ -244,18 +276,9 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
               <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
                 <ul className="list-inside list-disc space-y-2.5 text-sm text-[#8A8A8A]">
                   <li>
-                    When you upload a new file, the existing whitelist is
-                    deleted and replaced.
-                    <div className="pl-5">
-                      You can download the sample file{' '}
-                      <a
-                        href="/Whitelist_Sample.csv"
-                        download="Whitelist_Sample.csv"
-                        className="text-primary underline"
-                      >
-                        here
-                      </a>
-                    </div>
+                    Paste student IDs below, one per line (or separated by
+                    commas). When you submit, the existing whitelist is deleted
+                    and replaced.
                   </li>
                   <li>
                     Current Whitelist:{' '}
@@ -264,13 +287,14 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                         studentId: id
                       }))}
                       headers={[{ label: 'studentId', key: 'studentId' }]}
-                      filename={fileName}
+                      filename="Whitelist.csv"
                       className="text-primary underline"
                     >
-                      {fileName}
+                      Whitelist.csv
                     </CSVLink>
                   </li>
                 </ul>
+                {/* NOTE: 엑셀 업로드 방식에서 텍스트 붙여넣기 방식으로 변경 (기존 UI는 롤백 대비용으로 주석 보존)
                 <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px] transition hover:border-gray-300 hover:bg-gray-50">
                   <IoCloudUpload size={20} className="text-gray-700" />
                   <span className="text-body2_m_14 text-gray-700">
@@ -283,6 +307,20 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                     onChange={handleFileUpload}
                   />
                 </label>
+                */}
+                <Textarea
+                  value={whitelistInput}
+                  onChange={(e) => setWhitelistInput(e.target.value)}
+                  placeholder={'e.g.\n2024123456\n2024123457\n2024123458'}
+                  className="min-h-[120px] bg-white"
+                />
+                <Button
+                  type="button"
+                  className="bg-primary h-[40px] w-full rounded-full"
+                  onClick={handleWhitelistSubmit}
+                >
+                  Submit
+                </Button>
               </div>
             )}
           </div>
