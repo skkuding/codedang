@@ -23,7 +23,7 @@ export class MandeuldangProblemOutput extends OmitType(Problem, [
     description:
       '요청한 사용자가 이 문제에 대해 가진 협업 역할. Owner/Editor/Reviewer가 아니면 null.'
   })
-  myRole?: CollaboratorRole | null
+  myRole?: `${CollaboratorRole}` | null
 
   // mandeuldangCollaborators/mandeuldangSolution/mandeuldangTools는 기존 생성된
   // Problem 타입에 이미 관계 필드로 선언돼 있어(부모 필드) 여기서 다시 선언하지 않는다 —
