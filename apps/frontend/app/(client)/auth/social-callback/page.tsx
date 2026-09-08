@@ -1,12 +1,11 @@
 'use client'
 
-import { SocialLoginHandler } from '@/components/auth/SocialLoginHandler'
-import { Suspense } from 'react'
-
 export default function Page() {
   return (
-    <Suspense>
-      <SocialLoginHandler />
-    </Suspense>
+    <div className="flex min-h-dvh items-center justify-center">
+      <p className="text-body1_m_16 text-color-neutral-70">
+        로그인 중입니다...
+      </p>
+    </div>
   )
 }

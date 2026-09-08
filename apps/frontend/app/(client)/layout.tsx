@@ -1,5 +1,6 @@
 'use client'
 
+import { SocialLoginHandler } from '@/components/auth/SocialLoginHandler'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
@@ -18,6 +19,7 @@ export default function MainLayout({
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SocialLoginHandler />
       {children}
       {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools initialIsOpen={false} />
