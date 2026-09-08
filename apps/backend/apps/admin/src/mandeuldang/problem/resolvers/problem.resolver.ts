@@ -69,4 +69,12 @@ export class MandeuldangProblemResolver {
       req.user.id
     )
   }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async deleteMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
+  ) {
+    return await this.mandeuldangProblemService.deleteProblem(id, req.user.id)
+  }
 }
