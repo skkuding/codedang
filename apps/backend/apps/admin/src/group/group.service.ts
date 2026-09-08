@@ -451,6 +451,20 @@ export class GroupService {
             })
           }
 
+          await tx.assignmentRecord.createMany({
+            data: [{ assignmentId: newAssignment.id, userId }]
+          })
+
+          if (assignmentProblem && assignmentProblem.length > 0) {
+            await tx.assignmentProblemRecord.createMany({
+              data: assignmentProblem.map((ap) => ({
+                assignmentId: newAssignment.id,
+                userId,
+                problemId: ap.problemId
+              }))
+            })
+          }
+
           return {
             originId,
             newId: newAssignment.id

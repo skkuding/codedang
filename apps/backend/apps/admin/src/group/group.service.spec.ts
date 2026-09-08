@@ -153,6 +153,7 @@ const db = {
   },
   assignmentProblem: {
     create: stub(),
+    createMany: stub(),
     findMany: stub()
   },
   assignmentRecord: {
@@ -378,36 +379,30 @@ describe('GroupService', () => {
 
     it('should duplicate course successfully', async () => {
       db.user.findUnique.resolves({ canCreateCourse: true })
+      const now = new Date()
+      // Origin assignment ids (501, 502) are intentionally different from the
+      // newly created assignment ids (999, 1000) below, so that assertions can
+      // prove the new Records reference the NEW assignment, not the original one.
       const groupWithAssignment = {
         ...group,
-        assignment: [{ id: 999 }, { id: 1000 }]
+        assignment: [
+          {
+            id: 501,
+            startTime: new Date(now.getTime() - 1000),
+            endTime: new Date(now.getTime() + 1000),
+            assignmentProblem: [{ order: 1, problemId: 11, score: 100 }]
+          },
+          {
+            id: 502,
+            startTime: new Date(now.getTime() - 1000),
+            endTime: new Date(now.getTime() + 1000),
+            assignmentProblem: [{ order: 1, problemId: 22, score: 50 }]
+          }
+        ]
       }
 
-      db.assignmentProblem.findMany.resolves([
-        { order: 1, problemId: 1, score: 100 }
-      ])
       db.group.findUniqueOrThrow.resolves(groupWithAssignment)
       db.group.create.resolves(groupWithAssignment)
-
-      db.assignment.findFirst.onFirstCall().resolves({
-        id: 999,
-        groupId,
-        startTime: new Date(Date.now() - 1000),
-        endTime: new Date(Date.now() + 1000),
-        createTime: new Date(),
-        updateTime: new Date(),
-        title: 'Original Assignment'
-      })
-
-      db.assignment.findFirst.onSecondCall().resolves({
-        id: 1000,
-        groupId,
-        startTime: new Date(Date.now() - 1000),
-        endTime: new Date(Date.now() + 1000),
-        createTime: new Date(),
-        updateTime: new Date(),
-        title: 'Original Assignment'
-      })
 
       db.assignment.create.onFirstCall().resolves({
         id: 999
@@ -415,6 +410,9 @@ describe('GroupService', () => {
       db.assignment.create.onSecondCall().resolves({
         id: 1000
       })
+
+      db.assignmentRecord.createMany.resolves({ count: 1 })
+      db.assignmentProblemRecord.createMany.resolves({ count: 1 })
 
       const result = await service.duplicateCourse(
         groupId,
@@ -424,7 +422,7 @@ describe('GroupService', () => {
 
       expect(result).to.deep.equal({
         duplicatedCourse: groupWithAssignment,
-        originAssignments: [999, 1000],
+        originAssignments: [501, 502],
         copiedAssignments: [999, 1000]
       })
 
@@ -439,6 +437,30 @@ describe('GroupService', () => {
       expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
         duplicateInput.classNum
       )
+
+      // AssignmentRecord must be created against the NEW assignment id, not the
+      // original one, and must carry no score/finalScore/submission history.
+      expect(db.assignmentRecord.createMany.callCount).to.equal(2)
+      expect(db.assignmentRecord.createMany.getCall(0).args[0]).to.deep.equal({
+        data: [{ assignmentId: 999, userId }]
+      })
+      expect(db.assignmentRecord.createMany.getCall(1).args[0]).to.deep.equal({
+        data: [{ assignmentId: 1000, userId }]
+      })
+
+      // AssignmentProblemRecord must reference the new assignment id and copy
+      // only problemId - never score/isSubmitted/finalScore from the original.
+      expect(db.assignmentProblemRecord.createMany.callCount).to.equal(2)
+      expect(
+        db.assignmentProblemRecord.createMany.getCall(0).args[0]
+      ).to.deep.equal({
+        data: [{ assignmentId: 999, userId, problemId: 11 }]
+      })
+      expect(
+        db.assignmentProblemRecord.createMany.getCall(1).args[0]
+      ).to.deep.equal({
+        data: [{ assignmentId: 1000, userId, problemId: 22 }]
+      })
     })
   })
 })
