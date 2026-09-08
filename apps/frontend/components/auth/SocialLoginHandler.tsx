@@ -38,18 +38,18 @@ export function SocialLoginHandler() {
           return
         }
         const user: User = await userRes.json()
-        const result = await signIn('social', {
+        await signIn('social', {
           username: user.username,
           role: user.role,
           accessToken,
           accessTokenExpires: String(accessTokenExpires),
           redirect: false
         })
-        if (!result?.error) {
-          router.refresh()
-        }
       } catch (error) {
         console.error('Failed to establish social login session:', error)
+      } finally {
+        router.replace('/')
+        router.refresh()
       }
     }
 
