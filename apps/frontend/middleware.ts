@@ -47,6 +47,12 @@ export const middleware = async (req: NextRequest) => {
   }
 
   if (token && token.accessTokenExpires <= Date.now()) {
+    // 소셜 세션은 refreshToken을 보유하지 않는다.
+    // 재발급은 브라우저의 httpOnly 쿠키로만 가능하므로 여기서는 건드리지 않는다.
+    if (!token.refreshToken) {
+      return
+    }
+
     // Handle unauthorized access to admin page
     // if (
     //   req.nextUrl.pathname.startsWith('/admin') &&
