@@ -27,6 +27,34 @@ spec:
   rabbitmqClusterReference:
     name: rabbitmq
 ---
+# Queue for Test
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: test-queue
+  namespace: rabbitmq
+spec:
+  name: client.q.judge.test
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Queue for Rejudge
+apiVersion: rabbitmq.com/v1beta1
+kind: Queue
+metadata:
+  name: rejudge-queue
+  namespace: rabbitmq
+spec:
+  name: client.q.judge.rejudge
+  vhost: vh
+  autoDelete: false
+  durable: true
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
 # Queue for Result
 apiVersion: rabbitmq.com/v1beta1
 kind: Queue
@@ -53,6 +81,36 @@ spec:
   destination: client.q.judge.submission
   destinationType: queue
   routingKey: judge.submission
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Binding for Test
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-test
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: iris.e.direct.judge
+  destination: client.q.judge.test
+  destinationType: queue
+  routingKey: judge.test
+  rabbitmqClusterReference:
+    name: rabbitmq
+---
+# Binding for Rejudge
+apiVersion: rabbitmq.com/v1beta1
+kind: Binding
+metadata:
+  name: binding-rejudge
+  namespace: rabbitmq
+spec:
+  vhost: vh
+  source: iris.e.direct.judge
+  destination: client.q.judge.rejudge
+  destinationType: queue
+  routingKey: judge.rejudge
   rabbitmqClusterReference:
     name: rabbitmq
 ---

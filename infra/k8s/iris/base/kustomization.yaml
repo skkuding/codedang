@@ -5,6 +5,8 @@ namespace: iris
 resources:
   - configmap.yaml
   - deployment.yaml
+  - deployment-test.yaml
+  - deployment-rejudge.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
 
