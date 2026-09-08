@@ -61,15 +61,17 @@ export function InputForm({
 
   return (
     <div className={cn(className, labelGap[size], 'flex w-full flex-col')}>
-      <span
-        className={cn(
-          'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
-          size === 'small' && 'text-sub4_sb_14'
-        )}
-      >
-        {label}
-        {isLabeled && <span className="mt-0.5 text-red-500">*</span>}
-      </span>
+      {label ? (
+        <span
+          className={cn(
+            'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
+            size === 'small' && 'text-sub4_sb_14'
+          )}
+        >
+          {label}
+          {isLabeled && <span className="mt-0.5 text-red-500">*</span>}
+        </span>
+      ) : null}
       <div
         className={cn(
           'border-line flex items-center gap-2 border bg-white pr-4',

@@ -94,12 +94,7 @@ export function CourseFormFields() {
           titleSize="base"
         >
           <div className="flex items-center gap-2">
-            <InputForm
-              placeholder="example"
-              name="emailLocal"
-              type="text"
-              className="w-[45%]"
-            />
+            <InputForm name="emailLocal" type="text" className="w-[45%]" />
             <span className="select-none">@</span>
             <InputForm
               placeholder="skku.edu"
