@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: minio-ingress
+  name: silo-console-ingress
   namespace: minio
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -10,23 +10,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - minio.stage.codedang.com
-      secretName: minio-api-tls
-    - hosts:
-        - minio-console.stage.codedang.com
-      secretName: minio-console-tls
+        - silo-console.stage.codedang.com
+      secretName: silo-console-tls
   rules:
-    - host: minio.stage.codedang.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: silo-shadow
-                port:
-                  number: 80
-    - host: minio-console.stage.codedang.com
+    - host: silo-console.stage.codedang.com
       http:
         paths:
           - path: /
