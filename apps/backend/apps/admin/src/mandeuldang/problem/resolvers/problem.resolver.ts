@@ -2,7 +2,10 @@ import { Args, Context, Int, Query, Mutation, Resolver } from '@nestjs/graphql'
 import { ProblemStatus } from '@prisma/client'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
-import { UpdateMandeuldangProblemInput } from '../model/problem.input'
+import {
+  CreateMandeuldangProblemInput,
+  UpdateMandeuldangProblemInput
+} from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
 import { MandeuldangProblemService } from '../services/problem.service'
 
@@ -67,5 +70,21 @@ export class MandeuldangProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.id, req.user.role)
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async createMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: CreateMandeuldangProblemInput
+  ) {
+    return await this.problemService.createProblem(input, req.user.id)
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async deleteMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
+  ) {
+    return await this.problemService.deleteProblem(id, req.user.id)
   }
 }

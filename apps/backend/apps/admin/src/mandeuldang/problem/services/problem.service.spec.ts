@@ -11,6 +11,7 @@ import {
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import { MandeuldangProblemService } from './problem.service'
 import { PublishCheckService } from './publish-check.service'
 
@@ -98,7 +99,8 @@ describe('MandeuldangProblemService', () => {
       providers: [
         MandeuldangProblemService,
         PublishCheckService,
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        { provide: StorageService, useValue: { deleteFile: stub() } }
       ]
     }).compile()
 
