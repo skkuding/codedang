@@ -8,34 +8,121 @@ metadata:
 spec:
   gatewayClassName: traefik
   listeners:
-  - name: http
-    protocol: HTTP
-    port: 8000
-    allowedRoutes:
-      namespaces:
-        from: All
+    - name: http
+      protocol: HTTP
+      port: 8000
+      allowedRoutes:
+        namespaces:
+          from: Same
 
-  - name: https-wildcard
-    protocol: HTTPS
-    port: 8443
-    hostname: "*.codedang.com"
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - name: wildcard-tls-secret
-    allowedRoutes:
-      namespaces:
-        from: All
+      # apex domain listener
+    - name: https-apex
+      protocol: HTTPS
+      port: 8443
+      hostname: 'codedang.com'
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: apex-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - admin-api
+                  - client-api
+                  - frontend
 
-    # apex domain listener
-  - name: https-apex
-    protocol: HTTPS
-    port: 8443
-    hostname: "codedang.com"
-    tls:
-      mode: Terminate
-      certificateRefs:
-        - name: apex-tls-secret
-    allowedRoutes:
-      namespaces:
-        from: All
+    # wildcard listener
+    - name: https-wildcard
+      protocol: HTTPS
+      port: 8443
+      hostname: '*.codedang.com'
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: wildcard-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - admin-api
+                  - argocd
+                  - client-api
+                  - frontend
+                  - headlamp
+                  - monitoring-grafana
+                  - monitoring-prometheus
+                  - n8n
+                  - rabbitmq
+                  - runner
+
+      # stage domain listener
+    - name: https-stage-wildcard
+      protocol: HTTPS
+      port: 8443
+      hostname: '*.stage.codedang.com'
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: stage-wildcard-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - cloud-beaver
+                  - headlamp
+                  - minio
+                  - monitoring-grafana
+                  - monitoring-prometheus
+                  - rabbitmq
+                  - runner
+
+      # preview domain listener
+    - name: https-preview-wildcard
+      protocol: HTTPS
+      port: 8443
+      hostname: '*.preview.codedang.com'
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: preview-wildcard-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - frontend-preview
+
+      # minio domain listener
+    - name: https-minio-wildcard
+      protocol: HTTPS
+      port: 8443
+      hostname: '*.minio.codedang.com'
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: minio-wildcard-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - monitoring-minio

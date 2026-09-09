@@ -33,16 +33,17 @@ exists; only its residual subnet group is imported here.
 
 ## Before deletion
 
-1. Remove the live `iris-legacy` namespace. Its hourly ExternalSecret refresh is
-   the remaining consumer of `Codedang-JudgeQueue-Secret`.
+1. Manually remove the live production `iris-legacy` namespace. It is not
+   managed by Argo CD, and its hourly ExternalSecret refresh is the remaining
+   consumer of `Codedang-JudgeQueue-Secret`.
 2. Delete the ALB listeners and load balancers before their security groups and
    public subnets.
 3. Delete the MQ broker before its configuration, secret, and subnet.
 4. Delete stopped instances before their subnets and security groups.
    The blackholed NAT route remains inline in the active private route table
    and must be removed from `infra/aws/vpc` separately.
-5. Delete the legacy ECS log groups only after their task definitions are
-   deregistered and no service can publish to them.
+5. Delete the legacy ECS log groups only after confirming that no service can
+   publish to them. The retained task definitions may keep stale references.
 6. Preserve the ACM validation CNAME managed by `infra/aws/dns`; the active
    wildcard certificate currently shares it.
 7. Do not include RDS snapshots, active S3 buckets, the cross-account VPC
