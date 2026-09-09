@@ -4,6 +4,7 @@ import { CountdownStatus } from '@/components/CountdownStatus'
 import { DurationDisplay } from '@/components/DurationDisplay'
 import { Button } from '@/components/shadcn/button'
 import { GET_ASSIGNMENT } from '@/graphql/assignment/queries'
+import { GET_COURSE } from '@/graphql/course/queries'
 import PenIcon from '@/public/icons/pen.svg'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
@@ -21,6 +22,21 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
     }
   }).data?.getAssignment
 
+  const { data, loading } = useQuery(GET_COURSE, {
+    variables: { groupId: Number(courseId) },
+    skip: !courseId
+  })
+
+  const currentCourse = data?.getCourse
+
+  const courseNum = currentCourse?.courseInfo?.courseNum
+  const classNum = currentCourse?.courseInfo?.classNum
+  const courseSemester = currentCourse?.courseInfo?.semester
+
+  const courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
+  const courseTitle =
+    currentCourse?.groupName || (loading ? '로딩 중...' : '과목 정보 없음')
+
   return (
     <main className="flex flex-col gap-6 px-20 py-16">
       <div className="flex items-center justify-between">
@@ -29,6 +45,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
           <span className="text-4xl font-bold">{assignmentData?.title}</span>
+          <p className="text-body1_m_16 text-color-neutral-50">{`[${courseCode}] ${courseTitle} ㆍ ${courseSemester}`}</p>
         </div>
         <Link
           href={
