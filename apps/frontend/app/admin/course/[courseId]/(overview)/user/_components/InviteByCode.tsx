@@ -9,7 +9,7 @@ import { ISSUE_INVITATION, REVOKE_INVITATION } from '@/graphql/user/mutation'
 import PenIcon from '@/public/icons/pen.svg'
 import PlusLineIcon from '@/public/icons/plus-line.svg'
 import { useMutation, useQuery } from '@apollo/client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 // import { CSVLink } from 'react-csv'
 import { useForm } from 'react-hook-form'
 import { FaTrash } from 'react-icons/fa'
@@ -86,8 +86,16 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
     }
   }
 
-  const [createWhitelist] = useMutation(CREATE_WHITE_LIST)
-  const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST)
+  const [createWhitelist] = useMutation(CREATE_WHITE_LIST, {
+    refetchQueries: [
+      { query: GET_WHITE_LIST, variables: { groupId: Number(courseId) } }
+    ]
+  })
+  const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
+    refetchQueries: [
+      { query: GET_WHITE_LIST, variables: { groupId: Number(courseId) } }
+    ]
+  })
 
   // NOTE: 엑셀 업로드 방식에서 텍스트 붙여넣기 방식으로 변경 (기존 로직은 롤백 대비용으로 주석 보존)
   // const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,10 +157,16 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   //   reader.readAsArrayBuffer(file)
   // }
 
+  const isSubmittingWhitelistRef = useRef(false)
+
   const submitWhitelist = async (
     studentIds: string[],
     successMessage = 'Successfully registered.'
   ) => {
+    if (isSubmittingWhitelistRef.current) {
+      return false
+    }
+    isSubmittingWhitelistRef.current = true
     setIsSubmittingWhitelist(true)
     try {
       await createWhitelist({
@@ -170,6 +184,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
       toast.error(`Failed to update whitelist: ${message}`)
       return false
     } finally {
+      isSubmittingWhitelistRef.current = false
       setIsSubmittingWhitelist(false)
     }
   }
@@ -212,13 +227,12 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   }
 
   const handleDeleteStudent = async (index: number) => {
-    if (
-      await submitWhitelist(
-        whiteListStudentIds.filter((_, i) => i !== index),
-        'Successfully deleted.'
-      )
-    ) {
+    const remaining = whiteListStudentIds.filter((_, i) => i !== index)
+    if (await submitWhitelist(remaining, 'Successfully deleted.')) {
       setDeleteTargetIndex(null)
+      if (remaining.length === 0) {
+        setIsWhiteListEnabled(false)
+      }
     }
   }
 
@@ -420,31 +434,43 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                                 autoFocus
                                 className="h-8 flex-1 rounded-none border-none bg-transparent px-0 focus-visible:ring-0"
                               />
-                              <IoCheckmarkCircle
-                                className="text-primary h-[18px] w-[18px] shrink-0 cursor-pointer"
+                              <button
+                                type="button"
+                                aria-label="Save"
                                 onClick={() => handleEditSave(index)}
-                              />
-                              <FaTrash
-                                className="h-4 w-4 shrink-0 cursor-pointer text-gray-400"
+                              >
+                                <IoCheckmarkCircle className="text-primary h-[18px] w-[18px] shrink-0 cursor-pointer" />
+                              </button>
+                              <button
+                                type="button"
+                                aria-label="Cancel edit"
                                 onClick={() => setEditingIndex(null)}
-                              />
+                              >
+                                <FaTrash className="h-4 w-4 shrink-0 cursor-pointer text-gray-400" />
+                              </button>
                             </>
                           ) : (
                             <>
                               <span className="flex-1 truncate text-base">
                                 {studentId}
                               </span>
-                              <PenIcon
-                                className="h-4 w-4 shrink-0 cursor-pointer text-gray-400"
+                              <button
+                                type="button"
+                                aria-label="Edit"
                                 onClick={() => {
                                   setEditingIndex(index)
                                   setEditingValue(studentId)
                                 }}
-                              />
-                              <FaTrash
-                                className="h-3 w-3 shrink-0 cursor-pointer text-gray-400"
+                              >
+                                <PenIcon className="h-4 w-4 shrink-0 cursor-pointer text-gray-400" />
+                              </button>
+                              <button
+                                type="button"
+                                aria-label="Delete"
                                 onClick={() => setDeleteTargetIndex(index)}
-                              />
+                              >
+                                <FaTrash className="h-3 w-3 shrink-0 cursor-pointer text-gray-400" />
+                              </button>
                             </>
                           )}
                         </div>
@@ -489,15 +515,17 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                         disabled={isSubmittingWhitelist}
                         className="h-10 flex-1 rounded-full"
                       />
-                      <div
-                        className="border-primary flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full border bg-white px-[22px] duration-200 hover:bg-blue-50"
+                      <button
+                        type="button"
+                        disabled={isSubmittingWhitelist}
+                        className="border-primary flex h-10 shrink-0 items-center justify-center gap-1 rounded-full border bg-white px-[22px] duration-200 hover:bg-blue-50"
                         onClick={handleAddStudent}
                       >
                         <PlusLineIcon />
                         <span className="text-primary text-[14px] font-medium">
                           Add
                         </span>
-                      </div>
+                      </button>
                     </div>
                     <button
                       type="button"
