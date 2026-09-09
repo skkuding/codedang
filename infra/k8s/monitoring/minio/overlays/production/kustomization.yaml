@@ -4,6 +4,6 @@ namespace: monitoring-minio
 
 resources:
   - ../../base
-  - ingress.yaml
+  - HTTPRoutes.yaml
   - tenant-config.yaml
   - users.yaml
