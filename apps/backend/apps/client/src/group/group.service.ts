@@ -340,9 +340,6 @@ export class GroupService {
     invitation: string,
     studentId: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
-    // The enrollment verification task will use this value for roster matching.
-    void studentId
-
     const invitedGroupId = await this.cacheManager.get<number>(
       invitationCodeKey(invitation)
     )
@@ -421,6 +418,13 @@ export class GroupService {
       })
 
       if (whitelistExists) {
+        const joinRequestCount = await this.getUserRetryCount(userId, groupId)
+
+        // 15분 이내 3회 이상 재시도 시 요청을 거부합니다.
+        if (joinRequestCount >= 3) {
+          throw new ForbiddenAccessException('Join request count exceed')
+        }
+
         const user = await this.prisma.user.findUniqueOrThrow({
           where: { id: userId },
           select: {
@@ -436,6 +440,9 @@ export class GroupService {
         })
 
         if (!isUserWhitelisted) {
+          const newUserRequestCount = joinRequestCount + 1
+          await this.updateRetryCount(userId, groupId, newUserRequestCount)
+
           throw new ForbiddenAccessException('Whitelist violation')
         }
       }
@@ -521,15 +528,6 @@ export class GroupService {
       studentRetryKey(userId, courseId)
     )
     return count || 0
-  }
-
-  async canUserRetry(userId: number, courseId: number) {
-    const count = await this.getUserRetryCount(userId, courseId)
-
-    if (count >= 3) {
-      return false
-    }
-    return true
   }
 
   async updateRetryCount(userId: number, courseId: number, count: number) {
