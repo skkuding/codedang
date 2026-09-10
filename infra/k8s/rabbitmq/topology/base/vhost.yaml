@@ -1,0 +1,11 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: Vhost
+metadata:
+  name: vhost
+  namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  name: vh
+  rabbitmqClusterReference:
+    name: rabbitmq

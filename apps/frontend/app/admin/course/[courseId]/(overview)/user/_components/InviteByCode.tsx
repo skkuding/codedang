@@ -1,16 +1,20 @@
 import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
 import { Switch } from '@/components/shadcn/switch'
+import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_WHITE_LIST, DELETE_WHITE_LIST } from '@/graphql/course/mutation'
 import { GET_COURSE, GET_WHITE_LIST } from '@/graphql/course/queries'
 import { ISSUE_INVITATION, REVOKE_INVITATION } from '@/graphql/user/mutation'
+import PenIcon from '@/public/icons/pen.svg'
+import PlusLineIcon from '@/public/icons/plus-line.svg'
 import { useMutation, useQuery } from '@apollo/client'
-import { useEffect, useState } from 'react'
-import { CSVLink } from 'react-csv'
+import { useRef, useState } from 'react'
+// import { CSVLink } from 'react-csv'
 import { useForm } from 'react-hook-form'
-import { IoCloudUpload, IoCopyOutline } from 'react-icons/io5'
+import { FaTrash } from 'react-icons/fa'
+import { IoCheckmarkCircle, IoCopyOutline } from 'react-icons/io5'
 import { toast } from 'sonner'
-import * as XLSX from 'xlsx'
 
 interface InviteByCodeProps {
   courseId: string
@@ -30,13 +34,19 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
   const [isRevokeInvitationModalOpen, setIsRevokeInvitationModalOpen] =
     useState(false)
 
-  const [isUploaded, setIsUploaded] = useState(false)
   const [whiteListStudentIds, setWhiteListStudentIds] = useState<string[]>([])
-  const [whitelistCount, setWhitelistCount] = useState<number | null>(null)
-  const [fileName, setFileName] = useState<string>('Whitelist.csv')
+  const [whitelistInput, setWhitelistInput] = useState('')
+  const [isSubmittingWhitelist, setIsSubmittingWhitelist] = useState(false)
+  const [isReplacingWhitelist, setIsReplacingWhitelist] = useState(false)
+  const [newStudentId, setNewStudentId] = useState('')
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
+  const [editingValue, setEditingValue] = useState('')
 
   const [isDeleteWhitelistModalOpen, setIsDeleteWhitelistModalOpen] =
     useState(false)
+  const [deleteTargetIndex, setDeleteTargetIndex] = useState<number | null>(
+    null
+  )
 
   useQuery(GET_WHITE_LIST, {
     variables: { groupId: Number(courseId) },
@@ -78,79 +88,167 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
 
   const [createWhitelist] = useMutation(CREATE_WHITE_LIST, {
     refetchQueries: [
-      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+      { query: GET_WHITE_LIST, variables: { groupId: Number(courseId) } }
     ]
   })
   const [deleteWhitelist] = useMutation(DELETE_WHITE_LIST, {
     refetchQueries: [
-      { query: GET_WHITE_LIST, variables: { groupId: courseId } }
+      { query: GET_WHITE_LIST, variables: { groupId: Number(courseId) } }
     ]
   })
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) {
-      return
+  // NOTE: 엑셀 업로드 방식에서 텍스트 붙여넣기 방식으로 변경 (기존 로직은 롤백 대비용으로 주석 보존)
+  // const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0]
+  //   if (!file) {
+  //     return
+  //   }
+  //   setFileName(file.name.replace(/\.[^/.]+$/, '.csv')) // 파일 이름 저장
+  //
+  //   const reader = new FileReader()
+  //   reader.onload = async (e) => {
+  //     const data = new Uint8Array(e.target?.result as ArrayBuffer)
+  //     const workbook = XLSX.read(data, { type: 'array' })
+  //     const sheetName = workbook.SheetNames[0]
+  //     const sheet = workbook.Sheets[sheetName]
+  //
+  //     // Excel 데이터를 JSON 형태로 변환
+  //     const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
+  //
+  //     // 첫 번째 행을 헤더로 설정
+  //     const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
+  //     const dataRows = jsonData.slice(1) // 실제 데이터 행
+  //
+  //     // "studentId" 컬럼 찾기 (유동적으로)
+  //     const studentIdIndex = headers.findIndex((header) =>
+  //       header.includes('studentId')
+  //     )
+  //
+  //     if (studentIdIndex === -1) {
+  //       toast.error("Cannot find 'studentId' Column")
+  //       return
+  //     }
+  //
+  //     // studentId 데이터만 추출 (문자열에서 숫자만 추출)
+  //     const studentIdList = Array.from(
+  //       new Set(
+  //         dataRows
+  //           .map((row) => row[studentIdIndex]?.toString() ?? '') // null 또는 undefined 방지
+  //           .filter((id) => id.trim() !== '') // 빈 문자열 제거
+  //       )
+  //     )
+  //
+  //     setWhiteListStudentIds(studentIdList ?? [])
+  //     /** 화이트리스트 생성 요청 */
+  //     try {
+  //       const { data } = await createWhitelist({
+  //         variables: {
+  //           groupId: Number(courseId),
+  //           studentIds: studentIdList
+  //         }
+  //       })
+  //       setWhitelistCount(data?.createWhitelist ?? 0)
+  //       setIsUploaded(true)
+  //     } catch (error) {
+  //       console.error('Create white list error:', error)
+  //     }
+  //   }
+  //
+  //   reader.readAsArrayBuffer(file)
+  // }
+
+  const isSubmittingWhitelistRef = useRef(false)
+
+  const submitWhitelist = async (
+    studentIds: string[],
+    successMessage = 'Successfully registered.'
+  ) => {
+    if (isSubmittingWhitelistRef.current) {
+      return false
     }
-    setFileName(file.name.replace(/\.[^/.]+$/, '.csv')) // 파일 이름 저장
-
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      const data = new Uint8Array(e.target?.result as ArrayBuffer)
-      const workbook = XLSX.read(data, { type: 'array' })
-      const sheetName = workbook.SheetNames[0]
-      const sheet = workbook.Sheets[sheetName]
-
-      // Excel 데이터를 JSON 형태로 변환
-      const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
-
-      // 첫 번째 행을 헤더로 설정
-      const headers = jsonData[0].map((header: string) => header.trim()) // 공백 제거
-      const dataRows = jsonData.slice(1) // 실제 데이터 행
-
-      // "studentId" 컬럼 찾기 (유동적으로)
-      const studentIdIndex = headers.findIndex((header) =>
-        header.includes('studentId')
-      )
-
-      if (studentIdIndex === -1) {
-        toast.error("Cannot find 'studentId' Column")
-        return
-      }
-
-      // studentId 데이터만 추출 (문자열에서 숫자만 추출)
-      const studentIdList = Array.from(
-        new Set(
-          dataRows
-            .map((row) => row[studentIdIndex]?.toString() ?? '') // null 또는 undefined 방지
-            .filter((id) => id.trim() !== '') // 빈 문자열 제거
-        )
-      )
-
-      setWhiteListStudentIds(studentIdList ?? [])
-      /** 화이트리스트 생성 요청 */
-      try {
-        const { data } = await createWhitelist({
-          variables: {
-            groupId: Number(courseId),
-            studentIds: studentIdList
-          }
-        })
-        setWhitelistCount(data?.createWhitelist ?? 0)
-        setIsUploaded(true)
-      } catch (error) {
-        console.error('Create white list error:', error)
-      }
+    isSubmittingWhitelistRef.current = true
+    setIsSubmittingWhitelist(true)
+    try {
+      await createWhitelist({
+        variables: {
+          groupId: Number(courseId),
+          studentIds
+        }
+      })
+      setWhiteListStudentIds(studentIds)
+      toast.success(successMessage)
+      return true
+    } catch (error) {
+      console.error('Create white list error:', error)
+      const message = error instanceof Error ? error.message : String(error)
+      toast.error(`Failed to update whitelist: ${message}`)
+      return false
+    } finally {
+      isSubmittingWhitelistRef.current = false
+      setIsSubmittingWhitelist(false)
     }
-
-    reader.readAsArrayBuffer(file)
   }
 
-  useEffect(() => {
-    if (isUploaded && whitelistCount) {
-      toast.success(`${whitelistCount} whiteListStudentIds are registered.`)
+  const handleBulkSubmit = async () => {
+    const studentIdList = Array.from(
+      new Set(
+        whitelistInput
+          .split(/[\n,\t]+/)
+          .map((id) => id.trim())
+          .filter((id) => id !== '')
+      )
+    )
+
+    if (studentIdList.length === 0) {
+      toast.error('Please enter at least one student ID')
+      return
     }
-  }, [courseId, isUploaded, whitelistCount])
+
+    if (await submitWhitelist(studentIdList)) {
+      setWhitelistInput('')
+      setIsReplacingWhitelist(false)
+    }
+  }
+
+  const handleAddStudent = async () => {
+    const trimmed = newStudentId.trim()
+    if (!trimmed) {
+      toast.error('Please enter a student ID')
+      return
+    }
+    if (whiteListStudentIds.includes(trimmed)) {
+      toast.error('This student ID is already in the whitelist')
+      return
+    }
+
+    if (await submitWhitelist([...whiteListStudentIds, trimmed])) {
+      setNewStudentId('')
+    }
+  }
+
+  const handleDeleteStudent = async (index: number) => {
+    const remaining = whiteListStudentIds.filter((_, i) => i !== index)
+    if (await submitWhitelist(remaining, 'Successfully deleted.')) {
+      setDeleteTargetIndex(null)
+      if (remaining.length === 0) {
+        setIsWhiteListEnabled(false)
+      }
+    }
+  }
+
+  const handleEditSave = async (index: number) => {
+    const trimmed = editingValue.trim()
+    if (!trimmed) {
+      toast.error('Student ID cannot be empty')
+      return
+    }
+
+    const updated = [...whiteListStudentIds]
+    updated[index] = trimmed
+    if (await submitWhitelist(updated)) {
+      setEditingIndex(null)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-[30px] rounded-lg border p-[30px]">
@@ -243,20 +341,11 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
             {isWhiteListEnabled && (
               <div className="bg-fill flex flex-col gap-[18px] rounded-lg p-[20px]">
                 <ul className="list-inside list-disc space-y-2.5 text-sm text-[#8A8A8A]">
-                  <li>
-                    When you upload a new file, the existing whitelist is
-                    deleted and replaced.
-                    <div className="pl-5">
-                      You can download the sample file{' '}
-                      <a
-                        href="/Whitelist_Sample.csv"
-                        download="Whitelist_Sample.csv"
-                        className="text-primary underline"
-                      >
-                        here
-                      </a>
-                    </div>
-                  </li>
+                  {whiteListStudentIds.length === 0 || isReplacingWhitelist
+                    ? 'Paste student IDs below, one per line (or separated by commas). When you submit, the existing whitelist is deleted and replaced.'
+                    : 'Edit, remove, or add student IDs individually below.'}
+
+                  {/* NOTE: 텍스트 붙여넣기 방식으로 변경되며 더 이상 필요하지 않아 주석 처리
                   <li>
                     Current Whitelist:{' '}
                     <CSVLink
@@ -264,13 +353,15 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                         studentId: id
                       }))}
                       headers={[{ label: 'studentId', key: 'studentId' }]}
-                      filename={fileName}
+                      filename="Whitelist.csv"
                       className="text-primary underline"
                     >
-                      {fileName}
+                      Whitelist.csv
                     </CSVLink>
                   </li>
+                  */}
                 </ul>
+                {/* NOTE: 엑셀 업로드 방식에서 텍스트 붙여넣기 방식으로 변경 (기존 UI는 롤백 대비용으로 주석 보존)
                 <label className="flex h-[40px] w-full cursor-pointer items-center justify-center gap-[10px] rounded-full border border-[#D8D8D8] bg-white px-[28px] py-[12px] transition hover:border-gray-300 hover:bg-gray-50">
                   <IoCloudUpload size={20} className="text-gray-700" />
                   <span className="text-body2_m_14 text-gray-700">
@@ -283,6 +374,168 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                     onChange={handleFileUpload}
                   />
                 </label>
+                */}
+                {whiteListStudentIds.length === 0 || isReplacingWhitelist ? (
+                  <>
+                    <Textarea
+                      value={whitelistInput}
+                      onChange={(e) => setWhitelistInput(e.target.value)}
+                      placeholder={'e.g.\n2024123456\n2024123457\n2024123458'}
+                      disabled={isSubmittingWhitelist}
+                      className="h-[120px] resize-none overflow-y-auto bg-white [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        className="bg-primary h-[40px] flex-1 rounded-full"
+                        onClick={handleBulkSubmit}
+                        disabled={isSubmittingWhitelist}
+                      >
+                        Submit
+                      </Button>
+                      {whiteListStudentIds.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          aria-label="Cancel"
+                          className="h-[40px] rounded-full"
+                          onClick={() => {
+                            setIsReplacingWhitelist(false)
+                            setWhitelistInput('')
+                          }}
+                          disabled={isSubmittingWhitelist}
+                        >
+                          <FaTrash className="h-4 w-4 text-gray-400" />
+                        </Button>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex max-h-[240px] flex-col gap-2 overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1">
+                      {whiteListStudentIds.map((studentId, index) => (
+                        <div
+                          key={`${studentId}-${index}`}
+                          className="border-line flex h-10 shrink-0 items-center gap-[10px] rounded-full border bg-white px-5"
+                        >
+                          {editingIndex === index ? (
+                            <>
+                              <Input
+                                value={editingValue}
+                                onChange={(e) =>
+                                  setEditingValue(e.target.value)
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    handleEditSave(index)
+                                  }
+                                }}
+                                autoFocus
+                                className="h-8 flex-1 rounded-none border-none bg-transparent px-0 focus-visible:ring-0"
+                              />
+                              <button
+                                type="button"
+                                aria-label="Save"
+                                onClick={() => handleEditSave(index)}
+                              >
+                                <IoCheckmarkCircle className="text-primary h-[18px] w-[18px] shrink-0 cursor-pointer" />
+                              </button>
+                              <button
+                                type="button"
+                                aria-label="Cancel edit"
+                                onClick={() => setEditingIndex(null)}
+                              >
+                                <FaTrash className="h-4 w-4 shrink-0 cursor-pointer text-gray-400" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex-1 truncate text-base">
+                                {studentId}
+                              </span>
+                              <button
+                                type="button"
+                                aria-label="Edit"
+                                onClick={() => {
+                                  setEditingIndex(index)
+                                  setEditingValue(studentId)
+                                }}
+                              >
+                                <PenIcon className="h-4 w-4 shrink-0 cursor-pointer text-gray-400" />
+                              </button>
+                              <button
+                                type="button"
+                                aria-label="Delete"
+                                onClick={() => setDeleteTargetIndex(index)}
+                              >
+                                <FaTrash className="h-3 w-3 shrink-0 cursor-pointer text-gray-400" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <AlertModal
+                      open={deleteTargetIndex !== null}
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setDeleteTargetIndex(null)
+                        }
+                      }}
+                      type="warning"
+                      title="Remove Student ID"
+                      description={
+                        deleteTargetIndex !== null
+                          ? `Remove ${whiteListStudentIds[deleteTargetIndex]} from the whitelist?`
+                          : undefined
+                      }
+                      primaryButton={{
+                        text: 'Delete',
+                        onClick: () => {
+                          if (deleteTargetIndex !== null) {
+                            handleDeleteStudent(deleteTargetIndex)
+                          }
+                        },
+                        variant: 'default',
+                        disabled: isSubmittingWhitelist
+                      }}
+                    />
+                    <div className="flex items-center gap-[10px]">
+                      <Input
+                        value={newStudentId}
+                        onChange={(e) => setNewStudentId(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAddStudent()
+                          }
+                        }}
+                        placeholder="Enter a student ID"
+                        disabled={isSubmittingWhitelist}
+                        className="h-10 flex-1 rounded-full"
+                      />
+                      <button
+                        type="button"
+                        disabled={isSubmittingWhitelist}
+                        className="border-primary flex h-10 shrink-0 items-center justify-center gap-1 rounded-full border bg-white px-[22px] duration-200 hover:bg-blue-50"
+                        onClick={handleAddStudent}
+                      >
+                        <PlusLineIcon />
+                        <span className="text-primary text-[14px] font-medium">
+                          Add
+                        </span>
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="text-primary self-start text-sm underline"
+                      onClick={() => setIsReplacingWhitelist(true)}
+                    >
+                      Replace entire list
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>

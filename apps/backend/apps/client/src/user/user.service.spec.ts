@@ -6,6 +6,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import { Prisma, type User, type UserProfile } from '@prisma/client'
 import { expect } from 'chai'
+import { validate } from 'class-validator'
 import type { Request } from 'express'
 import { Exception } from 'handlebars'
 import { ExtractJwt } from 'passport-jwt'
@@ -23,6 +24,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { EmailService } from '@client/email/email.service'
 import { GroupService } from '@client/group/group.service'
+import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserService } from './user.service'
 
 const ID = 1
@@ -662,6 +664,50 @@ describe('UserService', () => {
     })
   })
 
+  describe('updateUser', () => {
+    beforeEach(() => {
+      db.user.update.resetHistory()
+      db.user.update.resolves(user)
+    })
+
+    it('should not update studentId', async () => {
+      const updateUserDto = {
+        realName: 'new name',
+        college: 'new college',
+        major: 'new major',
+        studentId: '2026123456'
+      }
+
+      await service.updateUser(
+        authRequestObject,
+        updateUserDto as unknown as UpdateUserDto
+      )
+
+      expect(db.user.update.calledOnce).to.be.true
+      expect(db.user.update.firstCall.firstArg).to.deep.equal({
+        where: { id: ID },
+        data: {
+          password: undefined,
+          college: updateUserDto.college,
+          major: updateUserDto.major,
+          userProfile: {
+            update: { realName: updateUserDto.realName }
+          }
+        },
+        select: {
+          studentId: true,
+          college: true,
+          major: true,
+          userProfile: {
+            select: {
+              realName: true
+            }
+          }
+        }
+      })
+    })
+  })
+
   describe('checkDuplicatedUsername', () => {
     it('username not duplicated', async () => {
       db.user.findUnique.resolves(null)
@@ -678,5 +724,21 @@ describe('UserService', () => {
         service.checkDuplicatedUsername(usernameDto)
       ).to.be.rejectedWith(DuplicateFoundException)
     })
+  })
+})
+
+describe('UpdateUserDto', () => {
+  it('should reject studentId updates', async () => {
+    const dto = Object.assign(new UpdateUserDto(), {
+      studentId: '2026123456'
+    })
+
+    const errors = await validate(dto)
+
+    expect(errors).to.have.lengthOf(1)
+    expect(errors[0].property).to.equal('studentId')
+    expect(errors[0].constraints?.isEmpty).to.equal(
+      'studentId cannot be updated'
+    )
   })
 })

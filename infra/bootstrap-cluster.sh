@@ -11,8 +11,9 @@ set -euo pipefail
 # 1. Checks/installs required tools (via install-tools.sh)
 # 2. Installs sealed-secrets controller
 # 3. Restores sealed-secrets encryption keys from AWS Secrets Manager
-# 4. Installs ArgoCD
-# 5. Configures ArgoCD to self-manage and deploy all infrastructure
+# 4. Installs cert-manager and trust-manager
+# 5. Installs ArgoCD
+# 6. Configures ArgoCD to self-manage and deploy all infrastructure
 #
 # Prerequisites:
 # - Kubernetes cluster running and accessible
@@ -29,6 +30,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
+# Get current directory (where script is located)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CLUSTER_CONTEXT="${CLUSTER_CONTEXT:-}"
 ENVIRONMENT="${ENVIRONMENT:-production}"  # production or stage
 SEALED_SECRETS_SECRET_NAME="Codedang-Sealed-Secrets-${ENVIRONMENT^}"  # Capitalize first letter
@@ -70,8 +73,6 @@ if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
   echo -e "${YELLOW}⚠ Missing tools: ${MISSING_TOOLS[*]}${NC}"
 
   if [ "$AUTO_INSTALL_TOOLS" = "true" ]; then
-    # Get current directory (where script is located)
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
     echo "Running install-tools.sh..."
     "${SCRIPT_DIR}/install-tools.sh" || {
@@ -168,17 +169,86 @@ echo -e "${GREEN}✓ Sealed-secrets is working correctly${NC}"
 echo
 
 #############################################
-# Step 3: Install ArgoCD
+# Step 3: Install cert-manager and trust-manager
+#############################################
+echo "========================================="
+echo "Step 3: Installing cert-manager and trust-manager"
+echo "========================================="
+
+echo "Adding Jetstack Helm repository..."
+helm repo add jetstack https://charts.jetstack.io --force-update
+helm repo update
+echo -e "${GREEN}✓ Jetstack Helm repository added${NC}"
+
+echo "Installing cert-manager..."
+$HELM upgrade --install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.18.2 \
+  --values "${SCRIPT_DIR}/k8s/cert-manager/values.yaml" \
+  --wait \
+  --timeout 10m
+
+echo "Waiting for cert-manager CRDs and deployments..."
+$KUBECTL wait \
+  --for=condition=Established \
+  crd/certificates.cert-manager.io \
+  crd/issuers.cert-manager.io \
+  crd/clusterissuers.cert-manager.io \
+  --timeout=2m
+
+$KUBECTL rollout status \
+  deployment/cert-manager \
+  --namespace cert-manager \
+  --timeout=5m
+
+$KUBECTL rollout status \
+  deployment/cert-manager-webhook \
+  --namespace cert-manager \
+  --timeout=5m
+
+$KUBECTL rollout status \
+  deployment/cert-manager-cainjector \
+  --namespace cert-manager \
+  --timeout=5m
+
+echo -e "${GREEN}✓ cert-manager installed${NC}"
+
+echo "Installing trust-manager..."
+$HELM upgrade --install trust-manager jetstack/trust-manager \
+  --namespace cert-manager \
+  --version v0.24.0 \
+  --set crds.enabled=true \
+  --set app.trust.namespace=cert-manager \
+  --wait \
+  --timeout 10m
+
+echo "Waiting for trust-manager CRD and controller..."
+$KUBECTL wait \
+  --for=condition=Established \
+  crd/bundles.trust.cert-manager.io \
+  --timeout=2m
+
+$KUBECTL rollout status \
+  deployment/trust-manager \
+  --namespace cert-manager \
+  --timeout=5m
+
+echo -e "${GREEN}✓ trust-manager installed${NC}"
+echo
+
+#############################################
+# Step 4: Install ArgoCD
 #############################################
 if [ "${SKIP_ARGOCD}" = "true" ]; then
   echo "========================================="
-  echo "Step 3: Skipping ArgoCD (SKIP_ARGOCD=true)"
+  echo "Sealed-secrets, cert-manager, and trust-manager are ready."
   echo "========================================="
   echo "This cluster is managed by production ArgoCD."
   echo
 else
   echo "========================================="
-  echo "Step 3: Installing ArgoCD"
+  echo "Step 4: Installing ArgoCD"
   echo "========================================="
 
   # Create argocd namespace
@@ -229,10 +299,10 @@ else
 fi
 
 #############################################
-# Step 4: Verification
+# Step 5: Verification
 #############################################
 echo "========================================="
-echo "Step 4: Verification"
+echo "Step 5: Verification"
 echo "========================================="
 
 if [ "${SKIP_ARGOCD}" != "true" ]; then
