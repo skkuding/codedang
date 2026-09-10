@@ -174,7 +174,7 @@ export class AuthController {
     }
 
     this.setJwtResponse(res, result.jwtTokens)
-    return res.redirect(`${frontendUrl}/`)
+    return res.redirect(`${frontendUrl}/auth/social-callback`)
   }
 
   /** 소셜 계정 연동을 위해 Kakao Login page로 이동 */

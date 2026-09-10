@@ -11,6 +11,7 @@ import {
 } from '@/components/shadcn/select'
 import { cn, isHttpError, safeFetcher } from '@/libs/utils'
 import resetGray from '@/public/icons/reset-gray.svg'
+import { useSocialAuthStore } from '@/stores/socialAuth'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 // @ts-expect-error: no type declarations for this package
 import randomNameGenerator from 'korean-random-names-generator'
@@ -94,6 +95,7 @@ export function SignUpPage() {
     minorPrivacy: false
   })
   const [showWelcome, setShowWelcome] = useState(false)
+  const { oauthToken, clearOauthToken } = useSocialAuthStore()
 
   const {
     register,
@@ -332,9 +334,11 @@ export function SignUpPage() {
           jobType: JOB_TYPE_MAP[data.job],
           college: data.university || undefined,
           major: data.major || undefined,
-          studentId: data.studentId || undefined
+          studentId: data.studentId || undefined,
+          oauthToken: oauthToken ?? undefined
         }
       })
+      clearOauthToken()
       setShowWelcome(true)
     } catch {
       toast.error('회원가입에 실패했습니다. 다시 시도해주세요')
