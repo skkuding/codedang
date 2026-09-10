@@ -76,11 +76,6 @@ export default function CourseDetailLayout({
       <div className="pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
         <h1 className="text-head3_sb_28">{activeTabName}</h1>
         <p className="text-body1_m_16 text-color-neutral-50">{`[${courseCode}] ${courseTitle} ㆍ ${courseSemester}`}</p>
-        <p className="text-body1_m_16 text-color-neutral-50 h-6">
-          {activeTabName === 'HOME'
-            ? null
-            : tabs.find((tab) => tab.title === activeTabName)?.description}
-        </p>
 
         <div className="mx-auto my-10 w-full">
           <div className="w-full">
