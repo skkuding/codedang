@@ -187,11 +187,15 @@ export class MandeuldangProblemService {
    * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
    */
   async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
-    const { id, ...data } = input
+    const { id, title, ...rest } = input
 
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id, creationMode: ProblemCreationMode.Mandeuldang }
+    const problem = await this.prisma.problem.findUnique({
+      where: { id }
     })
+
+    if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
+      throw new EntityNotExistException('MandeuldangProblem')
+    }
 
     // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
     const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
@@ -204,6 +208,33 @@ export class MandeuldangProblemService {
       collaborator.role === CollaboratorRole.Reviewer
     ) {
       throw new ForbiddenAccessException('Only Owner or Editor can edit')
+    }
+
+    // 제목은 빈 문자열일 수 없다.
+    let normalizedTitle: string | undefined
+    if (title !== undefined) {
+      normalizedTitle = title.trim()
+      if (!normalizedTitle) {
+        throw new UnprocessableDataException('Title cannot be empty')
+      }
+    }
+
+    // 시간 제한과 메모리 제한은 양수여야 한다.
+    if (input.timeLimit != null && input.timeLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Time limit must be greater than zero'
+      )
+    }
+
+    if (input.memoryLimit != null && input.memoryLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Memory limit must be greater than zero'
+      )
+    }
+
+    const data = {
+      ...rest,
+      ...(normalizedTitle !== undefined && { title: normalizedTitle })
     }
 
     return await this.prisma.$transaction(async (tx) => {
@@ -247,9 +278,13 @@ export class MandeuldangProblemService {
    * 접근 권한: Owner만 발행할 수 있다.
    */
   async publishProblem(problemId: number, userId: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang }
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId }
     })
+
+    if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
+      throw new EntityNotExistException('MandeuldangProblem')
+    }
 
     // 발행 권한이 있는지 확인 (Owner만 가능)
     const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({

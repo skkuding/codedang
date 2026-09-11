@@ -9,7 +9,6 @@ const REQUIRED_STATEMENT_FIELDS = [
   'description',
   'inputDescription',
   'outputDescription',
-  'hint',
   'timeLimit',
   'memoryLimit',
   'difficulty'

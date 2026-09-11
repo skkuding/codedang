@@ -48,9 +48,6 @@ export class UpdateMandeuldangProblemInput {
   @Field(() => String, { nullable: true })
   outputDescription?: string
 
-  @Field(() => String, { nullable: true })
-  hint?: string
-
   @Field(() => [Language], { nullable: true })
   languages?: Array<keyof typeof Language>
 

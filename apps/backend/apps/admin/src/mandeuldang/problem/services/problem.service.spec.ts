@@ -64,7 +64,6 @@ const db = {
     findMany: stub(),
     findUnique: stub(),
     findUniqueOrThrow: stub(),
-    findFirstOrThrow: stub(),
     update: stub()
   },
   mandeuldangCollaborator: {
@@ -86,7 +85,6 @@ describe('MandeuldangProblemService', () => {
       mandeuldangSolution: null,
       problemTestcase: [] as unknown[]
     })
-    db.problem.findFirstOrThrow.reset()
     db.problem.update.reset()
     db.problem.update.resolvesArg(0)
     db.mandeuldangCollaborator.findUnique.reset()
@@ -364,9 +362,21 @@ describe('MandeuldangProblemService', () => {
   })
 
   describe('updateProblem', () => {
-    const draftProblem = { id: 10, status: ProblemStatus.Draft }
-    const readyProblem = { id: 10, status: ProblemStatus.Ready }
-    const publishedProblem = { id: 10, status: ProblemStatus.Published }
+    const draftProblem = {
+      id: 10,
+      status: ProblemStatus.Draft,
+      creationMode: ProblemCreationMode.Mandeuldang
+    }
+    const readyProblem = {
+      id: 10,
+      status: ProblemStatus.Ready,
+      creationMode: ProblemCreationMode.Mandeuldang
+    }
+    const publishedProblem = {
+      id: 10,
+      status: ProblemStatus.Published,
+      creationMode: ProblemCreationMode.Mandeuldang
+    }
 
     const approve = (role: CollaboratorRole) =>
       db.mandeuldangCollaborator.findUnique.resolves({
@@ -375,7 +385,7 @@ describe('MandeuldangProblemService', () => {
       })
 
     it('rejects a user with no collaborator record', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       db.mandeuldangCollaborator.findUnique.resolves(null)
 
       try {
@@ -387,7 +397,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('rejects a Reviewer even when Approved', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       approve(CollaboratorRole.Reviewer)
 
       try {
@@ -399,7 +409,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('rejects an Editor who is still Pending approval', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       db.mandeuldangCollaborator.findUnique.resolves({
         role: CollaboratorRole.Editor,
         status: CollaboratorStatus.Pending
@@ -414,7 +424,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('lets an approved Editor save plain field changes', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       approve(CollaboratorRole.Editor)
 
       await service.updateProblem({ id: 10, title: 'new title' }, ownerId)
@@ -425,7 +435,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('promotes Draft to Ready once the publish conditions are met', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       approve(CollaboratorRole.Owner)
       db.problem.findUniqueOrThrow.resolves({
         ...fullStatementFields,
@@ -440,7 +450,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('demotes Ready back to Draft once the publish conditions break', async () => {
-      db.problem.findFirstOrThrow.resolves(readyProblem)
+      db.problem.findUnique.resolves(readyProblem)
       approve(CollaboratorRole.Owner)
       // findUniqueOrThrow의 기본 stub은 emptyStatementFields라 canPublish=false
 
@@ -451,7 +461,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('does not issue a redundant status write when status would stay the same', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       approve(CollaboratorRole.Owner)
       // findUniqueOrThrow의 기본 stub은 emptyStatementFields라 canPublish=false, Draft 그대로 유지
 
@@ -461,7 +471,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('saves a Published problem as-is when it still satisfies the publish conditions', async () => {
-      db.problem.findFirstOrThrow.resolves(publishedProblem)
+      db.problem.findUnique.resolves(publishedProblem)
       approve(CollaboratorRole.Owner)
       db.problem.findUniqueOrThrow.resolves({
         ...fullStatementFields,
@@ -476,7 +486,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('rejects an edit to a Published problem that would break the publish conditions', async () => {
-      db.problem.findFirstOrThrow.resolves(publishedProblem)
+      db.problem.findUnique.resolves(publishedProblem)
       approve(CollaboratorRole.Owner)
       // findUniqueOrThrow의 기본 stub은 emptyStatementFields라 canPublish=false
 
@@ -490,8 +500,16 @@ describe('MandeuldangProblemService', () => {
   })
 
   describe('publishProblem', () => {
-    const readyProblem = { id: 10, status: ProblemStatus.Ready }
-    const draftProblem = { id: 10, status: ProblemStatus.Draft }
+    const readyProblem = {
+      id: 10,
+      status: ProblemStatus.Ready,
+      creationMode: ProblemCreationMode.Mandeuldang
+    }
+    const draftProblem = {
+      id: 10,
+      status: ProblemStatus.Draft,
+      creationMode: ProblemCreationMode.Mandeuldang
+    }
 
     const readyToPublishSnapshot = {
       ...fullStatementFields,
@@ -500,7 +518,7 @@ describe('MandeuldangProblemService', () => {
     }
 
     it('rejects a non-Owner collaborator (Editor)', async () => {
-      db.problem.findFirstOrThrow.resolves(readyProblem)
+      db.problem.findUnique.resolves(readyProblem)
       db.mandeuldangCollaborator.findUnique.resolves({
         role: CollaboratorRole.Editor,
         status: CollaboratorStatus.Approved
@@ -515,7 +533,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('rejects a user with no collaborator record', async () => {
-      db.problem.findFirstOrThrow.resolves(readyProblem)
+      db.problem.findUnique.resolves(readyProblem)
       db.mandeuldangCollaborator.findUnique.resolves(null)
 
       try {
@@ -527,7 +545,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('rejects publishing a problem that is not yet Ready', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
+      db.problem.findUnique.resolves(draftProblem)
       db.mandeuldangCollaborator.findUnique.resolves({
         role: CollaboratorRole.Owner,
         status: CollaboratorStatus.Approved
@@ -542,7 +560,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('rejects publishing when the publish conditions no longer hold, even if status says Ready', async () => {
-      db.problem.findFirstOrThrow.resolves(readyProblem)
+      db.problem.findUnique.resolves(readyProblem)
       db.mandeuldangCollaborator.findUnique.resolves({
         role: CollaboratorRole.Owner,
         status: CollaboratorStatus.Approved
@@ -558,7 +576,7 @@ describe('MandeuldangProblemService', () => {
     })
 
     it('publishes a Ready, publish-eligible problem', async () => {
-      db.problem.findFirstOrThrow.resolves(readyProblem)
+      db.problem.findUnique.resolves(readyProblem)
       db.mandeuldangCollaborator.findUnique.resolves({
         role: CollaboratorRole.Owner,
         status: CollaboratorStatus.Approved
