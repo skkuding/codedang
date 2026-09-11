@@ -1,0 +1,41 @@
+meta {
+  name: [ERR] Not Owner
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation PublishMandeuldangProblem($id: Int!) {
+    publishMandeuldangProblem(id: $id) {
+      id
+      status
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 50
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Not Owner
+
+  **POST** `/graphql (mutation: publishMandeuldangProblem)`
+
+  Owner가 아닌 사용자(Editor, Reviewer, 협업자가 아닌 사용자 포함)가 발행을 시도하면,
+
+  `ForbiddenAccessException`("Only Owner can publish a problem")가 발생합니다.
+}
