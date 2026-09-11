@@ -25,31 +25,10 @@ resource "aws_route_table" "public" {
 }
 
 
-module "public_api_subnets" {
+module "public_db_subnets" {
   source = "./modules/subnet"
 
   subnets = {
-    public1 = {
-      cidr_block        = "10.0.90.0/24"
-      vpc_id            = aws_vpc.main.id
-      availability_zone = "ap-northeast-2a"
-      tags_name         = "Codedang-Public-Nat-Subnet1"
-      route_table_id    = aws_route_table.public.id
-    }
-    public2 = {
-      cidr_block        = "10.0.91.0/24"
-      vpc_id            = aws_vpc.main.id
-      availability_zone = "ap-northeast-2c"
-      tags_name         = "Codedang-Public-Nat-Subnet2"
-      route_table_id    = aws_route_table.public.id
-    }
-    public_nat = {
-      cidr_block        = "10.0.93.0/24"
-      vpc_id            = aws_vpc.main.id
-      availability_zone = "ap-northeast-2a"
-      tags_name         = "Codedang-Nat-Instance"
-      route_table_id    = aws_route_table.public.id
-    }
     # Temporarily expose database to public for on-premise iris
     # TODO: Move database back to private subnet, after migrating testcase from db to s3
     # Check private_network.tf "module.private_db_subnets"
@@ -72,13 +51,6 @@ module "public_api_subnets" {
       vpc_id            = aws_vpc.main.id
       availability_zone = "ap-northeast-2c"
       tags_name         = "Codedang-DB-PublicSubnet3"
-      route_table_id    = aws_route_table.public.id
-    }
-    public_bastion = {
-      cidr_block        = "10.0.255.32/28"
-      vpc_id            = aws_vpc.main.id
-      availability_zone = "ap-northeast-2a"
-      tags_name         = "bastion-subnet"
       route_table_id    = aws_route_table.public.id
     }
   }

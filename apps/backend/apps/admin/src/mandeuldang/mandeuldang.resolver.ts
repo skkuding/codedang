@@ -1,10 +1,9 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
-import { ToolType } from '@prisma/client'
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
-import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
+import { ToolType } from '@admin/@generated'
 import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
+import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
 @Resolver()
 @UseDisableAdminGuard()
@@ -13,14 +12,12 @@ export class MandeuldangResolver {
 
   @Mutation(() => MandeuldangTool)
   async uploadMandeuldangTool(
-    @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('toolType', { type: () => ToolType }) toolType: ToolType,
-    @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>
+    @Args('input') input: UploadMandeuldangToolInput
   ) {
-    return this.mandeuldangService.uploadMandeuldangTool(
-      problemId,
-      toolType,
-      await file
+    return await this.mandeuldangService.uploadMandeuldangTool(
+      input.problemId,
+      input.toolType,
+      await input.file
     )
   }
 
@@ -37,13 +34,13 @@ export class MandeuldangResolver {
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('generatorArgs', { type: () => [String] }) generatorArgs: string[],
-    @Args('testCaseCount', { type: () => Int }) testCaseCount: number
+    @Args('testcaseCount', { type: () => Int }) testcaseCount: number
   ) {
     return this.mandeuldangService.runGenerator(
       problemId,
       req.user.id,
       generatorArgs,
-      testCaseCount
+      testcaseCount
     )
   }
 

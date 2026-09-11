@@ -20,10 +20,8 @@ import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import LockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
-import type { CourseQnAComment } from '@/types/type'
 import { useMutation, useSuspenseQuery } from '@apollo/client'
 import { Suspense } from '@suspensive/react'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -200,7 +198,7 @@ function QnaDetailContent({
 
       <div className="flex flex-col items-center gap-2">
         {qna.comments && qna.comments.length > 0 ? (
-          qna.comments.map((comment: CourseQnAComment) => (
+          qna.comments.map((comment) => (
             <div
               key={comment.id}
               className="min-h-[160px] w-full rounded-xl border border-[#D8D8D8] px-6 py-6"

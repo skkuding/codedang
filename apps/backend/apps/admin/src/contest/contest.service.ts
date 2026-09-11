@@ -626,8 +626,9 @@ export class ContestService {
    * @param reqId Contest Admin / Manager ID
    * @throws {EntityNotExistException} 해당 contestId를 가지는 Contest가 존재하지 않을 경우
    * @throws {EntityNotExistException} 해당 Contest에 참여하고 있지 않은 userId인 경우
+   * @throws {EntityNotExistException} 해당 Contest에 기록이 존재하지 않는 userId인 경우
    * @throws {ForbiddenAccessException} ContestAdmin 또는 ContestManager가 아닌 reqId인 경우
-   * @throws {ForbiddenAccessException} 진행 중이거나 종료된 Contest인 경우
+   * @throws {ForbiddenAccessException} 종료된 Contest인 경우
    * @returns
    */
   async removeUserFromContest(
@@ -635,29 +636,43 @@ export class ContestService {
     userId: number,
     reqId: number
   ) {
-    const [contest, contestRecord, requesterRole] = await Promise.all([
-      this.prisma.contest.findUnique({
-        where: { id: contestId },
-        select: { startTime: true }
-      }),
-      this.prisma.contestRecord.findFirst({
-        where: { userId, contestId },
-        select: { id: true }
-      }),
-      this.prisma.userContest.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          userId_contestId: {
-            userId: reqId,
-            contestId
-          }
-        },
-        select: { role: true }
-      })
-    ])
+    const [contest, userContest, contestRecord, requesterRole] =
+      await Promise.all([
+        this.prisma.contest.findUnique({
+          where: { id: contestId },
+          select: { startTime: true, endTime: true }
+        }),
+        this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: {
+              userId,
+              contestId
+            }
+          },
+          select: { id: true }
+        }),
+        this.prisma.contestRecord.findFirst({
+          where: { userId, contestId },
+          select: { id: true }
+        }),
+        this.prisma.userContest.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_contestId: {
+              userId: reqId,
+              contestId
+            }
+          },
+          select: { role: true }
+        })
+      ])
 
     if (!contest) {
       throw new EntityNotExistException('Contest')
+    }
+    if (!userContest) {
+      throw new EntityNotExistException('UserContest')
     }
     if (!contestRecord) {
       throw new EntityNotExistException('ContestRecord')
@@ -673,19 +688,74 @@ export class ContestService {
     }
 
     const now = new Date()
-    if (now >= contest.startTime) {
-      throw new ForbiddenAccessException(
-        'Cannot unregister ongoing or ended contest'
-      )
+    if (now >= contest.endTime) {
+      throw new ForbiddenAccessException('Cannot unregister ended contest')
     }
 
     return await this.prisma.$transaction(async (tx) => {
-      await tx.contestRecord.delete({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: { contestId, userId }
+      if (now >= contest.startTime) {
+        // 강퇴당한 user가 firstSolver인 문제 존재 여부 확인 후 있으면 다음 사람에게 이월
+        const firstSolveProblems = await tx.contestProblemFirstSolver.findMany({
+          where: { contestRecordId: contestRecord.id },
+          select: { contestProblemId: true }
+        })
+
+        for (const { contestProblemId } of firstSolveProblems) {
+          await tx.contestProblemRecord.update({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              contestProblemId_contestRecordId: {
+                contestProblemId,
+                contestRecordId: contestRecord.id
+              }
+            },
+            data: { isFirstSolver: false }
+          })
+          const nextSolver = await tx.contestProblemRecord.findFirst({
+            where: {
+              contestProblemId,
+              finishTime: { not: null },
+              contestRecordId: { not: contestRecord.id },
+              contestRecord: {
+                user: {
+                  userContest: {
+                    some: { contestId }
+                  }
+                }
+              }
+            },
+            orderBy: { finishTime: 'asc' }
+          })
+
+          if (nextSolver) {
+            await tx.contestProblemFirstSolver.update({
+              where: { contestProblemId },
+              data: { contestRecordId: nextSolver.contestRecordId }
+            })
+            await tx.contestProblemRecord.update({
+              where: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                contestProblemId_contestRecordId: {
+                  contestProblemId,
+                  contestRecordId: nextSolver.contestRecordId
+                }
+              },
+              data: { isFirstSolver: true }
+            })
+          } else {
+            await tx.contestProblemFirstSolver.delete({
+              where: { contestProblemId }
+            })
+          }
         }
-      })
+      } else {
+        await tx.contestRecord.delete({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            contestId_userId: { contestId, userId }
+          }
+        })
+      }
 
       return tx.userContest.delete({
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1143,10 +1213,24 @@ export class ContestService {
       }),
       this.prisma.submission.groupBy({
         by: ['userId'],
-        where: { contestId }
+        where: {
+          contestId,
+          user: {
+            userContest: {
+              some: { contestId }
+            }
+          }
+        }
       }),
       this.prisma.contestRecord.count({
-        where: { contestId }
+        where: {
+          contestId,
+          user: {
+            userContest: {
+              some: { contestId }
+            }
+          }
+        }
       }),
       // Contest의 최고 점수 계산
       this.prisma.contestProblem.aggregate({
@@ -1156,7 +1240,14 @@ export class ContestService {
       }),
       // 항상 finalScore, finalTotalPenalty 사용
       this.prisma.contestRecord.findMany({
-        where: { contestId },
+        where: {
+          contestId,
+          user: {
+            userContest: {
+              some: { contestId }
+            }
+          }
+        },
         select: {
           userId: true,
           user: { select: { username: true } },

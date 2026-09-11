@@ -1,8 +1,8 @@
 'use client'
 
 import { dateFormatter } from '@/libs/utils'
+import type { QnAItemWithCategory } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { QnAItemWithCategory } from './QnAMainTable'
 
 export const QnAColumns: ColumnDef<QnAItemWithCategory>[] = [
   {

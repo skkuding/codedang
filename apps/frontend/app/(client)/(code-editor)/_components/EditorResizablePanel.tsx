@@ -45,6 +45,7 @@ interface ProblemEditorProps {
   assignmentId?: number
   exerciseId?: number
   courseId?: number
+  isExercise?: boolean
   enableCopyPaste?: boolean
 }
 
@@ -54,6 +55,7 @@ export function EditorMainResizablePanel({
   assignmentId,
   exerciseId,
   courseId,
+  isExercise = false,
   enableCopyPaste = true,
   children
 }: ProblemEditorProps) {
@@ -112,10 +114,10 @@ export function EditorMainResizablePanel({
   let base: string
   if (contestId) {
     base = `/contest/${contestId}` as const
-  } else if (assignmentId) {
-    base = `/course/${courseId}/assignment/${assignmentId}` as const
-  } else if (exerciseId) {
-    base = `/course/${courseId}/exercise/${exerciseId}` as const
+  } else if (assignmentId || exerciseId) {
+    const targetSegment = isExercise ? 'exercise' : 'assignment'
+    const targetId = isExercise ? exerciseId : assignmentId
+    base = `/course/${courseId}/${targetSegment}/${targetId}` as const
   } else {
     base = '' as const
   }
@@ -127,6 +129,17 @@ export function EditorMainResizablePanel({
     exerciseId
   )()
   const [tabValue, setTabValue] = useState('Description')
+
+  const shouldShowQnaTab = Boolean(contestId || assignmentId || exerciseId)
+  let qnaHref = ''
+
+  if (contestId) {
+    qnaHref = `/contest/${contestId}/problem/${problem.id}/qna`
+  } else if (assignmentId || exerciseId) {
+    const targetSegment = isExercise ? 'exercise' : 'assignment'
+    const targetId = isExercise ? exerciseId : assignmentId
+    qnaHref = `/course/${courseId}/${targetSegment}/${targetId}/problem/${problem.id}/qna`
+  }
 
   useEffect(() => {
     if (pathname.startsWith(`${base}/problem/${problem.id}/submission`)) {
@@ -212,13 +225,8 @@ export function EditorMainResizablePanel({
                     </TabsTrigger>
                   </Link>
                 )}
-                {contestId && (
-                  <Link
-                    replace
-                    href={
-                      `/contest/${contestId}/problem/${problem.id}/qna` as const
-                    }
-                  >
+                {shouldShowQnaTab && (
+                  <Link replace href={qnaHref}>
                     <TabsTrigger value="Qna" variant="editor">
                       Q&A
                     </TabsTrigger>
@@ -268,10 +276,10 @@ export function EditorMainResizablePanel({
                 />
               </div>
             )}
-            {tabValue === 'Qna' && contestId && (
+            {tabValue === 'Qna' && shouldShowQnaTab && (
               <div className="ml-auto flex gap-x-4">
                 <SyncIcon
-                  className={'ml-4 cursor-pointer'}
+                  className="ml-4 cursor-pointer"
                   onClick={() => {
                     triggerQnaRefresh()
                   }}

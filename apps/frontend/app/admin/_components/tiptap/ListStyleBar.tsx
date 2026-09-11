@@ -80,7 +80,7 @@ export function ListStyleBar({ editor }: ListStyleBarProps) {
             aria-haspopup="dialog"
             aria-expanded={isLinkPopoverOpen}
           >
-            <LinkIcon className="h-4 w-4" />
+            <LinkIcon className="size-5" />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className="flex gap-2 rounded-lg border bg-white p-2">

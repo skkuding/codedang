@@ -55,6 +55,8 @@ interface TextEditorProps {
   isDarkMode?: boolean
   isExpanded?: boolean
   onShrink?: (richText: string) => void
+  showToolbar?: boolean
+  showInsertNodeBar?: boolean
 }
 
 export function TextEditor({
@@ -63,7 +65,9 @@ export function TextEditor({
   defaultValue,
   isDarkMode = false,
   isExpanded = false,
-  onShrink
+  onShrink,
+  showToolbar = true,
+  showInsertNodeBar = true
 }: TextEditorProps) {
   const lowlight = createLowlight(common)
 
@@ -218,19 +222,21 @@ export function TextEditor({
         isDarkMode ? 'border-editor-line-1 border bg-transparent' : 'border'
       )}
     >
-      {editor && (
+      {showToolbar && editor && (
         <div
           className={cn(
             'flex flex-wrap items-center border-b px-1 py-2',
             isDarkMode
-              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
-              : 'bg-white'
+              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white'
+              : 'bg-white text-black'
           )}
         >
           <TextStyleBar editor={editor} />
           <HeadingStyleBar editor={editor} />
           <ListStyleBar editor={editor} />
-          <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          {showInsertNodeBar && (
+            <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          )}
 
           <div className="ml-auto flex items-center">
             <UndoRedoBar editor={editor} />
@@ -241,7 +247,7 @@ export function TextEditor({
                 className="h-9 w-9 p-1"
                 onClick={() => onShrink?.(editor?.getHTML())}
               >
-                <ShrinkIcon className="h-[22px] w-[22px]" />
+                <ShrinkIcon className="size-5" />
               </Button>
             )}
           </div>

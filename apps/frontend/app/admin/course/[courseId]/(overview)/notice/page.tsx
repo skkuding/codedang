@@ -1,7 +1,25 @@
-export default function Page() {
+import { FetchErrorFallback } from '@/components/FetchErrorFallback'
+import { ErrorBoundary } from '@suspensive/react'
+import { Suspense } from 'react'
+import {
+  NoticeTable,
+  NoticeTableFallback
+} from '../../../_components/NoticeTable'
+
+export const dynamic = 'force-dynamic'
+
+export default async function Page(props: {
+  params: Promise<{ courseId: string }>
+}) {
+  const { courseId } = await props.params
+
   return (
-    <main className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-      <p className="font-medium text-slate-400">TODO: Show notice list</p>
-    </main>
+    <div className="container mx-auto">
+      <ErrorBoundary fallback={FetchErrorFallback}>
+        <Suspense fallback={<NoticeTableFallback />}>
+          <NoticeTable groupId={courseId} />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
   )
 }
