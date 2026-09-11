@@ -1,0 +1,41 @@
+meta {
+  name: [ERR] Not Ready
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation PublishMandeuldangProblem($id: Int!) {
+    publishMandeuldangProblem(id: $id) {
+      id
+      status
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 40
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Not Ready
+
+  **POST** `/graphql (mutation: publishMandeuldangProblem)`
+
+  문제 상태가 Ready가 아닌(Draft 또는 이미 Published인) 상태에서 발행을 시도하면,
+
+  `UnprocessableDataException`("Only a Ready problem can be published")가 발생합니다.
+}

@@ -1,0 +1,46 @@
+meta {
+  name: [ERR] Empty Title
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UpdateMandeuldangProblem(
+    $input: UpdateMandeuldangProblemInput!
+  ) {
+    updateMandeuldangProblem(input: $input) {
+      id
+      title
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 40,
+      "title": "   "
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Empty Title
+
+  **POST** `/graphql (mutation: updateMandeuldangProblem)`
+
+  `title`을 공백/빈 문자열로 보내면(trim 후 빈 문자열이면),
+
+  `UnprocessableDataException`("Title cannot be empty")가 발생합니다.
+}

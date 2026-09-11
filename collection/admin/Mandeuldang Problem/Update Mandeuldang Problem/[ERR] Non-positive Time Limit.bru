@@ -1,0 +1,46 @@
+meta {
+  name: [ERR] Non-positive Time Limit
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UpdateMandeuldangProblem(
+    $input: UpdateMandeuldangProblemInput!
+  ) {
+    updateMandeuldangProblem(input: $input) {
+      id
+      timeLimit
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 40,
+      "timeLimit": 0
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Non-positive Time Limit
+
+  **POST** `/graphql (mutation: updateMandeuldangProblem)`
+
+  `timeLimit`을 0 이하로 보내면,
+
+  `UnprocessableDataException`("Time limit must be greater than zero")가 발생합니다.
+}
