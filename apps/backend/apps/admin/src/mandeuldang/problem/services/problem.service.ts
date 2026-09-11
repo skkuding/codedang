@@ -48,9 +48,10 @@ const resolveMyRole = (
 export class MandeuldangProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService,
-    private readonly publishCheckService: PublishCheckService
+    private readonly publishCheckService: PublishCheckService,
+    private readonly storageService: StorageService
   ) {}
+
   /**
    * 내가 만든(Owner인) 만들당 문제 목록. 기본적으로 상태와 무관하게 전부 보여준다.
    * "management -> 내가 만든 문제" 화면용. `status`를 넘기면 그 상태로만 좁혀 조회한다.
@@ -166,19 +167,125 @@ export class MandeuldangProblemService {
       )
     }
 
-    const testFileCount = problem.mandeuldangTestFiles.length
-    const missingForPublish: string[] = []
-    if (!problem.description) missingForPublish.push('STATEMENT')
-    if (!problem.mandeuldangSolution) missingForPublish.push('SOLUTION')
-    if (testFileCount === 0) missingForPublish.push('TEST_FILES')
+    const { canPublish, missing } = await this.publishCheckService.check(
+      problem.id
+    )
 
     return {
       ...problem,
       myRole: resolveMyRole(problem, userId),
-      testFileCount,
-      canPublish: missingForPublish.length === 0,
-      missingForPublish
+      testFileCount: problem.mandeuldangTestFiles.length,
+      canPublish,
+      missingForPublish: missing
     }
+  }
+
+  /**
+   * input에 따른 문제 수정.
+   * 수정된 문제를 반환한다.
+   *
+   * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
+   */
+  async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
+    const { id, ...data } = input
+
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id, creationMode: ProblemCreationMode.Mandeuldang }
+    })
+
+    // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
+    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_userId: { problemId: id, userId } }
+    })
+    if (
+      !collaborator ||
+      collaborator.status !== CollaboratorStatus.Approved ||
+      collaborator.role === CollaboratorRole.Reviewer
+    ) {
+      throw new ForbiddenAccessException('Only Owner or Editor can edit')
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.problem.update({
+        where: { id },
+        data
+      })
+
+      const { canPublish } = await this.publishCheckService.check(
+        problem.id,
+        tx
+      )
+
+      // publish 상태인 문제인 경우 조건 만족시에만 저장 가능
+      if (problem.status === ProblemStatus.Published) {
+        if (!canPublish) {
+          throw new UnprocessableDataException(
+            'Edits that break publishing requirements cannot be saved.'
+          )
+        }
+        return updated
+      }
+
+      // draft 상태인 문제인 경우 조건 만족시 draft->ready로 자동 승격
+      // ready 상태인 문제인 경우 조건 불만족시 ready->draft로 자동 승격
+      const nextStatus = canPublish ? ProblemStatus.Ready : ProblemStatus.Draft
+      if (nextStatus !== problem.status) {
+        await tx.problem.update({
+          where: { id: problem.id },
+          data: { status: nextStatus }
+        })
+      }
+      return updated
+    })
+  }
+
+  /**
+   * 문제 id로 문제 발행. 발행 조건을 확인한 후 상태를 published로 전환한다.
+   * 발행된 문제를 반환한다.
+   *
+   * 접근 권한: Owner만 발행할 수 있다.
+   */
+  async publishProblem(problemId: number, userId: number) {
+    const problem = await this.prisma.problem.findFirstOrThrow({
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang }
+    })
+
+    // 발행 권한이 있는지 확인 (Owner만 가능)
+    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_userId: { problemId, userId } }
+    })
+    if (
+      !collaborator ||
+      collaborator.status !== CollaboratorStatus.Approved ||
+      collaborator.role !== CollaboratorRole.Owner
+    ) {
+      throw new ForbiddenAccessException('Only Owner can publish a problem')
+    }
+
+    if (problem.status !== ProblemStatus.Ready) {
+      throw new UnprocessableDataException(
+        'Only a Ready problem can be published'
+      )
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const { canPublish, missing } = await this.publishCheckService.check(
+        problem.id,
+        tx
+      )
+      if (!canPublish) {
+        throw new UnprocessableDataException(
+          `Cannot publish: missing ${missing.join(', ')}`
+        )
+      }
+
+      return await tx.problem.update({
+        where: { id: problem.id },
+        data: { status: ProblemStatus.Published }
+      })
+    })
   }
 
   async createProblem(
@@ -289,114 +396,5 @@ export class MandeuldangProblemService {
       /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi
 
     return input.match(uuidRegex) ?? []
-  }
-
-  private readonly publishCheckService: PublishCheckService
-
-  async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
-    const { id, tags, template, ...data } = input
-
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id, creationMode: ProblemCreationMode.Mandeuldang }
-    })
-
-    // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
-    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { problemId_userId: { problemId: id, userId } }
-    })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role === CollaboratorRole.Reviewer
-    ) {
-      throw new ForbiddenAccessException('Only Owner or Editor can edit')
-    }
-
-    return await this.prisma.$transaction(async (tx) => {
-      const updated = await tx.problem.update({
-        where: { id },
-        data: {
-          ...data,
-          ...(template !== undefined && {
-            template: [JSON.stringify(template)]
-          }),
-          ...(tags && {
-            problemTag: {
-              deleteMany: { tagId: { in: tags.delete } },
-              create: tags.create.map((tagId) => ({ tagId }))
-            }
-          })
-        }
-      })
-
-      const { canPublish } = await this.publishCheckService.check(
-        problem.id,
-        tx
-      )
-
-      // publish 상태인 문제인 경우 조건 만족시에만 저장 가능
-      if (problem.status === ProblemStatus.Published) {
-        if (!canPublish) {
-          throw new UnprocessableDataException(
-            'Edits that break publishing requirements cannot be saved.'
-          )
-        }
-        return updated
-      }
-
-      // draft 상태인 문제인 경우 조건 만족시 draft->ready로 자동 승격
-      // ready 상태인 문제인 경우 조건 불만족시 ready->draft로 자동 승격
-      const nextStatus = canPublish ? ProblemStatus.Ready : ProblemStatus.Draft
-      if (nextStatus !== problem.status) {
-        await tx.problem.update({
-          where: { id: problem.id },
-          data: { status: nextStatus }
-        })
-      }
-      return updated
-    })
-  }
-
-  async publishProblem(problemId: number, userId: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang }
-    })
-
-    // 발행 권한이 있는지 확인 (Owner만 가능)
-    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { problemId_userId: { problemId, userId } }
-    })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role !== CollaboratorRole.Owner
-    ) {
-      throw new ForbiddenAccessException('Only Owner can publish a problem')
-    }
-
-    if (problem.status !== ProblemStatus.Ready) {
-      throw new UnprocessableDataException(
-        'Only a Ready problem can be published'
-      )
-    }
-
-    return await this.prisma.$transaction(async (tx) => {
-      const { canPublish, missing } = await this.publishCheckService.check(
-        problem.id,
-        tx
-      )
-      if (!canPublish) {
-        throw new UnprocessableDataException(
-          `Cannot publish: missing ${missing.join(', ')}`
-        )
-      }
-
-      return await tx.problem.update({
-        where: { id: problem.id },
-        data: { status: ProblemStatus.Published }
-      })
-    })
   }
 }
