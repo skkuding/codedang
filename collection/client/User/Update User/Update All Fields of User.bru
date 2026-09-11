@@ -16,8 +16,10 @@ body:json {
     "newPassword": "Useruser",
      // Don't change password in stage server please!!
     "realName": "changedName",
-    "affiliation": "changedAffiliation",
-    "major": "changedMajor"
+    "college": "changedCollege",
+    "major": "changedMajor",
+    "nickname":"changednickname",
+    "profileImageUrl":"https://api.dicebear.com/9.x/notionists/svg?seed=changedName"
   }
 }
 
@@ -30,11 +32,83 @@ script:post-response {
 }
 
 docs {
-  # user 정보 수정
-  - realname, studentId, affiliation, major, 비밀번호를 선택적으로 수정할 수 있습니다.
-  비밀번호를 변경하려면 기존 password(=password 필드)와 new password(=newPassword 필드)를 같이 입력으로 주어야 하며,
-  이때 로그인한 유저의 DB정보를 통해 기존 password를 맞게 썼는지를 검사합니다.
-  - realname, studentId, affiliation, major는 변경하려는 값으로만 입력해주시면 됩니다.
+  # 📘 Update User
+  
+  **Patch** `/user`
+  
+  update user information
+  
+  로그인한 사용자의 정보를 선택적으로 수정합니다.
+  
+  `realName`, `studentId`, `college`, `major`, `nickname`, `profileImageUrl` 및 비밀번호를 변경할 수 있습니다. 
+  
+  변경하지 않을 필드는 요청 Body에 포함하지 않아야 합니다.
+  
+  비밀번호를 변경하려면 기존 password(=password 필드)와 new password(=newPassword 필드)를 같이 입력으로 주어야 하며, 이때 로그인한 유저의 DB정보를 통해 기존 password를 맞게 썼는지를 검사합니다.
+  
   비밀번호를 변경하지 않을 경우 기존 password를 입력하지 않아야 합니다.
-  - 변경하려는 값이 없는 경우에는 해당 필드를 input에 넣지 않아야 합니다.
+  
+  변경하려는 값이 없는 경우에는 해당 필드를 input에 넣지 않아야 합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "password": "Useruser",
+    "newPassword": "NewUseruser",
+    "realName": "changedName",
+    "college": "changedCollege",
+    "major": "changedMajor",
+    "nickname": "changednickname",
+    "profileImageUrl": "https://api.dicebear.com/9.x/notionists/svg?seed=changedName"
+  }
+  ```
+  
+  | Field | Type | Required | Description |
+  |---|---|---:|---|
+  | `password` | string | 조건부 | 비밀번호 변경 시 입력하는 현재 비밀번호 |
+  | `newPassword` | string | 조건부 | 새로 변경할 비밀번호 |
+  | `realName` | string |   | 변경할 실명 |
+  | `studentId` | string |   | 변경할 학번 |
+  | `college` | string |   | 변경할 소속 대학 |
+  | `major` | string |   | 변경할 전공 |
+  | `nickname` | string |   | 변경할 닉네임 |
+  | `profileImageUrl` | string |   | 변경할 프로필 이미지 URL |
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "nickname": "changednickname",
+    "studentId": "2024100001",
+    "college": "changedCollege",
+    "major": "changedMajor",
+    "userProfile": {
+      "realName": "changedName",
+      "profileImageUrl": "https://api.dicebear.com/9.x/notionists/svg?seed=changedName"
+    }
+  }
+  ```
+  
+  | Field | Type | Description |
+  |---|---|---|
+  | `nickname` | string | 변경 후 사용자의 닉네임 |
+  | `studentId` | string | 변경 후 사용자의 학번 |
+  | `college` | string | 변경 후 사용자의 소속 대학 |
+  | `major` | string | 변경 후 사용자의 전공 |
+  | `userProfile` | object | 사용자의 상세 프로필 정보 |
+  | `userProfile.realName` | string | 변경 후 사용자의 실명 |
+  | `userProfile.profileImageUrl` | string | 변경 후 프로필 이미지 URL |
 }

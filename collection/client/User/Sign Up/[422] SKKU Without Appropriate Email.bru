@@ -1,24 +1,25 @@
 meta {
-  name: [422] Bad Password
+  name: [422] SKKU Without Appropriate Email
   type: http
-  seq: 2
+  seq: 8
 }
 
 post {
   url: {{baseUrl}}/user/sign-up
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {
   {
-    "username": "test",
-    "password": "badpassword",
+    "username": "super",
+    "password": "it'smehi",
     "email": "nicole2974@g.skku.edu",
     "realName": "MyeongRyunLee",
     "nickname": "test",
     "jobType": "CollegeStudent",
-    "college": "test",
+    "studentId": "2019000111",
+    "college": "성균관대학교",
     "major": "Software"
   }
 }
@@ -31,4 +32,9 @@ script:pre-request {
     "email": "nicole2974@g.skku.edu" // email 주소
   })
   req.setHeader('email-auth', res.headers['email-auth'])
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
 }
