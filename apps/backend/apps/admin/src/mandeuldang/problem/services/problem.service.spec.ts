@@ -44,7 +44,6 @@ const emptyStatementFields = {
   timeLimit: null,
   memoryLimit: null,
   difficulty: null,
-  source: null,
   languages: [] as Language[]
 }
 
@@ -57,7 +56,6 @@ const fullStatementFields = {
   timeLimit: 2000,
   memoryLimit: 512,
   difficulty: Level.Level1,
-  source: 'source',
   languages: [Language.Cpp]
 }
 
@@ -419,38 +417,6 @@ describe('MandeuldangProblemService', () => {
       const call = db.problem.update.firstCall.args[0]
       expect(call.where).to.deep.equal({ id: 10 })
       expect(call.data.title).to.equal('new title')
-    })
-
-    it('serializes template as a JSON string array, not the raw objects', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
-      approve(CollaboratorRole.Owner)
-      const template = [
-        {
-          language: Language.Cpp,
-          code: [{ id: 1, text: 'int main() {}', locked: false }]
-        }
-      ]
-
-      await service.updateProblem({ id: 10, template }, ownerId)
-
-      const call = db.problem.update.firstCall.args[0]
-      expect(call.data.template).to.deep.equal([JSON.stringify(template)])
-    })
-
-    it('turns tags.create/tags.delete into a problemTag write', async () => {
-      db.problem.findFirstOrThrow.resolves(draftProblem)
-      approve(CollaboratorRole.Owner)
-
-      await service.updateProblem(
-        { id: 10, tags: { create: [1, 2], delete: [3] } },
-        ownerId
-      )
-
-      const call = db.problem.update.firstCall.args[0]
-      expect(call.data.problemTag).to.deep.equal({
-        deleteMany: { tagId: { in: [3] } },
-        create: [{ tagId: 1 }, { tagId: 2 }]
-      })
     })
 
     it('promotes Draft to Ready once the publish conditions are met', async () => {

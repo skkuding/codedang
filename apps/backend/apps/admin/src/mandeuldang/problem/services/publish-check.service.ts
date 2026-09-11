@@ -12,8 +12,7 @@ const REQUIRED_STATEMENT_FIELDS = [
   'hint',
   'timeLimit',
   'memoryLimit',
-  'difficulty',
-  'source'
+  'difficulty'
 ] satisfies (keyof Problem)[]
 
 @Injectable()

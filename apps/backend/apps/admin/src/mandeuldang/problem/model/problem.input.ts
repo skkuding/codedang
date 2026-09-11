@@ -1,8 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
 import { Language, Level, ProblemType } from '@generated'
-import { UpdateProblemTagInput } from '@admin/problem/model/problem.input'
-import { Solution } from '@admin/problem/model/solution.input'
-import { Template } from '@admin/problem/model/template.input'
 
 @InputType()
 export class UpdateMandeuldangProblemInput {
@@ -24,14 +21,8 @@ export class UpdateMandeuldangProblemInput {
   @Field(() => String, { nullable: true })
   hint?: string
 
-  @Field(() => [Template], { nullable: true })
-  template?: Array<Template>
-
   @Field(() => [Language], { nullable: true })
   languages?: Array<keyof typeof Language>
-
-  @Field(() => [Solution], { nullable: true })
-  solution?: Array<Solution>
 
   @Field(() => Int, { nullable: true })
   timeLimit?: number
@@ -41,12 +32,6 @@ export class UpdateMandeuldangProblemInput {
 
   @Field(() => Level, { nullable: true })
   difficulty?: keyof typeof Level
-
-  @Field(() => String, { nullable: true })
-  source?: string
-
-  @Field(() => UpdateProblemTagInput, { nullable: true })
-  tags?: UpdateProblemTagInput
 }
 
 @InputType()

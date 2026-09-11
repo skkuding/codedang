@@ -187,7 +187,7 @@ export class MandeuldangProblemService {
    * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
    */
   async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
-    const { id, tags, template, ...data } = input
+    const { id, ...data } = input
 
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: { id, creationMode: ProblemCreationMode.Mandeuldang }
@@ -209,18 +209,7 @@ export class MandeuldangProblemService {
     return await this.prisma.$transaction(async (tx) => {
       const updated = await tx.problem.update({
         where: { id },
-        data: {
-          ...data,
-          ...(template !== undefined && {
-            template: [JSON.stringify(template)]
-          }),
-          ...(tags && {
-            problemTag: {
-              deleteMany: { tagId: { in: tags.delete } },
-              create: tags.create.map((tagId) => ({ tagId }))
-            }
-          })
-        }
+        data
       })
 
       const { canPublish } = await this.publishCheckService.check(
