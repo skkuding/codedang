@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import {
   ConflictFoundException,
@@ -45,6 +45,8 @@ export interface ProblemScore {
 
 @Injectable()
 export class AssignmentService {
+  private readonly logger = new Logger(AssignmentService.name)
+
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -563,7 +565,9 @@ export class AssignmentService {
    * 한 그룹에서 특정 유저의 모든 assignment 결과를 요약해 가져옵니다.
    * 요약한 내용에는 assignment 아이디, 문제/제출 수, 문제 별 점수의 총합, 최종 점수가 포함됩니다.
    * assignment의 isFinalScoreVisible가 false일 때 userAssignmentFinalScore는 null이 됩니다.
-   * 유저가 참여하지 않아 AssignmentRecord가 없는 assignment는 결과에서 제외됩니다.
+   * 정상적인 Course Member라면 AssignmentRecord가 존재해야 하지만, 과거 데이터나
+   * 예외적인 흐름으로 인해 없을 수도 있습니다. 이 경우 요청을 실패시키지 않고
+   * 해당 assignment만 결과에서 제외합니다.
    *
    * @param groupId 가져올 assignment가 속한 그룹 아이디
    * @param userId 유저 아이디
@@ -624,11 +628,23 @@ export class AssignmentService {
       return []
     }
 
-    // Course 접근 권한은 GroupMemberGuard/UserGroup에서 검증하므로, 여기서는
-    // 참여하지 않아 AssignmentRecord가 없는 assignment를 결과에서 제외하기만 한다.
+    // Course 접근 권한은 GroupMemberGuard/UserGroup에서 검증한다. AssignmentRecord는
+    // 정상적으로는 항상 존재해야 하지만, 누락된 경우에도 403/500으로 실패시키지 않고
+    // 해당 assignment만 결과에서 제외한다. 다만 원칙적으로 없어서는 안 되는 상태이므로
+    // 서버에서 감지할 수 있도록 로그를 남긴다.
     const participatingAssignments = assignments.filter(
       (assignment) => assignment.assignmentRecord.length > 0
     )
+
+    const missingRecordAssignmentIds = assignments
+      .filter((assignment) => assignment.assignmentRecord.length === 0)
+      .map((assignment) => assignment.id)
+
+    if (missingRecordAssignmentIds.length > 0) {
+      this.logger.warn(
+        `getMyAssignmentsSummary - AssignmentRecord missing (userId=${userId}, groupId=${groupId}, assignmentIds=[${missingRecordAssignmentIds.join(', ')}])`
+      )
+    }
 
     // 각 assignment의  problem 별 점수 총합
     const assignmentPerfectScoresMap = participatingAssignments.reduce(
