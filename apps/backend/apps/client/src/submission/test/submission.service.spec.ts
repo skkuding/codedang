@@ -330,15 +330,12 @@ describe('SubmissionService', () => {
 
     it('should throw exception if the problem is not yet published', async () => {
       const createSpy = stub(service, 'createSubmission')
-      db.contest.findFirst.resolves(mockContest)
-      db.userContest.findFirst.resolves(null)
-      db.contestRecord.findUnique.resolves({
-        contest: {
-          groupId: 1,
-          startTime: new Date(Date.now() - 10000),
-          endTime: new Date(Date.now() + 10000)
-        }
+      db.contest.findFirst.resolves({
+        ...mockContest,
+        startTime: new Date(Date.now() - 10_000),
+        endTime: new Date(Date.now() + 10_000)
       })
+      db.userContest.findUnique.resolves({})
       db.contestProblem.findUnique.resolves({
         problem: { ...problems[0], status: ProblemStatus.Draft }
       })
