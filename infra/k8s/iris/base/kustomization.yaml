@@ -7,6 +7,7 @@ resources:
   - deployment.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
+  - service.yaml
 
 commonAnnotations:
   managed-by: kustomize
