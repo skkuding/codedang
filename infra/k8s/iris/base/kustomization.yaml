@@ -5,8 +5,10 @@ namespace: iris
 resources:
   - configmap.yaml
   - deployment.yaml
+  - HTTPRoutes.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
+  - service.yaml
 
 commonAnnotations:
   managed-by: kustomize

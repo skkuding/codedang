@@ -24,6 +24,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
+
+	_ "net/http/pprof"
 )
 
 type Env string
@@ -54,13 +56,21 @@ func main() {
 	ctx := context.Background()
 	if env == "stage" {
 		logProvider.Log(logger.INFO, "Running in stage mode")
-		http.HandleFunc("/health", healthCheckHandler)
+		healthMux := http.NewServeMux()
+		healthMux.HandleFunc("/health", healthCheckHandler)
 		go func() {
-			if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
+			if err := http.ListenAndServe("0.0.0.0:3404", healthMux); err != nil {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
 	}
+
+	go func() {
+		logProvider.Log(logger.INFO, "Intializing pprof listening on :6060")
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start pprof: %v", err))
+		}
+	}()
 
 	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
 	if !disableInstrumentation {
