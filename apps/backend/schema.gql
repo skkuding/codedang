@@ -3519,6 +3519,7 @@ type ProblemWithIsVisible {
   createTime: DateTime!
   createdBy: User
   createdById: Int
+  creationMode: ProblemCreationMode!
   description: String!
   difficulty: Level!
   engDescription: String
@@ -3533,6 +3534,12 @@ type ProblemWithIsVisible {
   isSampleUploadedByZip: Boolean!
   isVisible: Boolean
   languages: [Language!]
+  lastRunPass: Boolean!
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
   memoryLimit: Int!
   outputDescription: String!
   problemTag: [ProblemTag!]
@@ -3540,6 +3547,7 @@ type ProblemWithIsVisible {
   sharedGroups: [Group!]!
   solution: [JSON!]
   source: String!
+  status: ProblemStatus!
   submission: [Submission!]
   submissionCount: Int!
   tag: [ProblemTag!]!

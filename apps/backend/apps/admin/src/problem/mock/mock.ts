@@ -24,11 +24,13 @@ import type { UploadFileInput } from '../model/problem.input'
 import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
+import { assertLegacyProblemContent } from '../utils/assert-legacy-problem-response'
 
 const changeVisibleLockTimeToIsVisible = function (
   problems: Problem[]
 ): ProblemWithIsVisible[] {
   return problems.map((problem: Problem) => {
+    assertLegacyProblemContent(problem)
     const { visibleLockTime, ...data } = problem
     return {
       isVisible:
