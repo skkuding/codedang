@@ -24,6 +24,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
+
+	_ "net/http/pprof"
 )
 
 type Env string
@@ -61,6 +63,13 @@ func main() {
 			}
 		}()
 	}
+
+	go func() {
+		logProvider.Log(logger.INFO, "Intializing pprof listening on :6060")
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start pprof: %v", err))
+		}
+	}()
 
 	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
 	if !disableInstrumentation {
