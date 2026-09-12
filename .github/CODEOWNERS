@@ -1,0 +1,4 @@
+# Code ownership for services maintained by @skkuding/backend-maintainers.
+/apps/backend/ @skkuding/backend-maintainers
+/apps/iris/ @skkuding/backend-maintainers
+/apps/plag/ @skkuding/backend-maintainers
