@@ -58,6 +58,7 @@ spec:
                   - client-api
                   - frontend
                   - headlamp
+                  - iris
                   - monitoring-grafana
                   - monitoring-prometheus
                   - n8n
@@ -83,6 +84,7 @@ spec:
                 values:
                   - cloud-beaver
                   - headlamp
+                  - iris
                   - minio
                   - monitoring-grafana
                   - monitoring-prometheus
