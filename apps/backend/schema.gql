@@ -3413,16 +3413,16 @@ type ProblemWithIsVisible {
   createdBy: User
   createdById: Int
   creationMode: ProblemCreationMode!
-  description: String
-  difficulty: Level
+  description: String!
+  difficulty: Level!
   engDescription: String
   engHint: String
   engInputDescription: String
   engOutputDescription: String
   engTitle: String
-  hint: String
+  hint: String!
   id: ID!
-  inputDescription: String
+  inputDescription: String!
   isHiddenUploadedByZip: Boolean!
   isSampleUploadedByZip: Boolean!
   isVisible: Boolean
@@ -3433,14 +3433,14 @@ type ProblemWithIsVisible {
   mandeuldangSolution: MandeuldangSolution
   mandeuldangTestFiles: [MandeuldangTestFile!]
   mandeuldangTools: [MandeuldangTool!]
-  memoryLimit: Int
-  outputDescription: String
+  memoryLimit: Int!
+  outputDescription: String!
   problemTag: [ProblemTag!]
   problemTestcase: [ProblemTestcase!]
   problemType: ProblemType!
   sharedGroups: [Group!]!
   solution: [JSON!]
-  source: String
+  source: String!
   status: ProblemStatus!
   submission: [Submission!]
   submissionCount: Int!
@@ -3460,7 +3460,7 @@ type ProblemWithIsVisible {
   template: [JSON!]
   testSubmission: [TestSubmission!]
   testcase: [ProblemTestcase!]!
-  timeLimit: Int
+  timeLimit: Int!
   title: String!
   updateContentTime: DateTime
   updateHistory: [UpdateHistory!]!

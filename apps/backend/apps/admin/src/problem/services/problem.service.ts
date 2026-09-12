@@ -30,6 +30,7 @@ import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
+import { assertLegacyProblemContent } from '../utils/assert-legacy-problem-response'
 import { TagService } from './tag.service'
 import { TestcaseService } from './testcase.service'
 
@@ -859,22 +860,11 @@ export class ProblemService {
   changeVisibleLockTimeToIsVisible(
     problems: Problem | Problem[]
   ): ProblemWithIsVisible | ProblemWithIsVisible[] {
-    if (Array.isArray(problems)) {
-      return problems.map((problem) => {
-        const { visibleLockTime, ...data } = problem
-        return {
-          isVisible:
-            visibleLockTime.getTime() === MIN_DATE.getTime()
-              ? true
-              : visibleLockTime < new Date() ||
-                  visibleLockTime.getTime() === MAX_DATE.getTime()
-                ? false
-                : null,
-          ...data
-        }
-      })
-    } else {
-      const { visibleLockTime, ...data } = problems
+    const convert = (problem: Problem): ProblemWithIsVisible => {
+      assertLegacyProblemContent(problem)
+
+      const { visibleLockTime, ...data } = problem
+
       return {
         isVisible:
           visibleLockTime.getTime() === MIN_DATE.getTime()
@@ -886,5 +876,7 @@ export class ProblemService {
         ...data
       }
     }
+
+    return Array.isArray(problems) ? problems.map(convert) : convert(problems)
   }
 }
