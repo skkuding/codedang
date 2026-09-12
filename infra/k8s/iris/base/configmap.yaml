@@ -5,6 +5,7 @@ metadata:
   namespace: iris
 data:
   APP_ENV: 'stage' # Running in 'stage' temporarily because of errors from entrypoint.sh
+  DATABASE_CONNECTION_LIMIT: '225'
   TESTCASE_BUCKET_NAME: 'codedang-testcase'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5671'

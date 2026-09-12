@@ -27,6 +27,15 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   score: new Prisma.Decimal(100)
 }
 
+// problems[0]는 Problem 전체 타입이라 timeLimit/memoryLimit이 number | null이다 —
+// 이 mock은 실제로 항상 값이 채워져 있으므로, JudgeRequest 생성자가 요구하는
+// non-null 타입에 맞춰 좁혀둔다.
+const judgeableProblem = {
+  ...problems[0],
+  timeLimit: problems[0].timeLimit!,
+  memoryLimit: problems[0].memoryLimit!
+}
+
 describe('SubmissionPublicationService', () => {
   let service: SubmissionPublicationService
   let amqpService: JudgeAMQPService
@@ -76,7 +85,7 @@ describe('SubmissionPublicationService', () => {
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
         submission.language,
-        problems[0]
+        judgeableProblem
       )
 
       await expect(
@@ -112,7 +121,7 @@ describe('SubmissionPublicationService', () => {
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
         submission.language,
-        problems[0]
+        judgeableProblem
       )
 
       await expect(
@@ -164,7 +173,7 @@ describe('SubmissionPublicationService', () => {
       const userTestcaseJudgeRequest = new UserTestcaseJudgeRequest(
         submissions[0].code,
         submission.language,
-        problems[0],
+        judgeableProblem,
         userTestcases,
         true
       )
@@ -211,7 +220,7 @@ describe('SubmissionPublicationService', () => {
       const judgeRequest = new JudgeRequest(
         submissions[0].code,
         submission.language,
-        problems[0],
+        judgeableProblem,
         true,
         true,
         true

@@ -6,13 +6,13 @@ import { DeleteButton } from '@/components/DeleteButton'
 import { Button } from '@/components/shadcn/button'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
-import ArrowLeftBlackIcon from '@/public/icons/arrow-left-black.svg'
+import ArrowLeftIcon from '@/public/icons/arrow-left.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import LockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
-import type { CourseQnAItem } from '@/types/type'
+import type { CourseSingleQnaData } from '@/types/type'
 import {
   useSuspenseQuery,
   useMutation,
@@ -49,7 +49,7 @@ export function QnaDetailView() {
     queryFn: () =>
       safeFetcherWithAuth
         .get(`course/${courseId}/qna/${order}`)
-        .json<CourseQnAItem>(),
+        .json<CourseSingleQnaData>(),
     staleTime: 1000 * 60
   })
 
@@ -111,7 +111,7 @@ export function QnaDetailView() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-2xl font-semibold"
         >
-          <ArrowLeftBlackIcon className="h-6 w-6 text-black" />
+          <ArrowLeftIcon className="h-5 w-5 text-black" />
           Question & Answer
         </button>
         <DeleteButton

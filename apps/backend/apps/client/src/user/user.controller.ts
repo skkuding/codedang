@@ -67,6 +67,11 @@ export class UserController {
     return await this.userService.checkDuplicatedUsername(usernameDto)
   }
 
+  @Get('username')
+  async getUserByUsername(@Query() usernameDto: UsernameDto) {
+    return await this.userService.getUserByUsername(usernameDto)
+  }
+
   @Get('email')
   @AuthNotNeededIfPublic()
   async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {

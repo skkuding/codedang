@@ -365,10 +365,14 @@ export function NotificationDropdown({
                               ? 'Course'
                               : notification.type}
                           </Badge>
-                          {notification.title}
-                          {!notification.isRead && (
-                            <div className="bg-primary h-2 w-2 rounded-full" />
-                          )}
+                          <div className="max-w-51 flex items-center gap-1.5">
+                            <p className="min-w-0 flex-1 truncate">
+                              {notification.title}
+                            </p>
+                            {!notification.isRead && (
+                              <div className="bg-primary h-2 w-2 rounded-full" />
+                            )}
+                          </div>
                         </div>
                         <p
                           className={cn(

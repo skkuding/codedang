@@ -32,6 +32,7 @@ func (r *runner) Run(req sandbox.RunRequest, input []byte) (sandbox.RunResult, e
 			Memory:   req.MemoryLimit,
 		},
 		false,
+		req.ExtraArgs,
 	)
 	if err != nil {
 		return sandbox.RunResult{}, err

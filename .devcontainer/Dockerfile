@@ -7,6 +7,8 @@ RUN chmod -R 777 /app/sandbox
 RUN curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.4/libjudger-$(dpkg --print-architecture).so" -o "/app/sandbox/libjudger.so"
 RUN chmod 750 /app/sandbox/libjudger.so
 
+COPY ./apps/iris/lib/testlib.h /usr/include/testlib.h
+
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y install --no-install-recommends pypy3 \

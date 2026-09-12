@@ -4,6 +4,7 @@ metadata:
   name: client-api-env
   namespace: client-api
 data:
+  DATABASE_CONNECTION_LIMIT: '225'
   NODEMAILER_FROM: 'Codedang <noreply@codedang.com>'
   RABBITMQ_API_URL: 'http://rabbitmq.rabbitmq.svc.cluster.local:15672/api'
   RABBITMQ_DEFAULT_VHOST: 'vh'

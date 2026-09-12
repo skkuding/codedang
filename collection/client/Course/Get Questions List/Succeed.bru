@@ -32,6 +32,27 @@ tests {
       expect(question).to.have.property('createdBy');
       expect(question.createdBy).to.have.property('username');
     }
+
+    const generalQnA = data.find((question) => question.order === 2);
+    expect(generalQnA).to.not.equal(undefined);
+    expect(generalQnA.problemId).to.equal(null);
+    expect(generalQnA.assignmentId).to.equal(null);
+    expect(generalQnA.assignmentTitle).to.equal(null);
+    expect(generalQnA.isExercise).to.equal(null);
+
+    const legacyQnA = data.find((question) => question.order === 1);
+    expect(legacyQnA).to.not.equal(undefined);
+    expect(legacyQnA.problemId).to.equal(1);
+    expect(legacyQnA.assignmentId).to.equal(null);
+    expect(legacyQnA.assignmentTitle).to.equal(null);
+    expect(legacyQnA.isExercise).to.equal(null);
+
+    const directAssignmentQnA = data.find((question) => question.order === 3);
+    expect(directAssignmentQnA).to.not.equal(undefined);
+    expect(directAssignmentQnA.problemId).to.equal(2);
+    expect(directAssignmentQnA.assignmentId).to.equal(1);
+    expect(directAssignmentQnA.assignmentTitle).to.equal("SKKU Coding Platform 모의과제");
+    expect(directAssignmentQnA.isExercise).to.equal(false);
   });
 }
 
@@ -72,7 +93,7 @@ docs {
   |--------------|----------|----------|---------------------------------------|
   | `week`       | number   | ❌       | 주차별 필터링                           |
   | `isAnswered` | boolean  | ❌       | 답변 여부 필터링 (true/false)           |
-  | `categories` | string[] | ❌       | 카테고리 필터 (general, problem)        |
+  | `categories` | string[] | ❌       | 카테고리 필터 (`General`, `Problem`)    |
   | `problemIds` | number[] | ❌       | 특정 문제들의 질문만 조회                |
   | `search`     | string   | ❌       | 제목 검색 (대소문자 구분 없음)           |
 
@@ -86,16 +107,23 @@ docs {
     {
       "id": 1,
       "order": 1,
-      "createdById": 7,
-      "title": "강의 전반에 대한 질문입니다",
-      "category": "general",
+      "title": "질문 제목",
+      "isPrivate": true,
+      "category": "General",
       "isResolved": false,
-      "isRead": true,
+      "isRead": false,
       "problemId": null,
-      "createTime": "2025-01-15T10:30:00.000Z",
+      "createTime": "2026-08-13T13:09:38.454Z",
       "createdBy": {
-        "username": "user01"
-      }
+        "username": "user02"
+      },
+      "_count": {
+        "comments": 1
+      },
+      "assignmentId": null,
+      "assignmentTitle": null,
+      "isExercise": null
     }
   ]
+```
 }

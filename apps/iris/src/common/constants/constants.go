@@ -22,8 +22,8 @@ const PUBLISH_RESULT = "Publish"
 // const BASE_DIR = "./results"
 // const SANDBOX_BASE = "/app/sandbox" // for docker, FIXME: 환경변수로 설정
 
-const SANDBOX_BASE = "./lib/judger" // for local
-const RESULT_PATH = SANDBOX_BASE + "/results"
+const SANDBOX_BASE = "./lib/judger"        // for local
+const RESULT_PATH = "/app/sandbox/results" // Iris runtime directory
 const LIBJUDGER_PATH = SANDBOX_BASE + "/libjudger.so"
 const JAVA_POLICY_PATH = SANDBOX_BASE + "/policy/java_policy"
 
@@ -55,3 +55,19 @@ const (
 )
 
 const MAX_OUTPUT = 1048576 // 1MB
+
+type MessageType string
+
+const (
+	Judge         MessageType = "judge"
+	Submission    MessageType = "submission"
+	SpecialJudge  MessageType = "specialJudge"
+	Run           MessageType = "run"
+	Interactive   MessageType = "interactive"
+	UserTestCase  MessageType = "userTestCase"
+	RunSubmission MessageType = "runSubmission"
+	Generate      MessageType = "generate"
+	Validate      MessageType = "validate"
+	Check         MessageType = "check"
+	Default       MessageType = Judge
+)

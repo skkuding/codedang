@@ -33,7 +33,7 @@ export function StatisticsClientLayout({
 
   return (
     <Tabs value={currentTab}>
-      <div className="mt-[80px] flex w-[1440px] justify-between px-[116px]">
+      <div className="mt-[80px] flex w-[1208px] justify-between">
         <div className="flex items-center gap-3">
           <p className="text-2xl font-semibold tracking-[-0.03em]">
             STATISTICS
@@ -82,7 +82,7 @@ export function StatisticsClientLayout({
         </TabsList>
       </div>
 
-      <div className="mt-5 w-[1440px] px-[116px]">{children}</div>
+      <div className="mt-5 w-[1208px]">{children}</div>
     </Tabs>
   )
 }

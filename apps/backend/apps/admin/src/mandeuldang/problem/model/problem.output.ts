@@ -1,19 +1,19 @@
-import { Field, Int, ObjectType, OmitType } from '@nestjs/graphql'
+import { Field, Int, ObjectType } from '@nestjs/graphql'
 import { CollaboratorRole, Problem } from '@admin/@generated'
 
 /**
  * 만들당 문제 상세/목록 조회 결과.
  *
- * 기존 Problem 모델을 사용하되 서버 내부 공개 정책 필드인
- * visibleLockTime은 외부에 노출하지 않는다.
+ * DB는 MandeuldangProblem이라는 별도 모델 없이 기존 Problem을 그대로 쓰기로 결정됐으므로
+ * (백엔드 회의 08.20 결론), 자동 생성된 Problem GraphQL 타입을 그대로 확장한다 —
+ * ProblemWithIsVisible(../../problem/model/problem.output.ts)이 이미 같은 패턴을 쓰고 있다.
  *
- * 목록 조회에서는 관계 및 계산 필드가 생략될 수 있으므로
- * 만들당 전용 추가 필드는 nullable로 선언한다.
+ * 목록 전용 Output 타입은 따로 만들지 않았다. 목록 조회에서는 아래 관계·계산 필드를
+ * 채우지 않고 undefined로 두면 되므로(전부 nullable), 상세 조회와 타입을 공유해도
+ * 계약이 깨지지 않는다.
  */
 @ObjectType()
-export class MandeuldangProblemOutput extends OmitType(Problem, [
-  'visibleLockTime'
-] as const) {
+export class MandeuldangProblemOutput extends Problem {
   @Field(() => CollaboratorRole, {
     nullable: true,
     description:

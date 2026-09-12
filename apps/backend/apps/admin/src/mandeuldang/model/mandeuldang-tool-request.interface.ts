@@ -6,7 +6,7 @@ export interface GeneratorRequest {
   generatorArgs: string[]
   solutionLanguage: string
   solutionCode: string
-  testCaseCount: number
+  testcaseCount: number
 }
 
 export interface ValidatorRequest {

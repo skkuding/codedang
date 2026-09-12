@@ -8,7 +8,6 @@ import { hash } from 'argon2'
 import { Cache } from 'cache-manager'
 import { randomInt } from 'crypto'
 import type { Request } from 'express'
-import { generate } from 'generate-password'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import { emailAuthenticationPinCacheKey } from '@libs/cache'
@@ -77,6 +76,43 @@ export class UserService {
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
+  }
+
+  /**
+   * 사용자 이름에 해당하는 사용자 정보를 조회합니다.
+   *
+   * @param {string} username 사용자 이름
+   * @returns 조회한 사용자 정보
+   */
+  async getUserByUsername({ username }: UsernameDto) {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          username
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          userProfile: {
+            select: {
+              realName: true
+            }
+          }
+        }
+      })
+
+      this.logger.debug({ userId: user.id }, 'getUserByUsername')
+      return user
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new EntityNotExistException('User')
+      }
+      throw error
+    }
   }
 
   /**
@@ -719,7 +755,7 @@ export class UserService {
    * 사용자의 정보를 업데이트합니다.
    *
    * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
-   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, studentId, college, major, realName)
+   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, college, major, realName)
    * @throws {UnprocessableDataException} 현재 비밀번호를 입력하지 않으면 (빈 필드이면) 예외를 발생시킵니다.
    * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
    * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
@@ -760,7 +796,6 @@ export class UserService {
 
     const updateData = {
       password: encryptedNewPassword,
-      studentId: updateUserDto.studentId,
       college: updateUserDto.college,
       major: updateUserDto.major,
       userProfile: {
