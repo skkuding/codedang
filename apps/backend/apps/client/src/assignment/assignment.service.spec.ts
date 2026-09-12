@@ -238,4 +238,107 @@ describe('AssignmentService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
   })
+
+  describe('getMyAssignmentsSummary', () => {
+    const groupId = 1
+    // Seed data seeds many pre-existing isExercise:false assignments for
+    // groupId 1 (some without an AssignmentRecord for user01Id by design, to
+    // exercise the participation/un-registration APIs elsewhere in this file).
+    // Using isExercise:true isolates these tests from that shared fixture,
+    // since no seeded assignment sets isExercise to true.
+    const isExercise = true
+
+    it('should return a normal summary (not throw) for a course member whose AssignmentRecord is still in its initial zero state', async () => {
+      const now = new Date()
+      const newAssignment = await transaction.assignment.create({
+        data: {
+          title: 'Freshly duplicated assignment',
+          description: 'no submissions yet',
+          groupId,
+          startTime: new Date(now.getTime() - 1000),
+          endTime: new Date(now.getTime() + 100000),
+          isVisible: true,
+          isExercise
+        }
+      })
+      await transaction.assignmentRecord.create({
+        data: {
+          assignmentId: newAssignment.id,
+          userId: user01Id
+        }
+      })
+
+      const summary = await service.getMyAssignmentsSummary(
+        groupId,
+        user01Id,
+        isExercise
+      )
+
+      const entry = summary.find((s) => s.id === newAssignment.id)
+      expect(entry).to.exist
+      expect(entry?.problemCount).to.equal(0)
+      expect(entry?.submittedCount).to.equal(0)
+      expect(entry?.assignmentPerfectScore).to.equal(0)
+      expect(entry?.userAssignmentFinalScore).to.equal(null)
+    })
+
+    it('should use the record score as the final score when autoFinalizeScore is true', async () => {
+      const now = new Date()
+      const newAssignment = await transaction.assignment.create({
+        data: {
+          title: 'Auto-finalized assignment',
+          description: 'score is finalized automatically',
+          groupId,
+          startTime: new Date(now.getTime() - 1000),
+          endTime: new Date(now.getTime() + 100000),
+          isVisible: true,
+          isExercise,
+          autoFinalizeScore: true,
+          isFinalScoreVisible: true
+        }
+      })
+      await transaction.assignmentRecord.create({
+        data: {
+          assignmentId: newAssignment.id,
+          userId: user01Id,
+          score: 42
+        }
+      })
+
+      const summary = await service.getMyAssignmentsSummary(
+        groupId,
+        user01Id,
+        isExercise
+      )
+
+      const entry = summary.find((s) => s.id === newAssignment.id)
+      expect(entry).to.exist
+      expect(entry?.userAssignmentFinalScore?.toNumber()).to.equal(42)
+    })
+
+    it('should omit an assignment (not throw ForbiddenAccessException, not throw TypeError) when the course member has no AssignmentRecord for it', async () => {
+      const now = new Date()
+      const unregisteredAssignment = await transaction.assignment.create({
+        data: {
+          title: 'Assignment the user never registered for',
+          description: 'no AssignmentRecord exists for user01Id',
+          groupId,
+          startTime: new Date(now.getTime() - 1000),
+          endTime: new Date(now.getTime() + 100000),
+          isVisible: true,
+          isExercise
+        }
+      })
+      // Intentionally no transaction.assignmentRecord.create() for user01Id here.
+
+      const summary = await service.getMyAssignmentsSummary(
+        groupId,
+        user01Id,
+        isExercise
+      )
+
+      const entry = summary.find((s) => s.id === unregisteredAssignment.id)
+      expect(entry).to.not.exist
+    })
+  })
 })
