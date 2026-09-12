@@ -13,8 +13,15 @@ import {
   QnACategory
 } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import {
+  invitationCodeKey,
+  joinGroupCacheKey,
+  studentRetryKey
+} from '@libs/cache'
+import {
+  JOIN_GROUP_REQUEST_EXPIRE_TIME,
+  STUDENT_RETRY_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -316,6 +323,7 @@ export class GroupService {
    * @param userId - 사용자 ID
    * @param groupId - 가입할 그룹 ID
    * @param invitation - (선택) 초대 코드
+   * @param studentId - 학생이 입력한 학번
    * @returns 가입 결과 (바로 가입되었는지 `isJoined: true`, 요청 상태인지 `isJoined: false`)
    *
    * @throws ForbiddenAccessException - 초대 코드가 유효하지 않거나, 화이트리스트에 없는 경우
@@ -329,7 +337,8 @@ export class GroupService {
   async joinGroupById(
     userId: number,
     groupId: number,
-    invitation: string
+    invitation: string,
+    studentId: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
     const invitedGroupId = await this.cacheManager.get<number>(
       invitationCodeKey(invitation)
@@ -409,6 +418,13 @@ export class GroupService {
       })
 
       if (whitelistExists) {
+        const joinRequestCount = await this.getUserRetryCount(userId, groupId)
+
+        // 15분 이내 3회 이상 재시도 시 요청을 거부합니다.
+        if (joinRequestCount >= 3) {
+          throw new ForbiddenAccessException('Join request count exceed')
+        }
+
         const user = await this.prisma.user.findUniqueOrThrow({
           where: { id: userId },
           select: {
@@ -424,6 +440,9 @@ export class GroupService {
         })
 
         if (!isUserWhitelisted) {
+          const newUserRequestCount = joinRequestCount + 1
+          await this.updateRetryCount(userId, groupId, newUserRequestCount)
+
           throw new ForbiddenAccessException('Whitelist violation')
         }
       }
@@ -502,6 +521,21 @@ export class GroupService {
         }
       }
     })
+  }
+
+  async getUserRetryCount(userId: number, courseId: number) {
+    const count = await this.cacheManager.get<number>(
+      studentRetryKey(userId, courseId)
+    )
+    return count || 0
+  }
+
+  async updateRetryCount(userId: number, courseId: number, count: number) {
+    await this.cacheManager.set<number>(
+      studentRetryKey(userId, courseId),
+      count,
+      STUDENT_RETRY_EXPIRE_TIME
+    )
   }
 
   /**

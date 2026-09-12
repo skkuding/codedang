@@ -20,6 +20,10 @@ body:graphql {
         professor: "방승현"
         semester: "2025 Spring"
         week: 16
+        studentWhitelist: [
+          { studentId: "20250001", studentName: "홍길동" }
+          { studentId: "20250002", studentName: "김코딩" }
+        ]
         email: "gasidori@naver.com"
         website: ""
         office: ""
@@ -49,14 +53,13 @@ body:graphql {
       }
     }
   }
-  
+
 }
 
 assert {
   res.status: eq 200
-  res.body.data.createGroup.groupName: isString
-  res.body.data.createGroup.description: isString
-  res.body.data.createGroup: isDefined
+  res.body.data.createCourse.groupName: isString
+  res.body.data.createCourse: isDefined
 }
 
 docs {
@@ -65,5 +68,5 @@ docs {
   - Course를 생성합니다.
   - 요청하는 user는 canCreateCourse 권한이 있어야 합니다. admin이여도 canCreateCourse 권한이 있어야 course 생성이 가능합니다.
   - course 생성자는 자동으로 해당 Course의 Instructor가 됩니다.
-  
+
 }

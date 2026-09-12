@@ -252,7 +252,12 @@ describe('GroupService', () => {
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
       groupId = await createTestGroup()
       sandbox.stub(cache, 'get').resolves(groupId)
-      const res = await service.joinGroupById(userId, groupId, 'invitationCode')
+      const res = await service.joinGroupById(
+        userId,
+        groupId,
+        'invitationCode',
+        '2024000000'
+      )
       const userGroupData: UserGroupData = {
         userId,
         groupId,
@@ -285,7 +290,7 @@ describe('GroupService', () => {
       })
 
       await expect(
-        service.joinGroupById(userId, groupId, 'invitationCode')
+        service.joinGroupById(userId, groupId, 'invitationCode', '2024000000')
       ).to.be.rejectedWith(ConflictFoundException)
     })
   })

@@ -9,6 +9,9 @@ export const joinGroupCacheKey = (groupId: number) => `group:${groupId}`
 export const invitationCodeKey = (code: string) => `invite:${code}`
 export const invitationGroupKey = (groupId: number) => `invite:to:${groupId}`
 
+export const studentRetryKey = (courseId: number, userId: number) =>
+  `course-retry:${userId}:${courseId}`
+
 /* TEST API용 Key */
 export const testKey = (testSubmissionId: number, testcaseId: number) =>
   `test:id:${testSubmissionId}:testcase:${testcaseId}`

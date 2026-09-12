@@ -1,0 +1,35 @@
+meta {
+  name: [400] Invalid Student ID
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/course/2/join?invitation
+  body: json
+  auth: none
+}
+
+params:query {
+  invitation:
+}
+
+body:json {
+  {
+    "studentId": "invalid-id"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # Join Group by Id - Invalid Student ID
+  ---
+  - 숫자 문자열이 아닌 `studentId`를 전달하면 `400 Bad Request`를 반환합니다.
+}
