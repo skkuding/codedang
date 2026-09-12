@@ -35,12 +35,14 @@ import {
 import {
   RUN_CODE_TAB,
   useSidePanelTabStore,
-  useTestcaseTabStore
+  useTestcaseTabStore,
+  TESTCASE_RESULT_TAB
 } from '@/stores/editorTabs'
 import type {
   Language,
   ProblemDetail,
   Submission,
+  SubmissionDetail,
   Template
 } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
@@ -86,6 +88,9 @@ export function EditorHeader({
   const getCode = useCodeStore((state) => state.getCode)
 
   const isTesting = useTestPollingStore((state) => state.isTesting)
+  const setSubmissionProgress = useTestPollingStore(
+    (state) => state.setSubmissionProgress
+  )
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(language)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -133,40 +138,65 @@ export function EditorHeader({
     async () => {
       // TODO: Implement assignment submission
       const res = await fetcherWithAuth(`submission/${submissionId}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        },
         searchParams: {
           problemId: problem.id,
+          pollingTime: Date.now(),
           ...(contestId && { contestId }),
           ...(assignmentId && { assignmentId }),
           ...(exerciseId && { assignmentId: exerciseId })
         }
       })
       if (res.ok) {
-        const submission: Submission = await res.json()
+        const submission: SubmissionDetail = await res.json()
+        const total = submission.testcaseResult.length
+        const completed = submission.testcaseResult.filter(
+          (testcase) => testcase.result !== 'Judging'
+        ).length
+
         if (submission.result !== 'Judging') {
+          const failedCaseIndex = submission.testcaseResult.findIndex(
+            (testcase) => testcase.result !== 'Accepted'
+          )
+          const runtime = Math.max(
+            0,
+            ...submission.testcaseResult.map(
+              (testcase) => Number(testcase.cpuTime) || 0
+            )
+          )
+          const memoryUsage = Math.max(
+            0,
+            ...submission.testcaseResult.map((testcase) => testcase.memoryUsage)
+          )
+          setSubmissionProgress({
+            stage: 'finished',
+            completed: total,
+            total,
+            result: submission.result,
+            runtime,
+            memoryUsage,
+            failedCase: failedCaseIndex === -1 ? undefined : failedCaseIndex + 1
+          })
           setIsSubmitting(false)
-
-          let href = ''
-          if (contestId) {
-            href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
-          } else if (assignmentId) {
-            href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission/${submissionId}`
-          } else if (exerciseId) {
-            href = `/course/${courseId}/exercise/${exerciseId}/problem/${problem.id}/submission/${submissionId}`
-          } else {
-            href = `/problem/${problem.id}/submission/${submissionId}`
-          }
-
-          !contestId && router.replace(href as Route)
-          //window.history.pushState(null, '', window.location.href)
           if (submission.result === 'Accepted') {
             confetti?.addConfetti()
           }
           if (isSidePanelHidden) {
             toggleSidePanelVisibility()
           }
+        } else {
+          setSubmissionProgress({
+            stage: 'grading',
+            completed,
+            total
+          })
         }
       } else {
         setIsSubmitting(false)
+        setSubmissionProgress(null)
         toast.error('Please try again later.')
       }
     },
@@ -257,6 +287,8 @@ export function EditorHeader({
 
     setSubmissionId(null)
     setIsSubmitting(true)
+    setActiveTestcaseTab(TESTCASE_RESULT_TAB)
+    setSubmissionProgress({ stage: 'waiting', completed: 0, total: 0 })
     const res = await fetcherWithAuth.post('submission', {
       json: {
         language,
@@ -284,6 +316,11 @@ export function EditorHeader({
       const submission: Submission = await res.json()
 
       setSubmissionId(submission.id)
+      setSubmissionProgress({
+        stage: 'grading',
+        completed: 0,
+        total: problem.problemTestcase.length
+      })
       if (contestId) {
         queryClient.invalidateQueries({
           queryKey: contestProblemQueries.lists(contestId)
@@ -322,6 +359,7 @@ export function EditorHeader({
       }
     } else {
       setIsSubmitting(false)
+      setSubmissionProgress(null)
       if (res.status === 401) {
         showSignIn()
         toast.error('Log in first to submit your code')

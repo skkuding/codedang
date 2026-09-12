@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge } from '@/app/(client)/(main)/_components/Badge'
+import { Progress } from '@/components/shadcn/progress'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { cn, getResultColor } from '@/libs/utils'
 import {
@@ -12,7 +13,12 @@ import type { TabbedTestResult } from '@/types/type'
 import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useEffect, useState, type ReactNode, type JSX } from 'react'
 import { IoMdClose } from 'react-icons/io'
+import { PiConfettiFill, PiSmileyNervousFill } from 'react-icons/pi'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
+import {
+  type SubmissionProgress,
+  useTestPollingStore
+} from '../context/TestPollingStoreProvider'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { RunnerTab } from './RunnerTab'
 import { TestcaseTable } from './TestcaseTable'
@@ -36,6 +42,9 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TabbedTestResult[]>([])
   const { activeTab, setActiveTab } = useTestcaseTabStore()
   const [detailTabId, setDetailTabId] = useState<number | null>(null)
+  const submissionProgress = useTestPollingStore(
+    (state) => state.submissionProgress
+  )
 
   const moveToDetailTab = (result: TabbedTestResult) => {
     setTestcaseTabList((state) =>
@@ -66,7 +75,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
       setActiveTab(TESTCASE_RESULT_TAB)
       setDetailTabId(null)
     }
-  }, [isContest])
+  }, [isContest, setActiveTab])
 
   const MAX_OUTPUT_LENGTH = 100000
   const testResults = useTestResults()
@@ -86,6 +95,14 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   const currentVisibleTab = detailTabId !== null ? detailTabId : activeTab
   const currentVisibleTabIndex = testcaseTabList.findIndex(
     (tab) => tab.originalId === currentVisibleTab
+  )
+  const testcaseResultContent = submissionProgress ? (
+    <SubmissionProgressPanel progress={submissionProgress} />
+  ) : (
+    <div className="flex flex-col gap-6 p-5 pb-14">
+      <TestSummary data={summaryData} />
+      <TestcaseTable data={processedData} moveToDetailTab={moveToDetailTab} />
+    </div>
   )
 
   return (
@@ -206,13 +223,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
       />
       <ScrollArea className="h-full">
         {currentVisibleTab === TESTCASE_RESULT_TAB ? (
-          <div className="flex flex-col gap-6 p-5 pb-14">
-            <TestSummary data={summaryData} />
-            <TestcaseTable
-              data={processedData}
-              moveToDetailTab={moveToDetailTab}
-            />
-          </div>
+          testcaseResultContent
         ) : (
           <TestResultDetail
             data={processedData.find(
@@ -222,6 +233,109 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
         )}
       </ScrollArea>
     </>
+  )
+}
+
+function SubmissionProgressPanel({
+  progress
+}: {
+  progress: SubmissionProgress
+}) {
+  if (progress.stage === 'waiting') {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-[#B0B0B0]">
+        <ThreeDots />
+        <p className="text-sm">채점 대기 중...</p>
+      </div>
+    )
+  }
+
+  if (progress.stage === 'grading') {
+    return <GradingProgressPanel progress={progress} />
+  }
+
+  const accepted = progress.result === 'Accepted'
+  return (
+    <div className="flex h-full flex-col items-center pt-[104px]">
+      {accepted ? (
+        <PiConfettiFill className="text-primary h-12 w-12" aria-hidden />
+      ) : (
+        <PiSmileyNervousFill className="h-12 w-12 text-[#F15A4A]" aria-hidden />
+      )}
+      <p className="mt-5 text-2xl font-semibold text-white">
+        {accepted ? '맞았습니다!' : '틀렸습니다!'}
+      </p>
+      <div className="mt-11 flex items-center text-center">
+        <ResultMetric
+          label={accepted ? '실행시간' : '실패 케이스'}
+          value={
+            accepted
+              ? `${progress.runtime ?? 0} ms`
+              : `${progress.failedCase ?? '-'} / ${progress.total}`
+          }
+        />
+        <div className="mx-9 h-20 w-px bg-[#4A5160]" />
+        <ResultMetric
+          label={accepted ? '메모리' : '실행시간'}
+          value={
+            accepted
+              ? `${((progress.memoryUsage ?? 0) / 1024 / 1024).toFixed(1)} MB`
+              : `${progress.runtime ?? 0} ms`
+          }
+        />
+      </div>
+    </div>
+  )
+}
+
+function GradingProgressPanel({ progress }: { progress: SubmissionProgress }) {
+  const value = progress.total ? (progress.completed / progress.total) * 100 : 0
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center">
+      <p className="text-lg font-semibold text-white">
+        채점 중 <span className="text-primary">{Math.round(value)}%</span>
+      </p>
+      <p className="mb-4 mt-1 text-xs text-[#B0B0B0]">
+        ({progress.completed} / {progress.total} Test cases)
+      </p>
+      <Progress value={value} className="h-1.5 w-[360px] max-w-[80%]" />
+    </div>
+  )
+}
+
+function ThreeDots() {
+  const [activeDot, setActiveDot] = useState(0)
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveDot((current) => (current + 1) % 3)
+    }, 300)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  return (
+    <div className="flex gap-1.5" role="status" aria-label="채점 대기 중">
+      {[0, 1, 2].map((dot) => (
+        <span
+          key={dot}
+          className={cn(
+            'h-2 w-2 rounded-full transition-colors duration-150',
+            dot === activeDot ? 'bg-[#3581FA]' : 'bg-[#D9D9D9]'
+          )}
+        />
+      ))}
+    </div>
+  )
+}
+
+function ResultMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="w-28">
+      <p className="mb-3 text-base text-[#B0B0B0]">{label}</p>
+      <p className="text-2xl text-white">{value}</p>
+    </div>
   )
 }
 
