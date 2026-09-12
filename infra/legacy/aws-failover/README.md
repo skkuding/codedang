@@ -19,9 +19,9 @@ State migration is an explicit infrastructure operation and is not performed by
 this repository change. In a separately approved operation:
 
 1. Temporarily remove the version constraint in `disabled.tf`.
-2. Apply `infra/aws/decommission-stage` so its `removed` block detaches the task
-   definitions from `terraform/decommission-stage.tfstate` without deregistering
-   them.
+2. The task definitions were already detached from
+   `terraform/decommission-stage.tfstate` without deregistration when the
+   decommission root was removed; no further detach step is required.
 3. Initialize this root and review a plan that imports exactly the 81 listed
    ARNs into `terraform/legacy-ecs-task-definitions.tfstate`. Import plans can
    expose historical environment values, so keep full output out of logs and
