@@ -17,3 +17,4 @@ data:
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5671'
   RABBITMQ_SSL: 'true'
+  REJUDGE_KEY: 'judge.rejudge'
