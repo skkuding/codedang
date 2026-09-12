@@ -56,9 +56,10 @@ func main() {
 	ctx := context.Background()
 	if env == "stage" {
 		logProvider.Log(logger.INFO, "Running in stage mode")
-		http.HandleFunc("/health", healthCheckHandler)
+		healthMux := http.NewServeMux()
+		healthMux.HandleFunc("/health", healthCheckHandler)
 		go func() {
-			if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
+			if err := http.ListenAndServe("0.0.0.0:3404", healthMux); err != nil {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
