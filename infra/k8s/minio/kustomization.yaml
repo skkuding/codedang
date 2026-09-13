@@ -7,7 +7,6 @@ namespace: minio
 resources:
   - HTTPRoutes.yaml
   - namespace.yaml
-  - silo-console-ingress.yaml
   - silo-pvc.yaml
   - silo-root-credentials.yaml
   - silo-services.yaml

@@ -26,3 +26,11 @@ patches:
     target:
       kind: HTTPRoute
       name: iris-pprof-httproute
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris-test
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris-rejudge

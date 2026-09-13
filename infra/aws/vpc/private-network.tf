@@ -6,7 +6,9 @@ resource "aws_route_table" "private" {
   }
 
   lifecycle {
-    # Preserve the retired NAT route until its dedicated deletion change.
+    # The retired NAT route was removed. This route table still carries the S3
+    # gateway endpoint route managed by infra/aws/storage, so leave routes
+    # unmanaged here.
     ignore_changes = [route]
   }
 }

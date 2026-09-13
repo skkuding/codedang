@@ -6,6 +6,8 @@ resources:
   - apiserver-service.yaml
   - configmap.yaml
   - deployment.yaml
+  - deployment-test.yaml
+  - deployment-rejudge.yaml
   - HTTPRoutes.yaml
   - middlewares.yaml
   - namespace.yaml
