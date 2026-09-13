@@ -21,29 +21,21 @@ export class MandeuldangProblemOutput extends Problem {
   })
   myRole?: `${CollaboratorRole}` | null
 
-  // mandeuldangCollaborators/mandeuldangSolution/mandeuldangTools는 기존 생성된
-  // Problem 타입에 이미 관계 필드로 선언돼 있어(부모 필드) 여기서 다시 선언하지 않는다 —
-  // 서비스가 Prisma include로 채워 넣은 값이 그대로 상속된 필드에 실린다.
-
   @Field(() => Int, {
     nullable: true,
-    description: '등록된 테스트 파일(.in/.out 쌍 기준이 아니라 개별 파일 개수)'
+    description: '등록된 테스트 파일의 개별 파일 개수'
   })
-  testFileCount?: number
+  testFileCount?: number | null
 
   @Field(() => Boolean, {
     nullable: true,
-    description:
-      '지금 상태로 발행 가능한지 여부. 상세 조회에서만 계산해 채운다.'
+    description: '현재 상태에서 발행 가능한지 나타내는 미리보기 값'
   })
-  canPublish?: boolean
+  canPublish?: boolean | null
 
   @Field(() => [String], {
     nullable: true,
-    description:
-      'canPublish가 false일 때 무엇이 부족한지 나타내는 코드 목록 ' +
-      '(STATEMENT/SOLUTION/TEST_FILES). 실제 발행 가능 여부의 최종 판단과 발행 자체는 ' +
-      'Update/발행 담당 쪽에서 이뤄지므로, 이 값은 참고용 미리보기다.'
+    description: '발행에 필요한 누락 항목 코드 목록'
   })
-  missingForPublish?: string[]
+  missingForPublish?: string[] | null
 }
