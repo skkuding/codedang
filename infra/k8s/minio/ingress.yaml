@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: minio
+                name: silo-shadow
                 port:
                   number: 80
     - host: minio-console.stage.codedang.com
@@ -33,6 +33,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: minio-console
+                name: silo-shadow
                 port:
                   number: 9090
