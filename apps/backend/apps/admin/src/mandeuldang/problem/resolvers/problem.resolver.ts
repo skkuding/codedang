@@ -1,7 +1,7 @@
 import { Args, Context, Int, Query, Mutation, Resolver } from '@nestjs/graphql'
-import { ProblemStatus } from '@prisma/client'
-import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
+import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { ProblemStatus } from '@admin/@generated'
 import {
   CreateMandeuldangProblemInput,
   UpdateMandeuldangProblemInput

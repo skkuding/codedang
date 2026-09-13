@@ -65,6 +65,35 @@ async function setupRabbitMQ() {
       checkRequestRoutingKey
     )
 
+    const mandeuldangExchangeName = process.env.MANDEULDANG_EXCHANGE_NAME!
+    await channel.assertExchange(mandeuldangExchangeName, 'direct', {
+      durable: true
+    })
+
+    const mandeuldangRequestQueueName =
+      process.env.MANDEULDANG_REQUEST_QUEUE_NAME!
+    await channel.assertQueue(mandeuldangRequestQueueName, { durable: true })
+
+    const mandeuldangResultQueueName =
+      process.env.MANDEULDANG_RESULT_QUEUE_NAME!
+    await channel.assertQueue(mandeuldangResultQueueName, { durable: true })
+
+    const mandeuldangRequestRoutingKey =
+      process.env.MANDEULDANG_REQUEST_ROUTING_KEY!
+    await channel.bindQueue(
+      mandeuldangRequestQueueName,
+      mandeuldangExchangeName,
+      mandeuldangRequestRoutingKey
+    )
+
+    const mandeuldangResultRoutingKey =
+      process.env.MANDEULDANG_RESULT_ROUTING_KEY!
+    await channel.bindQueue(
+      mandeuldangResultQueueName,
+      mandeuldangExchangeName,
+      mandeuldangResultRoutingKey
+    )
+
     console.log('RabbitMQ topology setup complete.')
   } catch (error) {
     console.error('❌ Failed to setup RabbitMQ topology:', error)

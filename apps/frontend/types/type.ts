@@ -563,47 +563,63 @@ export interface Notification {
   createTime: string
 }
 
-export interface MultipleQnaData {
+interface QnaBase {
   id: number
   order: number
-  createdById: number
   title: string
-  isResolved: boolean
   category: string
-  problemId: number | null
+  problemId: number
+  isResolved: boolean
+  isPrivate?: boolean
+  isRead?: boolean
   createTime: Date
   createdBy: {
     username: string
   }
-  isRead: boolean
 }
 
-export interface SingleQnaData {
-  id: number
-  order: number
-  createdById: number
-  title: string
+export interface ContestQnaListItem extends QnaBase {
+  createdById?: number
+  groupId?: number
+}
+
+export interface CourseQnaListItem extends QnaBase {
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
+}
+
+export type MultipleQnaData = ContestQnaListItem | CourseQnaListItem
+interface SingleQnaBase extends QnaBase {
   content: string
-  problemId: number | null
-  category: string
-  isResolved: boolean
-  createTime: Date
   readby: number[]
-  comments: {
-    id: number
-    order: number
-    createdById: number
-    isContestStaff: false
-    content: string
-    contestQnAId: number
-    createdTime: Date
-    createdBy: {
-      username: string
-    }
-  }[]
+  comments: QnAComment[]
+}
+
+export interface ContestSingleQnaData extends SingleQnaBase {
+  groupId?: number
+}
+
+export interface CourseSingleQnaData extends SingleQnaBase {
+  assignmentId: number
+  assignmentTitle: string
+  isExercise: boolean
+}
+
+export type SingleQnaData = ContestSingleQnaData | CourseSingleQnaData
+
+export interface QnAComment {
+  id: string
+  order: number
+  content: string
+  createdById?: number
+  isCourseStaff: boolean
+  isContestStaff: false
+  contestQnAId?: number
+  createTime: Date
   createdBy: {
     username: string
-  }
+  } | null
 }
 
 export interface QnaFormData {
@@ -613,38 +629,73 @@ export interface QnaFormData {
   selectedProblemLabel: string
 }
 
+export interface QnAItemWithCategory extends ContestQnaListItem {
+  categoryName?: string
+}
+
 export interface ProblemOption {
   value: string
   label: string
 }
 
-export interface CourseQnAComment {
-  id: string
-  order: number
-  content: string
-  isCourseStaff: boolean
-  createTime: Date
-  createdBy?: {
-    username: string
-  } | null
+export interface CourseNoticeCommentAuthor {
+  username: string
+  studentId: string
 }
 
-export interface CourseQnAItem {
+export interface CourseNoticeCommentItem {
   id: number
-  order: number
+  createdById: number | null
+  createdBy: CourseNoticeCommentAuthor | null
+  isDeleted: boolean
+  isSecret: boolean
+  replyOnId: number | null
+  content: string
+  createdTime: Date
+  updateTime: Date
+}
+
+export interface CourseNoticeCommentGroup {
+  comment: CourseNoticeCommentItem
+  replys: CourseNoticeCommentItem[]
+}
+
+export interface CourseNoticeDetailCurrent {
   groupId: number
-  problemId: number
-  assignmentId: number
-  assignmentTitle: string
-  isExercise: boolean
+  isPublic: boolean
   title: string
   content: string
-  category: string
   createTime: Date
-  isResolved: boolean
-  isPrivate: boolean
-  createdBy?: {
-    username: string
+  updateTime: Date
+  createdBy: string | null
+  _count: {
+    CourseNoticeComment: number
   }
-  comments: CourseQnAComment[]
+}
+
+export interface CourseNoticeNavigationItem {
+  id: number
+  title: string
+}
+
+export interface CourseNoticeDetailResponse {
+  current: CourseNoticeDetailCurrent
+  prev?: CourseNoticeNavigationItem | null
+  next?: CourseNoticeNavigationItem | null
+}
+
+export interface CourseNoticeListItem {
+  id: number
+  title: string
+  createTime?: string
+  updateTime?: string
+  isFixed: boolean
+  createdBy: string | null
+  isRead: boolean
+  commentCount: number
+}
+
+export interface CourseNoticeListResponse {
+  data: CourseNoticeListItem[]
+  total: number
 }

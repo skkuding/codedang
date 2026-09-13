@@ -1,0 +1,23 @@
+meta {
+  name: [400] Invalid Username
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/user/username?username=invalid_user
+  body: none
+  auth: none
+}
+
+params:query {
+  username: invalid_user
+}
+
+assert {
+  res.status: eq 400
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}

@@ -171,6 +171,7 @@ export async function EditorLayout({
           courseId={courseId}
           assignmentId={assignmentId}
           exerciseId={exerciseId}
+          isExercise={Boolean(exerciseId)}
           enableCopyPaste={(() => {
             if (contest) {
               return contest.enableCopyPaste

@@ -4,6 +4,7 @@ namespace: admin-api
 
 resources:
   - ../../base
+  - ingress.yaml
   - secrets/aws-credentials.yaml
   - secrets/database-credentials.yaml
   - secrets/security-keys.yaml

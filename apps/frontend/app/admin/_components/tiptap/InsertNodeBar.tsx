@@ -154,7 +154,7 @@ export const InsertNodeBar = forwardRef<
             <p className="text-sm"> * File must be under 30MB</p>
           </>
         }
-        triggerIcon={<FileIcon className="h-[18px] w-[18px]" />}
+        triggerIcon={<FileIcon className="size-5" />}
         onOpenChange={(open) => {
           setIsFileDialogOpen(open)
           if (!open) {
@@ -179,7 +179,7 @@ export const InsertNodeBar = forwardRef<
             <p className="text-sm"> * Image must be under 5MB</p>
           </>
         }
-        triggerIcon={<ImageIcon className="h-[18px] w-[18px]" />}
+        triggerIcon={<ImageIcon className="size-5" />}
         onOpenChange={(open) => {
           setIsImageDialogOpen(open)
           if (!open) {
@@ -201,7 +201,7 @@ export const InsertNodeBar = forwardRef<
         }}
         className="h-9 w-9 p-2"
       >
-        <EquationIcon className="h-[17px] w-[17px]" />
+        <EquationIcon className="size-5" />
       </Toggle>
       <Toggle
         type="button"
@@ -211,7 +211,7 @@ export const InsertNodeBar = forwardRef<
         }}
         className="h-9 w-9 p-2"
       >
-        <CodeBlockIcon className="h-[18px] w-5" />
+        <CodeBlockIcon className="size-5" />
       </Toggle>
       <Dialog
         open={isTableDialogOpen}

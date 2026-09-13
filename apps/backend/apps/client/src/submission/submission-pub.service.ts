@@ -45,7 +45,7 @@ export class SubmissionPublicationService {
     submission,
     isTest = false,
     isUserTest = false,
-    userTestcases,
+    userTestcases = [],
     stopOnNotAccepted = false,
     judgeOnlyHiddenTestcases = false,
     containHiddenTestcases = false
@@ -88,7 +88,7 @@ export class SubmissionPublicationService {
           code,
           submission.language,
           judgeableProblem,
-          userTestcases!,
+          userTestcases,
           stopOnNotAccepted
         )
       : new JudgeRequest(

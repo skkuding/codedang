@@ -5,12 +5,14 @@ import {
   ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand,
+  HeadObjectCommand,
   S3Client
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import type { ReadStream } from 'fs'
 import { type ContentType, ContentTypes } from './content.type'
 
+export type S3BucketType = 'testcase' | 'media' | 'checkResult' | 'mandeuldang'
 @Injectable()
 export class StorageService {
   constructor(
@@ -18,6 +20,18 @@ export class StorageService {
     private readonly client: S3Client
   ) {}
 
+  private getBucketName(bucket: S3BucketType): string {
+    switch (bucket) {
+      case 'testcase':
+        return this.config.getOrThrow('TESTCASE_BUCKET_NAME')
+      case 'media':
+        return this.config.getOrThrow('MEDIA_BUCKET_NAME')
+      case 'checkResult':
+        return this.config.getOrThrow('CHECK_RESULT_BUCKET_NAME')
+      case 'mandeuldang':
+        return this.config.getOrThrow('MANDEULDANG_BUCKET_NAME')
+    }
+  }
   /**
    * Upload a file object to S3 Bucket
    *
@@ -31,7 +45,8 @@ export class StorageService {
     filename: string,
     content: string,
     type: ContentType,
-    tags?: Record<string, string>
+    tags?: Record<string, string>,
+    bucket: S3BucketType = 'testcase'
   ) {
     const tagging = Object.entries(tags ?? {})
       .map(
@@ -43,7 +58,7 @@ export class StorageService {
     const upload = new Upload({
       client: this.client, // your S3 client
       params: {
-        Bucket: this.config.get('TESTCASE_BUCKET_NAME'),
+        Bucket: this.getBucketName(bucket),
         Key: filename, // or your desired filename
         Body: content,
         ContentType: ContentTypes[type],
@@ -77,7 +92,7 @@ export class StorageService {
   }) {
     await this.client.send(
       new PutObjectCommand({
-        Bucket: this.config.get('MEDIA_BUCKET_NAME'),
+        Bucket: this.getBucketName('media'),
         Key: filename,
         Body: content,
         ContentType: type,
@@ -91,10 +106,10 @@ export class StorageService {
    * @param filename 파일 이름
    * @returns S3에 저장된 Object
    */
-  async readObject(filename: string) {
+  async readObject(filename: string, bucket: 'checkResult' | 'mandeuldang') {
     const res = await this.client.send(
       new GetObjectCommand({
-        Bucket: this.config.get('CHECK_RESULT_BUCKET_NAME'),
+        Bucket: this.getBucketName(bucket),
         Key: filename
       })
     )
@@ -109,9 +124,7 @@ export class StorageService {
    * @param bucket Bucket type to list files from ('testcase' or 'media')
    */
   async listObjects(prefix: string, bucket: 'testcase' | 'media') {
-    const bucketName = this.config.get(
-      bucket == 'testcase' ? 'TESTCASE_BUCKET_NAME' : 'MEDIA_BUCKET_NAME'
-    )
+    const bucketName = this.getBucketName(bucket)
     const objects = await this.client.send(
       new ListObjectsV2Command({
         Bucket: bucketName,
@@ -129,15 +142,9 @@ export class StorageService {
    */
   async deleteObject(
     filename: string,
-    bucket: 'testcase' | 'media' | 'checkResult'
+    bucket: 'testcase' | 'media' | 'checkResult' | 'mandeuldang'
   ) {
-    const bucketName = this.config.get(
-      bucket == 'testcase'
-        ? 'TESTCASE_BUCKET_NAME'
-        : bucket == 'media'
-          ? 'MEDIA_BUCKET_NAME'
-          : 'CHECK_RESULT_BUCKET_NAME'
-    )
+    const bucketName = this.getBucketName(bucket)
     await this.client.send(
       new DeleteObjectCommand({
         Bucket: bucketName,
@@ -153,9 +160,29 @@ export class StorageService {
   async deleteFile(filename: string) {
     await this.client.send(
       new DeleteObjectCommand({
-        Bucket: this.config.get('MEDIA_BUCKET_NAME'),
+        Bucket: this.getBucketName('media'),
         Key: filename
       })
     )
+  }
+
+  /**
+   * S3 Object의 크기(Byte)를 가져옵니다.
+   * HeadObjectCommand를 사용하여 파일 본문 다운로드 없이 메타데이터만 조회합니다.
+   *
+   * @param filename 파일 이름 (Key)
+   * @param bucket Bucket 종류
+   */
+  async getObjectSize(
+    filename: string,
+    bucket: S3BucketType = 'testcase'
+  ): Promise<number> {
+    const command = new HeadObjectCommand({
+      Bucket: this.getBucketName(bucket),
+      Key: filename
+    })
+
+    const response = await this.client.send(command)
+    return response.ContentLength ?? 0
   }
 }

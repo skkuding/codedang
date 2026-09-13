@@ -1,0 +1,23 @@
+meta {
+  name: [401] Unauthorized
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/user/username?username=user02
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization:
+}
+
+params:query {
+  username: user02
+}
+
+assert {
+  res.status: eq 401
+}

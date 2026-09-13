@@ -16,10 +16,16 @@ export class PrismaService
 {
   private readonly logger = new Logger(PrismaService.name)
   constructor(private config: ConfigService) {
+    const databaseUrl = config.get<string>('DATABASE_URL')
+    const connectionLimit = config.get<string>('DATABASE_CONNECTION_LIMIT')
+
     super({
       datasources: {
         db: {
-          url: config.get('DATABASE_URL')
+          url:
+            databaseUrl && connectionLimit
+              ? `${databaseUrl}${databaseUrl.includes('?') ? '&' : '?'}connection_limit=${connectionLimit}`
+              : databaseUrl
         }
       },
       log: [
