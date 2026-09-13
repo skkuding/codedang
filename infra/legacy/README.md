@@ -2,8 +2,7 @@
 
 > [!WARNING]
 > These Terraform projects are retired and deliberately reject every Terraform
-> version. Active AWS resources were adopted by `infra/aws`; resources awaiting
-> removal are staged in `infra/aws/decommission-stage`.
+> version. To use the contents, copy-paste the content into the active terraform projects.
 
 코드당 인프라의 레거시 시스템을 남겨두었습니다.
 
