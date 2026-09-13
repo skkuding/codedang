@@ -162,8 +162,8 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       'Handled Mandeuldang Generator Result Message'
     )
 
-    if (isSuccess && msg.toolResult.testcaseIds?.length) {
-      const fileRequests = msg.toolResult.testcaseIds.flatMap((testcaseId) => {
+    if (isSuccess && msg.toolResult?.testcaseIds?.length) {
+      const fileRequests = msg.toolResult?.testcaseIds.flatMap((testcaseId) => {
         const baseName = String(testcaseId)
         return (['in', 'out'] as const).map((ext) => ({
           fileName: `${baseName}.${ext}`,
