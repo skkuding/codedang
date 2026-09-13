@@ -23,6 +23,10 @@ spec:
       containers:
         - name: iris
           image: ghcr.io/skkuding/codedang-iris
+          ports:
+            - name: pprof
+              containerPort: 6060
+              protocol: TCP
           resources:
             limits:
               cpu: 1

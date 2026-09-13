@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -63,6 +65,21 @@ func main() {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
+	}
+
+	if blockRate := utils.Getenv("PPROF_BLOCK_RATE", "0"); blockRate != "0" {
+		if n, err := strconv.Atoi(blockRate); err == nil {
+			runtime.SetBlockProfileRate(n)
+		} else {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Invalid PPROF_BLOCK_RATE: %v", err))
+		}
+	}
+	if mutexFraction := utils.Getenv("PPROF_MUTEX_FRACTION", "0"); mutexFraction != "0" {
+		if n, err := strconv.Atoi(mutexFraction); err == nil {
+			runtime.SetMutexProfileFraction(n)
+		} else {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Invalid PPROF_MUTEX_FRACTION: %v", err))
+		}
 	}
 
 	go func() {

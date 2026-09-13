@@ -3,12 +3,15 @@ kind: Kustomization
 namespace: iris
 
 resources:
+  - apiserver-service.yaml
   - configmap.yaml
   - deployment.yaml
   - HTTPRoutes.yaml
+  - middlewares.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
-  - service.yaml
+  - rbac.yaml
+  - traefik-upstream.yaml
 
 commonAnnotations:
   managed-by: kustomize

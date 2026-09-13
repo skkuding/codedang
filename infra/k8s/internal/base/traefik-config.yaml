@@ -10,3 +10,6 @@ spec:
         enabled: true
       kubernetesCRD:
         enabled: true
+        # Needed for the iris/kubernetes-apiserver ExternalName Service used by
+        # the pprof TraefikService.
+        allowExternalNameServices: true
