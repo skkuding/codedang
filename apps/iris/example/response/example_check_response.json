@@ -1,0 +1,34 @@
+{
+  "messageId": "pg-chk-001",
+  "problemId": 42,
+  "toolType": "checker",
+  "resultCode": 0,
+  "toolResult": {
+    "isAllCorrect": true,
+    "testcaseCount": 3,
+    "results": [
+      {
+        "testcaseId": 1,
+        "verdict": "ok",
+        "message": "answer is 119",
+        "cpuTime": 5,
+        "memory": 2048
+      },
+      {
+        "testcaseId": 2,
+        "verdict": "ok",
+        "message": "answer is 46",
+        "cpuTime": 4,
+        "memory": 2048
+      },
+      {
+        "testcaseId": 3,
+        "verdict": "ok",
+        "message": "answer is 94",
+        "cpuTime": 5,
+        "memory": 2048
+      }
+    ]
+  },
+  "error": ""
+}

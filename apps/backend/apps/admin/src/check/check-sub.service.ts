@@ -130,9 +130,14 @@ export class CheckSubscriptionService implements OnModuleInit {
       memberIds: number[]
     }[]
   > {
-    return await Promise.all(
-      clusters.map(async (cluster) => {
-        const clusterId = await this.prisma.plagiarismCluster.create({
+    return await this.prisma.$transaction(async (tx) => {
+      const results: {
+        clusterId: number
+        memberIds: number[]
+      }[] = []
+
+      for (const cluster of clusters) {
+        const { id: clusterId } = await tx.plagiarismCluster.create({
           data: {
             averageSimilarity: cluster.averageSimilarity,
             strength: cluster.strength
@@ -142,21 +147,21 @@ export class CheckSubscriptionService implements OnModuleInit {
           }
         })
 
-        cluster.members.forEach(async (memberId) => {
-          await this.prisma.submissionCluster.create({
-            data: {
-              submissionId: memberId,
-              clusterId: clusterId.id
-            }
-          })
+        await tx.submissionCluster.createMany({
+          data: cluster.members.map((memberId) => ({
+            submissionId: memberId,
+            clusterId
+          }))
         })
 
-        return {
-          clusterId: clusterId.id,
+        results.push({
+          clusterId,
           memberIds: cluster.members
-        }
-      })
-    )
+        })
+      }
+
+      return results
+    })
   }
 
   @Span()

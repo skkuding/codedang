@@ -10,11 +10,11 @@ export default function QNA() {
   const courseId = Number(params.courseId)
   return (
     <div className="mt-20 flex flex-col gap-6 px-10">
-      <div className="mb-6 flex justify-between">
+      <div className="mb-6 flex flex-nowrap items-center justify-between">
         <span className="text-2xl font-semibold leading-[33.6px] tracking-[-0.48px]">
           QUESTION & ANSWER
         </span>
-        <div className="mr-10 h-5 w-[84px]">
+        <div className="mr-10 w-[84px]">
           <QnAPostButton
             section="course"
             canCreateQnA={true}

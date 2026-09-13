@@ -2,19 +2,21 @@ import { Injectable } from '@nestjs/common'
 import { Language, MandeuldangRunStatus, ToolType } from '@prisma/client'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 
 @Injectable()
 export class MandeuldangPublicationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: MandeuldangAMQPService
+    private readonly amqpService: MandeuldangAMQPService,
+    private readonly storageService: StorageService
   ) {}
 
   async publishGeneratorMessage(
     problemId: number,
     requesterId: number,
     generatorArgs: string[],
-    testCaseCount: number
+    testcaseCount: number
   ) {
     //DB에서 generator, solution 조회
     const [generator, solution] = await Promise.all([
@@ -27,6 +29,11 @@ export class MandeuldangPublicationService {
       this.prisma.mandeuldangSolution.findUniqueOrThrow({
         where: { problemId }
       })
+    ])
+
+    const [generatorCode, solutionCode] = await Promise.all([
+      this.storageService.readObject(generator.filePath, 'mandeuldang'),
+      this.storageService.readObject(solution.filePath, 'mandeuldang')
     ])
 
     const request = await this.prisma.mandeuldangRunRequest.create({
@@ -44,11 +51,11 @@ export class MandeuldangPublicationService {
         requestId: request.id,
         problemId,
         generatorLanguage: Language.Cpp,
-        generatorCode: generator.fileContent,
+        generatorCode,
         generatorArgs,
         solutionLanguage: solution.language,
-        solutionCode: solution.fileContent,
-        testCaseCount
+        solutionCode,
+        testcaseCount
       })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({
@@ -69,6 +76,11 @@ export class MandeuldangPublicationService {
       }
     })
 
+    const validatorCode = await this.storageService.readObject(
+      validator.filePath,
+      'mandeuldang'
+    )
+
     const request = await this.prisma.mandeuldangRunRequest.create({
       data: {
         problemId,
@@ -83,7 +95,7 @@ export class MandeuldangPublicationService {
         requestId: request.id,
         problemId,
         language: Language.Cpp,
-        validatorCode: validator.fileContent
+        validatorCode
       })
     } catch (error) {
       await this.prisma.mandeuldangRunRequest.update({

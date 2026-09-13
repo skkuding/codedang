@@ -63,13 +63,11 @@ export class ContestService {
 
     const registeredContestIds = new Set<number>()
     if (userId) {
-      const userRecords = await this.prisma.contestRecord.findMany({
-        where: { userId },
+      const userContests = await this.prisma.userContest.findMany({
+        where: { userId, role: ContestRole.Participant },
         select: { contestId: true }
       })
-      userRecords.forEach((record) =>
-        registeredContestIds.add(record.contestId)
-      )
+      userContests.forEach((uc) => registeredContestIds.add(uc.contestId))
     }
 
     const searchFilter = search
@@ -176,16 +174,9 @@ export class ContestService {
     }
 
     if (userId) {
-      contestDetailSelect.contestRecord = {
-        where: { userId },
-        select: { userId: true }
-      }
       contestDetailSelect.userContest = {
         where: {
-          userId,
-          role: {
-            in: [ContestRole.Admin, ContestRole.Manager, ContestRole.Reviewer]
-          }
+          userId
         },
         select: { role: true }
       }
@@ -221,15 +212,21 @@ export class ContestService {
         navigate('next')
       ])
 
-      const { invitationCode, contestRecord, userContest, ...contestDetails } =
+      const { invitationCode, userContest, ...contestDetails } =
         contestResult as typeof contestResult & {
-          contestRecord?: { userId: number }[]
           userContest?: { role: ContestRole }[]
         }
 
       const invitationCodeExists = invitationCode != null
-      const isRegistered = !!contestRecord?.length
-      const isPrivilegedRole = !!userContest?.length
+      const isRegistered =
+        userContest?.some((uc) => uc.role === ContestRole.Participant) ?? false
+      const isPrivilegedRole =
+        userContest?.some(
+          (uc) =>
+            uc.role === ContestRole.Admin ||
+            uc.role === ContestRole.Manager ||
+            uc.role === ContestRole.Reviewer
+        ) ?? false
 
       return {
         ...contestDetails,
@@ -275,9 +272,8 @@ export class ContestService {
           invitationCode: true
         }
       }),
-      this.prisma.contestRecord.findFirst({
-        where: { userId, contestId },
-        select: { id: true }
+      this.prisma.userContest.findFirst({
+        where: { contestId, userId, role: ContestRole.Participant }
       })
     ])
 
@@ -408,7 +404,14 @@ export class ContestService {
     const maxScore = sum._sum?.score ?? 0
 
     const contestRecordsPromise = this.prisma.contestRecord.findMany({
-      where: { contestId },
+      where: {
+        contestId,
+        user: {
+          userContest: {
+            some: { contestId }
+          }
+        }
+      },
       select: {
         userId: true,
         user: {

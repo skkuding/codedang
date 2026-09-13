@@ -6,7 +6,7 @@ import {
   DataTableSearchBar
 } from '@/app/admin/_components/table'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
-import type { CourseQnAItem } from '@/types/type'
+import type { CourseQnaListItem } from '@/types/type'
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useState } from 'react'
@@ -19,12 +19,12 @@ interface CourseQnaTableProps {
 export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
   const [filterType, setFilterType] = useState<'General' | 'Problem'>('General')
 
-  const { data: qnaData } = useSuspenseQuery<CourseQnAItem[]>({
+  const { data: qnaData } = useSuspenseQuery<CourseQnaListItem[]>({
     queryKey: ['courseQnA', courseId, filterType],
     queryFn: () =>
       safeFetcherWithAuth
         .get(`course/${courseId}/qna`, {
-          searchParams: { categories: filterType }
+          searchParams: { categories: filterType, take: 100 }
         })
         .json(),
     retry: false
@@ -48,7 +48,7 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
     return new Map(flatProblems.map((p) => [p.id, p]))
   }, [problemQueries])
 
-  const tableData: (CourseQnAItem & { problemTitle: string })[] =
+  const tableData: (CourseQnaListItem & { problemTitle: string })[] =
     useMemo(() => {
       return qnaData.map((qna) => {
         const matchedProblem = allProblemsMap.get(qna.problemId)
@@ -85,7 +85,7 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
       columns={columns}
       defaultSortState={[{ id: 'createTime', desc: true }]}
     >
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex h-[44px] w-[390px] items-center rounded-full border border-gray-200 bg-white p-1 px-[5px] py-[5px]">
           <button
             onClick={() => setFilterType('General')}
@@ -114,7 +114,9 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
         <DataTableSearchBar columndId="title" />
       </div>
       <DataTable
-        getHref={(row: CourseQnAItem) => `/course/${courseId}/qna/${row.order}`}
+        getHref={(row: CourseQnaListItem) =>
+          `/course/${courseId}/qna/${row.order}`
+        }
       />
 
       <DataTablePagination />

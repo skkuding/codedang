@@ -1,7 +1,7 @@
 ### BUILDER ###
 ARG app_env=production
 
-FROM golang:1.24 AS builder
+FROM golang:1.25 AS builder
 
 COPY . /build
 WORKDIR /build
@@ -34,6 +34,9 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
   curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.4/libjudger-amd64.so" -o "/app/sandbox/libjudger.so"; \
   fi
 RUN chmod 750 /app/sandbox/libjudger.so
+
+# Polygon-compatible generators and validators include this header directly.
+COPY ./lib/testlib.h /usr/include/testlib.h
 
 COPY --from=builder /build/iris .
 

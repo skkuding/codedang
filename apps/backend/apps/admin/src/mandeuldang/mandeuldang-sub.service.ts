@@ -1,11 +1,12 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { MandeuldangRunStatus } from '@prisma/client'
+import { MandeuldangRunStatus, TestFileType } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import {
   GeneratorResultDto,
   ValidatorResultDto
@@ -17,7 +18,8 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: MandeuldangAMQPService
+    private readonly amqpService: MandeuldangAMQPService,
+    private readonly storageService: StorageService
   ) {}
 
   onModuleInit() {
@@ -48,10 +50,35 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    this.amqpService.startGeneratorSubscription()
-    this.amqpService.startValidatorSubscription()
+    this.amqpService.startSubscription()
   }
 
+  private async updateLatestRuns(problemId: number) {
+    const tools = await this.prisma.mandeuldangTool.findMany({
+      where: { problemId }
+    })
+
+    const latestRuns = await Promise.all(
+      tools.map((tool) =>
+        this.prisma.mandeuldangRunRequest.findFirst({
+          where: {
+            problemId,
+            toolType: tool.toolType
+          },
+          orderBy: { submittedAt: 'desc' }
+        })
+      )
+    )
+
+    const allPassed =
+      latestRuns.length > 0 &&
+      latestRuns.every((run) => run?.status === MandeuldangRunStatus.Success)
+
+    await this.prisma.problem.update({
+      where: { id: problemId },
+      data: { lastRunPass: allPassed }
+    })
+  }
   /**
    * Generator를 실행한 결과 메세지를 class-validator를 통해 검증합니다.
    *
@@ -110,22 +137,18 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
     const isSuccess = msg.resultCode === 0
     const now = new Date()
 
-    await this.prisma.$transaction([
-      this.prisma.mandeuldangRunRequest.update({
-        where: { id: requestId },
-        data: {
-          status: isSuccess
-            ? MandeuldangRunStatus.Success
-            : MandeuldangRunStatus.Failed,
-          resultCode: msg.resultCode,
-          completedAt: now
-        }
-      }),
-      this.prisma.problem.update({
-        where: { id: request.problemId },
-        data: { lastRunPass: isSuccess }
-      })
-    ])
+    await this.prisma.mandeuldangRunRequest.update({
+      where: { id: requestId },
+      data: {
+        status: isSuccess
+          ? MandeuldangRunStatus.Success
+          : MandeuldangRunStatus.Failed,
+        resultCode: msg.resultCode,
+        completedAt: now
+      }
+    })
+
+    await this.updateLatestRuns(msg.problemId)
 
     this.logger.log(
       {
@@ -133,11 +156,50 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
         problemId: request.problemId,
         resultCode: msg.resultCode,
         isSuccess,
-        generatedTestCases: msg.judgeResult.generatedTestCases,
-        totalTestCases: msg.judgeResult.totalTestCases
+        generatedCount: msg.toolResult.generatedCount,
+        requestedCount: msg.toolResult.requestedCount
       },
       'Handled Mandeuldang Generator Result Message'
     )
+
+    if (isSuccess && msg.toolResult.testcaseIds?.length) {
+      const fileRequests = msg.toolResult.testcaseIds.flatMap((testcaseId) => {
+        const baseName = String(testcaseId)
+        return (['in', 'out'] as const).map((ext) => ({
+          fileName: `${baseName}.${ext}`,
+          baseName,
+          ext
+        }))
+      })
+
+      const testFileData = await Promise.all(
+        fileRequests.map(async ({ fileName, baseName, ext }) => {
+          const filePath = `${msg.problemId}/${fileName}`
+          const fileSize = await this.storageService.getObjectSize(
+            filePath,
+            'testcase'
+          )
+
+          return {
+            problemId: msg.problemId,
+            fileName,
+            baseName,
+            fileType: ext === 'in' ? TestFileType.IN : TestFileType.OUT,
+            filePath,
+            fileSize: BigInt(fileSize)
+          }
+        })
+      )
+
+      if (testFileData.length > 0) {
+        await this.prisma.$transaction([
+          this.prisma.mandeuldangTestFile.deleteMany({
+            where: { problemId: msg.problemId }
+          }),
+          this.prisma.mandeuldangTestFile.createMany({ data: testFileData })
+        ])
+      }
+    }
   }
 
   @Span()
@@ -155,37 +217,31 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    const isSuccess = msg.resultCode === 0 && msg.judgeResult.isValid
+    const isSuccess = msg.resultCode === 0 && msg.toolResult.isAllValid
     const now = new Date()
 
-    await this.prisma.$transaction([
-      this.prisma.mandeuldangRunRequest.update({
-        where: { id: requestId },
-        data: {
-          status: isSuccess
-            ? MandeuldangRunStatus.Success
-            : MandeuldangRunStatus.Failed,
-          resultCode: msg.resultCode,
-          completedAt: now
-        }
-      }),
-      this.prisma.problem.update({
-        where: { id: request.problemId },
-        data: { lastRunPass: isSuccess }
-      })
-    ])
+    await this.prisma.mandeuldangRunRequest.update({
+      where: { id: requestId },
+      data: {
+        status: isSuccess
+          ? MandeuldangRunStatus.Success
+          : MandeuldangRunStatus.Failed,
+        resultCode: msg.resultCode,
+        completedAt: now
+      }
+    })
+
+    await this.updateLatestRuns(msg.problemId)
 
     this.logger.log(
       {
         requestId: request.id,
         problemId: request.problemId,
-        isValid: msg.judgeResult.isValid,
-        testcaseCount: msg.judgeResult.testcaseCount
+        isAllValid: msg.toolResult.isAllValid,
+        testcaseCount: msg.toolResult.testcaseCount
       },
       'Handled Mandeuldang Validator Result Message'
     )
-
-    // TODO: Validator 실행 결과 수신 후 백엔드 서비스 로직
   }
 
   private logError(error: unknown, message: string) {

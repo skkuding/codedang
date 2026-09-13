@@ -2,7 +2,7 @@ import { gql } from '@generated'
 
 const GET_COURSE_QNAS = gql(`
   query GetCourseQnas($groupId: Int!){
-    getCourseQnAs(groupId: $groupId) {
+    getCourseQnAs(groupId: $groupId, take: 100) {
       id
       order
       title

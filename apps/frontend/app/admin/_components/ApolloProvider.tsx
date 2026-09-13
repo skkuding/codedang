@@ -8,8 +8,10 @@ import {
   InMemoryCache
 } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import createUploadLink from 'apollo-upload-client/createUploadLink.mjs'
 import type { Session } from 'next-auth'
+import { useState } from 'react'
 
 interface Props {
   children: React.ReactNode
@@ -17,6 +19,7 @@ interface Props {
 }
 
 export function ClientApolloProvider({ children, session }: Props) {
+  const [queryClient] = useState(() => new QueryClient())
   const httpLink = createUploadLink({
     uri: adminBaseUrl,
     headers: {
@@ -43,5 +46,9 @@ export function ClientApolloProvider({ children, session }: Props) {
     }
   })
 
-  return <ApolloProvider client={client}>{children}</ApolloProvider>
+  return (
+    <ApolloProvider client={client}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </ApolloProvider>
+  )
 }

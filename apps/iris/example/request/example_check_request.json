@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "messageId": "pg-chk-001",
+    "type": "check"
+  },
+  "body": {
+    "problemId": 42,
+    "language": "Cpp",
+    "checkerCode": "#include \"testlib.h\"\n\nint main(int argc, char * argv[]) {\n\tregisterTestlibCmd(argc, argv);\n\n\tint pans = ouf.readInt();\n\tint jans = ans.readInt();\n\n\tif (pans != jans)\n\t\tquitf(_wa, \"expected %d, found %d\", jans, pans);\n\n\tquitf(_ok, \"answer is %d\", jans);\n}\n",
+    "solutionLanguage": "Cpp",
+    "solutionCode": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >> a >> b;\n    cout << a + b << '\\n';\n    return 0;\n}\n"
+  }
+}

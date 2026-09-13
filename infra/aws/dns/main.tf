@@ -23,6 +23,20 @@ data "aws_route53_zone" "codedang" {
   name = "codedang.com"
 }
 
+# The active codedang.com zone belongs here with the records that depend on it.
+resource "aws_route53_zone" "codedang" {
+  name = "codedang.com"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+import {
+  to = aws_route53_zone.codedang
+  id = "Z02931601ELG5RAXUQ69W"
+}
+
 locals {
   stage_cluster_ip = [
     "115.145.160.238",
