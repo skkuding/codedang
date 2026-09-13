@@ -6,6 +6,8 @@ resources:
   - ../../base
   - aws-credentials.yaml
   - database-credentials.yaml
+  - pprof-basicauth.yaml
+  - pprof-basicauth-credential.yaml
 
 patches:
   - path: configmap-patch.yaml
