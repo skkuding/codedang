@@ -1,18 +1,21 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: admin-api-tls-redirect
+  name: tls-redirect
   namespace: kube-system
 spec:
   parentRefs:
-  - name: main-gateway
-    namespace: kube-system
-    sectionName: http
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: http
   hostnames:
-  - "*.codedang.com"
-  - codedang.com
+    - codedang.com
+    - '*.codedang.com'
+    - '*.stage.codedang.com'
+    - '*.preview.codedang.com'
+    - '*.minio.codedang.com'
   rules:
-  - filters:
-    - type: RequestRedirect
-      requestRedirect:
-        scheme: https
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https

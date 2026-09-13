@@ -538,9 +538,9 @@ describe('ContestService', () => {
       expect(db.$transaction.calledOnce).to.be.true
     })
 
-    it('should throw ForbiddenAccessException if contest started', async () => {
-      const startedContest = { ...contest, startTime: faker.date.past() }
-      db.contest.findUnique.resolves(startedContest)
+    it('should throw ForbiddenAccessException if contest ended', async () => {
+      const endedContest = { ...contest, endTime: faker.date.past() }
+      db.contest.findUnique.resolves(endedContest)
       db.contestRecord.findFirst.resolves(contestRecord)
       db.userContest.findUnique.resolves(userContest)
 

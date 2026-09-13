@@ -34,10 +34,41 @@
     {
       "type": "go",
       "request": "launch",
-      "name": "Iris 🐶",
+      "name": "Iris Submission 🐶",
       "cwd": "${workspaceFolder}/apps/iris",
       "program": "${workspaceFolder}/apps/iris/main.go",
       "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/apps/iris/.env",
+      "asRoot": true
+    },
+    {
+      "type": "go",
+      "request": "launch",
+      "name": "Iris Test 🐶",
+      "cwd": "${workspaceFolder}/apps/iris",
+      "program": "${workspaceFolder}/apps/iris/main.go",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/apps/iris/.env",
+      "env": {
+        "JUDGE_REQUEST_CONSUMER_CONNECTION_NAME": "iris-test-consumer",
+        "JUDGE_REQUEST_QUEUE_NAME": "client.q.judge.test",
+        "JUDGE_REQUEST_CONSUMER_TAG": "iris-test-consumer-tag"
+      },
+      "asRoot": true
+    },
+    {
+      "type": "go",
+      "request": "launch",
+      "name": "Iris Rejudge 🐶",
+      "cwd": "${workspaceFolder}/apps/iris",
+      "program": "${workspaceFolder}/apps/iris/main.go",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/apps/iris/.env",
+      "env": {
+        "JUDGE_REQUEST_CONSUMER_CONNECTION_NAME": "iris-rejudge-consumer",
+        "JUDGE_REQUEST_QUEUE_NAME": "client.q.judge.rejudge",
+        "JUDGE_REQUEST_CONSUMER_TAG": "iris-rejudge-consumer-tag"
+      },
       "asRoot": true
     }
   ]

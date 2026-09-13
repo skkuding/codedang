@@ -205,6 +205,7 @@ export class SubmissionFinalizationService {
       finalScore: score,
       finalTimePenalty: timePenalty,
       finalSubmitCountPenalty: submitCountPenalty,
+      finishTime: updateTime,
       ...(!isFreezed ? { score, submitCountPenalty, timePenalty } : {})
     }
 

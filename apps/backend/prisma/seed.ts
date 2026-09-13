@@ -5039,6 +5039,41 @@ const createContestRecords = async () => {
 
     contestRecords.push(updated)
   }
+
+  // contest 20 (진행중, contestAdmin=Admin) removeUserFromContest 테스트용 참가자 3명
+  const blockTestUsers = [users[1], users[2]] // user02, user03
+  for (const user of blockTestUsers) {
+    const record = await prisma.contestRecord.create({
+      data: { contestId: 20, userId: user.id }
+    })
+    contestRecords.push(record)
+  }
+  const alreadyRemovedUser = users[3] // user04
+  await prisma.contestRecord.create({
+    data: { contestId: 20, userId: alreadyRemovedUser.id }
+  })
+
+  // Ended Contest 테스트용
+  const endedContest = await prisma.contest.findFirstOrThrow({
+    where: { title: 'Long Time Ago Assignment' }
+  })
+  await prisma.userContest.create({
+    data: {
+      userId: contestAdminUser.id,
+      contestId: endedContest.id,
+      role: ContestRole.Admin
+    }
+  })
+  await prisma.contestRecord.create({
+    data: { contestId: endedContest.id, userId: contestReviewerUser.id }
+  })
+  await prisma.userContest.create({
+    data: {
+      userId: contestReviewerUser.id,
+      contestId: endedContest.id,
+      role: ContestRole.Participant
+    }
+  })
 }
 
 const createUserContests = async () => {
@@ -5179,6 +5214,74 @@ const createContestProblemRecords = async () => {
         }
       })
     }
+  }
+
+  // contest 20 blockUserDuringContest 테스트용 first-solver 데이터
+  const contest20 = await prisma.contest.findUnique({
+    where: { id: 20 },
+    select: {
+      contestProblem: {
+        orderBy: { order: 'asc' },
+        select: { id: true, score: true }
+      }
+    }
+  })
+
+  if (!contest20 || contest20.contestProblem.length < 2) {
+    throw new Error('contest20 requires at least two contest problems')
+  }
+  {
+    const [sharedProblem, soloProblem] = contest20.contestProblem
+    const [firstSolverRecord, secondSolverRecord] =
+      await prisma.contestRecord.findMany({
+        where: { contestId: 20 },
+        orderBy: { userId: 'asc' }
+      })
+    const baseTime = new Date('2026-01-01T00:00:00.000Z')
+
+    await prisma.contestProblemRecord.create({
+      data: {
+        contestProblemId: sharedProblem.id,
+        contestRecordId: firstSolverRecord.id,
+        score: sharedProblem.score,
+        finalScore: sharedProblem.score,
+        finishTime: baseTime,
+        isFirstSolver: true
+      }
+    })
+    await prisma.contestProblemRecord.create({
+      data: {
+        contestProblemId: sharedProblem.id,
+        contestRecordId: secondSolverRecord.id,
+        score: sharedProblem.score,
+        finalScore: sharedProblem.score,
+        finishTime: new Date(baseTime.getTime() + 10 * 60_000),
+        isFirstSolver: false
+      }
+    })
+    await prisma.contestProblemFirstSolver.create({
+      data: {
+        contestProblemId: sharedProblem.id,
+        contestRecordId: firstSolverRecord.id
+      }
+    })
+
+    await prisma.contestProblemRecord.create({
+      data: {
+        contestProblemId: soloProblem.id,
+        contestRecordId: firstSolverRecord.id,
+        score: soloProblem.score,
+        finalScore: soloProblem.score,
+        finishTime: baseTime,
+        isFirstSolver: true
+      }
+    })
+    await prisma.contestProblemFirstSolver.create({
+      data: {
+        contestProblemId: soloProblem.id,
+        contestRecordId: firstSolverRecord.id
+      }
+    })
   }
 
   return contestProblemRecords
