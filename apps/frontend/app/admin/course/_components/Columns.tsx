@@ -7,6 +7,7 @@ export interface DataTableCourse {
   id: number
   title: string
   code: string
+  classNum: number | null
   semester: string
   studentCount: number
 }
@@ -43,6 +44,14 @@ export const columns: ColumnDef<DataTableCourse>[] = [
       <DataTableColumnHeader column={column} title="Code" />
     ),
     cell: ({ row }) => row.getValue('code')
+  },
+  {
+    accessorKey: 'classNum',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Section" />
+    ),
+    cell: ({ row }) => row.getValue('classNum') ?? '-',
+    enableSorting: false
   },
 
   {
