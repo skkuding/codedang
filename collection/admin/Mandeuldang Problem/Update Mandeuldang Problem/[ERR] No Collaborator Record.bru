@@ -24,7 +24,7 @@ body:graphql {
 body:graphql:vars {
   {
     "input": {
-      "id": 40,
+      "id": 11,
       "title": "협업자가 아닌 사용자의 수정 시도"
     }
   }
@@ -33,6 +33,10 @@ body:graphql:vars {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
 }
 
 docs {
