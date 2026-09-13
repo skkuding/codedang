@@ -2338,291 +2338,6 @@ enum Level {
   Level5
 }
 
-type Match {
-  endInFirst: Position!
-  endInSecond: Position!
-  lengthOfFirst: Int!
-  lengthOfSecond: Int!
-  startInFirst: Position!
-  startInSecond: Position!
-}
-
-type Mutation {
-  autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
-  checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
-  cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
-  createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
-  createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
-  createContest(input: CreateContestInput!): Contest!
-  createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
-  createCourse(input: CourseInput!): Group!
-  createCourseNotice(groupId: Int!, input: CreateCourseNoticeInput!): CourseNotice!
-  createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
-  createNotice(input: CreateNoticeInput!): Notice!
-  createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
-  createTag(tagName: String!): Tag!
-  createTestcases(input: CreateTestcasesInput!): [ProblemTestcaseId!]!
-  createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
-  deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
-  deleteContest(contestId: Int!): Contest!
-  deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
-  deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
-  deleteCourse(groupId: Int!): Group!
-  deleteCourseNotice(courseNoticeId: Int!, groupId: Int!): CourseNotice!
-  deleteCourseQnA(groupId: Int!, order: Int!): CourseQnA!
-  deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
-  deleteFile(filename: String!): File!
-  deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
-  deleteNotice(noticeId: Int!): Notice!
-  deleteProblem(id: Int!): ProblemWithIsVisible!
-  deleteTag(tagName: String!): Tag!
-  deleteWhitelist(groupId: Int!): Float!
-  duplicateAssignment(assignmentId: Int!, groupId: Int!): DuplicatedAssignmentResponse!
-  duplicateCourse(groupId: Int!, input: DuplicateCourseInput!): DuplicateCourse!
-  handleJoinRequest(groupId: Int!, isAccept: Boolean!, userId: Int!): UserGroup!
-  importProblemsToAssignment(assignmentId: Int!, assignmentProblemInput: [AssignmentProblemInput!]!, groupId: Int!): [AssignmentProblem!]!
-  importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
-  inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
-  issueInvitation(groupId: Int!): String!
-  rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
-  removeAnnouncement(contestId: Int!, id: Int!): Announcement!
-  removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
-  removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
-  removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
-  revokeInvitation(groupId: Int!): String!
-  toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
-  updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
-  updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
-  updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
-  updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
-  updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
-  updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
-  updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
-  updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
-  updateCourse(groupId: Int!, input: CourseInput!): Group!
-  updateCourseNotice(courseNoticeId: Int!, groupId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
-  updateCourseQnA(groupId: Int!, input: UpdateCourseQnAInput!): CourseQnA!
-  updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
-  updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
-  updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
-  updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
-  updateProblem(input: UpdateProblemInput!): ProblemWithIsVisible!
-  updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
-  uploadFile(input: UploadFileInput!): FileSource!
-  uploadImage(input: UploadFileInput!): FileSource!
-  uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
-  uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
-  uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
-  uploadTestcaseZipLegacy(input: UploadTestcaseZipLegacyInput!): [ProblemTestcaseId!]!
-}
-
-type Notice {
-  content: String!
-  createTime: DateTime!
-  createdBy: User
-  createdById: Int
-  id: ID!
-  isFixed: Boolean!
-  isVisible: Boolean!
-  title: String!
-  updateTime: DateTime!
-}
-
-type NoticeAvgAggregate {
-  createdById: Float
-  id: Float
-}
-
-type NoticeCountAggregate {
-  _all: Int!
-  content: Int!
-  createTime: Int!
-  createdById: Int!
-  id: Int!
-  isFixed: Int!
-  isVisible: Int!
-  title: Int!
-  updateTime: Int!
-}
-
-type NoticeMaxAggregate {
-  content: String
-  createTime: DateTime
-  createdById: Int
-  id: Int
-  isFixed: Boolean
-  isVisible: Boolean
-  title: String
-  updateTime: DateTime
-}
-
-type NoticeMinAggregate {
-  content: String
-  createTime: DateTime
-  createdById: Int
-  id: Int
-  isFixed: Boolean
-  isVisible: Boolean
-  title: String
-  updateTime: DateTime
-}
-
-type NoticeSumAggregate {
-  createdById: Int
-  id: Int
-}
-
-type Notification {
-  NotificationRecord: [NotificationRecord!]
-  _count: NotificationCount!
-  createTime: DateTime!
-  id: ID!
-  message: String!
-  title: String!
-  type: NotificationType!
-  url: String
-}
-
-type NotificationAvgAggregate {
-  id: Float
-}
-
-type NotificationCount {
-  NotificationRecord: Int!
-}
-
-type NotificationCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  message: Int!
-  title: Int!
-  type: Int!
-  url: Int!
-}
-
-type NotificationMaxAggregate {
-  createTime: DateTime
-  id: Int
-  message: String
-  title: String
-  type: NotificationType
-  url: String
-}
-
-type NotificationMinAggregate {
-  createTime: DateTime
-  id: Int
-  message: String
-  title: String
-  type: NotificationType
-  url: String
-}
-
-type NotificationRecord {
-  createTime: DateTime!
-  id: ID!
-  isRead: Boolean!
-  notification: Notification!
-  notificationId: Int!
-  user: User!
-  userId: Int!
-}
-
-type NotificationRecordAvgAggregate {
-  id: Float
-  notificationId: Float
-  userId: Float
-}
-
-type NotificationRecordCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  isRead: Int!
-  notificationId: Int!
-  userId: Int!
-}
-
-type NotificationRecordMaxAggregate {
-  createTime: DateTime
-  id: Int
-  isRead: Boolean
-  notificationId: Int
-  userId: Int
-}
-
-type NotificationRecordMinAggregate {
-  createTime: DateTime
-  id: Int
-  isRead: Boolean
-  notificationId: Int
-  userId: Int
-}
-
-type NotificationRecordSumAggregate {
-  id: Int
-  notificationId: Int
-  userId: Int
-}
-
-type NotificationSumAggregate {
-  id: Int
-}
-
-enum NotificationType {
-  Announcement
-  Assignment
-  Contest
-  Course
-  Other
-}
-
-type PlagiarismCluster {
-  CheckResult: [CheckResult!]
-  SubmissionCluster: [SubmissionCluster!]
-  _count: PlagiarismClusterCount!
-  averageSimilarity: Float!
-  id: ID!
-  strength: Float!
-}
-
-type PlagiarismClusterAvgAggregate {
-  averageSimilarity: Float
-  id: Float
-  strength: Float
-}
-
-type PlagiarismClusterCount {
-  CheckResult: Int!
-  SubmissionCluster: Int!
-}
-
-type PlagiarismClusterCountAggregate {
-  _all: Int!
-  averageSimilarity: Int!
-  id: Int!
-  strength: Int!
-}
-
-type PlagiarismClusterMaxAggregate {
-  averageSimilarity: Float
-  id: Int
-  strength: Float
-}
-
-type PlagiarismClusterMinAggregate {
-  averageSimilarity: Float
-  id: Int
-  strength: Float
-}
-
-type PlagiarismClusterSumAggregate {
-  averageSimilarity: Float
-  id: Int
-  strength: Float
-}
-
 type MandeuldangApprovalRequest {
   id: ID!
   message: String
@@ -2757,14 +2472,15 @@ type MandeuldangProblem {
   inputDescription: String!
   languages: [Language!]
   lastRunPass: Boolean!
+  mandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSamples: [MandeuldangSample!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
   memoryLimit: Int!
   outputDescription: String!
-  MandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
-  MandeuldangCollaborators: [MandeuldangCollaborator!]
-  MandeuldangSamples: [MandeuldangSample!]
-  MandeuldangSolution: MandeuldangSolution
-  MandeuldangTestFiles: [MandeuldangTestFile!]
-  MandeuldangTools: [MandeuldangTool!]
   status: MandeuldangProblemStatus!
   timeLimit: Int!
   title: String!
@@ -2779,11 +2495,12 @@ type MandeuldangProblemAvgAggregate {
 }
 
 type MandeuldangProblemCount {
-  MandeuldangApprovalRequests: Int!
-  MandeuldangCollaborators: Int!
-  MandeuldangSamples: Int!
-  MandeuldangTestFiles: Int!
-  MandeuldangTools: Int!
+  mandeuldangApprovalRequests: Int!
+  mandeuldangCollaborators: Int!
+  mandeuldangRunRequests: Int!
+  mandeuldangSamples: Int!
+  mandeuldangTestFiles: Int!
+  mandeuldangTools: Int!
 }
 
 type MandeuldangProblemCountAggregate {
@@ -2849,6 +2566,76 @@ type MandeuldangProblemSumAggregate {
   id: Int
   memoryLimit: Int
   timeLimit: Int
+}
+
+type MandeuldangRunRequest {
+  completedAt: DateTime
+  id: ID!
+  problem: MandeuldangProblem!
+  problemId: Int!
+  requestArgs: JSON
+  requester: User!
+  requesterId: Int!
+  resultCode: Int
+  status: MandeuldangRunStatus!
+  submittedAt: DateTime!
+  toolType: ToolType!
+}
+
+type MandeuldangRunRequestAvgAggregate {
+  id: Float
+  problemId: Float
+  requesterId: Float
+  resultCode: Float
+}
+
+type MandeuldangRunRequestCountAggregate {
+  _all: Int!
+  completedAt: Int!
+  id: Int!
+  problemId: Int!
+  requestArgs: Int!
+  requesterId: Int!
+  resultCode: Int!
+  status: Int!
+  submittedAt: Int!
+  toolType: Int!
+}
+
+type MandeuldangRunRequestMaxAggregate {
+  completedAt: DateTime
+  id: Int
+  problemId: Int
+  requesterId: Int
+  resultCode: Int
+  status: MandeuldangRunStatus
+  submittedAt: DateTime
+  toolType: ToolType
+}
+
+type MandeuldangRunRequestMinAggregate {
+  completedAt: DateTime
+  id: Int
+  problemId: Int
+  requesterId: Int
+  resultCode: Int
+  status: MandeuldangRunStatus
+  submittedAt: DateTime
+  toolType: ToolType
+}
+
+type MandeuldangRunRequestSumAggregate {
+  id: Int
+  problemId: Int
+  requesterId: Int
+  resultCode: Int
+}
+
+enum MandeuldangRunStatus {
+  Failed
+  Pending
+  Running
+  Success
 }
 
 type MandeuldangSample {
@@ -3061,6 +2848,295 @@ type MandeuldangToolMinAggregate {
 type MandeuldangToolSumAggregate {
   id: Int
   problemId: Int
+}
+
+type Match {
+  endInFirst: Position!
+  endInSecond: Position!
+  lengthOfFirst: Int!
+  lengthOfSecond: Int!
+  startInFirst: Position!
+  startInSecond: Position!
+}
+
+type Mutation {
+  autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
+  checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
+  cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
+  createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
+  createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
+  createContest(input: CreateContestInput!): Contest!
+  createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
+  createCourse(input: CourseInput!): Group!
+  createCourseNotice(groupId: Int!, input: CreateCourseNoticeInput!): CourseNotice!
+  createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
+  createNotice(input: CreateNoticeInput!): Notice!
+  createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
+  createTag(tagName: String!): Tag!
+  createTestcases(input: CreateTestcasesInput!): [ProblemTestcaseId!]!
+  createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
+  deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
+  deleteContest(contestId: Int!): Contest!
+  deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
+  deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
+  deleteCourse(groupId: Int!): Group!
+  deleteCourseNotice(courseNoticeId: Int!, groupId: Int!): CourseNotice!
+  deleteCourseQnA(groupId: Int!, order: Int!): CourseQnA!
+  deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
+  deleteFile(filename: String!): File!
+  deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
+  deleteMandeuldangTool(problemId: Int!, toolType: ToolType!): MandeuldangTool!
+  deleteNotice(noticeId: Int!): Notice!
+  deleteProblem(id: Int!): ProblemWithIsVisible!
+  deleteTag(tagName: String!): Tag!
+  deleteWhitelist(groupId: Int!): Float!
+  duplicateAssignment(assignmentId: Int!, groupId: Int!): DuplicatedAssignmentResponse!
+  duplicateCourse(groupId: Int!, input: DuplicateCourseInput!): DuplicateCourse!
+  handleJoinRequest(groupId: Int!, isAccept: Boolean!, userId: Int!): UserGroup!
+  importProblemsToAssignment(assignmentId: Int!, assignmentProblemInput: [AssignmentProblemInput!]!, groupId: Int!): [AssignmentProblem!]!
+  importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
+  issueInvitation(groupId: Int!): String!
+  rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
+  removeAnnouncement(contestId: Int!, id: Int!): Announcement!
+  removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
+  removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
+  removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
+  revokeInvitation(groupId: Int!): String!
+  runGenerator(generatorArgs: [String!]!, problemId: Int!, testcaseCount: Int!): MandeuldangRunRequest!
+  runValidator(problemId: Int!): MandeuldangRunRequest!
+  toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
+  updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
+  updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
+  updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
+  updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
+  updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
+  updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
+  updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
+  updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  updateCourse(groupId: Int!, input: CourseInput!): Group!
+  updateCourseNotice(courseNoticeId: Int!, groupId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
+  updateCourseQnA(groupId: Int!, input: UpdateCourseQnAInput!): CourseQnA!
+  updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
+  updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
+  updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
+  updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
+  updateProblem(input: UpdateProblemInput!): ProblemWithIsVisible!
+  updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
+  uploadFile(input: UploadFileInput!): FileSource!
+  uploadImage(input: UploadFileInput!): FileSource!
+  uploadMandeuldangTool(input: UploadMandeuldangToolInput!): MandeuldangTool!
+  uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
+  uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
+  uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
+  uploadTestcaseZipLegacy(input: UploadTestcaseZipLegacyInput!): [ProblemTestcaseId!]!
+}
+
+type Notice {
+  content: String!
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  isFixed: Boolean!
+  isVisible: Boolean!
+  title: String!
+  updateTime: DateTime!
+}
+
+type NoticeAvgAggregate {
+  createdById: Float
+  id: Float
+}
+
+type NoticeCountAggregate {
+  _all: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  id: Int!
+  isFixed: Int!
+  isVisible: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type NoticeMaxAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type NoticeMinAggregate {
+  content: String
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  isFixed: Boolean
+  isVisible: Boolean
+  title: String
+  updateTime: DateTime
+}
+
+type NoticeSumAggregate {
+  createdById: Int
+  id: Int
+}
+
+type Notification {
+  NotificationRecord: [NotificationRecord!]
+  _count: NotificationCount!
+  createTime: DateTime!
+  id: ID!
+  message: String!
+  title: String!
+  type: NotificationType!
+  url: String
+}
+
+type NotificationAvgAggregate {
+  id: Float
+}
+
+type NotificationCount {
+  NotificationRecord: Int!
+}
+
+type NotificationCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  message: Int!
+  title: Int!
+  type: Int!
+  url: Int!
+}
+
+type NotificationMaxAggregate {
+  createTime: DateTime
+  id: Int
+  message: String
+  title: String
+  type: NotificationType
+  url: String
+}
+
+type NotificationMinAggregate {
+  createTime: DateTime
+  id: Int
+  message: String
+  title: String
+  type: NotificationType
+  url: String
+}
+
+type NotificationRecord {
+  createTime: DateTime!
+  id: ID!
+  isRead: Boolean!
+  notification: Notification!
+  notificationId: Int!
+  user: User!
+  userId: Int!
+}
+
+type NotificationRecordAvgAggregate {
+  id: Float
+  notificationId: Float
+  userId: Float
+}
+
+type NotificationRecordCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  isRead: Int!
+  notificationId: Int!
+  userId: Int!
+}
+
+type NotificationRecordMaxAggregate {
+  createTime: DateTime
+  id: Int
+  isRead: Boolean
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationRecordMinAggregate {
+  createTime: DateTime
+  id: Int
+  isRead: Boolean
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationRecordSumAggregate {
+  id: Int
+  notificationId: Int
+  userId: Int
+}
+
+type NotificationSumAggregate {
+  id: Int
+}
+
+enum NotificationType {
+  Announcement
+  Assignment
+  Contest
+  Course
+  Other
+}
+
+type PlagiarismCluster {
+  CheckResult: [CheckResult!]
+  SubmissionCluster: [SubmissionCluster!]
+  _count: PlagiarismClusterCount!
+  averageSimilarity: Float!
+  id: ID!
+  strength: Float!
+}
+
+type PlagiarismClusterAvgAggregate {
+  averageSimilarity: Float
+  id: Float
+  strength: Float
+}
+
+type PlagiarismClusterCount {
+  CheckResult: Int!
+  SubmissionCluster: Int!
+}
+
+type PlagiarismClusterCountAggregate {
+  _all: Int!
+  averageSimilarity: Int!
+  id: Int!
+  strength: Int!
+}
+
+type PlagiarismClusterMaxAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type PlagiarismClusterMinAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
+}
+
+type PlagiarismClusterSumAggregate {
+  averageSimilarity: Float
+  id: Int
+  strength: Float
 }
 
 type Position {
@@ -4376,6 +4452,12 @@ input UploadFileInput {
   file: Upload!
 }
 
+input UploadMandeuldangToolInput {
+  file: Upload!
+  problemId: Int!
+  toolType: ToolType!
+}
+
 input UploadTestcaseZipInput {
   file: Upload!
   problemId: Int!
@@ -4413,11 +4495,12 @@ type User {
   id: ID!
   lastLogin: DateTime
   major: String
+  mandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
+  mandeuldangCollaborations: [MandeuldangCollaborator!]
+  mandeuldangProblems: [MandeuldangProblem!]
+  mandeuldangReviewedApprovals: [MandeuldangApprovalRequest!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
   notice: [Notice!]
-  MandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
-  MandeuldangCollaborations: [MandeuldangCollaborator!]
-  MandeuldangProblems: [MandeuldangProblem!]
-  MandeuldangReviewedApprovals: [MandeuldangApprovalRequest!]
   problem: [Problem!]
   role: Role!
   studentId: String!
@@ -4548,11 +4631,12 @@ type UserCount {
   createdQnAComments: Int!
   createdQnAs: Int!
   file: Int!
+  mandeuldangApprovalRequests: Int!
+  mandeuldangCollaborations: Int!
+  mandeuldangProblems: Int!
+  mandeuldangReviewedApprovals: Int!
+  mandeuldangRunRequests: Int!
   notice: Int!
-  MandeuldangApprovalRequests: Int!
-  MandeuldangCollaborations: Int!
-  MandeuldangProblems: Int!
-  MandeuldangReviewedApprovals: Int!
   problem: Int!
   submission: Int!
   testSubmission: Int!
