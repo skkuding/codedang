@@ -2,9 +2,11 @@ import { Type } from 'class-transformer'
 import {
   IsArray,
   IsBoolean,
+  IsDefined,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested
 } from 'class-validator'
 
@@ -52,9 +54,11 @@ export class GeneratorResultDto {
   @IsNumber()
   resultCode!: number
 
+  @ValidateIf((msg) => msg.resultCode === 0)
+  @IsDefined()
   @ValidateNested()
   @Type(() => GeneratorToolResultDto)
-  toolResult!: GeneratorToolResultDto
+  toolResult?: GeneratorToolResultDto
 
   @IsString()
   error!: string
@@ -102,9 +106,11 @@ export class ValidatorResultDto {
   @IsNumber()
   resultCode!: number
 
+  @ValidateIf((msg) => msg.resultCode === 0)
+  @IsDefined()
   @ValidateNested()
   @Type(() => ValidatorToolResultDto)
-  toolResult!: ValidatorToolResultDto
+  toolResult?: ValidatorToolResultDto
 
   @IsString()
   error!: string
