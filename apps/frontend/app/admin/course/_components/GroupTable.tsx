@@ -28,6 +28,7 @@ export function GroupTable() {
         id: Number(course.id),
         title: course.groupName,
         code: course.courseInfo?.courseNum ?? '',
+        classNum: course.courseInfo?.classNum ?? null,
         semester: course.courseInfo?.semester ?? '',
         studentCount: course.memberNum
       })),
