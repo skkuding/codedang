@@ -104,12 +104,13 @@ func (t *Task) RunAction(ctx context.Context, _ string, sendResult handler.Resul
 		return
 	}
 
-	if err := t.tcManager.SaveTestcase(
+	testcaseIds, err := t.tcManager.SaveTestcase(
 		ctx,
 		strconv.Itoa(validReq.ProblemId),
 		false,
 		collected,
-	); err != nil {
+	)
+	if err != nil {
 		t.logger.Log(
 			logger.ERROR,
 			fmt.Sprintf(
@@ -130,6 +131,7 @@ func (t *Task) RunAction(ctx context.Context, _ string, sendResult handler.Resul
 		GeneratedCount: len(collected),
 		RequestedCount: count,
 		Errors:         generateErrors,
+		TestcaseIds:    testcaseIds,
 	}
 	marshaledRes, err := json.Marshal(res)
 	if err != nil {

@@ -5,6 +5,7 @@ import {
   ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand,
+  HeadObjectCommand,
   S3Client
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
@@ -163,5 +164,25 @@ export class StorageService {
         Key: filename
       })
     )
+  }
+
+  /**
+   * S3 Object의 크기(Byte)를 가져옵니다.
+   * HeadObjectCommand를 사용하여 파일 본문 다운로드 없이 메타데이터만 조회합니다.
+   *
+   * @param filename 파일 이름 (Key)
+   * @param bucket Bucket 종류
+   */
+  async getObjectSize(
+    filename: string,
+    bucket: S3BucketType = 'testcase'
+  ): Promise<number> {
+    const command = new HeadObjectCommand({
+      Bucket: this.getBucketName(bucket),
+      Key: filename
+    })
+
+    const response = await this.client.send(command)
+    return response.ContentLength ?? 0
   }
 }

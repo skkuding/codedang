@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
@@ -67,29 +66,31 @@ func parseDatabaseURL(databaseURL string) (string, error) {
 }
 
 // todo: need to introduce prisma like ORM
-func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
+func (p *Postgres) Save(ctx context.Context, elements []ElementIn) ([]int, error) {
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.save.start items=%d", len(elements)))
 	if len(elements) == 0 {
 		p.logger.Log(logger.WARN, "sql.save.skip reason=empty_elements")
-		return nil
+		return nil, nil
 	}
 
 	problemID := elements[0].ProblemId
 	for _, element := range elements[1:] {
 		if element.ProblemId != problemID {
-			return fmt.Errorf("all testcases must have the same problemId")
+			return nil, fmt.Errorf("all testcases must have the same problemId")
 		}
 	}
 
-	tx, err := p.client.BeginTx(ctx, nil)
-	if err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=begin_tx err=%v", err))
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer tx.Rollback() //nolint:errcheck
-
-	if _, err := tx.ExecContext(
+	// Retiring and inserting are no longer wrapped in a single *sql.Tx. A *sql.Tx pins one
+	// connection, so concurrent goroutines sharing it would serialize behind that connection's
+	// internal lock instead of actually running in parallel — negating the whole point of
+	// inserting per-testcase. Each insert below uses p.client (the connection pool) directly, so
+	// goroutines get their own connections and genuinely run in parallel, the same way the admin
+	// backend's testcase.service.ts::createTestcases already does (Promise.all of independent
+	// prisma.create() calls, not wrapped in a transaction either). The tradeoff is the same one
+	// already accepted for the S3 upload phase below: retire can succeed while some inserts fail,
+	// leaving the problem with fewer (or zero) active testcases until retried.
+	if _, err := p.client.ExecContext(
 		ctx,
 		`UPDATE public.problem_testcase
 		 SET is_outdated = true, outdate_time = NOW()
@@ -97,44 +98,49 @@ func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
 		problemID,
 	); err != nil {
 		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=retire problem_id=%d err=%v", problemID, err))
-		return fmt.Errorf("failed to retire existing testcases: %w", err)
+		return nil, fmt.Errorf("failed to retire existing testcases: %w", err)
 	}
 
-	stmt, err := tx.PrepareContext(ctx, pq.CopyInSchema(
-		"public",
-		"problem_testcase",
-		"problem_id",
-		"input",
-		"output",
-		"is_hidden_testcase",
-		"update_time",
-	))
-	if err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=prepare err=%v", err))
-		return fmt.Errorf("failed to prepare statement: %w", err)
+	type insertResult struct {
+		index int
+		id    int
+		err   error
 	}
-	defer stmt.Close() //nolint:errcheck
-
+	resultChan := make(chan insertResult, len(elements))
 	for idx, element := range elements {
-		if _, err := stmt.ExecContext(ctx, element.ProblemId, element.In, element.Out, element.Hidden, start); err != nil {
-			p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=exec index=%d err=%v", idx, err))
-			return fmt.Errorf("failed to save testcase: %w", err)
-		}
-	}
-	if _, err := stmt.ExecContext(ctx); err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=flush err=%v", err))
-		return fmt.Errorf("failed to flush testcase batch: %w", err)
+		go func(idx int, element ElementIn) {
+			var id int
+			err := p.client.QueryRowContext(ctx,
+				`INSERT INTO public.problem_testcase
+				 (problem_id, is_hidden_testcase, "order", update_time)
+				 VALUES ($1, $2, $3, $4)
+				 RETURNING id`,
+				element.ProblemId, element.Hidden, idx+1, start,
+			).Scan(&id)
+			resultChan <- insertResult{index: idx, id: id, err: err}
+		}(idx, element)
 	}
 
-	if err := tx.Commit(); err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=commit err=%v", err))
-		return fmt.Errorf("failed to commit transaction: %w", err)
+	ids := make([]int, len(elements))
+	var errs []error
+	for range elements {
+		r := <-resultChan
+		if r.err != nil {
+			p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=insert index=%d err=%v", r.index, r.err))
+			errs = append(errs, r.err)
+			continue
+		}
+		ids[r.index] = r.id // each goroutine knows its own index, so no matching column is needed
 	}
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to save %d/%d testcases: %v", len(errs), len(elements), errs)
+	}
+
 	p.logger.Log(
 		logger.INFO,
 		fmt.Sprintf("sql.save.done inserted=%d duration=%s", len(elements), time.Since(start)),
 	)
-	return nil
+	return ids, nil
 }
 
 func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
@@ -142,6 +148,7 @@ func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
   SELECT id, input, output, is_hidden_testcase
   FROM public.problem_testcase
   WHERE problem_id = $1 AND is_outdated = false
+    AND input IS NOT NULL AND output IS NOT NULL
   `
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.get.start problem_id=%s", key))
