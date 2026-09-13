@@ -63,32 +63,33 @@ model User {
   createdCourseQnAs        CourseQnA[]        @relation("CreatedByUserCourseQnA")
   createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
-  userProfile              UserProfile?
-  userGroup                UserGroup[]
-  notice                   Notice[]
-  problem                  Problem[]
-  assignment               Assignment[]
-  assignmentRecord         AssignmentRecord[]
-  contest                  Contest[]
-  userContest              UserContest[]
-  contestRecord            ContestRecord[]
-  workbook                 Workbook[]
-  submission               Submission[]
-  useroauth                UserOAuth[]
-  file                     File[]
-  testSubmission           TestSubmission[]
-  UpdateHistory            UpdateHistory[]
-  createdQnAs              ContestQnA[]             @relation("CreatedByUser")
-  createdQnAComments       ContestQnAComment[]      @relation("CreatedByUser")
-  NotificationRecord       NotificationRecord[]
-  PushSubscription         PushSubscription[]
-  CourseNotice             CourseNotice[]
-  CourseNoticeComment      CourseNoticeComment[]
-  CheckRequest             CheckRequest[]
-  polygonProblems          PolygonProblem[]         @relation("PolygonProblemOwner")
-  polygonCollaborations    PolygonCollaborator[]    @relation("PolygonCollaborator")
-  polygonApprovalRequests  PolygonApprovalRequest[] @relation("PolygonApprovalRequester")
-  polygonReviewedApprovals PolygonApprovalRequest[] @relation("PolygonApprovalReviewer")
+  userProfile                  UserProfile?
+  userGroup                    UserGroup[]
+  notice                       Notice[]
+  problem                      Problem[]
+  assignment                   Assignment[]
+  assignmentRecord             AssignmentRecord[]
+  contest                      Contest[]
+  userContest                  UserContest[]
+  contestRecord                ContestRecord[]
+  workbook                     Workbook[]
+  submission                   Submission[]
+  useroauth                    UserOAuth[]
+  file                         File[]
+  testSubmission               TestSubmission[]
+  UpdateHistory                UpdateHistory[]
+  createdQnAs                  ContestQnA[]                 @relation("CreatedByUser")
+  createdQnAComments           ContestQnAComment[]          @relation("CreatedByUser")
+  NotificationRecord           NotificationRecord[]
+  PushSubscription             PushSubscription[]
+  CourseNotice                 CourseNotice[]
+  CourseNoticeComment          CourseNoticeComment[]
+  CheckRequest                 CheckRequest[]
+  MandeuldangProblems          MandeuldangProblem[]         @relation("MandeuldangProblemOwner")
+  MandeuldangCollaborations    MandeuldangCollaborator[]    @relation("MandeuldangCollaborator")
+  MandeuldangApprovalRequests  MandeuldangApprovalRequest[] @relation("MandeuldangApprovalRequester")
+  MandeuldangReviewedApprovals MandeuldangApprovalRequest[] @relation("MandeuldangApprovalReviewer")
+  MandeuldangRunRequests       MandeuldangRunRequest[]      @relation("MandeuldangRunRequester")
 
   @@map("user")
 }
@@ -996,25 +997,25 @@ model PushSubscription {
 }
 
 model CourseQnA {
-  id          Int         @id @default(autoincrement())
-  order       Int
-  createdById Int?        @map("created_by_id")
-  groupId     Int         @map("group_id")
-  problemId   Int?        @map("problem_id")
-  assignmentId Int?       @map("assignment_id")
-  title       String
-  content     String
-  category    QnACategory @default(General)
-  isResolved  Boolean     @default(false) @map("is_resolved")
-  isPrivate   Boolean     @default(false) @map("is_private")
-  createTime  DateTime    @default(now()) @map("create_time")
-  readBy      Int[]       @map("read_by")
+  id           Int         @id @default(autoincrement())
+  order        Int
+  createdById  Int?        @map("created_by_id")
+  groupId      Int         @map("group_id")
+  problemId    Int?        @map("problem_id")
+  assignmentId Int?        @map("assignment_id")
+  title        String
+  content      String
+  category     QnACategory @default(General)
+  isResolved   Boolean     @default(false) @map("is_resolved")
+  isPrivate    Boolean     @default(false) @map("is_private")
+  createTime   DateTime    @default(now()) @map("create_time")
+  readBy       Int[]       @map("read_by")
 
-  createdBy User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
-  group     Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  problem   Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
-  assignment Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
-  comments  CourseQnAComment[]
+  createdBy  User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
+  group      Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  problem    Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
+  assignment Assignment?        @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  comments   CourseQnAComment[]
 
   @@unique([groupId, order])
   @@map("course_qna")
@@ -1036,7 +1037,7 @@ model CourseQnAComment {
   @@map("course_qna_comment")
 }
 
-enum PolygonProblemStatus {
+enum MandeuldangProblemStatus {
   Draft
   Ready
   PendingApproval
@@ -1060,7 +1061,7 @@ enum CollaboratorStatus {
   Active
 }
 
-enum PolygonApprovalStatus {
+enum MandeuldangApprovalStatus {
   Pending
   Approved
   Rejected
@@ -1072,9 +1073,16 @@ enum ToolType {
   Checker
 }
 
-model PolygonProblem {
+enum MandeuldangRunStatus {
+  Pending
+  Running
+  Success
+  Failed
+}
+
+model MandeuldangProblem {
   id          Int   @id @default(autoincrement())
-  createdBy   User? @relation("PolygonProblemOwner", fields: [createdById], references: [id])
+  createdBy   User? @relation("MandeuldangProblemOwner", fields: [createdById], references: [id])
   createdById Int?  @map("created_by_id")
 
   // Statement
@@ -1088,25 +1096,26 @@ model PolygonProblem {
   difficulty        Level
 
   // Status
-  status      PolygonProblemStatus @default(Draft)
-  lastRunPass Boolean              @default(false) @map("last_run_pass")
+  status      MandeuldangProblemStatus @default(Draft)
+  lastRunPass Boolean                  @default(false) @map("last_run_pass")
 
-  createTime              DateTime                 @default(now()) @map("create_time")
-  updateTime              DateTime                 @updatedAt @map("update_time")
-  polygonSamples          PolygonSample[]
-  polygonTestFiles        PolygonTestFile[]
-  polygonSolution         PolygonSolution?
-  polygonTools            PolygonTool[]
-  polygonCollaborators    PolygonCollaborator[]
-  polygonApprovalRequests PolygonApprovalRequest[]
+  createTime                  DateTime                     @default(now()) @map("create_time")
+  updateTime                  DateTime                     @updatedAt @map("update_time")
+  mandeuldangSamples          MandeuldangSample[]
+  mandeuldangTestFiles        MandeuldangTestFile[]
+  mandeuldangSolution         MandeuldangSolution?
+  mandeuldangTools            MandeuldangTool[]
+  mandeuldangCollaborators    MandeuldangCollaborator[]
+  mandeuldangApprovalRequests MandeuldangApprovalRequest[]
+  mandeuldangRunRequests      MandeuldangRunRequest[]
 
-  @@map("polygon_problem")
+  @@map("mandeuldang_problem")
 }
 
-model PolygonSample {
-  id        Int            @id @default(autoincrement())
-  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int            @map("problem_id")
+model MandeuldangSample {
+  id        Int                @id @default(autoincrement())
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @map("problem_id")
 
   inputText  String @map("input_text")
   outputText String @map("output_text")
@@ -1114,13 +1123,13 @@ model PolygonSample {
 
   createTime DateTime @default(now()) @map("create_time")
 
-  @@map("polygon_sample")
+  @@map("mandeuldang_sample")
 }
 
-model PolygonTestFile {
-  id        Int            @id @default(autoincrement())
-  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int            @map("problem_id")
+model MandeuldangTestFile {
+  id        Int                @id @default(autoincrement())
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @map("problem_id")
 
   fileName String       @map("file_name") // 원본 파일명 (1.in)
   baseName String       @map("base_name") // 확장자 제외
@@ -1131,46 +1140,46 @@ model PolygonTestFile {
   createTime DateTime @default(now()) @map("create_time")
 
   @@index([problemId, baseName])
-  @@map("polygon_test_file")
+  @@map("mandeuldang_test_file")
 }
 
-model PolygonSolution {
-  id        Int            @id @default(autoincrement())
-  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int            @unique @map("problem_id")
+model MandeuldangSolution {
+  id        Int                @id @default(autoincrement())
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @unique @map("problem_id")
 
-  fileName String   @map("file_name") // 원본 파일명 (solution.cpp)
-  filePath String   @map("file_path") // S3 key
-  language Language
+  fileName    String   @map("file_name") // 원본 파일명 (solution.cpp)
+  fileContent String   @map("file_content") //DB 저장
+  language    Language
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
-  @@map("polygon_solution")
+  @@map("mandeuldang_solution")
 }
 
-model PolygonTool {
-  id        Int            @id @default(autoincrement())
-  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int            @map("problem_id")
+model MandeuldangTool {
+  id        Int                @id @default(autoincrement())
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @map("problem_id")
 
-  toolType ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
-  fileName String   @map("file_name")
-  filePath String   @map("file_path") // S3 key
+  toolType    ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
+  fileName    String   @map("file_name")
+  fileContent String   @map("file_content") //DB 저장
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
 
   @@unique([problemId, toolType])
-  @@map("polygon_tool")
+  @@map("mandeuldang_tool")
 }
 
-model PolygonCollaborator {
-  id        Int            @id @default(autoincrement())
-  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int            @map("problem_id")
+model MandeuldangCollaborator {
+  id        Int                @id @default(autoincrement())
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @map("problem_id")
 
-  user   User @relation("PolygonCollaborator", fields: [userId], references: [id])
+  user   User @relation("MandeuldangCollaborator", fields: [userId], references: [id])
   userId Int  @map("user_id")
 
   role   CollaboratorRole // Owner | Editor | Viewer
@@ -1179,28 +1188,50 @@ model PolygonCollaborator {
   createTime DateTime @default(now()) @map("create_time")
 
   @@unique([problemId, userId])
-  @@map("polygon_collaborator")
+  @@map("mandeuldang_collaborator")
 }
 
-model PolygonApprovalRequest {
-  id        Int            @id @default(autoincrement())
-  problem   PolygonProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId Int            @map("problem_id")
+model MandeuldangApprovalRequest {
+  id        Int                @id @default(autoincrement())
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @map("problem_id")
 
-  requester   User @relation("PolygonApprovalRequester", fields: [requesterId], references: [id])
+  requester   User @relation("MandeuldangApprovalRequester", fields: [requesterId], references: [id])
   requesterId Int  @map("requester_id")
 
-  status      PolygonApprovalStatus @default(Pending) // Pending | Approved | Rejected
+  status      MandeuldangApprovalStatus @default(Pending) // Pending | Approved | Rejected
   message     String? // 제출 시 메시지
-  submittedAt DateTime              @default(now()) @map("submitted_at")
+  submittedAt DateTime                  @default(now()) @map("submitted_at")
 
-  reviewer   User?     @relation("PolygonApprovalReviewer", fields: [reviewerId], references: [id])
+  reviewer   User?     @relation("MandeuldangApprovalReviewer", fields: [reviewerId], references: [id])
   reviewerId Int?      @map("reviewer_id")
   reviewedAt DateTime? @map("reviewed_at")
 
   rejectionReason String? @map("rejection_reason")
 
-  @@map("polygon_approval_request")
+  @@map("mandeuldang_approval_request")
+}
+
+model MandeuldangRunRequest {
+  id Int @id @default(autoincrement())
+
+  problem   MandeuldangProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId Int                @map("problem_id")
+
+  requester   User @relation("MandeuldangRunRequester", fields: [requesterId], references: [id])
+  requesterId Int  @map("requester_id")
+
+  toolType ToolType             @map("tool_type")
+  status   MandeuldangRunStatus @default(Pending) // Pending | Running | Success | Failed
+
+  resultCode  Int?  @map("result_code")
+  requestArgs Json? @map("request_args")
+
+  submittedAt DateTime  @default(now()) @map("submitted_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@index([problemId, toolType])
+  @@map("mandeuldang_run_request")
 }
 
 model StudyInfo {
