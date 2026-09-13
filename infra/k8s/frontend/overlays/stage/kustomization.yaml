@@ -6,13 +6,14 @@ resources:
   - ../../base
   - secrets/aws-credentials.yaml
   - secrets/security-keys.yaml
+  - ingress.yaml
 
 patches:
   - path: configmap.yaml
     target:
       kind: ConfigMap
       name: frontend-env
-  - path: ingress.yaml
+  - path: HTTPRoutes.yaml
     target:
-      kind: Ingress
-      name: frontend-ingress
+      kind: HTTPRoute
+      name: frontend-httproute

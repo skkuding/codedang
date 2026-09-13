@@ -8,3 +8,5 @@ spec:
     providers:
       kubernetesGateway:
         enabled: true
+      kubernetesCRD:
+        enabled: true

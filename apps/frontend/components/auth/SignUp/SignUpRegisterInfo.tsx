@@ -15,7 +15,14 @@ interface RegisterInfoInput {
 }
 
 const schema = v.object({
-  realName: v.pipe(v.string(), v.minLength(1, 'Name is required')),
+  realName: v.pipe(
+    v.string(),
+    v.check((value) => value.trim().length > 0, 'Name is required'),
+    v.regex(
+      /^[가-힣a-zA-Z \s]+$/,
+      'Name can only contain Korean, English letters, and spaces'
+    )
+  ),
   studentId: v.pipe(
     v.string(),
     v.length(10, 'Student ID must be 10 characters long')
