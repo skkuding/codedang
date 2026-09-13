@@ -21,13 +21,17 @@ body:graphql {
 
 body:graphql:vars {
   {
-    "id": 50
+    "id": 12
   }
 }
 
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
 }
 
 docs {
