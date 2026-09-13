@@ -10,11 +10,3 @@ spec:
       sectionName: https-stage-wildcard
   hostnames:
     - pprof.stage.codedang.com
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /debug/pprof
-      backendRefs:
-        - name: iris-pprof
-          port: 6060

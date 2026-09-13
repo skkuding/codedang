@@ -11,10 +11,73 @@ spec:
   hostnames:
     - pprof.codedang.com
   rules:
+    # List the Iris pods through the kube-apiserver, requesting the Table
+    # representation so clients can read pod names from .rows[].cells[0].
     - matches:
-        - path:
-            type: PathPrefix
-            value: /debug/pprof
+        - method: GET
+          path:
+            type: Exact
+            value: /pods
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-basicauth
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-pods-accept
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-pods-rewrite
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-ratelimit
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-inflight
       backendRefs:
-        - name: iris-pprof
-          port: 6060
+        - group: traefik.io
+          kind: TraefikService
+          name: pprof-kube-api
+          port: 443
+    # Access a specific pod's pprof endpoints through pods/proxy on port 6060.
+    - matches:
+        - method: GET
+          path:
+            type: PathPrefix
+            value: /pod/
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-basicauth
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-pod-rewrite
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-ratelimit
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: pprof-inflight
+      backendRefs:
+        - group: traefik.io
+          kind: TraefikService
+          name: pprof-kube-api
+          port: 443
