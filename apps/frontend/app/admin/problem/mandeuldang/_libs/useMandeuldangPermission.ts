@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { getMandeuldangPermissions, type MandeuldangRole } from './permissions'
 
-// 이후에 백엔드에서 role을 받아오는 로직을 추가할 예정
-// 아직은 role을 인자로 받아서 권한을 계산하는 훅만 구현
+// 백엔드는 현재 사용자의 role을 내려주고 API에서 실제 권한을 검증해야 한다.
+// 프론트에서는 전달받은 role로 화면의 노출 및 비활성화 상태만 계산한다.
 export function useMandeuldangPermission(
   role: MandeuldangRole | null | undefined
 ) {
