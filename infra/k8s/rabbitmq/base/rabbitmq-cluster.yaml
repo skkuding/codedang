@@ -3,11 +3,9 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '3'
 spec:
-  service:
-    annotations:
-      traefik.ingress.kubernetes.io/service.serversscheme: https
-      traefik.ingress.kubernetes.io/service.serverstransport: rabbitmq-rabbitmq-console-transport@kubernetescrd
   tls:
     secretName: rabbitmq-server-certs
     disableNonTLSListeners: true
