@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { AMQPModule } from '@libs/amqp'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@libs/storage'
+import { CollaboratorResolver } from './collaborator/collaborator.resolver'
+import { CollaboratorService } from './collaborator/collaborator.service'
 import { FileService } from './file/file.service'
 import { MandeuldangPublicationService } from './mandeuldang-pub.service'
 import { MandeuldangSubscriptionService } from './mandeuldang-sub.service'
@@ -16,7 +18,9 @@ import { MandeuldangProblemModule } from './problem/problem.module'
     MandeuldangService,
     FileService,
     MandeuldangPublicationService,
-    MandeuldangSubscriptionService
+    MandeuldangSubscriptionService,
+    CollaboratorResolver,
+    CollaboratorService
   ]
 })
 export class MandeuldangModule {}
