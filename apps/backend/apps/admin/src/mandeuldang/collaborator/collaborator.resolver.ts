@@ -15,36 +15,36 @@ export class CollaboratorResolver {
   @Mutation()
   async inviteCollaborator(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number,
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('input') input: CollaboratorInput
   ) {
     return await this.collaboratorService.inviteCollaborator(
       req.user.id,
-      polygonId,
+      problemId,
       input
     )
   }
 
   @Query()
-  async getActiveCollaborator(
+  async getApprovedCollaborator(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
   ) {
     return await this.collaboratorService.getCollaboratorsByStatus(
       req.user.id,
-      polygonId,
-      CollaboratorStatus.Active
+      problemId,
+      CollaboratorStatus.Approved
     )
   }
 
   @Query()
   async getPendingCollaborator(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
   ) {
     return await this.collaboratorService.getCollaboratorsByStatus(
       req.user.id,
-      polygonId,
+      problemId,
       CollaboratorStatus.Pending
     )
   }
@@ -52,12 +52,12 @@ export class CollaboratorResolver {
   @Mutation()
   async approveInvite(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number,
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ) {
     return await this.collaboratorService.approveCollaborator(
       req.user.id,
-      polygonId,
+      problemId,
       userId
     )
   }
@@ -65,12 +65,12 @@ export class CollaboratorResolver {
   @Mutation()
   async rejectInvite(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number,
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ) {
     return await this.collaboratorService.rejectCollaborator(
       req.user.id,
-      polygonId,
+      problemId,
       userId
     )
   }
@@ -78,12 +78,12 @@ export class CollaboratorResolver {
   @Mutation()
   async updateCollaboratorRole(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number,
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('input') input: CollaboratorUpdateInput
   ) {
     return await this.collaboratorService.updateCollaboratorRole(
       req.user.id,
-      polygonId,
+      problemId,
       input
     )
   }
@@ -91,12 +91,12 @@ export class CollaboratorResolver {
   @Mutation()
   async removeCollaborator(
     @Context('req') req: AuthenticatedRequest,
-    @Args('polygonId', { type: () => Int }, IDValidationPipe) polygonId: number,
+    @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ) {
     return await this.collaboratorService.removeCollaborator(
       req.user.id,
-      polygonId,
+      problemId,
       userId
     )
   }

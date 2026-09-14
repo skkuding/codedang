@@ -17,18 +17,18 @@ export class CollaboratorService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 해당 polygon 문제에 협업자를 초대합니다.
+   * 해당 mandeuldang 문제에 협업자를 초대합니다.
    *
-   * 협업자 초대는 1. 해당 문제의 소유자 2. status: Active, role:Editor 인 경우에만 가능
+   * 협업자 초대는 1. 해당 문제의 소유자 2. status: Approved, role:Editor 인 경우에만 가능
    *
    * @param {number} inviterId 초대자의 id
-   * @param {number} polygonId 생성 문제의 id
+   * @param {number} problemId 생성 문제의 id
    * @param {CollaboratorInput} model 협업자 id, role
-   * @returns {polygonCollaborator} 협업자 정보
+   * @returns {mandeuldangCollaborator} 협업자 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * -해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * -해당 problemId에 해당하는 문제가 존재하지 않는 경우
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
-   * -초대자가 문제의 소유자가 아니면서 status: Active, role:Editor가 아닌 경우
+   * -초대자가 문제의 소유자가 아니면서 status: Approved, role:Editor가 아닌 경우
    * @throws {DuplicateFoundException} 아래와 같은 경우 발생합니다.
    * -이미 초대된 협업자를 초대한 경우
    * -문제 소유자를 초대한 경우
@@ -37,7 +37,7 @@ export class CollaboratorService {
    */
   async inviteCollaborator(
     inviterId: number,
-    polygonId: number,
+    problemId: number,
     input: CollaboratorInput
   ) {
     const { userEmail, role } = input
@@ -55,24 +55,25 @@ export class CollaboratorService {
     }
     const userId = user.id
 
-    const problem = await this.prisma.polygonProblem.findUnique({
-      where: { id: polygonId },
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
       select: { createdById: true }
     })
-    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (!problem)
+      throw new EntityNotExistException('MandeuldangProblem not found')
 
     const isOwner = problem.createdById === inviterId
 
     if (!isOwner) {
-      const inviterInfo = await this.prisma.polygonCollaborator.findFirst({
+      const inviterInfo = await this.prisma.mandeuldangCollaborator.findFirst({
         where: {
-          problemId: polygonId,
+          problemId,
           userId: inviterId
         },
         select: { status: true, role: true }
       })
       const canInvite =
-        inviterInfo?.status === CollaboratorStatus.Active &&
+        inviterInfo?.status === CollaboratorStatus.Approved &&
         inviterInfo?.role === CollaboratorRole.Editor
       if (!canInvite) {
         throw new ForbiddenAccessException(
@@ -81,9 +82,9 @@ export class CollaboratorService {
       }
     }
 
-    const existing = await this.prisma.polygonCollaborator.findFirst({
+    const existing = await this.prisma.mandeuldangCollaborator.findFirst({
       where: {
-        problemId: polygonId,
+        problemId,
         userId
       },
       select: { id: true }
@@ -95,13 +96,13 @@ export class CollaboratorService {
       throw new DuplicateFoundException('invited owner to collaborator')
     }
     const status = isOwner
-      ? CollaboratorStatus.Active
+      ? CollaboratorStatus.Approved
       : CollaboratorStatus.Pending
 
     try {
-      return await this.prisma.polygonCollaborator.create({
+      return await this.prisma.mandeuldangCollaborator.create({
         data: {
-          problemId: polygonId,
+          problemId,
           userId,
           role,
           status
@@ -121,34 +122,35 @@ export class CollaboratorService {
   /**
    * Status에 따른 협업자 목록을 반환합니다.
    *
-   * status : Pending(수락 대기 중), Active(활성화 됨)
+   * status : Pending(수락 대기 중), Approved(승인됨)
    * @param {number} userId 문제 소유자의 id
-   * @param {number} polygonId 생성 문제의 id
+   * @param {number} problemId 생성 문제의 id
    * @param {CollaboratorStatus} status 협업자의 상태
-   * @returns {PolygonCollaborator[]} 협업자 목록
+   * @returns {MandeuldangCollaborator[]} 협업자 목록
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * - 해당 problemId에 해당하는 문제가 존재하지 않는 경우
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * - 협업자 목록 요청자가 문제 소유자가 아닌 경우
    */
   async getCollaboratorsByStatus(
     userId: number,
-    polygonId: number,
+    problemId: number,
     status: CollaboratorStatus
   ) {
-    const problem = await this.prisma.polygonProblem.findUnique({
-      where: { id: polygonId },
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
       select: { createdById: true }
     })
-    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (!problem)
+      throw new EntityNotExistException('MandeuldangProblem not found')
 
     if (problem.createdById !== userId) {
       throw new ForbiddenAccessException('No permission to view collaborators')
     }
 
-    const collaborators = await this.prisma.polygonCollaborator.findMany({
+    const collaborators = await this.prisma.mandeuldangCollaborator.findMany({
       where: {
-        problemId: polygonId,
+        problemId,
         status
       },
       select: {
@@ -175,11 +177,11 @@ export class CollaboratorService {
    * 문제 소유자가 협업 요청을 수락합니다.
    *
    * @param {number} createdById 문제 소유자의 id
-   * @param {number} polygonId 생성 문제의 id
+   * @param {number} problemId 생성 문제의 id
    * @param {number} userId 협업자의 id
-   * @returns {polygonCollaborator} 협업자 정보
+   * @returns {mandeuldangCollaborator} 협업자 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * -해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * -해당 problemId에 해당하는 문제가 존재하지 않는 경우
    * -해당 userId에 해당하는 협업자가 존재하지 않는 경우
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * -협업자의 status가 Pending이 아닌 경우
@@ -188,20 +190,21 @@ export class CollaboratorService {
    */
   async approveCollaborator(
     createdById: number,
-    polygonId: number,
+    problemId: number,
     userId: number
   ) {
-    const problem = await this.prisma.polygonProblem.findUnique({
-      where: { id: polygonId },
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
       select: { createdById: true }
     })
-    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (!problem)
+      throw new EntityNotExistException('MandeuldangProblem not found')
 
     if (problem.createdById !== createdById) {
       throw new ForbiddenAccessException('No permission to approve/reject')
     }
-    const collaborator = await this.prisma.polygonCollaborator.findFirst({
-      where: { problemId: polygonId, userId },
+    const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
+      where: { problemId, userId },
       select: { id: true, status: true }
     })
     if (!collaborator) {
@@ -212,9 +215,9 @@ export class CollaboratorService {
       throw new UnprocessableDataException('Invitation is not pending')
     }
 
-    return await this.prisma.polygonCollaborator.update({
+    return await this.prisma.mandeuldangCollaborator.update({
       where: { id: collaborator.id },
-      data: { status: CollaboratorStatus.Active }
+      data: { status: CollaboratorStatus.Approved }
     })
   }
 
@@ -222,11 +225,11 @@ export class CollaboratorService {
    * 문제 소유자가 협업 요청을 거절합니다.
    *
    * @param {number} createdById 문제 소유자의 id
-   * @param {number} polygonId 생성 문제의 id
+   * @param {number} problemId 생성 문제의 id
    * @param {number} userId 협업자의 id
-   * @returns {polygonCollaborator} 삭제 협업자 정보
+   * @returns {mandeuldangCollaborator} 삭제 협업자 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * -해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * -해당 problemId에 해당하는 문제가 존재하지 않는 경우
    * -해당 userId에 해당하는 협업자가 존재하지 않는 경우
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * -협업자의 status가 Pending이 아닌 경우
@@ -235,21 +238,22 @@ export class CollaboratorService {
    */
   async rejectCollaborator(
     createdById: number,
-    polygonId: number,
+    problemId: number,
     userId: number
   ) {
-    const problem = await this.prisma.polygonProblem.findUnique({
-      where: { id: polygonId },
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
       select: { createdById: true }
     })
-    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (!problem)
+      throw new EntityNotExistException('MandeuldangProblem not found')
 
     if (problem.createdById !== createdById) {
       throw new ForbiddenAccessException('No permission to approve/reject')
     }
 
-    const collaborator = await this.prisma.polygonCollaborator.findFirst({
-      where: { problemId: polygonId, userId },
+    const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
+      where: { problemId, userId },
       select: { id: true, status: true }
     })
     if (!collaborator)
@@ -259,7 +263,7 @@ export class CollaboratorService {
       throw new UnprocessableDataException('Invitation is not pending')
     }
 
-    return await this.prisma.polygonCollaborator.delete({
+    return await this.prisma.mandeuldangCollaborator.delete({
       where: { id: collaborator.id }
     })
   }
@@ -270,50 +274,51 @@ export class CollaboratorService {
    * role : Reviewer, Editor로만 변경
    *
    * @param {number} inviterId 초대자의 id
-   * @param {number} polygonId 생성 문제의 id
+   * @param {number} problemId 생성 문제의 id
    * @param {CollaboratorInput} input 협업자 id, role
-   * @returns {polygonCollaborator} 협업자 정보
+   * @returns {mandeuldangCollaborator} 협업자 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * -해당 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * -해당 problemId에 해당하는 문제가 존재하지 않는 경우
    * -해당 userId에 해당하는 협업자가 존재하지 않는 경우
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -invitorId가 해당 문제의 소유자가 아닌 경우
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - Owner role로 변경을 하는 경우
-   * - 변경하려는 협업자가 active하지 않는 경우
+   * - 변경하려는 협업자가 승인하지 않는 경우
    */
   async updateCollaboratorRole(
     inviterId: number,
-    polygonId: number,
+    problemId: number,
     input: CollaboratorUpdateInput
   ) {
     const { userId, role } = input
     if (role === CollaboratorRole.Owner) {
       throw new UnprocessableDataException('Cannot assign Owner role')
     }
-    const problem = await this.prisma.polygonProblem.findUnique({
-      where: { id: polygonId },
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
       select: { createdById: true }
     })
-    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (!problem)
+      throw new EntityNotExistException('MandeuldangProblem not found')
 
     const isOwner = problem.createdById === inviterId
     if (!isOwner)
       throw new ForbiddenAccessException('No permission to update role')
 
-    const collaborator = await this.prisma.polygonCollaborator.findFirst({
-      where: { problemId: polygonId, userId },
+    const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
+      where: { problemId, userId },
       select: { id: true, status: true }
     })
     if (!collaborator) {
       throw new EntityNotExistException('Collaborator not found')
     }
 
-    if (collaborator.status !== CollaboratorStatus.Active) {
-      throw new UnprocessableDataException('Collaborator is not active')
+    if (collaborator.status !== CollaboratorStatus.Approved) {
+      throw new UnprocessableDataException('Collaborator is not approved')
     }
 
-    return await this.prisma.polygonCollaborator.update({
+    return await this.prisma.mandeuldangCollaborator.update({
       where: { id: collaborator.id },
       data: { role }
     })
@@ -324,42 +329,43 @@ export class CollaboratorService {
    * 협업자 제거는 문제 소유자만 가능합니다.
    *
    * @param {number} createdById 문제 소유자의 id
-   * @param {number} polygonId 생성 문제의 id
+   * @param {number} problemId 생성 문제의 id
    * @param {number} userId  협업자의 id
-   * @returns  {polygonCollaborator} 삭제된 협업자 정보
+   * @returns  {mandeuldangCollaborator} 삭제된 협업자 정보
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * -해당 문제 소유자와 polygonId에 해당하는 문제가 존재하지 않는 경우
+   * -해당 문제 소유자와 problemId에 해당하는 문제가 존재하지 않는 경우
    * -해당 userId에 대항하는 협업자가 존재하지 않는 경우
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -createdById가 해당 문제의 소유자가 아닌 경우
    */
   async removeCollaborator(
     createdById: number,
-    polygonId: number,
+    problemId: number,
     userId: number
   ) {
-    const problem = await this.prisma.polygonProblem.findUnique({
-      where: { id: polygonId },
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
       select: { createdById: true }
     })
-    if (!problem) throw new EntityNotExistException('PolygonProblem not found')
+    if (!problem)
+      throw new EntityNotExistException('MandeuldangProblem not found')
 
     if (problem.createdById !== createdById) {
       throw new ForbiddenAccessException('No permission to remove collaborator')
     }
 
-    const collaborator = await this.prisma.polygonCollaborator.findFirst({
+    const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
       where: {
-        problemId: polygonId,
+        problemId,
         userId,
-        status: CollaboratorStatus.Active
+        status: CollaboratorStatus.Approved
       },
       select: { id: true }
     })
     if (!collaborator) {
       throw new EntityNotExistException('Collaborator not found')
     }
-    return await this.prisma.polygonCollaborator.delete({
+    return await this.prisma.mandeuldangCollaborator.delete({
       where: { id: collaborator.id }
     })
   }

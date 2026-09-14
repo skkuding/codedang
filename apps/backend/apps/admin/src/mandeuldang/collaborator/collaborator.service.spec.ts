@@ -24,10 +24,10 @@ const exampleEditorUser = {
   email: 'editor@test.com'
 }
 
-const exampleViewerUser = {
+const exampleReviewerUser = {
   id: 4,
-  username: 'viewer',
-  email: 'viewer@test.com'
+  username: 'reviewer',
+  email: 'reviewer@test.com'
 }
 
 const examplePendingUser = {
@@ -36,12 +36,12 @@ const examplePendingUser = {
   email: 'pending@test.com'
 }
 
-const exampleViewerCollaborator = {
+const exampleReviewerCollaborator = {
   id: 1,
   problemId: 10,
-  userId: exampleViewerUser.id,
+  userId: exampleReviewerUser.id,
   role: CollaboratorRole.Reviewer,
-  status: CollaboratorStatus.Active
+  status: CollaboratorStatus.Approved
 }
 
 const exampleEditorCollaborator = {
@@ -49,7 +49,7 @@ const exampleEditorCollaborator = {
   problemId: 10,
   userId: exampleEditorUser.id,
   role: CollaboratorRole.Editor,
-  status: CollaboratorStatus.Active
+  status: CollaboratorStatus.Approved
 }
 
 const examplePendingCollaborator = {
@@ -61,7 +61,7 @@ const examplePendingCollaborator = {
 }
 
 const exampleCollaboratorList = [
-  exampleViewerCollaborator,
+  exampleReviewerCollaborator,
   exampleEditorCollaborator,
   examplePendingCollaborator
 ]
@@ -69,16 +69,16 @@ const exampleCollaboratorList = [
 const exampleProblem = {
   id: 10,
   createdById: exampleOwner.id,
-  polygonCollaborators: exampleCollaboratorList
+  mandeuldangCollaborators: exampleCollaboratorList
 }
 
 const exampleCollaboratorListByStatus = [
   {
-    role: exampleViewerCollaborator.role,
+    role: exampleReviewerCollaborator.role,
     user: {
-      id: exampleViewerUser.id,
-      username: exampleViewerUser.username,
-      email: exampleViewerUser.email
+      id: exampleReviewerUser.id,
+      username: exampleReviewerUser.username,
+      email: exampleReviewerUser.email
     }
   },
   {
@@ -95,10 +95,10 @@ const db = {
   user: {
     findUnique: stub()
   },
-  polygonProblem: {
+  problem: {
     findUnique: stub()
   },
-  polygonCollaborator: {
+  mandeuldangCollaborator: {
     findFirst: stub(),
     findMany: stub(),
     create: stub(),
@@ -112,12 +112,12 @@ describe('CollaboratorService', () => {
 
   beforeEach(async () => {
     db.user.findUnique.reset()
-    db.polygonProblem.findUnique.reset()
-    db.polygonCollaborator.findFirst.reset()
-    db.polygonCollaborator.findMany.reset()
-    db.polygonCollaborator.create.reset()
-    db.polygonCollaborator.update.reset()
-    db.polygonCollaborator.delete.reset()
+    db.problem.findUnique.reset()
+    db.mandeuldangCollaborator.findFirst.reset()
+    db.mandeuldangCollaborator.findMany.reset()
+    db.mandeuldangCollaborator.create.reset()
+    db.mandeuldangCollaborator.update.reset()
+    db.mandeuldangCollaborator.delete.reset()
     const module: TestingModule = await Test.createTestingModule({
       providers: [CollaboratorService, { provide: PrismaService, useValue: db }]
     }).compile()
@@ -132,12 +132,16 @@ describe('CollaboratorService', () => {
   describe('inviteCollaborator', () => {
     it('owner can invite collaborator', async () => {
       db.user.findUnique.resolves({ id: exampleUser.id })
-      db.polygonProblem.findUnique.resolves({
+      db.problem.findUnique.resolves({
         createdById: exampleProblem.createdById
       })
 
-      db.polygonCollaborator.findFirst.resolves(null)
-      db.polygonCollaborator.create.resolves(exampleViewerCollaborator)
+      db.mandeuldangCollaborator.findFirst.resolves(null)
+      const invitedCollaborator = {
+        ...exampleReviewerCollaborator,
+        userId: exampleUser.id
+      }
+      db.mandeuldangCollaborator.create.resolves(invitedCollaborator)
 
       const result = await service.inviteCollaborator(
         exampleOwner.id,
@@ -147,18 +151,18 @@ describe('CollaboratorService', () => {
           role: CollaboratorRole.Reviewer
         }
       )
-      expect(result).to.deep.equal(exampleViewerCollaborator)
+      expect(result).to.deep.equal(invitedCollaborator)
     })
 
-    it('Viewer cannot invite collaborator', async () => {
+    it('Reviewer cannot invite collaborator', async () => {
       db.user.findUnique.resolves({ id: exampleUser.id })
-      db.polygonProblem.findUnique.resolves({
+      db.problem.findUnique.resolves({
         createdById: exampleProblem.createdById
       })
-      db.polygonCollaborator.findFirst.resolves(exampleViewerCollaborator)
+      db.mandeuldangCollaborator.findFirst.resolves(exampleReviewerCollaborator)
 
       await expect(
-        service.inviteCollaborator(exampleViewerUser.id, exampleProblem.id, {
+        service.inviteCollaborator(exampleReviewerUser.id, exampleProblem.id, {
           userEmail: exampleUser.email,
           role: CollaboratorRole.Reviewer
         })
@@ -167,24 +171,26 @@ describe('CollaboratorService', () => {
   })
 
   describe('getCollaboratorsByStatus', () => {
-    it('return active collaborators', async () => {
-      db.polygonProblem.findUnique.resolves({
+    it('return Approved collaborators', async () => {
+      db.problem.findUnique.resolves({
         createdById: exampleProblem.createdById
       })
-      db.polygonCollaborator.findMany.resolves(exampleCollaboratorListByStatus)
+      db.mandeuldangCollaborator.findMany.resolves(
+        exampleCollaboratorListByStatus
+      )
 
       const result = await service.getCollaboratorsByStatus(
         exampleOwner.id,
         exampleProblem.id,
-        CollaboratorStatus.Active
+        CollaboratorStatus.Approved
       )
 
       expect(result).to.deep.equal([
         {
-          id: exampleViewerUser.id,
-          username: exampleViewerUser.username,
-          email: exampleViewerUser.email,
-          role: exampleViewerCollaborator.role
+          id: exampleReviewerUser.id,
+          username: exampleReviewerUser.username,
+          email: exampleReviewerUser.email,
+          role: exampleReviewerCollaborator.role
         },
         {
           id: exampleEditorUser.id,
@@ -196,10 +202,10 @@ describe('CollaboratorService', () => {
     })
 
     it('returns pending collaborators', async () => {
-      db.polygonProblem.findUnique.resolves({
+      db.problem.findUnique.resolves({
         createdById: exampleProblem.createdById
       })
-      db.polygonCollaborator.findMany.resolves([
+      db.mandeuldangCollaborator.findMany.resolves([
         {
           role: examplePendingCollaborator.role,
           user: {
@@ -228,29 +234,29 @@ describe('CollaboratorService', () => {
   })
   describe('updateCollaboratorRole', () => {
     it('owner updates collaborator role', async () => {
-      db.polygonProblem.findUnique.resolves({
+      db.problem.findUnique.resolves({
         createdById: exampleProblem.createdById
       })
-      db.polygonCollaborator.findFirst.resolves({
-        id: exampleViewerCollaborator.id,
-        status: exampleViewerCollaborator.status
+      db.mandeuldangCollaborator.findFirst.resolves({
+        id: exampleReviewerCollaborator.id,
+        status: exampleReviewerCollaborator.status
       })
       const updatedCollaborator = {
-        ...exampleViewerCollaborator,
+        ...exampleReviewerCollaborator,
         role: CollaboratorRole.Editor
       }
-      db.polygonCollaborator.update.resolves(updatedCollaborator)
+      db.mandeuldangCollaborator.update.resolves(updatedCollaborator)
 
       const result = await service.updateCollaboratorRole(
         exampleOwner.id,
         exampleProblem.id,
-        { userId: exampleViewerUser.id, role: CollaboratorRole.Editor }
+        { userId: exampleReviewerUser.id, role: CollaboratorRole.Editor }
       )
 
       expect(result).to.deep.equal(updatedCollaborator)
     })
     it('Editor cannot update collaborator role', async () => {
-      db.polygonProblem.findUnique.resolves({
+      db.problem.findUnique.resolves({
         createdById: exampleProblem.createdById
       })
 
@@ -258,7 +264,7 @@ describe('CollaboratorService', () => {
         service.updateCollaboratorRole(
           exampleEditorUser.id,
           exampleProblem.id,
-          { userId: exampleViewerUser.id, role: CollaboratorRole.Editor }
+          { userId: exampleReviewerUser.id, role: CollaboratorRole.Editor }
         )
       ).to.be.rejectedWith(ForbiddenAccessException)
     })
