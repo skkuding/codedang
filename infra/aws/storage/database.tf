@@ -11,15 +11,49 @@ resource "random_password" "postgres_password" {
 
 }
 
+resource "aws_db_parameter_group" "postgres18" {
+  name        = "codedang-postgres18"
+  family      = "postgres18"
+  description = "PostgreSQL 18 target parameters for the blue-green migration"
+
+  parameter {
+    name         = "rds.force_ssl"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_replication_slots"
+    value        = "20"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_logical_replication_workers"
+    value        = "4"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_worker_processes"
+    value        = "16"
+    apply_method = "pending-reboot"
+  }
+}
+
 resource "aws_db_instance" "postgres" {
   identifier = "terraform-20250506182211604800000001"
 
-  db_name           = "codedang_db"
-  engine            = "postgres"
-  engine_version    = "14"
-  allocated_storage     = 10
-  max_allocated_storage = 25
-  instance_class        = "db.t4g.small"
+  db_name = "codedang_db"
+  engine  = "postgres"
+  # Pinned version — check for updates quarterly: https://docs.aws.amazon.com/AmazonRDS/latest/PostgreSQLReleaseNotes/
+  engine_version             = "18.4"
+  auto_minor_version_upgrade = false
+  allocated_storage          = 30
+  max_allocated_storage      = 100
+  storage_type               = "gp3"
+  instance_class             = "db.t4g.small"
+  parameter_group_name       = aws_db_parameter_group.postgres18.name
 
   username = var.postgres_username
   password = random_password.postgres_password.result
@@ -35,7 +69,7 @@ resource "aws_db_instance" "postgres" {
 
   # Backup
   backup_retention_period = 7
-  backup_window           = "16:00-17:00"              # KST 01:00-02:00
+  backup_window           = "16:00-17:00" # KST 01:00-02:00
 
   # Monitoring
   performance_insights_enabled = true
@@ -67,6 +101,6 @@ resource "aws_secretsmanager_secret" "database" {
 resource "aws_secretsmanager_secret_version" "database" {
   secret_id = aws_secretsmanager_secret.database.id
   secret_string = jsonencode({
-    url = "postgres://${aws_db_instance.postgres.username}:${random_password.postgres_password.result}@${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/skkuding?schema=public"
+    url = local.database_url
   })
 }

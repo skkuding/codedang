@@ -1,0 +1,35 @@
+meta {
+  name: [422] Problem Only
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/course/1/qna?problemId=1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Problem only test",
+    "content": "problemId without assignmentId should fail."
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginUser(req);
+}
+
+tests {
+  test("should return 422 Unprocessable Entity", function() {
+    expect(res.getStatus()).to.equal(422);
+  });
+}
+
+docs {
+  # 📘 Create Course Question - Problem Only
+
+  `problemId`만 전달하면 422 에러가 발생합니다.
+}

@@ -1,4 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer'
+import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
@@ -60,6 +61,7 @@ describe('AuthService', () => {
         { provide: PrismaService, useValue: {} },
         { provide: ConfigService, useValue: {} },
         { provide: JwtService, useValue: {} },
+        { provide: HttpService, useValue: { axiosRef: stub() } },
         { provide: MailerService, useValue: {} },
         {
           provide: CACHE_MANAGER,

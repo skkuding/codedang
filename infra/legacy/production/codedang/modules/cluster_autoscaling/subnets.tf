@@ -4,6 +4,7 @@ data "aws_vpc" "main" {
   }
 }
 
+/* TAS-2763: Legacy ECS subnets and security groups are no longer used.
 resource "aws_subnet" "this" {
   for_each          = var.subnets
   vpc_id            = data.aws_vpc.main.id
@@ -48,3 +49,4 @@ resource "aws_security_group" "this" {
     Name = var.security_group.tags_name
   }
 }
+*/

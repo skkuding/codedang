@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy Amazon MQ-backed judge queue is no longer used.
 data "aws_vpc" "main" {
   tags = {
     Name = "Codedang-VPC"
@@ -56,3 +57,4 @@ resource "aws_secretsmanager_secret_version" "judge_queue" {
     vhost    = rabbitmq_vhost.vh.name
   })
 }
+*/

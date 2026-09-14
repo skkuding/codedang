@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy ECS scale-down resources are no longer used.
 resource "aws_cloudwatch_metric_alarm" "scale_down" {
   alarm_name        = var.scale_down.cloudwatch_metric_alarm.alarm_name
   alarm_description = var.scale_down.cloudwatch_metric_alarm.alarm_description
@@ -37,3 +38,4 @@ resource "aws_appautoscaling_policy" "scale_down" {
     }
   }
 }
+*/

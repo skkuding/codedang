@@ -1,5 +1,12 @@
 import { faker } from '@faker-js/faker'
-import { Language, Level, Role } from '@prisma/client'
+import {
+  Language,
+  Level,
+  ProblemCreationMode,
+  ProblemStatus,
+  ProblemType,
+  Role
+} from '@prisma/client'
 import type {
   Contest,
   ContestProblem,
@@ -14,6 +21,10 @@ export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: 'public problem',
     description: '',
     inputDescription: '',
@@ -45,6 +56,10 @@ export const problems: Problem[] = [
   {
     id: 2,
     createdById: 1,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: 'problem',
     description: '',
     inputDescription: '',

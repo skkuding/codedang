@@ -3,8 +3,9 @@
 import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent } from '@/components/shadcn/dialog'
 import { cn } from '@/libs/utils'
-import Shrink from '@/public/icons/texteditor-shrink.svg'
+import ShrinkIcon from '@/public/icons/texteditor-shrink.svg'
 import type { Range } from '@tiptap/core'
+import { InputRule } from '@tiptap/core'
 import Code from '@tiptap/extension-code'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import Heading from '@tiptap/extension-heading'
@@ -32,7 +33,6 @@ import 'highlight.js/styles/github-dark.css'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { common, createLowlight } from 'lowlight'
-import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CodeBlockComponent } from './tiptap/CodeBlockComponent'
 import { FileDownloadNode } from './tiptap/FileDownloadNode'
@@ -55,6 +55,8 @@ interface TextEditorProps {
   isDarkMode?: boolean
   isExpanded?: boolean
   onShrink?: (richText: string) => void
+  showToolbar?: boolean
+  showInsertNodeBar?: boolean
 }
 
 export function TextEditor({
@@ -63,7 +65,9 @@ export function TextEditor({
   defaultValue,
   isDarkMode = false,
   isExpanded = false,
-  onShrink
+  onShrink,
+  showToolbar = true,
+  showInsertNodeBar = true
 }: TextEditorProps) {
   const lowlight = createLowlight(common)
 
@@ -218,19 +222,21 @@ export function TextEditor({
         isDarkMode ? 'border-editor-line-1 border bg-transparent' : 'border'
       )}
     >
-      {editor && (
+      {showToolbar && editor && (
         <div
           className={cn(
             'flex flex-wrap items-center border-b px-1 py-2',
             isDarkMode
-              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white [&_img]:invert [&_path]:fill-white [&_svg]:text-white'
-              : 'bg-white'
+              ? 'border-editor-line-1 bg-editor-fill-1 text-white [&_button:hover]:!bg-white/10 [&_button]:text-white'
+              : 'bg-white text-black'
           )}
         >
           <TextStyleBar editor={editor} />
           <HeadingStyleBar editor={editor} />
           <ListStyleBar editor={editor} />
-          <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          {showInsertNodeBar && (
+            <InsertNodeBar ref={insertNodeRef} editor={editor} />
+          )}
 
           <div className="ml-auto flex items-center">
             <UndoRedoBar editor={editor} />
@@ -241,11 +247,7 @@ export function TextEditor({
                 className="h-9 w-9 p-1"
                 onClick={() => onShrink?.(editor?.getHTML())}
               >
-                <Image
-                  src={Shrink}
-                  alt="Shrink"
-                  className="h-[22px] w-[22px]"
-                />
+                <ShrinkIcon className="size-5" />
               </Button>
             )}
           </div>
@@ -333,7 +335,7 @@ export const MathExtension = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' }), 0]
+    return ['math-component', mergeAttributes(HTMLAttributes, { math: '' })]
   },
 
   addNodeView() {
@@ -349,11 +351,34 @@ export const MathExtension = Node.create({
         return false
       }
     }
+  },
+
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /\$([^$]+)\$\s$/,
+        handler: ({ range, match, chain }) => {
+          const content = match[1]
+
+          chain()
+            .deleteRange(range)
+            .insertContentAt(range.from, {
+              type: this.name,
+              attrs: {
+                content
+              }
+            })
+            .run()
+        }
+      })
+    ]
   }
 })
 
 function MathPreview(props: NodeViewWrapperProps) {
-  const [content, setContent] = useState(props.node.attrs.content)
+  const [content, setContent] = useState(
+    props.node.attrs.content.replace(/\$/g, '')
+  )
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 

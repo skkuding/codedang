@@ -1,8 +1,7 @@
 import { Input } from '@/components/shadcn/input'
-import invisibleIcon from '@/public/icons/invisible.svg'
-import visibleIcon from '@/public/icons/visible.svg'
+import InvisibleIcon from '@/public/icons/invisible.svg'
+import VisibleIcon from '@/public/icons/visible.svg'
 import type { SettingsFormat } from '@/types/type'
-import Image from 'next/image'
 import React from 'react'
 import type { UseFormGetValues } from 'react-hook-form'
 import { useSettingsContext } from './context'
@@ -43,13 +42,10 @@ export function ReEnterNewPwSection({
             } `}
           />
           <span
-            className="absolute right-0 top-0 flex h-full items-center p-3"
+            className="absolute right-0 top-0 flex h-full cursor-pointer items-center p-3"
             onClick={() => setConfirmPasswordShow(!confirmPasswordShow)}
           >
-            <Image
-              src={confirmPasswordShow ? visibleIcon : invisibleIcon}
-              alt={confirmPasswordShow ? 'visible' : 'invisible'}
-            />
+            {confirmPasswordShow ? <VisibleIcon /> : <InvisibleIcon />}
           </span>
         </div>
       </div>

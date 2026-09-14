@@ -7,6 +7,7 @@ resource "aws_route53_zone" "codedang" {
   name = "codedang.com"
 }
 
+/* TAS-2763: Legacy codedang.com CloudFront alias is superseded by infra/aws/dns.
 resource "aws_route53_record" "codedang" {
   name    = "codedang.com"
   type    = "A"
@@ -18,6 +19,7 @@ resource "aws_route53_record" "codedang" {
     evaluate_target_health = false
   }
 }
+*/
 
 resource "aws_acm_certificate" "codedang" {
   domain_name       = "codedang.com"

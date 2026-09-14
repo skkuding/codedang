@@ -1,6 +1,8 @@
+/* TAS-2763: Legacy Amazon MQ subnet output is no longer used.
 output "mq_subnet_id" {
   value = aws_subnet.public_mq.id
 }
+*/
 
 output "db_subnet_ids" {
   value = [

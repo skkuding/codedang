@@ -549,20 +549,27 @@ export class TestcaseService {
     // e.g) [aaa.(in|out), aab.(in|out), aac.(in|out), ...]
     const originalFileNames = Object.keys(testcaseIdMapper).sort()
 
-    originalFileNames.forEach(async (name, index) => {
+    // TODO: Refactor with chunk (for enormous testCases(over PostgreSQL parameter limit))
+    const values = originalFileNames.map((name, index) => {
       const id = testcaseIdMapper[name]
-      await this.prisma.problemTestcase.update({
-        where: {
-          id,
-          isOutdated: false
-        },
-        data: { order: index + 1 }
-      })
+
+      return Prisma.sql`(${id}, ${index + 1})`
     })
+
+    await this.prisma.$executeRaw`
+      UPDATE "problem_testcase" AS testcase
+      SET "order" = input."order"
+      FROM (
+        VALUES ${Prisma.join(values)}
+      ) AS input(id, "order")
+      WHERE testcase.id = input.id
+        AND testcase."is_outdated" = false
+    `
 
     const testcaseIds = originalFileNames.map((name) => ({
       testcaseId: testcaseIdMapper[name]
     }))
+
     return testcaseIds
   }
 
@@ -889,16 +896,16 @@ export class TestcaseService {
    * @returns 조건에 부합하는 테스트케이스들의 배열
    */
   async getProblemTestcases(problemId: number) {
-    return await this.prisma.$transaction(async (tx) => {
-      const problem = await tx.problem.findUnique({
-        where: { id: problemId },
-        select: { isHiddenUploadedByZip: true, isSampleUploadedByZip: true }
-      })
-      if (!problem) {
-        throw new EntityNotExistException('Problem')
-      }
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId },
+      select: { isHiddenUploadedByZip: true, isSampleUploadedByZip: true }
+    })
+    if (!problem) {
+      throw new EntityNotExistException('Problem')
+    }
 
-      const hiddenTestcases = await tx.problemTestcase.findMany({
+    const [hiddenTestcases, sampleTestcases] = await Promise.all([
+      this.prisma.problemTestcase.findMany({
         where: {
           problemId,
           isOutdated: false,
@@ -917,9 +924,8 @@ export class TestcaseService {
         orderBy: {
           order: 'asc'
         }
-      })
-
-      const sampleTestcases = await tx.problemTestcase.findMany({
+      }),
+      this.prisma.problemTestcase.findMany({
         where: {
           problemId,
           isOutdated: false,
@@ -939,8 +945,8 @@ export class TestcaseService {
           order: 'asc'
         }
       })
+    ])
 
-      return sampleTestcases.concat(hiddenTestcases)
-    })
+    return sampleTestcases.concat(hiddenTestcases)
   }
 }

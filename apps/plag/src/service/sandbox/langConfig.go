@@ -3,23 +3,33 @@ package sandbox
 type Language string
 
 func (l Language) GetLangExt() string {
-  switch l {
-    case C: return "c"
-    case CPP: return "cpp"
-    case JAVA: return "java"
-    case PYPY, PYTHON: return "py"
-    default: return ""
-  }
+	switch l {
+	case C:
+		return "c"
+	case CPP:
+		return "cpp"
+	case JAVA:
+		return "java"
+	case PYPY, PYTHON:
+		return "py"
+	default:
+		return ""
+	}
 }
 
 func (l Language) GetLangArg() string {
-  switch l {
-    case C: return "c"
-    case CPP: return "cpp"
-    case JAVA: return "java"
-    case PYPY, PYTHON: return "python3"
-    default: return ""
-  }
+	switch l {
+	case C:
+		return "c"
+	case CPP:
+		return "cpp"
+	case JAVA:
+		return "java"
+	case PYPY, PYTHON:
+		return "python3"
+	default:
+		return ""
+	}
 }
 
 func (l Language) IsValid() bool {

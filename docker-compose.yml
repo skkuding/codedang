@@ -63,6 +63,7 @@ services:
     image: redis:7-alpine
     ports:
       - 6380:6379
+    command: redis-server --requirepass ${REDIS_PASSWORD}
 
   rabbitmq:
     container_name: codedang-rabbitmq

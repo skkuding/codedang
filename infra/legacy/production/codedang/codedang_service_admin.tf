@@ -24,6 +24,7 @@ resource "aws_ecr_lifecycle_policy" "admin_api_repository_policy" {
     EOF
 }
 
+# TAS-2763: Legacy admin API ALB resources are commented in the module implementation.
 module "admin_api_loadbalancer" {
   source = "./modules/loadbalancing"
 
@@ -46,6 +47,7 @@ module "admin_api_loadbalancer" {
   }
 }
 
+# TAS-2763: Legacy ECS admin API resources are commented in the module implementation.
 module "admin_api" {
   source = "./modules/service_autoscaling"
 

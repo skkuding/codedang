@@ -1,9 +1,8 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import invisibleIcon from '@/public/icons/invisible.svg'
-import visibleIcon from '@/public/icons/visible.svg'
-import Image from 'next/image'
+import InvisibleIcon from '@/public/icons/invisible.svg'
+import VisibleIcon from '@/public/icons/visible.svg'
 import React from 'react'
 import { FaCheck } from 'react-icons/fa6'
 import { useSettingsContext } from './context'
@@ -47,13 +46,10 @@ export function CurrentPwSection({
             )}
           />
           <span
-            className="absolute right-0 top-0 flex h-full items-center p-3"
+            className="absolute right-0 top-0 flex h-full cursor-pointer items-center p-3"
             onClick={() => setPasswordShow(!passwordShow)}
           >
-            <Image
-              src={passwordShow ? visibleIcon : invisibleIcon}
-              alt={passwordShow ? 'visible' : 'invisible'}
-            />
+            {passwordShow ? <VisibleIcon /> : <InvisibleIcon />}
           </span>
         </div>
         <Button

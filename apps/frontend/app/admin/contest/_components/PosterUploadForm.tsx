@@ -3,7 +3,7 @@
 import { CautionDialog } from '@/app/admin/_components/CautionDialog'
 import { UPLOAD_IMAGE } from '@/graphql/problem/mutations'
 import { cn } from '@/libs/utils'
-import imageUpload from '@/public/icons/image-upload.svg'
+import ImageUploadIcon from '@/public/icons/image-upload.svg'
 import { useMutation } from '@apollo/client'
 import Image from 'next/image'
 import React, { useCallback, useRef, useState } from 'react'
@@ -95,16 +95,21 @@ export function PosterUploadForm({
           <div className="text-center text-[11px] font-normal">Loading...</div>
         ) : (
           <div className="flex shrink-0 rounded-xl">
-            <Image
-              src={field.value || imageUpload}
-              alt="Contest Poster"
-              width={234}
-              height={312}
-              className={cn(
-                'object-contain',
-                field.value ? 'h-[312px] w-[234px]' : 'h-full w-full'
-              )}
-            />
+            {field.value ? (
+              <Image
+                src={field.value}
+                alt="Contest Poster"
+                width={234}
+                height={312}
+                className="h-[312px] w-[234px] object-contain"
+              />
+            ) : (
+              <ImageUploadIcon
+                width={234}
+                height={312}
+                className="h-full w-full object-contain"
+              />
+            )}
           </div>
         )}
         {!field.value && !isLoading && (

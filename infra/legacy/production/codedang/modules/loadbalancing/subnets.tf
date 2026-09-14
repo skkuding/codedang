@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy ALB security group is no longer used.
 resource "aws_security_group" "this" {
   name        = var.security_group.name
   description = "Allow WEB inbound traffic"
@@ -31,3 +32,4 @@ resource "aws_security_group" "this" {
     Name = var.security_group.name
   }
 }
+*/

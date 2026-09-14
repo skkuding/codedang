@@ -1,6 +1,10 @@
 # cert-manager Helm chart values
 # https://artifacthub.io/packages/helm/cert-manager/cert-manager
 
+# enable gateway api for ingress to gateway migration
+config:
+  enableGatewayAPI: true
+
 # Install CRDs with Helm
 crds:
   enabled: true

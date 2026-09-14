@@ -8,9 +8,14 @@ import (
 
 	"github.com/joho/godotenv"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/connector"
 	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
+	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
+	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
+	"github.com/skkuding/codedang/apps/iris/src/handler/run"
+	"github.com/skkuding/codedang/apps/iris/src/handler/validate"
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
@@ -19,6 +24,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
+
+	_ "net/http/pprof"
 )
 
 type Env string
@@ -49,13 +56,21 @@ func main() {
 	ctx := context.Background()
 	if env == "stage" {
 		logProvider.Log(logger.INFO, "Running in stage mode")
-		http.HandleFunc("/health", healthCheckHandler)
+		healthMux := http.NewServeMux()
+		healthMux.HandleFunc("/health", healthCheckHandler)
 		go func() {
-			if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
+			if err := http.ListenAndServe("0.0.0.0:3404", healthMux); err != nil {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
 	}
+
+	go func() {
+		logProvider.Log(logger.INFO, "Intializing pprof listening on :6060")
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start pprof: %v", err))
+		}
+	}()
 
 	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
 	if !disableInstrumentation {
@@ -78,32 +93,47 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create S3 data source: %v", err))
 		return
 	}
-	database, err := loader.NewPostgresDataSource(ctx)
+	database, err := loader.NewPostgresDataSource(logProvider)
 	if err != nil {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(s3reader, database)
+	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
 
-	fileManager := file.NewFileManager("/app/sandbox/results")
+	fileManager := file.NewFileManager(constants.RESULT_PATH)
 
 	sandbox := judger.NewJudgerSandboxImpl(fileManager, logProvider)
 
-	judgeHandler := handler.NewJudgeHandler(
+	taskRunner := handler.NewTaskRunner(
 		sandbox,
-		testcaseManager,
 		fileManager,
 		logProvider,
 		defaultTracer,
 	)
 
-	routeProvider := router.NewRouter(judgeHandler, logProvider, defaultTracer)
+	judgeTaskFactory := judge.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
+
+	runTaskFactory := run.NewFactory(testcaseManager, sandbox, logProvider, defaultTracer)
+
+	generateTaskFactory := generate.NewFactory(testcaseManager, sandbox, logProvider)
+
+	validateTaskFactory := validate.NewFactory(testcaseManager, sandbox, logProvider)
+
+	routeProvider := router.NewRouter(
+		taskRunner,
+		judgeTaskFactory,
+		runTaskFactory,
+		generateTaskFactory,
+		validateTaskFactory,
+		logProvider,
+		defaultTracer,
+	)
 
 	logProvider.Log(logger.INFO, "Server Started")
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
 	var uri string
-	if utils.Getenv("RABBITMQ_SSL", "") != "" {
+	if utils.Getenv("RABBITMQ_SSL", "") == "true" {
 		uri = "amqps://"
 	} else {
 		uri = "amqp://"
@@ -120,15 +150,16 @@ func main() {
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_CONSUMER_CONNECTION_NAME", logProvider),
-			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_QUEUE_NAME", logProvider),
-			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_TAG", logProvider),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_PRODUCER_CONNECTION_NAME", logProvider),
-			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_EXCHANGE_NAME", logProvider),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
+			MandeuldangKey: utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_KEY", logProvider),
 		},
 	).Connect(context.Background())
 

@@ -7,6 +7,7 @@ import (
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -20,13 +21,14 @@ type Producer interface {
 }
 
 type producer struct {
-	connection   *amqp.Connection
-	channel      *amqp.Channel
-	exchangeName string
-	routingKey   string
-	Done         chan error
-	publishes    chan uint64
-	logger       logger.Logger
+	connection     *amqp.Connection
+	channel        *amqp.Channel
+	exchangeName   string
+	routingKey     string
+	mandeuldangKey string
+	Done           chan error
+	publishes      chan uint64
+	logger         logger.Logger
 }
 
 type ProducerConfig struct {
@@ -34,26 +36,30 @@ type ProducerConfig struct {
 	ConnectionName string
 	ExchangeName   string
 	RoutingKey     string
+	MandeuldangKey string
 }
 
 func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig := amqp.Config{Properties: amqp.NewConnectionProperties()}
-	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
+	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	if err != nil {
+		return nil, fmt.Errorf("producer: TLS config failed: %w", err)
+	}
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
 	if err != nil {
-		return nil, fmt.Errorf("consumer: dial failed: %w", err)
+		return nil, fmt.Errorf("producer: dial failed: %w", err)
 	}
 
 	return &producer{
-		connection:   connection,
-		channel:      nil,
-		exchangeName: config.ExchangeName,
-		routingKey:   config.RoutingKey,
-		Done:         make(chan error),
-		publishes:    make(chan uint64, 8),
-		logger:       logger,
+		connection:     connection,
+		channel:        nil,
+		exchangeName:   config.ExchangeName,
+		routingKey:     config.RoutingKey,
+		mandeuldangKey: config.MandeuldangKey,
+		Done:           make(chan error),
+		publishes:      make(chan uint64, 8),
+		logger:         logger,
 	}, nil
 }
 
@@ -114,6 +120,12 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	)
 	defer childSpan.End()
 
+	routingKey := p.routingKey
+	switch constants.MessageType(messageType) {
+	case constants.Generate, constants.Validate, constants.Check:
+		routingKey = p.mandeuldangKey
+	}
+
 	seqNo := p.channel.GetNextPublishSeqNo()
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
 	p.logger.Log(logger.INFO, string(result))
@@ -126,7 +138,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	// https://www.rabbitmq.com/publishers.html
 	if err := p.channel.PublishWithContext(spanCtx,
 		p.exchangeName, // publish to an exchange
-		p.routingKey,   // routing to 0 or more queues
+		routingKey,     // routing to 0 or more queues
 		false,          // mandatory
 		false,          // immediate
 		amqp.Publishing{

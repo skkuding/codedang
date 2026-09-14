@@ -1,4 +1,4 @@
-
+# TAS-2763: Legacy ECS Iris resources are commented in the module implementation.
 module "codedang_iris" {
   source = "./modules/cluster_autoscaling"
 

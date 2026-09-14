@@ -84,7 +84,7 @@ export function ImportProblemTable({
         <div className="flex gap-[8px]">
           <DataTableSearchBar
             columndId="title"
-            size="sm"
+            sizeVariant="sm"
             className="w-[322px]!"
           />
           <DataTableLangFilter />

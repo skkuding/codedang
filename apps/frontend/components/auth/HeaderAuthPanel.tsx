@@ -15,16 +15,14 @@ import {
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
+import PersonFillIcon from '@/public/icons/person-fill.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
 import { ContestRole, type UserContest } from '@generated/graphql'
 import { ChevronDown } from 'lucide-react'
-import type { Route } from 'next'
 import type { Session } from 'next-auth'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { BiSolidUser } from 'react-icons/bi'
 import { AccountItems } from './AccountItems'
 import { AuthModal } from './AuthModal'
 import { UpdateInformation } from './UpdateInformation'
@@ -134,7 +132,7 @@ export function HeaderAuthPanel({
                 isEditor ? 'border-0 ring-offset-0' : 'bg-primary text-white'
               )}
             >
-              <BiSolidUser
+              <PersonFillIcon
                 className={cn(
                   'h-4 w-4',
                   isEditor ? 'size-6 rounded-none text-gray-300' : 'text-white'
@@ -179,47 +177,49 @@ export function HeaderAuthPanel({
           </Dialog>
         </>
       ) : (
-        <>
-          <Dialog open={currentModal !== ''} onOpenChange={hideModal}>
-            <DialogTrigger asChild>
-              <Button
-                onClick={() => showSignIn()}
-                variant={'outline'}
-                className={cn(
-                  'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
-                  isEditor &&
-                    'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
-                )}
-              >
-                Log In
-              </Button>
-            </DialogTrigger>
-            <DialogContent
-              onOpenAutoFocus={(e) => {
-                e.preventDefault()
-              }}
-              onInteractOutside={(e) => {
-                e.preventDefault()
-              }}
-              className="!h-[620px] !w-[380px] rounded-[10px]"
-            >
-              <DialogHeader className="hidden">
-                <DialogTitle />
-              </DialogHeader>
-              <AuthModal />
-            </DialogContent>
-          </Dialog>
-          <Link href={'/signup' as Route}>
+        <Dialog
+          open={currentModal !== ''}
+          onOpenChange={(open) => !open && hideModal()}
+        >
+          <DialogTrigger asChild>
             <Button
+              onClick={() => showSignIn()}
+              variant={'outline'}
               className={cn(
-                'px-5 py-1 text-sm font-semibold',
+                'border-primary text-primary mr-3 hidden bg-transparent px-5 py-1 text-sm font-semibold hover:bg-[#EAF3FF] active:bg-[#D7E5FE] lg:block',
+                isEditor &&
+                  'h-8 border-none bg-[#EAF3FF] text-[11px] hover:bg-[#D7E5FE]'
+              )}
+            >
+              Log In
+            </Button>
+          </DialogTrigger>
+          <DialogContent
+            onOpenAutoFocus={(e) => {
+              e.preventDefault()
+            }}
+            onInteractOutside={(e) => {
+              e.preventDefault()
+            }}
+            className="!h-[620px] !w-[380px] rounded-[10px]"
+          >
+            <DialogHeader className="hidden">
+              <DialogTitle />
+            </DialogHeader>
+            <AuthModal />
+          </DialogContent>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => showSignUp()}
+              className={cn(
+                'hidden px-5 py-1 text-sm font-semibold lg:block',
                 isEditor && 'h-8 text-[11px]'
               )}
             >
               Sign Up
             </Button>
-          </Link>
-        </>
+          </DialogTrigger>
+        </Dialog>
       )}
     </div>
   )

@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - cluster-issuer-dns01.yaml
   - cluster-issuer-http01.yaml
-
+  - traefik-config.yaml
+  - gateway.yaml
+  - TLSRedirect.yaml
 commonAnnotations:
   managed-by: kustomize

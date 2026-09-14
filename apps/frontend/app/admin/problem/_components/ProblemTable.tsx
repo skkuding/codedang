@@ -65,7 +65,7 @@ export function ProblemTable() {
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <div className="flex flex-wrap gap-4">
-        <DataTableSearchBar columndId="title" />
+        <DataTableSearchBar columndId="title" sizeVariant="sm" />
         <DataTableLangFilter />
         <DataTableLevelFilter />
         <div className="ml-auto flex gap-2">

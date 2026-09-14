@@ -1,0 +1,12 @@
+# Stage-specific Redis values
+# Longhorn distributed storage to remove node dependency
+# Allows Redis pod to be scheduled on any node in the cluster
+storageSpec:
+  volumeClaimTemplate:
+    spec:
+      storageClassName: longhorn
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi

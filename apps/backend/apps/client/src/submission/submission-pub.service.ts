@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import type { Submission, TestSubmission } from '@prisma/client'
 import { Span } from 'nestjs-otel'
 import { JudgeAMQPService } from '@libs/amqp'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { Snippet } from './class/create-submission.dto'
 import { JudgeRequest, UserTestcaseJudgeRequest } from './class/judge-request'
@@ -22,7 +25,7 @@ export class SubmissionPublicationService {
    * 2. `isUserTest` 플래그에 따라 다음 중 하나의 채점 요청 객체를 생성
    *    - 사용자 테스트인 경우: `UserTestcaseJudgeRequest` 객체를 생성하며, 사용자 정의 테스트케이스를 포함
    *    - 아닌 경우: 일반 채점 요청인 `JudgeRequest` 객체를 생성
-   * 3. AMQP 프로토콜을 사용하여 지정된 EXCHANGE와 라우팅 키(SUBMISSION_KEY)를 통해 채점 요청 메시지를 발행
+   * 3. AMQP 프로토콜을 사용하여 workload에 맞는 routing key로 채점 요청 메시지를 발행
    *
    * @param {Object} params - 채점 요청 파라미터
    * @param {Snippet[]} params.code - 제출한 코드 스니펫 배열
@@ -42,7 +45,7 @@ export class SubmissionPublicationService {
     submission,
     isTest = false,
     isUserTest = false,
-    userTestcases,
+    userTestcases = [],
     stopOnNotAccepted = false,
     judgeOnlyHiddenTestcases = false,
     containHiddenTestcases = false
@@ -69,18 +72,29 @@ export class SubmissionPublicationService {
       throw new EntityNotExistException('Problem')
     }
 
+    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable) —
+    // 채점 요청을 만들려면 이 값이 반드시 있어야 하므로 여기서 명확히 막는다.
+    // 원래는 발행 검증(publish validation)에서 걸러졌어야 할 상태다.
+    const { timeLimit, memoryLimit } = problem
+    if (timeLimit == null || memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be judged'
+      )
+    }
+    const judgeableProblem = { ...problem, timeLimit, memoryLimit }
+
     const judgeRequest = isUserTest
       ? new UserTestcaseJudgeRequest(
           code,
           submission.language,
-          problem,
-          userTestcases!,
+          judgeableProblem,
+          userTestcases,
           stopOnNotAccepted
         )
       : new JudgeRequest(
           code,
           submission.language,
-          problem,
+          judgeableProblem,
           stopOnNotAccepted,
           judgeOnlyHiddenTestcases,
           containHiddenTestcases

@@ -1,8 +1,7 @@
 'use client'
 
-import asteriskGray from '@/public/icons/asterisk-gray.svg'
+import AsteriskGrayIcon from '@/public/icons/asterisk-gray.svg'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import Image from 'next/image'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa6'
@@ -279,13 +278,7 @@ export function SignUpPage() {
               </div>
 
               <div className="flex items-center gap-1">
-                <Image
-                  src={asteriskGray}
-                  alt=""
-                  width={12}
-                  height={12}
-                  className="shrink-0"
-                />
+                <AsteriskGrayIcon width={12} height={12} className="shrink-0" />
                 <p className="text-caption3_r_13 text-[#909799]">
                   닉네임 미입력시, 코드당이 자동으로 닉네임을 추천해드려요!
                 </p>

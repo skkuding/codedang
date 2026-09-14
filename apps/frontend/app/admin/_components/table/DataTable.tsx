@@ -59,9 +59,9 @@ interface DataTableProps<TData extends { id: number }, TRoute extends string> {
  */
 
 const headerStyleMap = {
-  sm: 'h-[30px]! text-sm font-medium',
+  sm: 'h-[30px]! text-body2_m_14',
   md: 'h-[39px]! text-sm font-normal',
-  lg: 'h-[40px]! text-base font-medium'
+  lg: 'h-[40px]! text-body1_m_16'
 }
 
 const bodyStyleMap = {

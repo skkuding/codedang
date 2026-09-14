@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq'
+import { ConfigService } from '@nestjs/config'
+import {
+  AmqpConnection,
+  Nack,
+  type SubscriberHandler
+} from '@golevelup/nestjs-rabbitmq'
 import { Span, TraceService } from 'nestjs-otel'
 import {
   CONSUME_CHANNEL,
@@ -18,8 +23,20 @@ import {
   MESSAGE_PRIORITY_HIGH,
   MESSAGE_PRIORITY_MIDDLE,
   MESSAGE_PRIORITY_LOW,
-  SUBMISSION_KEY
+  SUBMISSION_MESSAGE_TYPE,
+  RUN_SUBMISSION_MESSAGE_TYPE,
+  MANDEULDANG_EXCHANGE,
+  MANDEULDANG_REQUEST_KEY,
+  MANDEULDANG_RESULT_KEY,
+  MANDEULDANG_RESULT_QUEUE,
+  MANDEULDANG_GENERATOR_MESSAGE_TYPE,
+  MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
+  DEFAULT_SUBMISSION_KEY
 } from '@libs/constants'
+import type {
+  GeneratorRequest,
+  ValidatorRequest
+} from '@admin/mandeuldang/model/mandeuldang-tool-request.interface'
 
 @Injectable()
 export class JudgeAMQPService {
@@ -27,36 +44,41 @@ export class JudgeAMQPService {
 
   constructor(
     private readonly amqpConnection: AmqpConnection,
-    private readonly traceService: TraceService
+    private readonly traceService: TraceService,
+    private readonly configService: ConfigService
   ) {}
 
   startSubscription() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, raw: any) => {
-        try {
-          // 메시지 타입에 따라 적절한 핸들러로 라우팅
-          if (
-            raw.properties.type === RUN_MESSAGE_TYPE ||
-            raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-          ) {
-            if (this.messageHandlers?.onRunMessage) {
-              await this.messageHandlers.onRunMessage(
-                msg,
-                raw.properties.type === USER_TESTCASE_MESSAGE_TYPE
-              )
-            }
-            return
-          }
+    const handleJudgeMessage: SubscriberHandler<object> = async (msg, raw) => {
+      if (!msg || !raw) {
+        this.logger.error('Received empty judge message')
+        return new Nack(false)
+      }
 
-          if (this.messageHandlers?.onJudgeMessage) {
-            await this.messageHandlers.onJudgeMessage(msg)
-          }
-        } catch (error) {
-          this.logger.error(error, 'Unexpected error in message handler')
-          return new Nack()
+      try {
+        // 메시지 타입에 따라 적절한 핸들러로 라우팅
+        const type = raw.properties?.type
+        const handlerMap = this.getMessageHandlerMap()
+
+        const handler = handlerMap[type]
+
+        if (!handler) {
+          this.logger.error(
+            `Unknown MessageType found: ${raw.properties?.type}`
+          )
+          return new Nack(false)
         }
-      },
+
+        await handler(msg)
+        return
+      } catch (error) {
+        this.logger.error(error, 'Unexpected error in message handler')
+        return new Nack()
+      }
+    }
+
+    this.amqpConnection.createSubscriber<object>(
+      handleJudgeMessage,
       {
         exchange: EXCHANGE,
         routingKey: RESULT_KEY,
@@ -85,12 +107,17 @@ export class JudgeAMQPService {
     )
     span.setAttributes({ submissionId })
 
-    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: String(submissionId),
-      persistent: true,
-      type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge)
-    })
+    await this.amqpConnection.publish(
+      EXCHANGE,
+      this.calculateRoutingKey(isTest, isUserTest, isRejudge),
+      judgeRequest,
+      {
+        messageId: String(submissionId),
+        persistent: true,
+        type: this.calculateMessageType(isTest, isUserTest),
+        priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge)
+      }
+    )
     span.end()
   }
 
@@ -101,6 +128,29 @@ export class JudgeAMQPService {
     if (isTest) return RUN_MESSAGE_TYPE
     if (isUserTest) return USER_TESTCASE_MESSAGE_TYPE
     return JUDGE_MESSAGE_TYPE
+  }
+
+  /**
+   * 채점 workload에 맞는 request queue routing key를 선택합니다.
+   * 새 workload key가 없는 기존 배포에서는 모든 요청을 submission routing
+   * key로 보내 단일 queue 동작을 유지합니다.
+   */
+  private calculateRoutingKey(
+    isTest: boolean,
+    isUserTest: boolean,
+    isRejudge: boolean
+  ) {
+    if (isRejudge) return this.getRoutingKey('REJUDGE_KEY')
+    if (isTest || isUserTest) return this.getRoutingKey('TEST_KEY')
+    return this.getRoutingKey('SUBMISSION_KEY')
+  }
+
+  private getRoutingKey(key: 'SUBMISSION_KEY' | 'TEST_KEY' | 'REJUDGE_KEY') {
+    return (
+      this.configService.get<string>(key) ??
+      this.configService.get<string>('JUDGE_SUBMISSION_ROUTING_KEY') ??
+      DEFAULT_SUBMISSION_KEY
+    )
   }
 
   /**
@@ -134,14 +184,38 @@ export class JudgeAMQPService {
    */
   setMessageHandlers(handlers: {
     onRunMessage?: (msg: object, isUserTest: boolean) => Promise<void>
+    onRunSubmissionMessage?: (msg: object) => Promise<void>
     onJudgeMessage?: (msg: object) => Promise<void>
+    onSubmissionMessage?: (msg: object) => Promise<void>
   }) {
     this.messageHandlers = handlers
   }
 
   private messageHandlers?: {
     onRunMessage?: (msg: object, isUserTest: boolean) => Promise<void>
+    onRunSubmissionMessage?: (msg: object) => Promise<void>
     onJudgeMessage?: (msg: object) => Promise<void>
+    onSubmissionMessage?: (msg: object) => Promise<void>
+  }
+
+  private getMessageHandlerMap(): Record<
+    string,
+    ((msg: object) => Promise<void>) | undefined
+  > {
+    const onRunMessage = this.messageHandlers?.onRunMessage
+
+    return {
+      [RUN_MESSAGE_TYPE]: onRunMessage
+        ? (msg: object) => onRunMessage(msg, false)
+        : undefined,
+      [USER_TESTCASE_MESSAGE_TYPE]: onRunMessage
+        ? (msg: object) => onRunMessage(msg, true)
+        : undefined,
+      [RUN_SUBMISSION_MESSAGE_TYPE]:
+        this.messageHandlers?.onRunSubmissionMessage,
+      [JUDGE_MESSAGE_TYPE]: this.messageHandlers?.onJudgeMessage,
+      [SUBMISSION_MESSAGE_TYPE]: this.messageHandlers?.onSubmissionMessage
+    }
   }
 }
 
@@ -155,18 +229,24 @@ export class CheckAMQPService {
   ) {}
 
   startSubscription() {
-    this.amqpConnection.createSubscriber(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (msg: object, _: any) => {
-        try {
-          if (this.messageHandlers?.onCheckMessage) {
-            await this.messageHandlers?.onCheckMessage(msg)
-          }
-        } catch (error) {
-          this.logger.error(error, 'Unexpected error in handling check message')
-          return new Nack()
+    const handleCheckMessage: SubscriberHandler<object> = async (msg) => {
+      if (!msg) {
+        this.logger.error('Received empty check message')
+        return new Nack(false)
+      }
+
+      try {
+        if (this.messageHandlers?.onCheckMessage) {
+          await this.messageHandlers.onCheckMessage(msg)
         }
-      },
+      } catch (error) {
+        this.logger.error(error, 'Unexpected error in handling check message')
+        return new Nack()
+      }
+    }
+
+    this.amqpConnection.createSubscriber<object>(
+      handleCheckMessage,
       {
         exchange: CHECK_EXCHANGE,
         routingKey: CHECK_RESULT_KEY,
@@ -210,5 +290,125 @@ export class CheckAMQPService {
 
   private messageHandlers?: {
     onCheckMessage?: (msg: object) => Promise<void>
+  }
+}
+
+@Injectable()
+export class MandeuldangAMQPService {
+  private readonly logger = new Logger(MandeuldangAMQPService.name)
+
+  constructor(
+    private readonly amqpConnection: AmqpConnection,
+    private readonly traceService: TraceService
+  ) {}
+
+  //1. 큐 구독
+  startSubscription() {
+    const handleMandeuldangMessage: SubscriberHandler<object> = async (
+      msg,
+      raw
+    ) => {
+      if (!msg || !raw) {
+        this.logger.error('Received empty mandeuldang message')
+        return new Nack(false)
+      }
+
+      try {
+        // 메시지 타입에 따라 적절한 핸들러로 라우팅
+        const type = raw.properties?.type
+        const handlerMap = this.getMessageHandlerMap()
+
+        const handler = handlerMap[type]
+
+        if (!handler) {
+          this.logger.error(
+            `Unknown MessageType found: ${raw.properties?.type}`
+          )
+          return new Nack(false)
+        }
+
+        await handler(msg)
+        return
+      } catch (error) {
+        this.logger.error(
+          error,
+          'Unexpected error in handling mandeuldang result message'
+        )
+        return new Nack()
+      }
+    }
+
+    this.amqpConnection.createSubscriber<object>(
+      handleMandeuldangMessage,
+      {
+        exchange: MANDEULDANG_EXCHANGE,
+        routingKey: MANDEULDANG_RESULT_KEY,
+        queue: MANDEULDANG_RESULT_QUEUE
+      },
+      ORIGIN_HANDLER_NAME
+    )
+  }
+
+  /**
+   * Generator 실행 요청을 Iris로 publish합니다.
+   */
+  @Span()
+  async publishGeneratorMessage(request: GeneratorRequest): Promise<void> {
+    const span = this.traceService.startSpan('publishGeneratorMessage.publish')
+    await this.amqpConnection.publish(
+      MANDEULDANG_EXCHANGE,
+      MANDEULDANG_REQUEST_KEY,
+      request,
+      {
+        messageId: String(request.requestId),
+        persistent: true,
+        type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
+      }
+    )
+    span.end()
+  }
+
+  /**
+   * Validator 실행 요청을 Iris로 publish합니다.
+   */
+  @Span()
+  async publishValidatorMessage(request: ValidatorRequest): Promise<void> {
+    const span = this.traceService.startSpan('publishValidatorMessage.publish')
+    await this.amqpConnection.publish(
+      MANDEULDANG_EXCHANGE,
+      MANDEULDANG_REQUEST_KEY,
+      request,
+      {
+        messageId: String(request.requestId),
+        persistent: true,
+        type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE
+      }
+    )
+    span.end()
+  }
+
+  //handler 설정
+  setMessageHandlers(handlers: {
+    onGenerateResult?: (msg: object) => Promise<void>
+    onValidateResult?: (msg: object) => Promise<void>
+  }) {
+    this.messageHandlers = handlers
+  }
+
+  private messageHandlers?: {
+    onGenerateResult?: (msg: object) => Promise<void>
+    onValidateResult?: (msg: object) => Promise<void>
+  }
+
+  private getMessageHandlerMap(): Record<
+    string,
+    ((msg: object) => Promise<void>) | undefined
+  > {
+    return {
+      [MANDEULDANG_GENERATOR_MESSAGE_TYPE]:
+        this.messageHandlers?.onGenerateResult,
+      [MANDEULDANG_VALIDATOR_MESSAGE_TYPE]:
+        this.messageHandlers?.onValidateResult
+    }
   }
 }

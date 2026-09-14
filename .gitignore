@@ -144,3 +144,13 @@ coverage
 *.pkg
 
 .idea
+.codex
+.claude/settings.local.json
+
+# agent
+.agents/*
+.codex
+.claude/*
+.claude/settings.local.json
+**/CLAUDE**
+CLAUDE.*

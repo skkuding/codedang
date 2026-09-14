@@ -7,10 +7,9 @@ import {
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn, convertToLetter } from '@/libs/utils'
-import checkIcon from '@/public/icons/check-green.svg'
+import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import type { ProblemDetail } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaSortDown } from 'react-icons/fa'
@@ -68,7 +67,7 @@ export function AssignmentProblemDropdown({
               {`${convertToLetter(p.order)}. ${p.title}`}
               {p.submissionTime && (
                 <div className="flex items-center justify-center pl-2">
-                  <Image src={checkIcon} alt="check" width={16} height={16} />
+                  <CheckCircleIcon className="text-color-green-50 h-4 w-4" />
                 </div>
               )}
             </DropdownMenuItem>

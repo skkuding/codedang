@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:22-bullseye
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:22-trixie
 
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results /app/sandbox/logs/run /app/sandbox/logs/compile
@@ -6,6 +6,8 @@ RUN chmod -R 777 /app/sandbox
 
 RUN curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.4/libjudger-$(dpkg --print-architecture).so" -o "/app/sandbox/libjudger.so"
 RUN chmod 750 /app/sandbox/libjudger.so
+
+COPY ./apps/iris/lib/testlib.h /usr/include/testlib.h
 
 # Install dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \

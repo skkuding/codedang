@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Ansible로 전환 시 참고할 PR
+# https://github.com/skkuding/codedang/pull/3553
+
 #############################################
 # Codedang Cluster Bootstrap Script
 #
@@ -8,8 +11,9 @@ set -euo pipefail
 # 1. Checks/installs required tools (via install-tools.sh)
 # 2. Installs sealed-secrets controller
 # 3. Restores sealed-secrets encryption keys from AWS Secrets Manager
-# 4. Installs ArgoCD
-# 5. Configures ArgoCD to self-manage and deploy all infrastructure
+# 4. Installs cert-manager and trust-manager
+# 5. Installs ArgoCD
+# 6. Configures ArgoCD to self-manage and deploy all infrastructure
 #
 # Prerequisites:
 # - Kubernetes cluster running and accessible
@@ -26,10 +30,13 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
+# Get current directory (where script is located)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CLUSTER_CONTEXT="${CLUSTER_CONTEXT:-}"
 ENVIRONMENT="${ENVIRONMENT:-production}"  # production or stage
 SEALED_SECRETS_SECRET_NAME="Codedang-Sealed-Secrets-${ENVIRONMENT^}"  # Capitalize first letter
 AUTO_INSTALL_TOOLS="${AUTO_INSTALL_TOOLS:-true}"  # Set to false to skip auto-installation
+SKIP_ARGOCD="${SKIP_ARGOCD:-false}"  # Set to true for stage clusters managed by production ArgoCD
 
 echo "========================================="
 echo "Codedang Cluster Bootstrap"
@@ -39,13 +46,18 @@ echo "Sealed Secrets Secret: ${SEALED_SECRETS_SECRET_NAME}"
 if [ -n "${CLUSTER_CONTEXT}" ]; then
   echo "Cluster Context: ${CLUSTER_CONTEXT}"
 fi
+if [ "${SKIP_ARGOCD}" = "true" ]; then
+  echo "ArgoCD: SKIPPED (managed by production ArgoCD)"
+fi
 echo "========================================="
 echo
 
-# Prepare kubectl command with optional context
+# Prepare kubectl/helm commands with optional context
 KUBECTL="kubectl"
+HELM="helm"
 if [ -n "${CLUSTER_CONTEXT}" ]; then
   KUBECTL="kubectl --context ${CLUSTER_CONTEXT}"
+  HELM="helm --kube-context ${CLUSTER_CONTEXT}"
 fi
 
 # Check prerequisites
@@ -61,8 +73,6 @@ if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
   echo -e "${YELLOW}⚠ Missing tools: ${MISSING_TOOLS[*]}${NC}"
 
   if [ "$AUTO_INSTALL_TOOLS" = "true" ]; then
-    # Get current directory (where script is located)
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
     echo "Running install-tools.sh..."
     "${SCRIPT_DIR}/install-tools.sh" || {
@@ -108,7 +118,7 @@ echo -e "${GREEN}✓ Helm repository added${NC}"
 
 # Install sealed-secrets controller
 echo "Installing sealed-secrets controller..."
-helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+$HELM upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
   --namespace kube-system \
   --wait \
   --timeout 5m
@@ -144,14 +154,14 @@ echo -e "${GREEN}✓ Encryption keys restored${NC}"
 
 # Restart sealed-secrets controller to load new keys
 echo "Restarting sealed-secrets controller..."
-$KUBECTL rollout restart deployment sealed-secrets-controller -n kube-system
-$KUBECTL rollout status deployment sealed-secrets-controller -n kube-system --timeout=2m
+$KUBECTL rollout restart deployment sealed-secrets -n kube-system
+$KUBECTL rollout status deployment sealed-secrets -n kube-system --timeout=2m
 echo -e "${GREEN}✓ Sealed-secrets controller restarted${NC}"
 
 # Verify sealed-secrets is working
 echo "Verifying sealed-secrets functionality..."
 kubeseal --fetch-cert \
-  --controller-name=sealed-secrets-controller \
+  --controller-name=sealed-secrets \
   --controller-namespace=kube-system \
   $([ -n "${CLUSTER_CONTEXT}" ] && echo "--kubeconfig ${HOME}/.kube/config --context ${CLUSTER_CONTEXT}") \
   >/dev/null 2>&1 || { echo -e "${RED}✗ Failed to fetch certificate${NC}"; exit 1; }
@@ -159,79 +169,177 @@ echo -e "${GREEN}✓ Sealed-secrets is working correctly${NC}"
 echo
 
 #############################################
-# Step 3: Install ArgoCD
+# Step 3: Install cert-manager and trust-manager
 #############################################
 echo "========================================="
-echo "Step 3: Installing ArgoCD"
+echo "Step 3: Installing cert-manager and trust-manager"
 echo "========================================="
 
-# Create argocd namespace
-echo "Creating argocd namespace..."
-$KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
-echo -e "${GREEN}✓ Namespace created${NC}"
+echo "Adding Jetstack Helm repository..."
+helm repo add jetstack https://charts.jetstack.io --force-update
+helm repo update
+echo -e "${GREEN}✓ Jetstack Helm repository added${NC}"
 
-# Get current directory (where script is located)
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo "Installing cert-manager..."
+$HELM upgrade --install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.18.2 \
+  --values "${SCRIPT_DIR}/k8s/cert-manager/values.yaml" \
+  --wait \
+  --timeout 10m
 
-# Apply ArgoCD self-management Application
-echo "Applying ArgoCD self-management Application..."
-$KUBECTL apply -f "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml"
-echo -e "${GREEN}✓ ArgoCD Application created${NC}"
+echo "Waiting for cert-manager CRDs and deployments..."
+$KUBECTL wait \
+  --for=condition=Established \
+  crd/certificates.cert-manager.io \
+  crd/issuers.cert-manager.io \
+  crd/clusterissuers.cert-manager.io \
+  --timeout=2m
 
-# Wait for ArgoCD to be ready
-echo "Waiting for ArgoCD to be ready..."
-echo "(This may take several minutes as ArgoCD syncs all infrastructure components)"
+$KUBECTL rollout status \
+  deployment/cert-manager \
+  --namespace cert-manager \
+  --timeout=5m
 
-# Wait for ArgoCD server deployment
-$KUBECTL wait --for=condition=available --timeout=10m \
-  deployment/argocd-server -n argocd 2>/dev/null || {
-  echo -e "${YELLOW}⚠ ArgoCD server is still syncing, continuing...${NC}"
-}
+$KUBECTL rollout status \
+  deployment/cert-manager-webhook \
+  --namespace cert-manager \
+  --timeout=5m
 
-# Wait for ArgoCD application controller
-$KUBECTL wait --for=condition=available --timeout=10m \
-  deployment/argocd-application-controller -n argocd 2>/dev/null || {
-  echo -e "${YELLOW}⚠ ArgoCD application controller is still syncing, continuing...${NC}"
-}
+$KUBECTL rollout status \
+  deployment/cert-manager-cainjector \
+  --namespace cert-manager \
+  --timeout=5m
 
-echo -e "${GREEN}✓ ArgoCD core components are ready${NC}"
+echo -e "${GREEN}✓ cert-manager installed${NC}"
+
+echo "Installing trust-manager..."
+$HELM upgrade --install trust-manager jetstack/trust-manager \
+  --namespace cert-manager \
+  --version v0.24.0 \
+  --set crds.enabled=true \
+  --set app.trust.namespace=cert-manager \
+  --wait \
+  --timeout 10m
+
+echo "Waiting for trust-manager CRD and controller..."
+$KUBECTL wait \
+  --for=condition=Established \
+  crd/bundles.trust.cert-manager.io \
+  --timeout=2m
+
+$KUBECTL rollout status \
+  deployment/trust-manager \
+  --namespace cert-manager \
+  --timeout=5m
+
+echo -e "${GREEN}✓ trust-manager installed${NC}"
 echo
 
 #############################################
-# Step 4: Verification
+# Step 4: Install ArgoCD
+#############################################
+if [ "${SKIP_ARGOCD}" = "true" ]; then
+  echo "========================================="
+  echo "Sealed-secrets, cert-manager, and trust-manager are ready."
+  echo "========================================="
+  echo "This cluster is managed by production ArgoCD."
+  echo
+else
+  echo "========================================="
+  echo "Step 4: Installing ArgoCD"
+  echo "========================================="
+
+  # Create argocd namespace
+  echo "Creating argocd namespace..."
+  $KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
+  echo -e "${GREEN}✓ Namespace created${NC}"
+
+  ARGOCD_VERSION=$(grep "targetRevision:" \
+  "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml" \
+  | head -1 | awk -F"'" '{print $2}')
+
+  # Initial ArgoCD install via Helm (creates CRDs + core components)
+  echo "Installing ArgoCD via Helm (initial bootstrap)..."
+  helm repo add argo https://argoproj.github.io/argo-helm
+  helm repo update
+  $HELM upgrade --install argocd argo/argo-cd \
+    --namespace argocd \
+    --version "${ARGOCD_VERSION}" \
+    --wait \
+    --timeout 10m
+  echo -e "${GREEN}✓ ArgoCD installed via Helm${NC}"
+
+  # Get current directory (where script is located)
+  SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+  # Apply ArgoCD self-management Application (ArgoCD now manages itself via GitOps)
+  echo "Applying ArgoCD self-management Application..."
+  $KUBECTL apply -f "${SCRIPT_DIR}/k8s/argocd/applications/argocd.yaml"
+  echo -e "${GREEN}✓ ArgoCD Application created (self-management enabled)${NC}"
+
+  # Wait for ArgoCD to be ready
+  echo "Waiting for ArgoCD to be ready..."
+  echo "(This may take several minutes as ArgoCD syncs all infrastructure components)"
+
+  # Wait for ArgoCD server deployment
+  $KUBECTL wait --for=condition=available --timeout=10m \
+    deployment/argocd-server -n argocd 2>/dev/null || {
+    echo -e "${YELLOW}⚠ ArgoCD server is still syncing, continuing...${NC}"
+  }
+
+  # Wait for ArgoCD application controller (StatefulSet)
+  $KUBECTL rollout status statefulset/argocd-application-controller -n argocd --timeout=10m 2>/dev/null || {
+    echo -e "${YELLOW}⚠ ArgoCD application controller is still syncing, continuing...${NC}"
+  }
+
+  echo -e "${GREEN}✓ ArgoCD core components are ready${NC}"
+  echo
+fi
+
+#############################################
+# Step 5: Verification
 #############################################
 echo "========================================="
-echo "Step 4: Verification"
+echo "Step 5: Verification"
 echo "========================================="
 
-# Check ArgoCD pods
-echo "ArgoCD pods status:"
-$KUBECTL get pods -n argocd
-echo
+if [ "${SKIP_ARGOCD}" != "true" ]; then
+  # Check ArgoCD pods
+  echo "ArgoCD pods status:"
+  $KUBECTL get pods -n argocd
+  echo
 
-# Get ArgoCD admin password
-echo "========================================="
-echo "ArgoCD Admin Credentials"
-echo "========================================="
-echo "URL: https://argocd.codedang.com"
-echo
-echo "The admin password is stored in sealed secrets and will be available after sync."
-echo "To retrieve the password, wait for the argocd-secret to be created, then run:"
-echo "  $KUBECTL -n argocd get secret argocd-secret -o jsonpath='{.data.admin\\.password}' | base64 -d"
-echo
+  # Get ArgoCD admin password
+  echo "========================================="
+  echo "ArgoCD Admin Credentials"
+  echo "========================================="
+  echo "URL: https://argocd.codedang.com"
+  echo
+  echo "The admin password is stored in sealed secrets and will be available after sync."
+  echo "To retrieve the password, wait for the argocd-secret to be created, then run:"
+  echo "  $KUBECTL -n argocd get secret argocd-secret -o jsonpath='{.data.admin\\.password}' | base64 -d"
+  echo
 
-# List ArgoCD applications
-echo "========================================="
-echo "ArgoCD Applications"
-echo "========================================="
-echo "Waiting for ArgoCD CRDs to be available..."
-sleep 10
+  # List ArgoCD applications
+  echo "========================================="
+  echo "ArgoCD Applications"
+  echo "========================================="
+  echo "Waiting for ArgoCD CRDs to be available..."
+  sleep 10
 
-$KUBECTL get applications -n argocd 2>/dev/null || {
-  echo -e "${YELLOW}⚠ ArgoCD Application CRD not yet available${NC}"
-  echo "ArgoCD is still syncing. Check status with:"
-  echo "  $KUBECTL get applications -n argocd"
-}
+  $KUBECTL get applications -n argocd 2>/dev/null || {
+    echo -e "${YELLOW}⚠ ArgoCD Application CRD not yet available${NC}"
+    echo "ArgoCD is still syncing. Check status with:"
+    echo "  $KUBECTL get applications -n argocd"
+  }
+  echo
+fi
+
+# Check sealed-secrets pods
+echo "Sealed-secrets pods status:"
+$KUBECTL get pods -n kube-system -l app.kubernetes.io/name=sealed-secrets
 echo
 
 #############################################
@@ -241,17 +349,22 @@ echo "========================================="
 echo "✅ Bootstrap script completed!"
 echo "========================================="
 echo
-echo "Next steps:"
-echo "1. Monitor ArgoCD sync progress:"
-echo "   $KUBECTL get applications -n argocd -w"
-echo
-echo "2. Access ArgoCD UI:"
-echo "   URL: https://argocd.codedang.com"
-echo
-echo "3. Verify all applications are synced:"
-echo "   $KUBECTL get applications -n argocd"
-echo
-echo "4. Check infrastructure components:"
-echo "   $KUBECTL get pods --all-namespaces"
+if [ "${SKIP_ARGOCD}" = "true" ]; then
+  echo "Sealed-secrets controller and keys are ready."
+  echo "This cluster will be managed by production ArgoCD."
+else
+  echo "Next steps:"
+  echo "1. Monitor ArgoCD sync progress:"
+  echo "   $KUBECTL get applications -n argocd -w"
+  echo
+  echo "2. Access ArgoCD UI:"
+  echo "   URL: https://argocd.codedang.com"
+  echo
+  echo "3. Verify all applications are synced:"
+  echo "   $KUBECTL get applications -n argocd"
+  echo
+  echo "4. Check infrastructure components:"
+  echo "   $KUBECTL get pods --all-namespaces"
+fi
 echo
 echo "========================================="

@@ -23,12 +23,13 @@ RUN apt update && apt install -y \
     libsystemd-dev
 
 # Install isolate (https://github.com/ioi/isolate)
-RUN wget -P /tmp https://github.com/ioi/isolate/archive/master.tar.gz \
-    && tar -xzvf /tmp/master.tar.gz -C /tmp \
-    && make -C /tmp/isolate-master isolate default.cf \
+RUN wget -P /tmp https://github.com/ioi/isolate/archive/refs/tags/v2.2.1.tar.gz \
+    && tar -xzvf /tmp/v2.2.1.tar.gz -C /tmp \
+    && make -C /tmp/isolate-2.2.1 isolate default.cf \
     && mkdir -p /usr/local/etc \
-    && cp /tmp/isolate-master/default.cf /usr/local/etc/isolate \
-    && install /tmp/isolate-master/isolate /usr/local/bin/isolate \
+    && cp /tmp/isolate-2.2.1/default.cf /usr/local/etc/isolate \
+    && install /tmp/isolate-2.2.1/isolate /usr/local/bin/isolate \
+    && rm -rf /tmp/v2.2.1.tar.gz /tmp/isolate-2.2.1 \
     && isolate --init
 
 # Create a sandbox directory

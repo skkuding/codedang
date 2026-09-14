@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy ALB resources are no longer used.
 resource "aws_lb" "this" {
   name               = var.lb.name
   internal           = false
@@ -38,3 +39,4 @@ resource "aws_lb_listener" "this" {
     }
   }
 }
+*/

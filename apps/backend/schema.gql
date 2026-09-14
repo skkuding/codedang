@@ -71,6 +71,7 @@ type Assignment {
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -105,6 +106,7 @@ type AssignmentCount {
   CheckRequest: Int!
   assignmentProblem: Int!
   assignmentRecord: Int!
+  courseQnA: Int!
   submission: Int!
   testSubmission: Int!
 }
@@ -462,6 +464,7 @@ type AssignmentWithParticipants {
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -492,6 +495,7 @@ type AssignmentWithScores {
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -747,11 +751,11 @@ type ClusterSummary {
 enum CollaboratorRole {
   Editor
   Owner
-  Viewer
+  Reviewer
 }
 
 enum CollaboratorStatus {
-  Active
+  Approved
   Pending
 }
 
@@ -779,7 +783,7 @@ type Contest {
   createdById: Int
   description: String
 
-  """�� Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
   enableCopyPaste: Boolean!
   endTime: DateTime!
 
@@ -1426,7 +1430,7 @@ type ContestWithParticipants {
   createdById: Int
   description: String
 
-  """�� Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
   enableCopyPaste: Boolean!
   endTime: DateTime!
 
@@ -1476,7 +1480,7 @@ type ContestWithScores {
   createdById: Int
   description: String
 
-  """�� Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
+  """이 Contest에 포함된 문제의 코드 에디터에서 복사-붙여넣기를 허용합니다."""
   enableCopyPaste: Boolean!
   endTime: DateTime!
 
@@ -1748,6 +1752,8 @@ type CourseNoticeSumAggregate {
 
 type CourseQnA {
   _count: CourseQnACount!
+  assignment: Assignment
+  assignmentId: Int
   category: QnACategory!
   comments: [CourseQnAComment!]
   content: String!
@@ -1767,6 +1773,7 @@ type CourseQnA {
 }
 
 type CourseQnAAvgAggregate {
+  assignmentId: Float
   createdById: Float
   groupId: Float
   id: Float
@@ -1838,6 +1845,7 @@ type CourseQnACount {
 
 type CourseQnACountAggregate {
   _all: Int!
+  assignmentId: Int!
   category: Int!
   content: Int!
   createTime: Int!
@@ -1853,6 +1861,7 @@ type CourseQnACountAggregate {
 }
 
 type CourseQnAMaxAggregate {
+  assignmentId: Int
   category: QnACategory
   content: String
   createTime: DateTime
@@ -1867,6 +1876,7 @@ type CourseQnAMaxAggregate {
 }
 
 type CourseQnAMinAggregate {
+  assignmentId: Int
   category: QnACategory
   content: String
   createTime: DateTime
@@ -1881,6 +1891,7 @@ type CourseQnAMinAggregate {
 }
 
 type CourseQnASumAggregate {
+  assignmentId: Int
   createdById: Int
   groupId: Int
   id: Int
@@ -1934,7 +1945,6 @@ input CreateContestInput {
 
 input CreateCourseNoticeInput {
   content: String!
-  groupId: Int!
   isFixed: Boolean! = false
   isPublic: Boolean! = true
   title: String!
@@ -2068,11 +2078,13 @@ type FindGroup {
   createTime: DateTime!
   description: String
   groupName: String!
+  groupTag: [GroupTag!]
   groupType: GroupType!
   id: ID!
   invitation: String
   memberNum: Int!
   sharedProblems: [Problem!]
+  studyInfo: StudyInfo
   updateTime: DateTime!
   userGroup: [UserGroup!]
   workbook: [Workbook!]
@@ -2149,9 +2161,11 @@ type Group {
   createTime: DateTime!
   description: String
   groupName: String!
+  groupTag: [GroupTag!]
   groupType: GroupType!
   id: ID!
   sharedProblems: [Problem!]
+  studyInfo: StudyInfo
   updateTime: DateTime!
   userGroup: [UserGroup!]
   workbook: [Workbook!]
@@ -2166,6 +2180,7 @@ type GroupCount {
   GroupWhitelist: Int!
   assignment: Int!
   courseQnA: Int!
+  groupTag: Int!
   sharedProblems: Int!
   userGroup: Int!
   workbook: Int!
@@ -2213,6 +2228,45 @@ type GroupMinAggregate {
 
 type GroupSumAggregate {
   id: Int
+}
+
+type GroupTag {
+  group: Group!
+  groupId: Int!
+  id: ID!
+  tag: Tag!
+  tagId: Int!
+}
+
+type GroupTagAvgAggregate {
+  groupId: Float
+  id: Float
+  tagId: Float
+}
+
+type GroupTagCountAggregate {
+  _all: Int!
+  groupId: Int!
+  id: Int!
+  tagId: Int!
+}
+
+type GroupTagMaxAggregate {
+  groupId: Int
+  id: Int
+  tagId: Int
+}
+
+type GroupTagMinAggregate {
+  groupId: Int
+  id: Int
+  tagId: Int
+}
+
+type GroupTagSumAggregate {
+  groupId: Int
+  id: Int
+  tagId: Int
 }
 
 enum GroupType {
@@ -2284,6 +2338,370 @@ enum Level {
   Level5
 }
 
+type MandeuldangCollaborator {
+  createTime: DateTime!
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  role: CollaboratorRole!
+  status: CollaboratorStatus!
+  user: User!
+  userId: Int!
+}
+
+type MandeuldangCollaboratorAvgAggregate {
+  id: Float
+  problemId: Float
+  userId: Float
+}
+
+type MandeuldangCollaboratorCountAggregate {
+  _all: Int!
+  createTime: Int!
+  id: Int!
+  problemId: Int!
+  role: Int!
+  status: Int!
+  userId: Int!
+}
+
+type MandeuldangCollaboratorMaxAggregate {
+  createTime: DateTime
+  id: Int
+  problemId: Int
+  role: CollaboratorRole
+  status: CollaboratorStatus
+  userId: Int
+}
+
+type MandeuldangCollaboratorMinAggregate {
+  createTime: DateTime
+  id: Int
+  problemId: Int
+  role: CollaboratorRole
+  status: CollaboratorStatus
+  userId: Int
+}
+
+type MandeuldangCollaboratorSumAggregate {
+  id: Int
+  problemId: Int
+  userId: Int
+}
+
+type MandeuldangProblemOutput {
+  CheckRequest: [CheckRequest!]
+  ContestQnA: [ContestQnA!]
+  _count: ProblemCount!
+  acceptedCount: Int!
+  acceptedRate: Float!
+  announcement: [Announcement!]
+  assignmentProblem: [AssignmentProblem!]
+
+  """지금 상태로 발행 가능한지 여부. 상세 조회에서만 계산해 채운다."""
+  canPublish: Boolean
+  contestProblem: [ContestProblem!]
+  courseQnA: [CourseQnA!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  creationMode: ProblemCreationMode!
+  description: String
+  difficulty: Level
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String
+  id: ID!
+  inputDescription: String
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
+  languages: [Language!]
+  lastRunPass: Boolean!
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
+  memoryLimit: Int
+
+  """
+  canPublish가 false일 때 무엇이 부족한지 나타내는 코드 목록 (STATEMENT/SOLUTION/TEST_FILES). 실제 발행 가능 여부의 최종 판단과 발행 자체는 Update/발행 담당 쪽에서 이뤄지므로, 이 값은 참고용 미리보기다.
+  """
+  missingForPublish: [String!]
+
+  """요청한 사용자가 이 문제에 대해 가진 협업 역할. Owner/Editor/Reviewer가 아니면 null."""
+  myRole: CollaboratorRole
+  outputDescription: String
+  problemTag: [ProblemTag!]
+  problemTestcase: [ProblemTestcase!]
+  problemType: ProblemType!
+  sharedGroups: [Group!]
+  solution: [JSON!]
+  source: String
+  status: ProblemStatus!
+  submission: [Submission!]
+  submissionCount: Int!
+
+  """
+  template code item structure
+  {
+  "lanaguage": Language,
+  "code": {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }[]
+  }
+  """
+  template: [JSON!]
+
+  """등록된 테스트 파일(.in/.out 쌍 기준이 아니라 개별 파일 개수)"""
+  testFileCount: Int
+  testSubmission: [TestSubmission!]
+  timeLimit: Int
+  title: String!
+  updateContentTime: DateTime
+  updateHistory: [UpdateHistory!]
+  updateTime: DateTime!
+  visibleLockTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
+}
+
+type MandeuldangRunRequest {
+  completedAt: DateTime
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  requestArgs: JSON
+  requester: User!
+  requesterId: Int!
+  resultCode: Int
+  status: MandeuldangRunStatus!
+  submittedAt: DateTime!
+  toolType: ToolType!
+}
+
+type MandeuldangRunRequestAvgAggregate {
+  id: Float
+  problemId: Float
+  requesterId: Float
+  resultCode: Float
+}
+
+type MandeuldangRunRequestCountAggregate {
+  _all: Int!
+  completedAt: Int!
+  id: Int!
+  problemId: Int!
+  requestArgs: Int!
+  requesterId: Int!
+  resultCode: Int!
+  status: Int!
+  submittedAt: Int!
+  toolType: Int!
+}
+
+type MandeuldangRunRequestMaxAggregate {
+  completedAt: DateTime
+  id: Int
+  problemId: Int
+  requesterId: Int
+  resultCode: Int
+  status: MandeuldangRunStatus
+  submittedAt: DateTime
+  toolType: ToolType
+}
+
+type MandeuldangRunRequestMinAggregate {
+  completedAt: DateTime
+  id: Int
+  problemId: Int
+  requesterId: Int
+  resultCode: Int
+  status: MandeuldangRunStatus
+  submittedAt: DateTime
+  toolType: ToolType
+}
+
+type MandeuldangRunRequestSumAggregate {
+  id: Int
+  problemId: Int
+  requesterId: Int
+  resultCode: Int
+}
+
+enum MandeuldangRunStatus {
+  Failed
+  Pending
+  Running
+  Success
+}
+
+type MandeuldangSolution {
+  createTime: DateTime!
+  fileName: String!
+  filePath: String!
+  id: ID!
+  language: Language!
+  problem: Problem!
+  problemId: Int!
+  updateTime: DateTime!
+}
+
+type MandeuldangSolutionAvgAggregate {
+  id: Float
+  problemId: Float
+}
+
+type MandeuldangSolutionCountAggregate {
+  _all: Int!
+  createTime: Int!
+  fileName: Int!
+  filePath: Int!
+  id: Int!
+  language: Int!
+  problemId: Int!
+  updateTime: Int!
+}
+
+type MandeuldangSolutionMaxAggregate {
+  createTime: DateTime
+  fileName: String
+  filePath: String
+  id: Int
+  language: Language
+  problemId: Int
+  updateTime: DateTime
+}
+
+type MandeuldangSolutionMinAggregate {
+  createTime: DateTime
+  fileName: String
+  filePath: String
+  id: Int
+  language: Language
+  problemId: Int
+  updateTime: DateTime
+}
+
+type MandeuldangSolutionSumAggregate {
+  id: Int
+  problemId: Int
+}
+
+type MandeuldangTestFile {
+  baseName: String!
+  createTime: DateTime!
+  fileName: String!
+  filePath: String!
+  fileSize: String!
+  fileType: TestFileType!
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+}
+
+type MandeuldangTestFileAvgAggregate {
+  fileSize: Float
+  id: Float
+  problemId: Float
+}
+
+type MandeuldangTestFileCountAggregate {
+  _all: Int!
+  baseName: Int!
+  createTime: Int!
+  fileName: Int!
+  filePath: Int!
+  fileSize: Int!
+  fileType: Int!
+  id: Int!
+  problemId: Int!
+}
+
+type MandeuldangTestFileMaxAggregate {
+  baseName: String
+  createTime: DateTime
+  fileName: String
+  filePath: String
+  fileSize: String
+  fileType: TestFileType
+  id: Int
+  problemId: Int
+}
+
+type MandeuldangTestFileMinAggregate {
+  baseName: String
+  createTime: DateTime
+  fileName: String
+  filePath: String
+  fileSize: String
+  fileType: TestFileType
+  id: Int
+  problemId: Int
+}
+
+type MandeuldangTestFileSumAggregate {
+  fileSize: String
+  id: Int
+  problemId: Int
+}
+
+type MandeuldangTool {
+  createTime: DateTime!
+  fileName: String!
+  filePath: String!
+  id: ID!
+  problem: Problem!
+  problemId: Int!
+  toolType: ToolType!
+  updateTime: DateTime!
+}
+
+type MandeuldangToolAvgAggregate {
+  id: Float
+  problemId: Float
+}
+
+type MandeuldangToolCountAggregate {
+  _all: Int!
+  createTime: Int!
+  fileName: Int!
+  filePath: Int!
+  id: Int!
+  problemId: Int!
+  toolType: Int!
+  updateTime: Int!
+}
+
+type MandeuldangToolMaxAggregate {
+  createTime: DateTime
+  fileName: String
+  filePath: String
+  id: Int
+  problemId: Int
+  toolType: ToolType
+  updateTime: DateTime
+}
+
+type MandeuldangToolMinAggregate {
+  createTime: DateTime
+  fileName: String
+  filePath: String
+  id: Int
+  problemId: Int
+  toolType: ToolType
+  updateTime: DateTime
+}
+
+type MandeuldangToolSumAggregate {
+  id: Int
+  problemId: Int
+}
+
 type Match {
   endInFirst: Position!
   endInSecond: Position!
@@ -2296,13 +2714,13 @@ type Match {
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
-  cloneCourseNotices(cloneToId: Int!, courseNoticeIds: [Int!]!): [CourseNotice!]!
+  cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
-  createCourseNotice(input: CreateCourseNoticeInput!): CourseNotice!
+  createCourseNotice(groupId: Int!, input: CreateCourseNoticeInput!): CourseNotice!
   createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
@@ -2314,11 +2732,12 @@ type Mutation {
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
   deleteCourse(groupId: Int!): Group!
-  deleteCourseNotice(courseNoticeId: Int!): CourseNotice!
+  deleteCourseNotice(courseNoticeId: Int!, groupId: Int!): CourseNotice!
   deleteCourseQnA(groupId: Int!, order: Int!): CourseQnA!
   deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
+  deleteMandeuldangTool(problemId: Int!, toolType: ToolType!): MandeuldangTool!
   deleteNotice(noticeId: Int!): Notice!
   deleteProblem(id: Int!): ProblemWithIsVisible!
   deleteTag(tagName: String!): Tag!
@@ -2336,6 +2755,8 @@ type Mutation {
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
+  runGenerator(generatorArgs: [String!]!, problemId: Int!, testcaseCount: Int!): MandeuldangRunRequest!
+  runValidator(problemId: Int!): MandeuldangRunRequest!
   toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
@@ -2346,7 +2767,7 @@ type Mutation {
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   updateCourse(groupId: Int!, input: CourseInput!): Group!
-  updateCourseNotice(courseNoticeId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
+  updateCourseNotice(courseNoticeId: Int!, groupId: Int!, input: UpdateCourseNoticeInput!): CourseNotice!
   updateCourseQnA(groupId: Int!, input: UpdateCourseQnAInput!): CourseQnA!
   updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
@@ -2356,6 +2777,7 @@ type Mutation {
   updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
   uploadFile(input: UploadFileInput!): FileSource!
   uploadImage(input: UploadFileInput!): FileSource!
+  uploadMandeuldangTool(input: UploadMandeuldangToolInput!): MandeuldangTool!
   uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
@@ -2569,446 +2991,6 @@ type PlagiarismClusterSumAggregate {
   strength: Float
 }
 
-type PolygonApprovalRequest {
-  id: ID!
-  message: String
-  problem: PolygonProblem!
-  problemId: Int!
-  rejectionReason: String
-  requester: User!
-  requesterId: Int!
-  reviewedAt: DateTime
-  reviewer: User
-  reviewerId: Int
-  status: PolygonApprovalStatus!
-  submittedAt: DateTime!
-}
-
-type PolygonApprovalRequestAvgAggregate {
-  id: Float
-  problemId: Float
-  requesterId: Float
-  reviewerId: Float
-}
-
-type PolygonApprovalRequestCountAggregate {
-  _all: Int!
-  id: Int!
-  message: Int!
-  problemId: Int!
-  rejectionReason: Int!
-  requesterId: Int!
-  reviewedAt: Int!
-  reviewerId: Int!
-  status: Int!
-  submittedAt: Int!
-}
-
-type PolygonApprovalRequestMaxAggregate {
-  id: Int
-  message: String
-  problemId: Int
-  rejectionReason: String
-  requesterId: Int
-  reviewedAt: DateTime
-  reviewerId: Int
-  status: PolygonApprovalStatus
-  submittedAt: DateTime
-}
-
-type PolygonApprovalRequestMinAggregate {
-  id: Int
-  message: String
-  problemId: Int
-  rejectionReason: String
-  requesterId: Int
-  reviewedAt: DateTime
-  reviewerId: Int
-  status: PolygonApprovalStatus
-  submittedAt: DateTime
-}
-
-type PolygonApprovalRequestSumAggregate {
-  id: Int
-  problemId: Int
-  requesterId: Int
-  reviewerId: Int
-}
-
-enum PolygonApprovalStatus {
-  Approved
-  Pending
-  Rejected
-}
-
-type PolygonCollaborator {
-  createTime: DateTime!
-  id: ID!
-  problem: PolygonProblem!
-  problemId: Int!
-  role: CollaboratorRole!
-  status: CollaboratorStatus!
-  user: User!
-  userId: Int!
-}
-
-type PolygonCollaboratorAvgAggregate {
-  id: Float
-  problemId: Float
-  userId: Float
-}
-
-type PolygonCollaboratorCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  problemId: Int!
-  role: Int!
-  status: Int!
-  userId: Int!
-}
-
-type PolygonCollaboratorMaxAggregate {
-  createTime: DateTime
-  id: Int
-  problemId: Int
-  role: CollaboratorRole
-  status: CollaboratorStatus
-  userId: Int
-}
-
-type PolygonCollaboratorMinAggregate {
-  createTime: DateTime
-  id: Int
-  problemId: Int
-  role: CollaboratorRole
-  status: CollaboratorStatus
-  userId: Int
-}
-
-type PolygonCollaboratorSumAggregate {
-  id: Int
-  problemId: Int
-  userId: Int
-}
-
-type PolygonProblem {
-  _count: PolygonProblemCount!
-  createTime: DateTime!
-  createdBy: User
-  createdById: Int
-  description: String!
-  difficulty: Level!
-  id: ID!
-  inputDescription: String!
-  languages: [Language!]
-  lastRunPass: Boolean!
-  memoryLimit: Int!
-  outputDescription: String!
-  polygonApprovalRequests: [PolygonApprovalRequest!]
-  polygonCollaborators: [PolygonCollaborator!]
-  polygonSamples: [PolygonSample!]
-  polygonSolution: PolygonSolution
-  polygonTestFiles: [PolygonTestFile!]
-  polygonTools: [PolygonTool!]
-  status: PolygonProblemStatus!
-  timeLimit: Int!
-  title: String!
-  updateTime: DateTime!
-}
-
-type PolygonProblemAvgAggregate {
-  createdById: Float
-  id: Float
-  memoryLimit: Float
-  timeLimit: Float
-}
-
-type PolygonProblemCount {
-  polygonApprovalRequests: Int!
-  polygonCollaborators: Int!
-  polygonSamples: Int!
-  polygonTestFiles: Int!
-  polygonTools: Int!
-}
-
-type PolygonProblemCountAggregate {
-  _all: Int!
-  createTime: Int!
-  createdById: Int!
-  description: Int!
-  difficulty: Int!
-  id: Int!
-  inputDescription: Int!
-  languages: Int!
-  lastRunPass: Int!
-  memoryLimit: Int!
-  outputDescription: Int!
-  status: Int!
-  timeLimit: Int!
-  title: Int!
-  updateTime: Int!
-}
-
-type PolygonProblemMaxAggregate {
-  createTime: DateTime
-  createdById: Int
-  description: String
-  difficulty: Level
-  id: Int
-  inputDescription: String
-  lastRunPass: Boolean
-  memoryLimit: Int
-  outputDescription: String
-  status: PolygonProblemStatus
-  timeLimit: Int
-  title: String
-  updateTime: DateTime
-}
-
-type PolygonProblemMinAggregate {
-  createTime: DateTime
-  createdById: Int
-  description: String
-  difficulty: Level
-  id: Int
-  inputDescription: String
-  lastRunPass: Boolean
-  memoryLimit: Int
-  outputDescription: String
-  status: PolygonProblemStatus
-  timeLimit: Int
-  title: String
-  updateTime: DateTime
-}
-
-enum PolygonProblemStatus {
-  Draft
-  PendingApproval
-  Published
-  Ready
-  Rejected
-}
-
-type PolygonProblemSumAggregate {
-  createdById: Int
-  id: Int
-  memoryLimit: Int
-  timeLimit: Int
-}
-
-type PolygonSample {
-  createTime: DateTime!
-  id: ID!
-  inputText: String!
-  order: Int!
-  outputText: String!
-  problem: PolygonProblem!
-  problemId: Int!
-}
-
-type PolygonSampleAvgAggregate {
-  id: Float
-  order: Float
-  problemId: Float
-}
-
-type PolygonSampleCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  inputText: Int!
-  order: Int!
-  outputText: Int!
-  problemId: Int!
-}
-
-type PolygonSampleMaxAggregate {
-  createTime: DateTime
-  id: Int
-  inputText: String
-  order: Int
-  outputText: String
-  problemId: Int
-}
-
-type PolygonSampleMinAggregate {
-  createTime: DateTime
-  id: Int
-  inputText: String
-  order: Int
-  outputText: String
-  problemId: Int
-}
-
-type PolygonSampleSumAggregate {
-  id: Int
-  order: Int
-  problemId: Int
-}
-
-type PolygonSolution {
-  createTime: DateTime!
-  fileName: String!
-  filePath: String!
-  id: ID!
-  language: Language!
-  problem: PolygonProblem!
-  problemId: Int!
-  updateTime: DateTime!
-}
-
-type PolygonSolutionAvgAggregate {
-  id: Float
-  problemId: Float
-}
-
-type PolygonSolutionCountAggregate {
-  _all: Int!
-  createTime: Int!
-  fileName: Int!
-  filePath: Int!
-  id: Int!
-  language: Int!
-  problemId: Int!
-  updateTime: Int!
-}
-
-type PolygonSolutionMaxAggregate {
-  createTime: DateTime
-  fileName: String
-  filePath: String
-  id: Int
-  language: Language
-  problemId: Int
-  updateTime: DateTime
-}
-
-type PolygonSolutionMinAggregate {
-  createTime: DateTime
-  fileName: String
-  filePath: String
-  id: Int
-  language: Language
-  problemId: Int
-  updateTime: DateTime
-}
-
-type PolygonSolutionSumAggregate {
-  id: Int
-  problemId: Int
-}
-
-type PolygonTestFile {
-  baseName: String!
-  createTime: DateTime!
-  fileName: String!
-  filePath: String!
-  fileSize: String!
-  fileType: TestFileType!
-  id: ID!
-  problem: PolygonProblem!
-  problemId: Int!
-}
-
-type PolygonTestFileAvgAggregate {
-  fileSize: Float
-  id: Float
-  problemId: Float
-}
-
-type PolygonTestFileCountAggregate {
-  _all: Int!
-  baseName: Int!
-  createTime: Int!
-  fileName: Int!
-  filePath: Int!
-  fileSize: Int!
-  fileType: Int!
-  id: Int!
-  problemId: Int!
-}
-
-type PolygonTestFileMaxAggregate {
-  baseName: String
-  createTime: DateTime
-  fileName: String
-  filePath: String
-  fileSize: String
-  fileType: TestFileType
-  id: Int
-  problemId: Int
-}
-
-type PolygonTestFileMinAggregate {
-  baseName: String
-  createTime: DateTime
-  fileName: String
-  filePath: String
-  fileSize: String
-  fileType: TestFileType
-  id: Int
-  problemId: Int
-}
-
-type PolygonTestFileSumAggregate {
-  fileSize: String
-  id: Int
-  problemId: Int
-}
-
-type PolygonTool {
-  createTime: DateTime!
-  fileName: String!
-  filePath: String!
-  id: ID!
-  problem: PolygonProblem!
-  problemId: Int!
-  toolType: ToolType!
-  updateTime: DateTime!
-}
-
-type PolygonToolAvgAggregate {
-  id: Float
-  problemId: Float
-}
-
-type PolygonToolCountAggregate {
-  _all: Int!
-  createTime: Int!
-  fileName: Int!
-  filePath: Int!
-  id: Int!
-  problemId: Int!
-  toolType: Int!
-  updateTime: Int!
-}
-
-type PolygonToolMaxAggregate {
-  createTime: DateTime
-  fileName: String
-  filePath: String
-  id: Int
-  problemId: Int
-  toolType: ToolType
-  updateTime: DateTime
-}
-
-type PolygonToolMinAggregate {
-  createTime: DateTime
-  fileName: String
-  filePath: String
-  id: Int
-  problemId: Int
-  toolType: ToolType
-  updateTime: DateTime
-}
-
-type PolygonToolSumAggregate {
-  id: Int
-  problemId: Int
-}
-
 type Position {
   column: Int!
   line: Int!
@@ -3027,26 +3009,35 @@ type Problem {
   createTime: DateTime!
   createdBy: User
   createdById: Int
-  description: String!
-  difficulty: Level!
+  creationMode: ProblemCreationMode!
+  description: String
+  difficulty: Level
   engDescription: String
   engHint: String
   engInputDescription: String
   engOutputDescription: String
   engTitle: String
-  hint: String!
+  hint: String
   id: ID!
-  inputDescription: String!
+  inputDescription: String
   isHiddenUploadedByZip: Boolean!
   isSampleUploadedByZip: Boolean!
   languages: [Language!]
-  memoryLimit: Int!
-  outputDescription: String!
+  lastRunPass: Boolean!
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
+  memoryLimit: Int
+  outputDescription: String
   problemTag: [ProblemTag!]
   problemTestcase: [ProblemTestcase!]
+  problemType: ProblemType!
   sharedGroups: [Group!]
   solution: [JSON!]
-  source: String!
+  source: String
+  status: ProblemStatus!
   submission: [Submission!]
   submissionCount: Int!
 
@@ -3063,7 +3054,7 @@ type Problem {
   """
   template: [JSON!]
   testSubmission: [TestSubmission!]
-  timeLimit: Int!
+  timeLimit: Int
   title: String!
   updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
@@ -3089,6 +3080,10 @@ type ProblemCount {
   assignmentProblem: Int!
   contestProblem: Int!
   courseQnA: Int!
+  mandeuldangCollaborators: Int!
+  mandeuldangRunRequests: Int!
+  mandeuldangTestFiles: Int!
+  mandeuldangTools: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -3104,6 +3099,7 @@ type ProblemCountAggregate {
   acceptedRate: Int!
   createTime: Int!
   createdById: Int!
+  creationMode: Int!
   description: Int!
   difficulty: Int!
   engDescription: Int!
@@ -3117,10 +3113,13 @@ type ProblemCountAggregate {
   isHiddenUploadedByZip: Int!
   isSampleUploadedByZip: Int!
   languages: Int!
+  lastRunPass: Int!
   memoryLimit: Int!
   outputDescription: Int!
+  problemType: Int!
   solution: Int!
   source: Int!
+  status: Int!
   submissionCount: Int!
   template: Int!
   timeLimit: Int!
@@ -3128,6 +3127,11 @@ type ProblemCountAggregate {
   updateContentTime: Int!
   updateTime: Int!
   visibleLockTime: Int!
+}
+
+enum ProblemCreationMode {
+  Legacy
+  Mandeuldang
 }
 
 enum ProblemField {
@@ -3145,6 +3149,7 @@ type ProblemMaxAggregate {
   acceptedRate: Float
   createTime: DateTime
   createdById: Int
+  creationMode: ProblemCreationMode
   description: String
   difficulty: Level
   engDescription: String
@@ -3157,9 +3162,12 @@ type ProblemMaxAggregate {
   inputDescription: String
   isHiddenUploadedByZip: Boolean
   isSampleUploadedByZip: Boolean
+  lastRunPass: Boolean
   memoryLimit: Int
   outputDescription: String
+  problemType: ProblemType
   source: String
+  status: ProblemStatus
   submissionCount: Int
   timeLimit: Int
   title: String
@@ -3173,6 +3181,7 @@ type ProblemMinAggregate {
   acceptedRate: Float
   createTime: DateTime
   createdById: Int
+  creationMode: ProblemCreationMode
   description: String
   difficulty: Level
   engDescription: String
@@ -3185,9 +3194,12 @@ type ProblemMinAggregate {
   inputDescription: String
   isHiddenUploadedByZip: Boolean
   isSampleUploadedByZip: Boolean
+  lastRunPass: Boolean
   memoryLimit: Int
   outputDescription: String
+  problemType: ProblemType
   source: String
+  status: ProblemStatus
   submissionCount: Int
   timeLimit: Int
   title: String
@@ -3214,6 +3226,12 @@ type ProblemScore {
 input ProblemScoreInput {
   problemId: Int!
   score: IntScore!
+}
+
+enum ProblemStatus {
+  Draft
+  Published
+  Ready
 }
 
 type ProblemSumAggregate {
@@ -3376,6 +3394,11 @@ type ProblemTestcaseSumAggregate {
   submissionCount: Int
 }
 
+enum ProblemType {
+  General
+  SpecialJudge
+}
+
 type ProblemWithIsVisible {
   CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
@@ -3389,6 +3412,7 @@ type ProblemWithIsVisible {
   createTime: DateTime!
   createdBy: User
   createdById: Int
+  creationMode: ProblemCreationMode!
   description: String!
   difficulty: Level!
   engDescription: String
@@ -3403,13 +3427,21 @@ type ProblemWithIsVisible {
   isSampleUploadedByZip: Boolean!
   isVisible: Boolean
   languages: [Language!]
+  lastRunPass: Boolean!
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
   memoryLimit: Int!
   outputDescription: String!
   problemTag: [ProblemTag!]
   problemTestcase: [ProblemTestcase!]
+  problemType: ProblemType!
   sharedGroups: [Group!]!
   solution: [JSON!]
   source: String!
+  status: ProblemStatus!
   submission: [Submission!]
   submissionCount: Int!
   tag: [ProblemTag!]!
@@ -3541,8 +3573,11 @@ type Query {
   getCoursesUserLead: [FindGroup!]!
   getGroupMember(groupId: Int!, userId: Int!): GroupMember!
   getGroupMembers(cursor: Int, groupId: Int!, leaderOnly: Boolean! = false, take: Int! = 10): [GroupMember!]!
+  getInProgressMandeuldangProblems(cursor: Int, status: ProblemStatus, take: Int! = 10): [MandeuldangProblemOutput!]!
   getJoinRequests(groupId: Int!): [User!]!
   getLatestSubmissionCountByLanguage(assignmentId: Int!, groupId: Int!, problemId: Int!): [SubmissionCountByLanguage!]!
+  getMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
+  getMyMandeuldangProblems(cursor: Int, status: ProblemStatus, take: Int! = 10): [MandeuldangProblemOutput!]!
   getNotice(noticeId: Int!): Notice!
   getNotices(cursor: Int, take: Int! = 10): [Notice]!
   getProblem(id: Int!): ProblemWithIsVisible!
@@ -3619,6 +3654,46 @@ input Snippet {
 input Solution {
   code: String!
   language: Language!
+}
+
+type StudyInfo {
+  capacity: Int!
+  endTime: DateTime!
+  group: Group!
+  groupId: ID!
+  invitationCode: String
+}
+
+type StudyInfoAvgAggregate {
+  capacity: Float
+  groupId: Float
+}
+
+type StudyInfoCountAggregate {
+  _all: Int!
+  capacity: Int!
+  endTime: Int!
+  groupId: Int!
+  invitationCode: Int!
+}
+
+type StudyInfoMaxAggregate {
+  capacity: Int
+  endTime: DateTime
+  groupId: Int
+  invitationCode: String
+}
+
+type StudyInfoMinAggregate {
+  capacity: Int
+  endTime: DateTime
+  groupId: Int
+  invitationCode: String
+}
+
+type StudyInfoSumAggregate {
+  capacity: Int
+  groupId: Int
 }
 
 type Submission {
@@ -3897,6 +3972,7 @@ type SubmissionsWithTotal {
 type Tag {
   _count: TagCount!
   createTime: DateTime!
+  groupTag: [GroupTag!]
   id: ID!
   name: String!
   problemTag: [ProblemTag!]
@@ -3908,6 +3984,7 @@ type TagAvgAggregate {
 }
 
 type TagCount {
+  groupTag: Int!
   problemTag: Int!
 }
 
@@ -4280,6 +4357,12 @@ input UploadFileInput {
   file: Upload!
 }
 
+input UploadMandeuldangToolInput {
+  file: Upload!
+  problemId: Int!
+  toolType: ToolType!
+}
+
 input UploadTestcaseZipInput {
   file: Upload!
   problemId: Int!
@@ -4317,11 +4400,9 @@ type User {
   id: ID!
   lastLogin: DateTime
   major: String
+  mandeuldangCollaborations: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
   notice: [Notice!]
-  polygonApprovalRequests: [PolygonApprovalRequest!]
-  polygonCollaborations: [PolygonCollaborator!]
-  polygonProblems: [PolygonProblem!]
-  polygonReviewedApprovals: [PolygonApprovalRequest!]
   problem: [Problem!]
   role: Role!
   studentId: String!
@@ -4332,7 +4413,7 @@ type User {
   userGroup: [UserGroup!]
   userProfile: UserProfile
   username: String!
-  useroauth: UserOAuth
+  useroauth: [UserOAuth!]
   workbook: [Workbook!]
 }
 
@@ -4452,16 +4533,15 @@ type UserCount {
   createdQnAComments: Int!
   createdQnAs: Int!
   file: Int!
+  mandeuldangCollaborations: Int!
+  mandeuldangRunRequests: Int!
   notice: Int!
-  polygonApprovalRequests: Int!
-  polygonCollaborations: Int!
-  polygonProblems: Int!
-  polygonReviewedApprovals: Int!
   problem: Int!
   submission: Int!
   testSubmission: Int!
   userContest: Int!
   userGroup: Int!
+  useroauth: Int!
   workbook: Int!
 }
 

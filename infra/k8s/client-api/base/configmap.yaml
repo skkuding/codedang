@@ -4,11 +4,16 @@ metadata:
   name: client-api-env
   namespace: client-api
 data:
+  DATABASE_CONNECTION_LIMIT: '225'
   NODEMAILER_FROM: 'Codedang <noreply@codedang.com>'
   RABBITMQ_API_URL: 'http://rabbitmq.rabbitmq.svc.cluster.local:15672/api'
   RABBITMQ_DEFAULT_VHOST: 'vh'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
-  RABBITMQ_PORT: '5672'
+  RABBITMQ_PORT: '5671'
+  RABBITMQ_SSL: 'true'
+  SUBMISSION_KEY: 'judge.submission'
+  TEST_KEY: 'judge.test'
+  REJUDGE_KEY: 'judge.rejudge'
   REDIS_HOST: 'redis.redis.svc.cluster.local'
   REDIS_PORT: '6379'
   TESTCASE_BUCKET_NAME: 'codedang-testcase'

@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq'
+import { readFileSync } from 'node:fs'
 import { CONSUME_CHANNEL, PUBLISH_CHANNEL } from '@libs/constants'
-import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
+import {
+  CheckAMQPService,
+  JudgeAMQPService,
+  MandeuldangAMQPService
+} from './amqp.service'
 
 @Module({
   imports: [
@@ -21,7 +26,7 @@ import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
         }
 
         const uri =
-          (config.get('RABBITMQ_SSL', false) ? 'amqps://' : 'amqp://') +
+          (config.get('RABBITMQ_SSL') === 'true' ? 'amqps://' : 'amqp://') +
           config.get('RABBITMQ_DEFAULT_USER') +
           ':' +
           config.get('RABBITMQ_DEFAULT_PASS') +
@@ -35,13 +40,21 @@ import { CheckAMQPService, JudgeAMQPService } from './amqp.service'
         return {
           uri,
           channels,
-          connectionInitOptions: { wait: false }
+          connectionInitOptions: { wait: false },
+          ...(config.get('RABBITMQ_SSL') === 'true' && {
+            connectionManagerOptions: {
+              connectionOptions: {
+                ca: [readFileSync('/etc/codedang/certs/ca.crt')],
+                rejectUnauthorized: true
+              }
+            }
+          })
         }
       },
       inject: [ConfigService]
     })
   ],
-  providers: [JudgeAMQPService, CheckAMQPService],
-  exports: [JudgeAMQPService, CheckAMQPService]
+  providers: [JudgeAMQPService, CheckAMQPService, MandeuldangAMQPService],
+  exports: [JudgeAMQPService, CheckAMQPService, MandeuldangAMQPService]
 })
 export class AMQPModule {}

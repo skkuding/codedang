@@ -6,3 +6,9 @@ resources:
   - ../../base
   - aws-credentials.yaml
   - database-credentials.yaml
+
+patches:
+  - path: configmap-patch.yaml
+    target:
+      kind: ConfigMap
+      name: plag-env

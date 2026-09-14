@@ -2,9 +2,9 @@
 
 import { AlertModal } from '@/components/AlertModal'
 import { Button } from '@/components/shadcn/button'
+import PenIcon from '@/public/icons/pen.svg'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { BiSolidPencil } from 'react-icons/bi'
 
 type QnAPostButtonProps = {
   section: 'contest' | 'course'
@@ -30,7 +30,7 @@ export function QnAPostButton({
         }
         className="flex h-[46px] w-[120px] flex-[1_0_0] items-center justify-center gap-[6px] px-6 py-3 text-base font-medium tracking-[-0.48px]"
       >
-        <BiSolidPencil className="white w-4" />
+        <PenIcon className="w-4 text-white" />
         Post
       </Button>
       <AlertModal

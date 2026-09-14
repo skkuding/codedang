@@ -39,11 +39,13 @@ type ProducerConfig struct {
 func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig := amqp.Config{Properties: amqp.NewConnectionProperties()}
-	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
+	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	if err != nil {
+		return nil, fmt.Errorf("producer: TLS config failed: %w", err)
+	}
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
 	if err != nil {
-		return nil, fmt.Errorf("consumer: dial failed: %w", err)
+		return nil, fmt.Errorf("producer: dial failed: %w", err)
 	}
 
 	return &producer{

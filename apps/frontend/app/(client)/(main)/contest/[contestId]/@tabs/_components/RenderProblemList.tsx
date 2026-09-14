@@ -1,6 +1,6 @@
 import { DataTable } from '@/app/(client)/(main)/_components/DataTable'
+import { EmptyStatePlaceholder } from '@/app/(client)/(main)/_components/EmptyStatePlaceholder'
 import type { ProblemDataTop } from '@/types/type'
-import Image from 'next/image'
 import { RenderProblemColumn } from './RenderProblemColumn'
 
 interface RenderProblemListProps {
@@ -20,51 +20,31 @@ export function RenderProblemList({
 }: RenderProblemListProps) {
   if (state === 'Upcoming' && !isPrivilegedRole) {
     return (
-      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
-        <Image
-          src={'/logos/welcomeNobg.png'}
-          alt="No context"
-          width={454}
-          height={262}
-        />
-        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
-          {`Contest Hasn't Started`}
-        </p>
-        <p className="mt-2 text-center text-base font-normal text-[#00000080]">
-          The problem list will be released after the start of the contest
-        </p>
-      </div>
+      <EmptyStatePlaceholder
+        title={`Contest Hasn't Started`}
+        description="The problem list will be released after the start of the contest"
+        className="h-[608px] w-[1208px] rounded-[20px]"
+        imageWidth={454}
+        imageHeight={262}
+      />
     )
   } else if (state === 'Ongoing' && !isRegistered && !isPrivilegedRole) {
     return (
-      <div className="flex h-[608px] w-[1208px] flex-col items-center justify-center rounded-[20px] bg-[#d9d9d940]">
-        <Image
-          src={'/logos/welcomeNobg.png'}
-          alt="No context"
-          width={454}
-          height={262}
-        />
-        <p className="mt-[50px] text-center text-2xl font-semibold tracking-[-0.72px] text-[#000000]">
-          Please Register for The Contest First!
-        </p>
-        <p className="mt-2 text-center text-base font-normal text-[#00000080]">
-          The problem list only be revealed to contest participants
-        </p>
-      </div>
+      <EmptyStatePlaceholder
+        title="Please Register for The Contest First!"
+        description="The problem list only be revealed to contest participants"
+        className="h-[608px] w-[1208px] rounded-[20px]"
+        imageWidth={454}
+        imageHeight={262}
+      />
     )
   } else {
     if (problemData.total === 0) {
       return <div>No result.</div>
     } else {
-      const transformedProblemData = problemData.data.map((problem) => {
-        return {
-          ...problem,
-          id: `/problem/${problem.id}`
-        }
-      })
       return (
         <DataTable
-          data={transformedProblemData}
+          data={problemData.data}
           columns={RenderProblemColumn}
           headerStyle={{
             order: 'text-[#8A8A8A] w-[10px] p-0 md:w-16 px-4',
@@ -72,6 +52,7 @@ export function RenderProblemList({
             score: 'text-[#8A8A8A] w-4/10 p-0 md:w-[296px] px-4'
           }}
           linked={linked}
+          pathSegment="problem"
         />
       )
     }

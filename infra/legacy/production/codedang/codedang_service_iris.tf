@@ -24,6 +24,7 @@ resource "aws_ecr_lifecycle_policy" "iris_repository_policy" {
     EOF
 }
 
+# TAS-2763: Legacy ECS Iris resources are commented in the module implementation.
 module "iris" {
   source = "./modules/service_autoscaling"
 
@@ -35,13 +36,18 @@ module "iris" {
 
     container_definitions = jsonencode([
       jsondecode(templatefile("container_definitions/iris.json", {
-        ecr_uri                         = data.aws_ecr_repository.iris.repository_url,
-        database_url                    = local.storage.database_url,
-        rabbitmq_host                   = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
-        rabbitmq_port                   = var.rabbitmq_port,
-        rabbitmq_username               = var.rabbitmq_username,
-        rabbitmq_password               = random_password.rabbitmq_password.result,
-        rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
+        ecr_uri      = data.aws_ecr_repository.iris.repository_url,
+        database_url = local.storage.database_url,
+        # TAS-2763: aws_mq_broker.judge_queue is commented out.
+        # rabbitmq_host                   = trimprefix(aws_mq_broker.judge_queue.instances.0.console_url, "https://"),
+        rabbitmq_host     = var.rabbitmq_host,
+        rabbitmq_port     = var.rabbitmq_port,
+        rabbitmq_username = var.rabbitmq_username,
+        # TAS-2763: random_password and rabbitmq_vhost are commented out.
+        # rabbitmq_password               = random_password.rabbitmq_password.result,
+        # rabbitmq_vhost                  = rabbitmq_vhost.vh.name,
+        rabbitmq_password               = var.rabbitmq_password,
+        rabbitmq_vhost                  = var.rabbitmq_vhost,
         otel_exporter_otlp_endpoint_url = var.otel_exporter_otlp_endpoint_url,
         testcase_bucket_name            = local.storage.testcase_bucket.bucket,
       }))

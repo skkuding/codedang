@@ -1,5 +1,6 @@
 'use client'
 
+import { SearchBar } from '@/components/SearchBar'
 import {
   Table,
   TableBody,
@@ -10,6 +11,7 @@ import {
 } from '@/components/shadcn/table'
 import { cn } from '@/libs/utils'
 import type { ProblemDataTop } from '@/types/type'
+import type { ContestQnaListItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -22,9 +24,7 @@ import type { Session } from 'next-auth'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { QnACategoryFilter } from './QnACategoryFilter'
-import type { QnAItem } from './QnAMainTable'
 import { QnAPostButton } from './QnAPostButton'
-import { SearchBar } from './SearchBar'
 
 interface QnADataTableProps<TData, TValue> {
   session: Session | null
@@ -45,7 +45,7 @@ interface QnADataTableProps<TData, TValue> {
   canCreateQnA: boolean | null
 }
 
-export function QnADataTable<TData extends QnAItem, TValue>({
+export function QnADataTable<TData extends ContestQnaListItem, TValue>({
   session,
   contestId,
   columns,
@@ -115,11 +115,7 @@ export function QnADataTable<TData extends QnAItem, TValue>({
           </p>
         </div>
         <div className="flex h-[46px] items-center items-stretch gap-2.5 self-stretch">
-          <SearchBar
-            className="!w-full !max-w-none"
-            height="lg"
-            fontSize="lg"
-          />
+          <SearchBar className="!w-full !max-w-none" sizeVariant="lg" />
           <QnACategoryFilter
             column={table.getColumn('category')}
             options={options}

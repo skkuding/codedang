@@ -5,21 +5,15 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
-import compileIcon from '@/public/icons/compile-version.svg'
+import CompileVersionIcon from '@/public/icons/compile-version.svg'
 import { FileText } from 'lucide-react'
-import Image from 'next/image'
 
 export function ReferenceDialog() {
   return (
     <div className="flex px-6">
       <Dialog>
         <DialogTrigger asChild>
-          <Image
-            className="cursor-pointer"
-            src={compileIcon}
-            alt="compile"
-            width={24}
-          />
+          <CompileVersionIcon className="cursor-pointer" width={24} />
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}

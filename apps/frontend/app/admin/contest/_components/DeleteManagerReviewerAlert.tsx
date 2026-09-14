@@ -43,7 +43,7 @@ export function DeleteManagerReviewerAlert({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="">
-          <AlertDialogCancel className="w-full border-[#C4C4C4] text-sm font-semibold text-[#8A8A8A]">
+          <AlertDialogCancel className="text-sub4_sb_14 w-full border-[#C4C4C4] text-[#8A8A8A]">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
@@ -54,7 +54,7 @@ export function DeleteManagerReviewerAlert({
                 )
                 setShowDeleteDialog(false)
               }}
-              className="bg-error w-full text-sm font-semibold hover:bg-red-500/90"
+              className="bg-error text-sub4_sb_14 w-full hover:bg-red-500/90"
             >
               Delete
             </Button>

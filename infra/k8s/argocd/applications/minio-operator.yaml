@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: minio-operator
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+          - env: production
+  template:
+    metadata:
+      name: 'minio-operator-{{.env}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '-2'
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/minio/operator
+        targetRevision: v7.1.1
+        path: .
+      destination:
+        namespace: minio-operator
+        name: '{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

@@ -8,10 +8,9 @@ import {
 } from '@/libs/push-subscription'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import { formatTimeAgo } from '@/libs/utils'
-import NotiIcon from '@/public/icons/notification.svg'
+import NotificationIcon from '@/public/icons/notification.svg'
 import type { Notification } from '@/types/type'
 import { X } from 'lucide-react'
-import Image from 'next/image'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '../shadcn/popover'
 import { NotificationOptionsMenu } from './NotificationOptionsMenu'
@@ -236,13 +235,7 @@ export function NotificationDropdown({
           isEditor ? 'text-gray-300 hover:text-white' : 'text-primary'
         )}
       >
-        <Image
-          className="min-w-fit"
-          src={NotiIcon}
-          alt="notification"
-          width={18}
-          height={21}
-        />
+        <NotificationIcon className="text-primary h-[18px] w-[21px]" />
         {unreadApiCount > 0 && (
           <div className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500 shadow-md" />
         )}
@@ -372,10 +365,14 @@ export function NotificationDropdown({
                               ? 'Course'
                               : notification.type}
                           </Badge>
-                          {notification.title}
-                          {!notification.isRead && (
-                            <div className="bg-primary h-2 w-2 rounded-full" />
-                          )}
+                          <div className="max-w-51 flex items-center gap-1.5">
+                            <p className="min-w-0 flex-1 truncate">
+                              {notification.title}
+                            </p>
+                            {!notification.isRead && (
+                              <div className="bg-primary h-2 w-2 rounded-full" />
+                            )}
+                          </div>
                         </div>
                         <p
                           className={cn(

@@ -1,3 +1,4 @@
+/* TAS-2763: Legacy CloudFront distribution and ALB origins are no longer used.
 data "aws_lb" "client_api" {
   name = "Codedang-Client-Api-LB"
 }
@@ -112,3 +113,4 @@ resource "aws_cloudfront_distribution" "codedang" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 }
+*/

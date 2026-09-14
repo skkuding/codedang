@@ -14,9 +14,7 @@ RUN apk add --no-cache bash
 COPY . /build
 WORKDIR /build
 
-# https://github.com/nodejs/corepack/issues/612 해결되면 다시 corepack 사용
-# RUN corepack enable
-RUN npm install -g pnpm
+RUN corepack enable
 RUN pnpm --filter="@codedang/backend" deploy out
 
 WORKDIR /build/out

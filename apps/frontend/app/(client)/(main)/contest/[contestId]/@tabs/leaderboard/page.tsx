@@ -1,13 +1,13 @@
 'use client'
 
 import { Input } from '@/components/shadcn/input'
-import searchIcon from '@/public/icons/search.svg'
+import SearchIcon from '@/public/icons/search.svg'
 import { useQuery } from '@tanstack/react-query'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { LeaderboardModalDialog } from './_components/LeaderboardModalDialog'
+import { LeaderboardSkeleton } from './_components/LeaderboardSkeleton'
 import { LeaderboardTable } from './_components/LeaderboardTable'
 import { getContest } from './_libs/apis/getContest'
 import type { LeaderboardUser } from './_libs/apis/getContestLeaderboard'
@@ -129,9 +129,13 @@ export default function ContestLeaderBoard() {
     }
   }
 
+  if (isLoading || isContestLoading) {
+    return <LeaderboardSkeleton />
+  }
+
   return (
-    <div className="relative ml-[116px] w-screen pb-[120px]">
-      <div className="mt-[96px] flex flex-row">
+    <div className="w-[1208px] pb-[120px]">
+      <div className="mt-[80px] flex flex-row">
         <div className="h-[34px] text-[24px] font-bold">
           CHECK YOUR RANKING!
         </div>
@@ -147,9 +151,7 @@ export default function ContestLeaderBoard() {
         )}
       </div>
       <div className="relative mb-[62px] mt-[30px]">
-        <Image
-          src={searchIcon}
-          alt="search"
+        <SearchIcon
           className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
           onClick={() => {
             handleSearch({ text: searchText, leaderboardUsers })
@@ -167,13 +169,11 @@ export default function ContestLeaderBoard() {
         />
       </div>
       <div>
-        {!isLoading && (
-          <LeaderboardTable
-            problemSize={problemSize}
-            leaderboardUsers={leaderboardUsers}
-            matchedIndices={matchedIndices}
-          />
-        )}
+        <LeaderboardTable
+          problemSize={problemSize}
+          leaderboardUsers={leaderboardUsers}
+          matchedIndices={matchedIndices}
+        />
       </div>
     </div>
   )

@@ -1,11 +1,10 @@
 'use client'
 
-import bronzeMedalIcon from '@/public/icons/medal-bronze.svg'
-import goldMedalIcon from '@/public/icons/medal-gold.svg'
-import silverMedalIcon from '@/public/icons/medal-silver.svg'
+import MedalBronzeIcon from '@/public/icons/medal-bronze.svg'
+import MedalGoldIcon from '@/public/icons/medal-gold.svg'
+import MedalSilverIcon from '@/public/icons/medal-silver.svg'
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import type { ProblemRecordInContestLeaderboard } from '../_libs/apis/getContestLeaderboard'
 
 interface LeaderboardRowProps {
@@ -27,9 +26,9 @@ export function LeaderboardRow({
   problemRecords,
   search
 }: LeaderboardRowProps) {
-  const medals = [goldMedalIcon, silverMedalIcon, bronzeMedalIcon]
+  const medals = [MedalGoldIcon, MedalSilverIcon, MedalBronzeIcon]
   const isTopRanked = rank <= 3
-  const medalImage = isTopRanked ? medals[rank - 1] : null
+  const MedalIcon = isTopRanked ? medals[rank - 1] : null
   if (!search) {
     return (
       <div className="relative flex flex-row">
@@ -38,8 +37,8 @@ export function LeaderboardRow({
           className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#FFFFFF] px-[28px]"
           style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
         >
-          {isTopRanked ? (
-            <Image src={medalImage} alt="medal" className="px-[2px]" />
+          {isTopRanked && MedalIcon ? (
+            <MedalIcon className="px-[2px]" />
           ) : (
             <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-[#C4C4C4] font-[18px] font-bold text-white">
               {rank}
@@ -146,8 +145,8 @@ export function LeaderboardRow({
           className="z-10 flex h-[90px] w-[272px] flex-row items-center rounded-full bg-[#3581FA] px-[28px] text-[#FFFFFF]"
           style={{ boxShadow: '2px 2px 10px rgba(0,0,0,0.15)' }}
         >
-          {isTopRanked ? (
-            <Image src={medalImage} alt="medal" className="px-[2px]" />
+          {isTopRanked && MedalIcon ? (
+            <MedalIcon className="px-[2px]" />
           ) : (
             <div className="flex h-[34px] w-[34px] flex-col items-center justify-center rounded-full bg-[#FFFFFF] font-[18px] font-bold text-[#3581FA]">
               {rank}

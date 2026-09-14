@@ -29,8 +29,8 @@ import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
+import { MandeuldangModule } from './mandeuldang/mandeuldang.module'
 import { NotificationModule } from './notification/notification.module'
-import { PolygonModule } from './polygon/polygon.module'
 import { ProblemModule } from './problem/problem.module'
 import { SubmissionModule } from './submission/submission.module'
 import { UserModule } from './user/user.module'
@@ -52,6 +52,7 @@ import { WorkbookModule } from './workbook/workbook.module'
         connection: {
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
           db: 1 // use database 1 for BullMQ to avoid conflicts with other Redis clients
         },
         prefix: 'bull'
@@ -69,7 +70,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     ContestModule,
     AssignmentModule,
     WorkbookModule,
-    PolygonModule,
+    MandeuldangModule,
     ProblemModule,
     StorageModule,
     GroupModule,

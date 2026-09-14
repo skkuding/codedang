@@ -7,13 +7,11 @@ import { Textarea } from '@/components/shadcn/textarea'
 import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
-import checkBoxGrayIcon from '@/public/icons/checkbox_gray.svg'
-import checkBoxWhiteIcon from '@/public/icons/checkbox_white.svg'
-import infoBlueIcon from '@/public/icons/icon-info-blue.svg'
+import CheckBoxIcon from '@/public/icons/check-box.svg'
+import IconInfoBlueIcon from '@/public/icons/icon-info-blue.svg'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import Image from 'next/image'
 import { useState } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -122,12 +120,12 @@ export function CreateContestAnnouncement({
             )}
           />
           {errors.content && <ErrorMessage />}
-          <p className="text-color-neutral-80 absolute bottom-[30px] right-[30px] text-base font-medium leading-[22.4px] tracking-[-0.48px]">
+          <p className="text-color-neutral-80 text-body1_m_16 absolute bottom-[30px] right-[30px] leading-[22.4px] tracking-[-0.48px]">
             {txtlength}/400
           </p>
         </div>
         <div className="mb-[14px] flex items-center justify-start">
-          <Image src={infoBlueIcon} alt="infoblue" width={16} />
+          <IconInfoBlueIcon width={16} />
           <p className="text-primary ml-[2px] text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
             Posted Announcement cannot be edited.
           </p>
@@ -138,9 +136,9 @@ export function CreateContestAnnouncement({
           className={`mb-[100px] h-[46px] w-full rounded-[1000px] border px-[22px] pb-[11px] pt-[10px] text-lg font-medium leading-[25.2px] tracking-[-0.54px] ${txtlength > 0 ? 'bg-primary text-white' : 'bg-color-neutral-95 text-color-neutral-70'}`}
         >
           {txtlength > 0 ? (
-            <Image src={checkBoxWhiteIcon} alt="checkbox-white" width={20} />
+            <CheckBoxIcon className="h-5 w-5 text-white" />
           ) : (
-            <Image src={checkBoxGrayIcon} alt="checkbox-gray" width={20} />
+            <CheckBoxIcon className="text-color-neutral-80 h-5 w-5" />
           )}
           <span className="ml-[6px]">Post</span>
         </Button>

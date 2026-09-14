@@ -187,16 +187,19 @@ export class CourseController {
    * <TODO>: 그룹 멤버 가드 적용 안됨
    *
    * @param {AuthenticatedRequest} req
+   * @param {number} groupId 공지가 속한 강의(코스) 아이디
    * @param {number} id 조회하려는 강의 공지사항의 아이디
    * @returns 현재 조회하려는 공지의 내용과 정보 및 이전/이후 공지 아이디
    */
-  @Get('notice/:id') // course notice id
+  @Get(':groupId/notice/:id') // course notice id
   async getCourseNoticeByID(
     @Req() req: AuthenticatedRequest,
+    @Param('groupId', GroupIDPipe) groupId: number,
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     return await this.groupService.getCourseNoticeByID({
       userId: req.user.id,
+      groupId,
       id
     })
   }
@@ -289,31 +292,36 @@ export class CourseController {
   ) {
     return await this.groupService.deleteComment({
       userId: req.user.id,
+      userRole: req.user.role,
       id,
       commentId
     })
   }
 
   /**
-   * Create a new Q&A for the course.
-   * @param req - Authenticated request object containing user info.
-   * @param courseId - The ID of the course (Group ID).
-   * @param createCourseQnADto - DTO containing title, content, and private setting.
-   * @param problemId - (Optional) The ID of the related problem.
-   * @returns The created Course Q&A.
+   * 강좌 내 새로운 Q&A 질문 게시글을 생성합니다.
+   *
+   * @param {AuthenticatedRequest} req - 사용자 정보를 포함한 인증된 요청 객체
+   * @param {number} courseId - 강좌 ID (Group ID)
+   * @param {CreateCourseQnADto} createCourseQnADto - 게시글 생성 데이터 (제목, 내용, 비공개 여부)
+   * @param {number} problemId - (선택) 연관된 문제 ID (`assignmentId`와 함께 전달 필수)
+   * @param {number} assignmentId - (선택) 연관된 과제 ID (`problemId`와 함께 전달 필수)
+   * @returns {number} 생성된 Q&A 게시글 정보 (연관 과제 정보 포함)
    */
   @Post(':id/qna')
   async createCourseQnA(
     @Req() req: AuthenticatedRequest,
     @Param('id', GroupIDPipe) courseId: number,
     @Body() createCourseQnADto: CreateCourseQnADto,
-    @Query('problemId', OptionalParseIntPipe) problemId?: number
+    @Query('problemId', OptionalParseIntPipe) problemId?: number,
+    @Query('assignmentId', OptionalParseIntPipe) assignmentId?: number
   ) {
     return await this.courseService.createCourseQnA(
       req.user.id,
       courseId,
       createCourseQnADto,
-      problemId
+      problemId,
+      assignmentId
     )
   }
 
@@ -446,6 +454,7 @@ export class CourseController {
   ) {
     return await this.courseService.deleteCourseQnAComment(
       req.user.id,
+      req.user.role,
       courseId,
       qnaOrder,
       commentOrder

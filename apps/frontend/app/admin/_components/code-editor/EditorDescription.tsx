@@ -41,7 +41,7 @@ export function EditorDescription({
         <div className="prose prose-invert mt-5 max-w-full text-sm leading-relaxed text-slate-300">
           <KatexContent content={problem.description} />
         </div>
-        <hr className="border-slate-700" />
+        <hr className="mt-5 border-slate-700" />
       </div>
 
       <div className="px-6">

@@ -33,8 +33,10 @@ type ConsumerConfig struct {
 func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig := amqp.Config{Properties: amqp.NewConnectionProperties()}
-	amqpConfig.Properties.SetClientConnectionName(config.ConnectionName)
+	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	if err != nil {
+		return nil, fmt.Errorf("consumer: TLS config failed: %w", err)
+	}
 	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
 	if err != nil {
 		return nil, fmt.Errorf("consumer: dial failed: %w", err)
@@ -103,4 +105,3 @@ func (c *consumer) CleanUp() error {
 	// wait for handle() to exit
 	return <-c.Done
 }
-

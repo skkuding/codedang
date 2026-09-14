@@ -4,7 +4,8 @@ metadata:
   name: postgres
   namespace: postgres
 spec:
-  replicas: 1
+  # Keep PostgreSQL 16 and its PVC available for rollback during retention.
+  replicas: 0
   selector:
     matchLabels:
       app: postgres

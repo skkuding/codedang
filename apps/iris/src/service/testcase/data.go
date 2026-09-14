@@ -4,7 +4,7 @@ import "github.com/skkuding/codedang/apps/iris/src/loader"
 
 type Testcase struct {
 	// metadata should be here
-	Elements []loader.Element
+	Elements []loader.ElementOut
 }
 
 func (t *Testcase) Count() int {
