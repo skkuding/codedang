@@ -10,7 +10,9 @@ import { MandeuldangProblemResolver } from './problem.resolver'
 const problemService = {
   getMyProblems: stub(),
   getInProgressProblems: stub(),
-  getProblem: stub()
+  getProblem: stub(),
+  updateProblem: stub(),
+  publishProblem: stub()
 }
 
 const req = {
@@ -24,6 +26,8 @@ describe('MandeuldangProblemResolver', () => {
     problemService.getMyProblems.reset()
     problemService.getInProgressProblems.reset()
     problemService.getProblem.reset()
+    problemService.updateProblem.reset()
+    problemService.publishProblem.reset()
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -89,5 +93,22 @@ describe('MandeuldangProblemResolver', () => {
     expect(problemService.getProblem.calledOnceWith(42, 1, Role.User)).to.equal(
       true
     )
+  })
+
+  it('updateMandeuldangProblem delegates to the service with the input and requester id', async () => {
+    problemService.updateProblem.resolves({})
+    const input = { id: 42, title: 'new title' }
+
+    await resolver.updateMandeuldangProblem(req, input)
+
+    expect(problemService.updateProblem.calledOnceWith(input, 1)).to.equal(true)
+  })
+
+  it('publishMandeuldangProblem delegates to the service with the id and requester id', async () => {
+    problemService.publishProblem.resolves({})
+
+    await resolver.publishMandeuldangProblem(req, 42)
+
+    expect(problemService.publishProblem.calledOnceWith(42, 1)).to.equal(true)
   })
 })

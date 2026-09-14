@@ -1,8 +1,11 @@
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Query, Mutation, Resolver } from '@nestjs/graphql'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
 import { ProblemStatus } from '@admin/@generated'
-import { CreateMandeuldangProblemInput } from '../model/problem.input'
+import {
+  CreateMandeuldangProblemInput,
+  UpdateMandeuldangProblemInput
+} from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
 import { MandeuldangProblemService } from '../services/problem.service'
 
@@ -12,19 +15,19 @@ export class MandeuldangProblemResolver {
   constructor(private readonly problemService: MandeuldangProblemService) {}
 
   @Mutation(() => MandeuldangProblemOutput)
-  async createMandeuldangProblem(
+  async updateMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args('input') input: CreateMandeuldangProblemInput
+    @Args('input') input: UpdateMandeuldangProblemInput
   ) {
-    return await this.problemService.createProblem(input, req.user.id)
+    return await this.problemService.updateProblem(input, req.user.id)
   }
 
   @Mutation(() => MandeuldangProblemOutput)
-  async deleteMandeuldangProblem(
+  async publishMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
-    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
+    @Args('id', { type: () => Int }) id: number
   ) {
-    return await this.problemService.deleteProblem(id, req.user.id)
+    return await this.problemService.publishProblem(id, req.user.id)
   }
 
   @Query(() => [MandeuldangProblemOutput])
@@ -67,5 +70,21 @@ export class MandeuldangProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.problemService.getProblem(id, req.user.id, req.user.role)
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async createMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: CreateMandeuldangProblemInput
+  ) {
+    return await this.problemService.createProblem(input, req.user.id)
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async deleteMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
+  ) {
+    return await this.problemService.deleteProblem(id, req.user.id)
   }
 }

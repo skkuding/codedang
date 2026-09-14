@@ -1,0 +1,46 @@
+meta {
+  name: [ERR] Published Problem Breaks Publish Conditions
+  type: graphql
+  seq: 7
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UpdateMandeuldangProblem(
+    $input: UpdateMandeuldangProblemInput!
+  ) {
+    updateMandeuldangProblem(input: $input) {
+      id
+      description
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 13,
+      "description": null
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Published Problem Breaks Publish Conditions
+
+  **POST** `/graphql (mutation: updateMandeuldangProblem)`
+
+  이미 Published 상태인 문제를 수정하는데, 그 수정으로 인해 발행 조건(본문 완성/솔루션/테스트파일)을 더 이상 만족하지 못하게 되면,
+
+  수정 전체가 트랜잭션 롤백되며 `UnprocessableDataException`("Edits that break publishing requirements cannot be saved.")가 발생합니다.
+}

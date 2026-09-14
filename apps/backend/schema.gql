@@ -1950,6 +1950,18 @@ input CreateCourseNoticeInput {
   title: String!
 }
 
+input CreateMandeuldangProblemInput {
+  description: String
+  difficulty: Level
+  inputDescription: String
+  languages: [Language!]
+  memoryLimit: Int
+  outputDescription: String
+  problemType: ProblemType!
+  timeLimit: Int
+  title: String!
+}
+
 input CreateNoticeInput {
   content: String!
   isFixed: Boolean
@@ -2398,7 +2410,7 @@ type MandeuldangProblemOutput {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
 
-  """지금 상태로 발행 가능한지 여부. 상세 조회에서만 계산해 채운다."""
+  """현재 상태에서 발행 가능한지 나타내는 미리보기 값"""
   canPublish: Boolean
   contestProblem: [ContestProblem!]
   courseQnA: [CourseQnA!]
@@ -2427,9 +2439,7 @@ type MandeuldangProblemOutput {
   mandeuldangTools: [MandeuldangTool!]
   memoryLimit: Int
 
-  """
-  canPublish가 false일 때 무엇이 부족한지 나타내는 코드 목록 (STATEMENT/SOLUTION/TEST_FILES). 실제 발행 가능 여부의 최종 판단과 발행 자체는 Update/발행 담당 쪽에서 이뤄지므로, 이 값은 참고용 미리보기다.
-  """
+  """발행에 필요한 누락 항목 코드 목록"""
   missingForPublish: [String!]
 
   """요청한 사용자가 이 문제에 대해 가진 협업 역할. Owner/Editor/Reviewer가 아니면 null."""
@@ -2458,7 +2468,7 @@ type MandeuldangProblemOutput {
   """
   template: [JSON!]
 
-  """등록된 테스트 파일(.in/.out 쌍 기준이 아니라 개별 파일 개수)"""
+  """등록된 테스트 파일의 개별 파일 개수"""
   testFileCount: Int
   testSubmission: [TestSubmission!]
   timeLimit: Int
@@ -2466,7 +2476,6 @@ type MandeuldangProblemOutput {
   updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
-  visibleLockTime: DateTime!
   workbookProblem: [WorkbookProblem!]
 }
 
@@ -2722,6 +2731,7 @@ type Mutation {
   createCourse(input: CourseInput!): Group!
   createCourseNotice(groupId: Int!, input: CreateCourseNoticeInput!): CourseNotice!
   createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
+  createMandeuldangProblem(input: CreateMandeuldangProblemInput!): MandeuldangProblemOutput!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
@@ -2737,6 +2747,7 @@ type Mutation {
   deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
+  deleteMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
   deleteMandeuldangTool(problemId: Int!, toolType: ToolType!): MandeuldangTool!
   deleteNotice(noticeId: Int!): Notice!
   deleteProblem(id: Int!): ProblemWithIsVisible!
@@ -2749,6 +2760,7 @@ type Mutation {
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  publishMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
   rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
@@ -2772,6 +2784,7 @@ type Mutation {
   updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
+  updateMandeuldangProblem(input: UpdateMandeuldangProblemInput!): MandeuldangProblemOutput!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
   updateProblem(input: UpdateProblemInput!): ProblemWithIsVisible!
   updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
@@ -4317,6 +4330,18 @@ type UpdateHistorySumAggregate {
   id: Int
   problemId: Int
   updatedByid: Int
+}
+
+input UpdateMandeuldangProblemInput {
+  description: String
+  difficulty: Level
+  id: Int!
+  inputDescription: String
+  languages: [Language!]
+  memoryLimit: Int
+  outputDescription: String
+  timeLimit: Int
+  title: String
 }
 
 input UpdateNoticeInput {

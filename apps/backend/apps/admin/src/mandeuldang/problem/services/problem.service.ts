@@ -14,8 +14,12 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
-import type { CreateMandeuldangProblemInput } from '../model/problem.input'
+import type {
+  CreateMandeuldangProblemInput,
+  UpdateMandeuldangProblemInput
+} from '../model/problem.input'
 import type { MandeuldangProblemOutput } from '../model/problem.output'
+import { PublishCheckService } from './publish-check.service'
 
 /** 목록/상세 조회 모두에서 재사용하는, "요청자의 협업 역할" 계산 로직. */
 const resolveMyRole = (
@@ -43,62 +47,9 @@ const resolveMyRole = (
 export class MandeuldangProblemService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly publishCheckService: PublishCheckService,
     private readonly storageService: StorageService
   ) {}
-
-  async createProblem(
-    input: CreateMandeuldangProblemInput,
-    userId: number
-  ): Promise<MandeuldangProblemOutput> {
-    const { title, languages, ...data } = input
-
-    // 제목은 빈 문자열일 수 없다.
-    const normalizedTitle = title.trim()
-    if (!normalizedTitle) {
-      throw new UnprocessableDataException('Title cannot be empty')
-    }
-
-    // 시간 제한과 메모리 제한은 양수여야 한다.
-    if (input.timeLimit != null && input.timeLimit <= 0) {
-      throw new UnprocessableDataException(
-        'Time limit must be greater than zero'
-      )
-    }
-
-    if (input.memoryLimit != null && input.memoryLimit <= 0) {
-      throw new UnprocessableDataException(
-        'Memory limit must be greater than zero'
-      )
-    }
-
-    const problem = await this.prisma.problem.create({
-      data: {
-        ...data,
-        title: normalizedTitle,
-        languages: languages ?? undefined,
-        creationMode: ProblemCreationMode.Mandeuldang,
-        status: ProblemStatus.Draft,
-        createdById: userId,
-        visibleLockTime: MAX_DATE,
-        mandeuldangCollaborators: {
-          create: {
-            userId,
-            role: CollaboratorRole.Owner,
-            status: CollaboratorStatus.Approved
-          }
-        }
-      },
-      include: {
-        mandeuldangCollaborators: true
-      }
-    })
-
-    return {
-      ...problem,
-      myRole: CollaboratorRole.Owner,
-      testFileCount: 0
-    }
-  }
 
   /**
    * 내가 만든(Owner인) 만들당 문제 목록. 기본적으로 상태와 무관하게 전부 보여준다.
@@ -215,18 +166,213 @@ export class MandeuldangProblemService {
       )
     }
 
-    const testFileCount = problem.mandeuldangTestFiles.length
-    const missingForPublish: string[] = []
-    if (!problem.description) missingForPublish.push('STATEMENT')
-    if (!problem.mandeuldangSolution) missingForPublish.push('SOLUTION')
-    if (testFileCount === 0) missingForPublish.push('TEST_FILES')
+    const { canPublish, missing } = await this.publishCheckService.check(
+      problem.id
+    )
 
     return {
       ...problem,
       myRole: resolveMyRole(problem, userId),
-      testFileCount,
-      canPublish: missingForPublish.length === 0,
-      missingForPublish
+      testFileCount: problem.mandeuldangTestFiles.length,
+      canPublish,
+      missingForPublish: missing
+    }
+  }
+
+  /**
+   * input에 따른 문제 수정.
+   * 수정된 문제를 반환한다.
+   *
+   * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
+   */
+  async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
+    const { id, title, ...rest } = input
+
+    const problem = await this.prisma.problem.findUnique({
+      where: { id }
+    })
+
+    if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
+      throw new EntityNotExistException('MandeuldangProblem')
+    }
+
+    // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
+    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_userId: { problemId: id, userId } }
+    })
+    if (
+      !collaborator ||
+      collaborator.status !== CollaboratorStatus.Approved ||
+      collaborator.role === CollaboratorRole.Reviewer
+    ) {
+      throw new ForbiddenAccessException('Only Owner or Editor can edit')
+    }
+
+    // 제목은 빈 문자열일 수 없다.
+    let normalizedTitle: string | undefined
+    if (title !== undefined) {
+      normalizedTitle = title.trim()
+      if (!normalizedTitle) {
+        throw new UnprocessableDataException('Title cannot be empty')
+      }
+    }
+
+    // 시간 제한과 메모리 제한은 양수여야 한다.
+    if (input.timeLimit != null && input.timeLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Time limit must be greater than zero'
+      )
+    }
+
+    if (input.memoryLimit != null && input.memoryLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Memory limit must be greater than zero'
+      )
+    }
+
+    const data = {
+      ...rest,
+      ...(normalizedTitle !== undefined && { title: normalizedTitle })
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.problem.update({
+        where: { id },
+        data
+      })
+
+      const { canPublish } = await this.publishCheckService.check(
+        problem.id,
+        tx
+      )
+
+      // publish 상태인 문제인 경우 조건 만족시에만 저장 가능
+      if (problem.status === ProblemStatus.Published) {
+        if (!canPublish) {
+          throw new UnprocessableDataException(
+            'Edits that break publishing requirements cannot be saved.'
+          )
+        }
+        return updated
+      }
+
+      // draft 상태인 문제인 경우 조건 만족시 draft->ready로 자동 승격
+      // ready 상태인 문제인 경우 조건 불만족시 ready->draft로 자동 승격
+      const nextStatus = canPublish ? ProblemStatus.Ready : ProblemStatus.Draft
+      if (nextStatus !== problem.status) {
+        await tx.problem.update({
+          where: { id: problem.id },
+          data: { status: nextStatus }
+        })
+      }
+      return updated
+    })
+  }
+
+  /**
+   * 문제 id로 문제 발행. 발행 조건을 확인한 후 상태를 published로 전환한다.
+   * 발행된 문제를 반환한다.
+   *
+   * 접근 권한: Owner만 발행할 수 있다.
+   */
+  async publishProblem(problemId: number, userId: number) {
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId }
+    })
+
+    if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
+      throw new EntityNotExistException('MandeuldangProblem')
+    }
+
+    // 발행 권한이 있는지 확인 (Owner만 가능)
+    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_userId: { problemId, userId } }
+    })
+    if (
+      !collaborator ||
+      collaborator.status !== CollaboratorStatus.Approved ||
+      collaborator.role !== CollaboratorRole.Owner
+    ) {
+      throw new ForbiddenAccessException('Only Owner can publish a problem')
+    }
+
+    if (problem.status !== ProblemStatus.Ready) {
+      throw new UnprocessableDataException(
+        'Only a Ready problem can be published'
+      )
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
+      const { canPublish, missing } = await this.publishCheckService.check(
+        problem.id,
+        tx
+      )
+      if (!canPublish) {
+        throw new UnprocessableDataException(
+          `Cannot publish: missing ${missing.join(', ')}`
+        )
+      }
+
+      return await tx.problem.update({
+        where: { id: problem.id },
+        data: { status: ProblemStatus.Published }
+      })
+    })
+  }
+
+  async createProblem(
+    input: CreateMandeuldangProblemInput,
+    userId: number
+  ): Promise<MandeuldangProblemOutput> {
+    const { title, languages, ...data } = input
+
+    // 제목은 빈 문자열일 수 없다.
+    const normalizedTitle = title.trim()
+    if (!normalizedTitle) {
+      throw new UnprocessableDataException('Title cannot be empty')
+    }
+
+    // 시간 제한과 메모리 제한은 양수여야 한다.
+    if (input.timeLimit != null && input.timeLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Time limit must be greater than zero'
+      )
+    }
+
+    if (input.memoryLimit != null && input.memoryLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Memory limit must be greater than zero'
+      )
+    }
+
+    const problem = await this.prisma.problem.create({
+      data: {
+        ...data,
+        title: normalizedTitle,
+        languages: languages ?? undefined,
+        creationMode: ProblemCreationMode.Mandeuldang,
+        status: ProblemStatus.Draft,
+        createdById: userId,
+        visibleLockTime: MAX_DATE,
+        mandeuldangCollaborators: {
+          create: {
+            userId,
+            role: CollaboratorRole.Owner,
+            status: CollaboratorStatus.Approved
+          }
+        }
+      },
+      include: {
+        mandeuldangCollaborators: true
+      }
+    })
+
+    return {
+      ...problem,
+      myRole: CollaboratorRole.Owner,
+      testFileCount: 0
     }
   }
 
