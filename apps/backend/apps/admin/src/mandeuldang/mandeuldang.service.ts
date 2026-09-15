@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { PrismaService } from '@libs/prisma'
 import { FileService } from './file/file.service'
 import { MandeuldangPublicationService } from './mandeuldang-pub.service'
 
 @Injectable()
 export class MandeuldangService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly fileService: FileService,
     private readonly publicationService: MandeuldangPublicationService
   ) {}
