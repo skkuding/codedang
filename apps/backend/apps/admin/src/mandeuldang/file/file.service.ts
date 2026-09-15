@@ -99,7 +99,7 @@ export class FileService {
   ) {
     await this.verifyToolAccess(problemId, userId, userRole)
 
-    return this.prisma.mandeuldangTool.delete({
+    return await this.prisma.mandeuldangTool.delete({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_toolType: { problemId, toolType } }
     })
