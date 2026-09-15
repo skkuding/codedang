@@ -36,10 +36,6 @@ import {
   MANDEULDANG_VALIDATOR_KEY,
   MANDEULDANG_VALIDATOR_MESSAGE_TYPE
 } from '@libs/constants'
-import type {
-  GeneratorRequest,
-  ValidatorRequest
-} from '@admin/mandeuldang/model/mandeuldang-tool-request.interface'
 
 @Injectable()
 export class JudgeAMQPService {
@@ -366,14 +362,17 @@ export class MandeuldangAMQPService {
    * Generator 실행 요청을 Iris로 publish합니다.
    */
   @Span()
-  async publishGeneratorMessage(request: GeneratorRequest): Promise<void> {
+  async publishGeneratorMessage(
+    problemId: number,
+    request: object
+  ): Promise<void> {
     const span = this.traceService.startSpan('publishGeneratorMessage.publish')
     await this.amqpConnection.publish(
       MANDEULDANG_EXCHANGE,
       MANDEULDANG_GENERATOR_KEY,
       request,
       {
-        messageId: `Generator-${request.problemId}`,
+        messageId: `Generator-${problemId}`,
         persistent: true,
         type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
       }
@@ -385,14 +384,17 @@ export class MandeuldangAMQPService {
    * Validator 실행 요청을 Iris로 publish합니다.
    */
   @Span()
-  async publishValidatorMessage(request: ValidatorRequest): Promise<void> {
+  async publishValidatorMessage(
+    problemId: number,
+    request: object
+  ): Promise<void> {
     const span = this.traceService.startSpan('publishValidatorMessage.publish')
     await this.amqpConnection.publish(
       MANDEULDANG_EXCHANGE,
       MANDEULDANG_VALIDATOR_KEY,
       request,
       {
-        messageId: `Validator-${request.problemId}`,
+        messageId: `Validator-${problemId}`,
         persistent: true,
         type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
         priority: MESSAGE_PRIORITY_MIDDLE

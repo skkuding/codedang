@@ -16,20 +16,21 @@ export class MandeuldangPublicationService {
     testCaseCount: number
   ) {
     //DB에서 generator, solution 조회
-    const [generator, solution] = await Promise.all([
-      this.prisma.mandeuldangTool.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          problemId_toolType: { problemId, toolType: ToolType.Generator }
+    const generator = await this.prisma.mandeuldangTool.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        problemId_toolType: {
+          problemId,
+          toolType: ToolType.Generator
         }
-      }),
-      this.prisma.mandeuldangSolution.findUniqueOrThrow({
-        where: { problemId }
-      })
-    ])
+      }
+    })
 
-    //실행 요청 메시지 publish
-    await this.amqpService.publishGeneratorMessage({
+    const solution = await this.prisma.mandeuldangSolution.findUniqueOrThrow({
+      where: { problemId }
+    })
+
+    const generatorRequest = {
       problemId,
       generatorLanguage: Language.Cpp,
       generatorCode: generator.fileContent,
@@ -37,7 +38,9 @@ export class MandeuldangPublicationService {
       solutionLanguage: solution.language,
       solutionCode: solution.fileContent,
       testCaseCount
-    })
+    }
+    //실행 요청 메시지 publish
+    await this.amqpService.publishGeneratorMessage(problemId, generatorRequest)
   }
 
   async publishValidatorMessage(problemId: number) {
@@ -48,10 +51,11 @@ export class MandeuldangPublicationService {
       }
     })
 
-    await this.amqpService.publishValidatorMessage({
+    const validateRequest = {
       problemId,
       language: Language.Cpp,
       validatorCode: validator.fileContent
-    })
+    }
+    await this.amqpService.publishValidatorMessage(problemId, validateRequest)
   }
 }
