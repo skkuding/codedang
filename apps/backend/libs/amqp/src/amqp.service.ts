@@ -25,6 +25,15 @@ import {
   MESSAGE_PRIORITY_LOW,
   SUBMISSION_MESSAGE_TYPE,
   RUN_SUBMISSION_MESSAGE_TYPE,
+  MANDEULDANG_EXCHANGE,
+  MANDEULDANG_GENERATOR_MESSAGE_TYPE,
+  MANDEULDANG_GENERATOR_KEY,
+  MANDEULDANG_GENERATOR_RESULT_KEY,
+  MANDEULDANG_GENERATOR_RESULT_QUEUE,
+  MANDEULDANG_VALIDATOR_RESULT_KEY,
+  MANDEULDANG_VALIDATOR_RESULT_QUEUE,
+  MANDEULDANG_VALIDATOR_KEY,
+  MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
   DEFAULT_SUBMISSION_KEY
 } from '@libs/constants'
 
@@ -280,5 +289,130 @@ export class CheckAMQPService {
 
   private messageHandlers?: {
     onCheckMessage?: (msg: object) => Promise<void>
+  }
+}
+
+@Injectable()
+export class MandeuldangAMQPService {
+  private readonly logger = new Logger(MandeuldangAMQPService.name)
+
+  constructor(
+    private readonly amqpConnection: AmqpConnection,
+    private readonly traceService: TraceService
+  ) {}
+
+  //1. 큐 구독
+  startGeneratorSubscription() {
+    //결과메시지 도착하면 콜백 실행됨
+    this.amqpConnection.createSubscriber(
+      //@golevelup/nestjs-rabbitmq 버전이 업데이트 되면서 생긴 문제?
+      async (msg: object | undefined) => {
+        try {
+          if (!msg) return //undefined인 경우 메시지 큐에서 제거
+          //onGenerateResult 핸들러가 등록되어 있으면
+          if (this.messageHandlers?.onGenerateResult) {
+            await this.messageHandlers.onGenerateResult(msg) //onGenerateResult() 실행
+          }
+        } catch (error) {
+          this.logger.error(
+            error,
+            'Unexpected error in handling generator result message'
+          )
+          return new Nack()
+        }
+      },
+      {
+        exchange: MANDEULDANG_EXCHANGE,
+        routingKey: MANDEULDANG_GENERATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
+        queue: MANDEULDANG_GENERATOR_RESULT_QUEUE
+      },
+      ORIGIN_HANDLER_NAME
+    )
+  }
+
+  startValidatorSubscription() {
+    //결과메시지 도착하면 콜백 실행됨
+    this.amqpConnection.createSubscriber(
+      //@golevelup/nestjs-rabbitmq 버전이 업데이트 되면서 생긴 문제?
+      async (msg: object | undefined) => {
+        try {
+          if (!msg) return //undefined인 경우 메시지 큐에서 제거
+          //onValidateResult 핸들러가 등록되어 있으면
+          if (this.messageHandlers?.onValidateResult) {
+            await this.messageHandlers.onValidateResult(msg) //onValidateResult() 실행
+          }
+        } catch (error) {
+          this.logger.error(
+            error,
+            'Unexpected error in handling validator result message'
+          )
+          return new Nack()
+        }
+      },
+      {
+        exchange: MANDEULDANG_EXCHANGE,
+        routingKey: MANDEULDANG_VALIDATOR_RESULT_KEY, //결과 큐를 분리할건지 통합할건지 조율해야됨.
+        queue: MANDEULDANG_VALIDATOR_RESULT_QUEUE
+      },
+      ORIGIN_HANDLER_NAME
+    )
+  }
+
+  /**
+   * Generator 실행 요청을 Iris로 publish합니다.
+   */
+  @Span()
+  async publishGeneratorMessage(
+    problemId: number,
+    request: object
+  ): Promise<void> {
+    const span = this.traceService.startSpan('publishGeneratorMessage.publish')
+    await this.amqpConnection.publish(
+      MANDEULDANG_EXCHANGE,
+      MANDEULDANG_GENERATOR_KEY,
+      request,
+      {
+        messageId: `Generator-${problemId}`,
+        persistent: true,
+        type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
+      }
+    )
+    span.end()
+  }
+
+  /**
+   * Validator 실행 요청을 Iris로 publish합니다.
+   */
+  @Span()
+  async publishValidatorMessage(
+    problemId: number,
+    request: object
+  ): Promise<void> {
+    const span = this.traceService.startSpan('publishValidatorMessage.publish')
+    await this.amqpConnection.publish(
+      MANDEULDANG_EXCHANGE,
+      MANDEULDANG_VALIDATOR_KEY,
+      request,
+      {
+        messageId: `Validator-${problemId}`,
+        persistent: true,
+        type: MANDEULDANG_VALIDATOR_MESSAGE_TYPE,
+        priority: MESSAGE_PRIORITY_MIDDLE
+      }
+    )
+    span.end()
+  }
+
+  //handler 설정
+  setMessageHandlers(handlers: {
+    onGenerateResult?: (msg: object) => Promise<void>
+    onValidateResult?: (msg: object) => Promise<void>
+  }) {
+    this.messageHandlers = handlers
+  }
+
+  private messageHandlers?: {
+    onGenerateResult?: (msg: object) => Promise<void>
+    onValidateResult?: (msg: object) => Promise<void>
   }
 }
