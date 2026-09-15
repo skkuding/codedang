@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma, type ToolType } from '@prisma/client'
+import type { ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 
 const MAX_TOOL_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -44,19 +41,9 @@ export class FileService {
   }
 
   async deleteMandeuldangFile(problemId: number, toolType: ToolType) {
-    try {
-      return await this.prisma.mandeuldangTool.delete({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { problemId_toolType: { problemId, toolType } }
-      })
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('MandeuldangTool')
-      }
-      throw error
-    }
+    return await this.prisma.mandeuldangTool.delete({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_toolType: { problemId, toolType } }
+    })
   }
 }
