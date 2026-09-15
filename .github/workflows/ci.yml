@@ -29,6 +29,8 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       infra_ansible: ${{ steps.filter.outputs.infra_ansible }}
       infra_ssh_keys: ${{ steps.filter.outputs.infra_ssh_keys }}
+      infra_k8s: ${{ steps.filter.outputs.infra_k8s }}
+      infra_terraform: ${{ steps.filter.outputs.infra_terraform }}
     steps:
       - uses: actions/checkout@v6
 
@@ -100,6 +102,12 @@ jobs:
             infra_ssh_keys:
               - *ci_workflow_path
               - 'infra/ansible/ssh_publickey/**'
+            infra_k8s:
+              - *ci_workflow_path
+              - 'infra/k8s/**'
+            infra_terraform:
+              - *ci_workflow_path
+              - 'infra/aws/**/*.tf'
 
   # ===========================================================================
   # Common
@@ -449,8 +457,8 @@ jobs:
   # Infra
   # ===========================================================================
 
-  ansible-lint:
-    name: Ansible Lint
+  lint-ansible:
+    name: Lint Ansible
     needs: detect-changes
     if: needs['detect-changes'].outputs.infra_ansible == 'true'
     runs-on: ubuntu-latest
@@ -461,6 +469,66 @@ jobs:
         uses: ansible/ansible-lint@v25
         with:
           working_directory: infra/ansible/
+
+  lint-k8s:
+    name: Lint Kubernetes
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.infra_k8s == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: azure/setup-kubectl@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -L -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform.tar.gz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate Kustomize manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find infra/k8s -name 'kustomization.y*ml' -print0 |
+            while IFS= read -r -d '' file; do
+              dir="$(dirname "$file")"
+              echo "Validating ${dir}"
+              kubectl kustomize "$dir" | kubeconform -strict -ignore-missing-schemas
+            done
+
+  lint-terraform:
+    name: Lint Terraform
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.infra_terraform == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - uses: terraform-linters/setup-tflint@v4
+
+      - name: Check Terraform format
+        run: terraform fmt -check -recursive infra/aws
+
+      - name: Run TFLint
+        shell: bash
+        run: |
+          set -euo pipefail
+          # TODO: 임시 예외입니다. 각 Terraform 루트/모듈에 required_version과 provider 버전 제약을 명시한 뒤 이 예외를 제거합니다.
+          disabled_rules=(
+            --disable-rule=terraform_required_version
+            --disable-rule=terraform_required_providers
+          )
+
+          find infra/aws -name '*.tf' -printf '%h\n' | sort -u |
+            while read -r dir; do
+              echo "Linting ${dir}"
+              tflint --chdir="$dir" "${disabled_rules[@]}" --init
+              tflint --chdir="$dir" "${disabled_rules[@]}"
+            done
 
   check-ssh-public-keys:
     name: Check SSH Public Keys
@@ -615,7 +683,9 @@ jobs:
       - test-iris
       - test-plag
       - build-frontend
-      - ansible-lint
+      - lint-ansible
+      - lint-k8s
+      - lint-terraform
       - check-ssh-public-keys
       - validate-ci-workflow
     if: always()
@@ -638,7 +708,9 @@ jobs:
             "test-iris:${{ needs['test-iris'].result }}"
             "test-plag:${{ needs['test-plag'].result }}"
             "build-frontend:${{ needs['build-frontend'].result }}"
-            "ansible-lint:${{ needs['ansible-lint'].result }}"
+            "lint-ansible:${{ needs['lint-ansible'].result }}"
+            "lint-k8s:${{ needs['lint-k8s'].result }}"
+            "lint-terraform:${{ needs['lint-terraform'].result }}"
             "check-ssh-public-keys:${{ needs['check-ssh-public-keys'].result }}"
             "validate-ci-workflow:${{ needs['validate-ci-workflow'].result }}"
           )
