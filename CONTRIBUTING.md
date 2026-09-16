@@ -123,3 +123,42 @@ Visual Studio Code와 GitPod에서 개발 환경을 세팅하는 방법을 문�
 ## Testing & Debugging 🐞
 
 WIP
+
+### 로컬 관측성 스택 📡
+
+트레이스와 로그가 실제로 나가는지 로컬에서 확인할 때 사용합니다. 평소 개발에는 필요 없습니다.
+
+```bash
+docker compose --profile observability up -d otel-collector tempo loki grafana
+```
+
+| 주소                   | 용도                                             |
+| ---------------------- | ------------------------------------------------ |
+| http://localhost:3030  | Grafana (로그인 없이 접속, 데이터소스 자동 등록) |
+| http://localhost:3200  | Tempo API                                        |
+| http://localhost:3100  | Loki API                                         |
+| localhost:4317         | Collector OTLP gRPC 수신                         |
+
+백엔드는 `OTEL_EXPORTER_OTLP_ENDPOINT_URL` 기본값이 `localhost:4317`이라 별도 설정 없이 연결됩니다.
+
+Grafana의 Explore에서 Tempo 데이터소스를 고르고 Service Name에 `CLIENT-API` 또는 `ADMIN-API`를 넣으면
+방금 보낸 요청의 span 워터폴이 보입니다. Loki 데이터소스에서 `{service_name="CLIENT-API"}`를 조회하면
+로그 라인에 `trace_id`가 함께 들어 있습니다.
+
+span이 안 보이면 `docker compose logs otel-collector`를 먼저 확인하세요.
+collector가 받은 내용을 debug exporter로 stdout에 그대로 출력합니다.
+
+내리기:
+
+```bash
+docker compose --profile observability down
+```
+
+> [!NOTE]
+> 계측을 끄는 `DISABLE_INSTRUMENTATION`은 `.env`에 적어도 동작하지 않습니다.
+> `main.ts`가 `NestFactory`보다 먼저 계측을 초기화하는데 그 시점에는 `ConfigModule`이
+> `.env`를 아직 읽지 않았기 때문입니다. 셸 환경변수로 주세요.
+>
+> ```bash
+> DISABLE_INSTRUMENTATION=true pnpm start client
+> ```

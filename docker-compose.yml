@@ -101,9 +101,39 @@ services:
       - ./docker/observability/tempo.yaml:/etc/tempo/tempo.yaml:ro
       - codedang-tempo:/var/tempo
 
+  loki:
+    profiles: ['observability']
+    container_name: codedang-loki
+    # 클러스터의 loki helm chart 6.53.0과 같은 3.5 계열로 맞춘다.
+    image: grafana/loki:3.5.7
+    command: ['-config.file=/etc/loki/loki.yaml']
+    ports:
+      - 3100:3100 # Loki HTTP API
+    volumes:
+      - ./docker/observability/loki.yaml:/etc/loki/loki.yaml:ro
+      - codedang-loki:/loki
+
+  grafana:
+    profiles: ['observability']
+    container_name: codedang-grafana
+    image: grafana/grafana:12.3.0
+    # 로컬 백엔드(admin)가 3000을 쓰므로 3030으로 노출한다.
+    ports:
+      - 3030:3000
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: 'Admin'
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+    volumes:
+      - ./docker/observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    depends_on:
+      - tempo
+      - loki
+
 volumes:
   codedang-storage:
   codedang-database:
   codedang-test-database:
   codedang-rabbitmq:
   codedang-tempo:
+  codedang-loki:
