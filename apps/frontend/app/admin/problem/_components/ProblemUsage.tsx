@@ -7,7 +7,7 @@ import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import ArrowRightIcon from '@/public/icons/arrow-right.svg'
 import FileInfoIcon from '@/public/icons/file-info.svg'
-import FilePenIcon from '@/public/icons/file-pen.svg'
+import FilePenIcon from '@/public/icons/file-with-pen.svg'
 import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import PrizeIcon from '@/public/icons/prize.svg'
 import TaskCompleteIcon from '@/public/icons/task-complete.svg'
@@ -71,7 +71,7 @@ function AssignmentProblemSection({ contents }: ProblemSectionProps) {
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
-                  <FilePenIcon className="h-6 w-6" />
+                  <FilePenIcon className="text-color-neutral-60 h-6 w-6" />
 
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">
@@ -103,7 +103,7 @@ function ContestProblemSection({ contents }: ContestSectionProps) {
         <Link key={content.id} href={`/contest/${content.id}`}>
           <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
             <div className="flex items-start gap-[10px]">
-              <PrizeIcon />
+              <PrizeIcon className="text-color-neutral-60 h-6 w-6" />
 
               <div className="flex items-center gap-[2px] self-stretch hover:brightness-110">
                 <span>{content.title}</span>

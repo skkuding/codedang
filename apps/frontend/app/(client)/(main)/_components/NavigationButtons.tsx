@@ -1,4 +1,4 @@
-import FileIcon from '@/public/icons/file_blue.svg'
+import FileIcon from '@/public/icons/file-fill.svg'
 import GraduationIcon from '@/public/icons/graduation_blue.svg'
 import NotiIcon from '@/public/icons/notification.svg'
 import PrizeIcon from '@/public/icons/prize_blue.svg'

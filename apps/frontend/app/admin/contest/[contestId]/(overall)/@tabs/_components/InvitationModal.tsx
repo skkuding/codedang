@@ -9,7 +9,7 @@ import {
   DialogTrigger
 } from '@/components/shadcn/dialog'
 import BulletIcon from '@/public/icons/bullet.svg'
-import CopyWhiteIcon from '@/public/icons/copy_white.svg'
+import CopyWhiteIcon from '@/public/icons/copy-fill.svg'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -76,7 +76,7 @@ export function InvitationModal({
           className="bg-primary mt-[22px] flex h-[46px] w-[344px] items-center justify-center gap-[6px] rounded-[1000px] px-[22px] pb-[11px] pt-[10px]"
           type="button"
         >
-          <CopyWhiteIcon width={20} />
+          <CopyWhiteIcon className="size-5 text-white" />
           <span className="text-lg font-medium leading-[25.2px] tracking-[-0.54px] text-white">
             Copy
           </span>
