@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -24,6 +26,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
+
+	_ "net/http/pprof"
 )
 
 type Env string
@@ -54,13 +58,36 @@ func main() {
 	ctx := context.Background()
 	if env == "stage" {
 		logProvider.Log(logger.INFO, "Running in stage mode")
-		http.HandleFunc("/health", healthCheckHandler)
+		healthMux := http.NewServeMux()
+		healthMux.HandleFunc("/health", healthCheckHandler)
 		go func() {
-			if err := http.ListenAndServe("0.0.0.0:3404", nil); err != nil {
+			if err := http.ListenAndServe("0.0.0.0:3404", healthMux); err != nil {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
 	}
+
+	if blockRate := utils.Getenv("PPROF_BLOCK_RATE", "0"); blockRate != "0" {
+		if n, err := strconv.Atoi(blockRate); err == nil {
+			runtime.SetBlockProfileRate(n)
+		} else {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Invalid PPROF_BLOCK_RATE: %v", err))
+		}
+	}
+	if mutexFraction := utils.Getenv("PPROF_MUTEX_FRACTION", "0"); mutexFraction != "0" {
+		if n, err := strconv.Atoi(mutexFraction); err == nil {
+			runtime.SetMutexProfileFraction(n)
+		} else {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Invalid PPROF_MUTEX_FRACTION: %v", err))
+		}
+	}
+
+	go func() {
+		logProvider.Log(logger.INFO, "Intializing pprof listening on :6060")
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start pprof: %v", err))
+		}
+	}()
 
 	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
 	if !disableInstrumentation {
@@ -140,14 +167,14 @@ func main() {
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_CONSUMER_CONNECTION_NAME", logProvider),
-			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_QUEUE_NAME", logProvider),
-			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_TAG", logProvider),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
 		},
 		rabbitmq.ProducerConfig{
 			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_SUBMISSION_PRODUCER_CONNECTION_NAME", logProvider),
-			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_EXCHANGE_NAME", logProvider),
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
 		},
 	).Connect(context.Background())

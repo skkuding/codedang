@@ -755,7 +755,7 @@ export class UserService {
    * 사용자의 정보를 업데이트합니다.
    *
    * @param {AuthenticatedRequest} req 인증된 사용자 정보가 포함된 HTTP 요청 객체
-   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, studentId, college, major, realName)
+   * @param updateUserDto 업데이트 하려는 사용자의 정보가 담긴 DTO 객체 (password, college, major, realName)
    * @throws {UnprocessableDataException} 현재 비밀번호를 입력하지 않으면 (빈 필드이면) 예외를 발생시킵니다.
    * @throws {EntityNotExistException} 사용자가 DB상에 존재하지 않을 경우 예외를 발생시킵니다.
    * @throws {UnidentifiedException} 잘못된 비밀번호를 입력했을 경우 예외를 발생시킵니다.
@@ -796,7 +796,6 @@ export class UserService {
 
     const updateData = {
       password: encryptedNewPassword,
-      studentId: updateUserDto.studentId,
       college: updateUserDto.college,
       major: updateUserDto.major,
       userProfile: {

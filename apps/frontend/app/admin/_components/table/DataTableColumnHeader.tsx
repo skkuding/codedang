@@ -36,7 +36,12 @@ export function DataTableColumnHeader<TData, TValue>({
   // Title column
   if (!column.getCanSort()) {
     return (
-      <div className={cn('text-center font-normal text-[#8A8A8A]', className)}>
+      <div
+        className={cn(
+          'text-center text-base font-normal text-[#8A8A8A]',
+          className
+        )}
+      >
         {title}
       </div>
     )

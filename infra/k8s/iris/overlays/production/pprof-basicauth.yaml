@@ -1,0 +1,16 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: pprof-basicauth
+  namespace: iris
+spec:
+  encryptedData:
+    users: AgBbN1DwLGeWiB/U6YlmgivaxTe32x98RQjjyWjlAVeoBxDuqKtR8ufnNWi3Nv3QF6/WF/8To57ULjE01WJD0i9MFdWmeL9iFUnGlk0/uOF6mj/a4uOBXVhqXdK2FIiWNlwDZc3UJEws7S3YkXPCsuWjzqxULUTLn4Zj7ffVm6tyGV/sbDuXeRva1KcPnyh7uEoSvzj4piCLJxcdfoyChsKedtlsBMP4gNvEfchEZrWJtBd1YmrOBD010PwLnNwnhNOrvlRSp1nH/AOhlKDBCsyM3i+Y99PNXb0KtQfqtsmudGwRyadYqTnAw9tl4wKN60+J6x09hgY3dF32lxcOSV6Jesyz5Uz+H3XAxwcQBmc9Njvj2gLj6RE7PYjxfMpibJaRWIKm9oJywEU8fhn5mot1C1jSk8+N8naJJQZkvrI/Kb+Va1nOjZ1yuc6XyqXqYnPLoI+94/rCJcQ6ZFkV0gj1dvSXwOSm48Tg+fPsnAgZ1oJIRgk8OCfm65yRfxRRnqSoK+nJLH3Vq7zhNZRzF8cXbWiahILKK2uQIvTn6OUuj2aOalJBCZOLYp19jS76EY25YXko+goa0rt6rbFs94bnxLqKI3hwDrkWLrH/3GQGhuJMi99SNOhGl9g69t4fJbQUxZ/C1XVJv1TVNf9QQZdCICKYu5TjmPga43yLYwv8Ii06COjlKXTxBTCku+IQIYJ5ZX1BINUEukubYWxnBEYq+G/fp+zG3PTDgE1SG8x0a2P2rhOwlHhZeEflGR9+MuOkrJ44+JYLd3yG2CwiXI+2NnLCwck=
+  template:
+    metadata:
+      creationTimestamp: null
+      name: pprof-basicauth
+      namespace: iris
+    type: Opaque
