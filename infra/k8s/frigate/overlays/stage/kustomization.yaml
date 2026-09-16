@@ -5,4 +5,4 @@ namespace: frigate
 
 resources:
   - ../../base
-  - ingress.yaml
+  - HTTPRoutes.yaml

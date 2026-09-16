@@ -82,6 +82,7 @@ spec:
                 operator: In
                 values:
                   - cloud-beaver
+                  - frigate
                   - headlamp
                   - minio
                   - monitoring-grafana
