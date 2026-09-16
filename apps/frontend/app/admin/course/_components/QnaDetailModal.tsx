@@ -16,10 +16,10 @@ import { useSession } from '@/libs/hooks/useSession'
 import { dateFormatter } from '@/libs/utils'
 import CheckIcon from '@/public/icons/check-circle.svg'
 import ClockIcon from '@/public/icons/clock.svg'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import LockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
+import WarningIcon from '@/public/icons/warning.svg'
 import { useMutation, useSuspenseQuery } from '@apollo/client'
 import { Suspense } from '@suspensive/react'
 import { useParams } from 'next/navigation'
@@ -230,7 +230,7 @@ function QnaDetailContent({
           ))
         ) : (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex w-full flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <InfoGrayIcon />
+            <WarningIcon w={30} h={30} className="text-color-neutral-80" />
             <span>Comments not registered</span>
           </div>
         )}

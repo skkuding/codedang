@@ -8,10 +8,10 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import ArrowLeftIcon from '@/public/icons/arrow-left.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import LockGrayIcon from '@/public/icons/lock-gray.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
+import WarningIcon from '@/public/icons/warning.svg'
 import type { CourseSingleQnaData } from '@/types/type'
 import {
   useSuspenseQuery,
@@ -159,7 +159,7 @@ export function QnaDetailView() {
         </span>
         {!qna.comments || qna.comments.length === 0 ? (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <InfoGrayIcon />
+            <WarningIcon w={30} h={30} className="text-color-neutral-80" />
             <span>Comments not registered</span>
           </div>
         ) : (

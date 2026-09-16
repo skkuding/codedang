@@ -6,11 +6,11 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import ArrowRightIcon from '@/public/icons/arrow-right.svg'
-import FileInfoIcon from '@/public/icons/file-info.svg'
+import FileInfoIcon from '@/public/icons/file-with-info.svg'
 import FilePenIcon from '@/public/icons/file-with-pen.svg'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import PrizeIcon from '@/public/icons/prize.svg'
 import TaskCompleteIcon from '@/public/icons/task-complete.svg'
+import WarningIcon from '@/public/icons/warning.svg'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
 
@@ -158,7 +158,7 @@ function NoContentsSection({ label }: { label: string }) {
   return (
     <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-1 self-stretch rounded-lg px-5 pb-10 pt-7">
       <div className="text-color-neutral-80 relative h-7 w-7 overflow-hidden">
-        <InfoGrayIcon className="absolute left-[2.40px] top-[2.40px] h-6 w-6" />
+        <WarningIcon className="text-color-neutral-80 absolute left-[2.40px] top-[2.40px] size-6" />
       </div>
       <div className="text-color-neutral-80 text-body1_m_16 justify-start self-stretch text-center">
         No {label} have used this problem
@@ -219,7 +219,7 @@ export function ProblemUsage({ problemId }: ProblemUsageProps) {
       type="custom"
       title="Using this problem"
       headerDescription="This problem is used in the following contexts"
-      trigger={<FileInfoIcon />}
+      trigger={<FileInfoIcon className="text-color-neutral-10 size-6" />}
     >
       <ScrollArea className="h-full w-full pr-2">
         <div className="border-line flex min-h-0 flex-col items-start gap-[30px] self-stretch rounded-[16px] border bg-white p-[30px]">

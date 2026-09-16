@@ -57,7 +57,7 @@ export const DateTimePickerDemo = forwardRef<
           ref={ref}
         >
           <CalendarIcon
-            className="mr-2 h-4 w-4"
+            className="text-primary mr-2 h-4 w-4"
             style={{ filter: 'grayscale(100%)' }}
           />
 

@@ -277,11 +277,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md bg-editor-fill-1 border-flowkit-red flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] font-normal hover:bg-[#232838]"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <TrashcanIcon
-                  className="text-flowkit-red"
-                  width={16}
-                  height={16}
-                />
+                <TrashcanIcon className="text-flowkit-red size-4" />
               </span>
               <span className="text-flowkit-red translate-y-[0.5px] leading-none">
                 Reset

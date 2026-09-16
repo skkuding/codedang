@@ -12,7 +12,7 @@ import {
 } from '@/components/shadcn/alert-dialog'
 import { Button } from '@/components/shadcn/button'
 import { safeFetcherWithAuth } from '@/libs/utils'
-import InfoIcon from '@/public/icons/info.svg'
+import WarningIcon from '@/public/icons/warning.svg'
 import type { ContestPreview, ContestTop } from '@/types/type'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -58,7 +58,7 @@ export function RegisterCancelButton({
           onEscapeKeyDown={() => setDeleteModalFlag(false)}
         >
           <AlertDialogHeader className="mt-[2px] flex flex-col items-center justify-center">
-            <InfoIcon width={42} height={42} />
+            <WarningIcon width={42} height={42} className="text-error" />
             <AlertDialogTitle
               className={'w-full text-center text-2xl font-semibold'}
             >
