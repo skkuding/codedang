@@ -1,0 +1,27 @@
+# 로컬 개발용 Tempo 단일 바이너리 설정. 저장은 컨테이너 볼륨에만 한다.
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+ingester:
+  # 로컬에서는 방금 보낸 trace가 빨리 조회되어야 하므로 짧게 잡는다.
+  max_block_duration: 1m
+  complete_block_timeout: 1m
+
+compactor:
+  compaction:
+    block_retention: 1h
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/blocks
+    wal:
+      path: /var/tempo/wal

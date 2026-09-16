@@ -81,15 +81,29 @@ services:
   otel-collector:
     profiles: ['observability']
     container_name: codedang-otel-collector
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.161.0
     command: ['--config=/etc/otelcol-contrib/config.yaml']
     ports:
       - 4317:4317 # OTLP gRPC
     volumes:
       - ./docker/observability/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
 
+  tempo:
+    profiles: ['observability']
+    container_name: codedang-tempo
+    # 클러스터의 tempo helm chart 1.24.0과 같은 2.8 계열로 맞춘다.
+    # 3.x는 설정 스키마가 달라 이 설정 파일이 파싱되지 않는다.
+    image: grafana/tempo:2.8.2
+    command: ['-config.file=/etc/tempo/tempo.yaml']
+    ports:
+      - 3200:3200 # Tempo HTTP API
+    volumes:
+      - ./docker/observability/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - codedang-tempo:/var/tempo
+
 volumes:
   codedang-storage:
   codedang-database:
   codedang-test-database:
   codedang-rabbitmq:
+  codedang-tempo:
