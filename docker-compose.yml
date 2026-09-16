@@ -78,6 +78,16 @@ services:
     volumes:
       - codedang-rabbitmq:/var/lib/rabbitmq
 
+  otel-collector:
+    profiles: ['observability']
+    container_name: codedang-otel-collector
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ['--config=/etc/otelcol-contrib/config.yaml']
+    ports:
+      - 4317:4317 # OTLP gRPC
+    volumes:
+      - ./docker/observability/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+
 volumes:
   codedang-storage:
   codedang-database:

@@ -1,0 +1,33 @@
+# 로컬 개발용 OpenTelemetry Collector 설정.
+# 클러스터 설정(infra/k8s/monitoring/otel-collector/otel-collector.yaml)과
+# 파이프라인 구성을 맞추되, 로컬에서는 debug exporter로 stdout에 바로 출력한다.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+    # 로컬에서는 바로 보이는 것이 중요하므로 클러스터(10s/512)보다 짧게 잡는다.
+    timeout: 1s
+    send_batch_size: 64
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
