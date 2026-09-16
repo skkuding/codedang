@@ -10,7 +10,7 @@ resources:
   - pprof-basicauth-credential.yaml
 
 patches:
-  - path: configmap-patch.yaml
+  - path: configmap.yaml
     target:
       kind: ConfigMap
       name: iris-env
