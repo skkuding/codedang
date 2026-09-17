@@ -25,8 +25,22 @@ exporters:
     endpoint: http://loki:3100/otlp
     tls:
       insecure: true
+  # Prometheus가 이 포트를 스크랩한다. 설정은 클러스터와 같다.
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
 
 service:
+  # collector 자체 메트릭을 Prometheus가 스크랩할 수 있게 노출한다.
+  telemetry:
+    metrics:
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 0.0.0.0
+                port: 8888
   pipelines:
     traces:
       receivers: [otlp]
@@ -35,7 +49,7 @@ service:
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug]
+      exporters: [debug, prometheus]
     logs:
       receivers: [otlp]
       processors: [batch]
