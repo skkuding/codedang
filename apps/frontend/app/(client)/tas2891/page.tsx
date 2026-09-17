@@ -44,35 +44,6 @@ export default function ButtonTestPage() {
           </div>
         </section>
       ))}
-      {sizes.map((size, index) => (
-        <section key={size} className="flex flex-wrap gap-4 space-y-4">
-          <Button
-            variant="primary_sub"
-            size={`${size}_sub`}
-            className={widthSub[index]}
-          >
-            <Clock className="w-5" />
-            SUB
-          </Button>
-          <Button
-            variant="lined_sub"
-            size={`${size}_sub`}
-            className={widthSub[index]}
-          >
-            <Clock className="w-5" />
-            SUB
-          </Button>
-          <Button
-            variant="primary_sub"
-            size={`${size}_sub`}
-            className={widthSub[index]}
-            disabled
-          >
-            <Clock className="w-5" />
-            SUB
-          </Button>
-        </section>
-      ))}
       <section className="flex gap-4">
         <Button variant="icon" size="icon_large">
           <Clock className="w-5" />
