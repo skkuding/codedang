@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-production
+  namespace: argocd
+  labels:
+    app.kubernetes.io/environment: production
+spec:
+  project: default
+  sources:
+    - repoURL: https://community-charts.github.io/helm-charts
+      chart: n8n
+      targetRevision: '1.16.4'
+      helm:
+        releaseName: n8n
+        valueFiles:
+          - $codedang/infra/k8s/n8n/values.yaml
+    # This branch intentionally exists only in the local worktree. Replace the
+    # repository URL and revision with a private Git source before applying.
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: local-notion-backup
+      ref: codedang
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: local-notion-backup
+      path: infra/k8s/n8n
+  destination:
+    name: production
+    namespace: n8n
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
