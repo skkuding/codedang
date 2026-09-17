@@ -127,6 +127,7 @@ WIP
 ### Observability
 
 트레이스·로그·메트릭이 실제로 나가는지 로컬에서 확인할 때 사용합니다. 평소 개발에는 필요 없습니다.
+구성과 데이터 흐름은 [docker/observability/README.md](docker/observability/README.md)에 정리돼 있습니다.
 
 ```bash
 docker compose --profile observability up -d
