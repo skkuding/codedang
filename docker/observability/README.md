@@ -1,17 +1,17 @@
-# Local observability stack
+# 로컬 관측성 스택
 
-A Docker Compose profile for checking traces, logs and metrics on a local machine.
-It is not required for regular development.
+로컬에서 트레이스·로그·메트릭을 확인하기 위한 Docker Compose 프로필입니다.
+평소 개발에는 필요 없습니다.
 
 ```sh
 docker compose --profile observability up -d
 ```
 
-# Architecture
+## 구성도
 
 ```mermaid
 flowchart LR
-  subgraph apps[Applications]
+  subgraph apps[애플리케이션]
     client[client-api]
     admin[admin-api]
     iris[iris]
@@ -20,10 +20,10 @@ flowchart LR
 
   collector[OpenTelemetry Collector]
 
-  subgraph backends[Backends]
-    tempo[(Tempo<br/>traces)]
-    loki[(Loki<br/>logs)]
-    prom[(Prometheus<br/>metrics)]
+  subgraph backends[저장소]
+    tempo[(Tempo<br/>트레이스)]
+    loki[(Loki<br/>로그)]
+    prom[(Prometheus<br/>메트릭)]
   end
 
   grafana[Grafana<br/>localhost:3030]
@@ -32,57 +32,28 @@ flowchart LR
   admin --> collector
   iris --> collector
   plag --> collector
-  collector -- traces --> tempo
-  collector -- logs --> loki
+  collector -- 트레이스 --> tempo
+  collector -- 로그 --> loki
   collector ~~~ prom
-  prom -- "scrape (:8889)" --> collector
+  prom -- "메트릭 수집 (:8889)" --> collector
   tempo --> grafana
   loki --> grafana
   prom --> grafana
 ```
 
-- Applications send telemetry to the collector over OTLP gRPC (`:4317`).
-- The collector exports traces to Tempo and logs to Loki, and exposes metrics on `:8889` for Prometheus to scrape.
-- Prometheus also scrapes the collector's own telemetry (`:8888`) and RabbitMQ (`:15692`) directly.
-- Tempo's metrics generator writes span metrics and service graphs to Prometheus via remote write.
-- Grafana queries Tempo, Loki and Prometheus. The datasources are provisioned on startup.
+- 애플리케이션은 OTLP gRPC(`:4317`)로 수집기에 텔레메트리를 보냅니다.
+- 수집기는 트레이스를 Tempo로, 로그를 Loki로 보내고, 메트릭은 `:8889`에 노출해 Prometheus가 가져가게 합니다.
+- Prometheus는 수집기 자체 메트릭(`:8888`)과 RabbitMQ(`:15692`)도 직접 가져갑니다.
+- Tempo는 트레이스로부터 span 메트릭과 서비스 그래프를 만들어 Prometheus로 보냅니다(remote write).
+- Grafana는 Tempo·Loki·Prometheus를 조회합니다. 데이터소스는 기동 시 자동으로 등록됩니다.
 
-# Components
+## 구성 요소
 
-| Service              | Image                                          | Host port | Config                                                |
-| -------------------- | ---------------------------------------------- | --------- | ----------------------------------------------------- |
-| `otel-collector`     | `otel/opentelemetry-collector-contrib:0.161.0` | 4317      | `otel-collector.yaml`                                 |
-| `tempo`              | `grafana/tempo:2.8.2`                          | 3200      | `tempo.yaml`                                          |
-| `loki`               | `grafana/loki:3.5.7`                           | 3100      | `loki.yaml`                                           |
-| `prometheus`         | `prom/prometheus:v3.7.3`                       | 9090      | `prometheus.yaml`                                     |
-| `grafana`            | `grafana/grafana:12.3.0`                       | 3030      | `grafana-datasources.yaml`, `grafana-dashboards.yaml` |
-| `grafana-dashboards` | `curlimages/curl:8.16.0`                       | -         | `download-dashboards.sh`                              |
-
-# Dashboards
-
-`grafana-dashboards` downloads community dashboards from grafana.com before Grafana starts.
-Each dashboard is pinned by gnetId and revision in `download-dashboards.sh`.
-
-| Dashboard               | gnetId | Revision |
-| ----------------------- | ------ | -------- |
-| RabbitMQ Overview       | 10991  | 12       |
-| OpenTelemetry Collector | 15983  | 30       |
-
-The first startup needs internet access. If a download fails, Grafana still starts and keeps any previously downloaded files.
-
-# Differences from the cluster
-
-Same as the cluster:
-
-- Image versions follow the cluster's chart versions.
-- Prometheus scrapes application metrics from the collector's `:8889`.
-- Prometheus scrapes RabbitMQ directly.
-- Loki's OTLP index labels and Tempo's metrics generator processors.
-- RabbitMQ Overview dashboard revision.
-
-Local only:
-
-- The collector's own telemetry (`:8888`) and the OpenTelemetry Collector dashboard.
-- The collector's `debug` exporter, which prints all received telemetry to its stdout.
-- Grafana allows anonymous access as Admin.
-- Storage is on local Docker volumes.
+| 서비스               | 이미지                                         | 호스트 포트 | 설정 파일                                             |
+| -------------------- | ---------------------------------------------- | ----------- | ----------------------------------------------------- |
+| `otel-collector`     | `otel/opentelemetry-collector-contrib:0.161.0` | 4317        | `otel-collector.yaml`                                 |
+| `tempo`              | `grafana/tempo:2.8.2`                          | 3200        | `tempo.yaml`                                          |
+| `loki`               | `grafana/loki:3.5.7`                           | 3100        | `loki.yaml`                                           |
+| `prometheus`         | `prom/prometheus:v3.7.3`                       | 9090        | `prometheus.yaml`                                     |
+| `grafana`            | `grafana/grafana:12.3.0`                       | 3030        | `grafana-datasources.yaml`, `grafana-dashboards.yaml` |
+| `grafana-dashboards` | `curlimages/curl:8.16.0`                       | -           | `download-dashboards.sh`                              |
