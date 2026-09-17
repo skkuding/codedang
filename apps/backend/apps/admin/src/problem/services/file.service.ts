@@ -84,6 +84,8 @@ export class FileService {
           'File not found or you do not have permission to delete this file'
         )
       }
+      // HOTFIX: Disable attachment deletion to prevent data loss.
+      /*
 
       const file = await tx.file.delete({
         where: {
@@ -99,8 +101,8 @@ export class FileService {
           `Failed to delete file from storage: ${error.message}`
         )
       }
-
-      return file
+      */
+      return fileExists
     })
 
     return deletedFile
