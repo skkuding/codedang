@@ -20,4 +20,4 @@ data:
   MEDIA_BUCKET_NAME: 'codedang-media'
   OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
   OTEL_EXPORTER_OTLP_ENDPOINT: 'http://simplest-collector.monitoring-otel.svc.cluster.local:4317'
-  OTEL_SERVICE_NAME: 'CLIENT-API'
+  OTEL_SERVICE_NAME: 'client-api'
