@@ -13,22 +13,15 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino'
 import { containerDetector } from '@opentelemetry/resource-detector-container'
 import {
-  type Resource,
-  detectResources,
   envDetector,
   hostDetector,
   osDetector,
-  processDetector,
-  resourceFromAttributes
+  processDetector
 } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
-import {
-  ATTR_SERVICE_NAME,
-  ATTR_SERVICE_VERSION
-} from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 /**
@@ -42,66 +35,18 @@ class Instrumentation {
   private static sdk: NodeSDK | null = null
   static readonly logger: Logger = new Logger('Instrumentation')
 
-  public static getResource = async (
-    serviceName: string,
-    serviceVersion: string
-  ): Promise<Resource> => {
-    const environment = process.env.APP_ENV || 'local'
-
-    const ATTR_DEPLOYMENT_ENVIRONMENT = 'deployment.environment'
-    const baseResource = resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: serviceName,
-      [ATTR_SERVICE_VERSION]: serviceVersion,
-      [ATTR_DEPLOYMENT_ENVIRONMENT]: environment
-    })
-
-    const autoDetectedResource = detectResources({
-      detectors: [
-        processDetector,
-        hostDetector,
-        containerDetector,
-        osDetector,
-        envDetector
-      ]
-    })
-
-    return baseResource.merge(autoDetectedResource)
-  }
-
-  /**
-   * @param otlpEndpointUrl Collector의 OTLP Endpoint URL, 예: `localhost:4317`
-   */
-  static async start(
-    otlpEndpointUrl: string,
-    resource: Resource
-  ): Promise<void> {
+  static async start(): Promise<void> {
     if (Instrumentation.sdk) {
       return // 이미 초기화된 경우 다시 초기화하지 않음
     }
 
-    const otlpEndpointUrlWithScheme = otlpEndpointUrl.startsWith('http')
-      ? otlpEndpointUrl
-      : `http://${otlpEndpointUrl}`
-
-    const spanProcessors = [
-      new BatchSpanProcessor(
-        new OTLPTraceExporter({
-          url: otlpEndpointUrlWithScheme
-        })
-      )
-    ]
+    const spanProcessors = [new BatchSpanProcessor(new OTLPTraceExporter())]
     const metricReader = new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter({
-        url: otlpEndpointUrlWithScheme
-      }),
+      exporter: new OTLPMetricExporter(),
       exportIntervalMillis: 15000
     })
     const logRecordProcessors = [
-      new BatchLogRecordProcessor(
-        new OTLPLogExporter({
-          url: otlpEndpointUrlWithScheme
-        })
-      )
+      new BatchLogRecordProcessor(new OTLPLogExporter())
     ]
 
     const textMapPropagator = new CompositePropagator({
@@ -117,7 +62,13 @@ class Instrumentation {
     ]
 
     Instrumentation.sdk = new NodeSDK({
-      resource,
+      resourceDetectors: [
+        processDetector,
+        hostDetector,
+        containerDetector,
+        osDetector,
+        envDetector
+      ],
       spanProcessors,
       metricReader,
       logRecordProcessors,
@@ -125,9 +76,6 @@ class Instrumentation {
       instrumentations
     })
 
-    this.logger.log(
-      `OTEL SDK starting with endpoint: ${otlpEndpointUrlWithScheme}`
-    )
     return Instrumentation.sdk.start()
   }
 
