@@ -23,7 +23,7 @@ patches:
     target:
       kind: Deployment
       name: iris
-  - path: HTTPRoutes.yaml
+  - path: httproute.yaml
     target:
       kind: HTTPRoute
       name: iris-pprof-httproute
