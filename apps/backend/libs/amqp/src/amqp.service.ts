@@ -373,7 +373,7 @@ export class MandeuldangAMQPService {
       MANDEULDANG_GENERATOR_KEY,
       request,
       {
-        messageId: String(request.requestId),
+        messageId: String(requestId),
         persistent: true,
         type: MANDEULDANG_GENERATOR_MESSAGE_TYPE
       }
