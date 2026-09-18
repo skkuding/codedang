@@ -6,9 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 
@@ -24,7 +22,6 @@ import (
 	otel_metric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
 var (
@@ -35,19 +32,14 @@ var (
 	loggerProvider *otel_log.LoggerProvider
 )
 
-func newResource(ctx context.Context, serviceName, serviceVersion string) (*resource.Resource, error) {
-	appEnv := strings.ToLower(os.Getenv("APP_ENV"))
+func newResource(ctx context.Context) (*resource.Resource, error) {
 	attrs := []resource.Option{
-		resource.WithAttributes(
-			semconv.ServiceName(serviceName),
-			semconv.ServiceVersion(serviceVersion),
-			semconv.DeploymentEnvironment(appEnv),
-		),
 		resource.WithProcess(),
 		resource.WithHost(),
 		resource.WithContainer(),
 		resource.WithOS(),
 		resource.WithTelemetrySDK(),
+		resource.WithFromEnv(),
 	}
 
 	res, err := resource.New(ctx, attrs...)
@@ -57,16 +49,16 @@ func newResource(ctx context.Context, serviceName, serviceVersion string) (*reso
 	return res, nil
 }
 
-func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string) (shutdown func(context.Context) error, err error) {
+func Init(ctx context.Context) (shutdown func(context.Context) error, err error) {
 	initOnce.Do(func() {
-		res, rErr := newResource(ctx, serviceName, serviceVersion)
+		res, rErr := newResource(ctx)
 		if rErr != nil {
 			err = fmt.Errorf("failed to initialize resource: %w", rErr)
 			return
 		}
 
 		// Trace
-		traceExporter, trExpErr := otlptracegrpc.New(ctx, otlptracegrpc.WithEndpoint(otlpEndpoint), otlptracegrpc.WithInsecure())
+		traceExporter, trExpErr := otlptracegrpc.New(ctx)
 		if trExpErr != nil {
 			err = fmt.Errorf("trace exporter: %w", trExpErr)
 			return
@@ -77,7 +69,7 @@ func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string)
 		shutdownFuncs = append(shutdownFuncs, tracerProvider.Shutdown)
 
 		// Metric
-		metricExporter, mExpErr := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithEndpoint(otlpEndpoint), otlpmetricgrpc.WithInsecure())
+		metricExporter, mExpErr := otlpmetricgrpc.New(ctx)
 		if mExpErr != nil {
 			err = fmt.Errorf("metric exporter: %w", mExpErr)
 			return
@@ -88,7 +80,7 @@ func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string)
 		shutdownFuncs = append(shutdownFuncs, meterProvider.Shutdown)
 
 		// Log
-		logExporter, lExpErr := otlploggrpc.New(ctx, otlploggrpc.WithEndpoint(otlpEndpoint), otlploggrpc.WithInsecure())
+		logExporter, lExpErr := otlploggrpc.New(ctx)
 		if lExpErr != nil {
 			err = fmt.Errorf("failed to create OTLP log exporter: %w", lExpErr)
 			return
@@ -107,7 +99,7 @@ func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string)
 			propagation.Baggage{},
 		))
 
-		log.Println("OpenTelemetry initialized successfully", "endpoint", otlpEndpoint)
+		log.Println("OpenTelemetry initialized successfully")
 	})
 
 	shutdown = func(ctx context.Context) error {
