@@ -13,7 +13,7 @@ patches:
     target:
       kind: ConfigMap
       name: frontend-env
-  - path: HTTPRoutes.yaml
+  - path: httproute.yaml
     target:
       kind: HTTPRoute
       name: frontend-httproute
