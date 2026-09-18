@@ -164,5 +164,5 @@ func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 }
 
 func GetSemanticSpanName(packageName, functionName string) string {
-	return fmt.Sprintf("%s:%s:%s", "IRIS", packageName, functionName)
+	return fmt.Sprintf("%s:%s", packageName, functionName)
 }
