@@ -24,3 +24,86 @@ assert {
 script:pre-request {
   await require("./login").loginUser(req);
 }
+
+docs {
+  # [404] Nonexistent Submission
+  
+  존재하지 않는 problemId의 제출 내역을 가져옵니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |    ✅    | 문제 ID |
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `assignmentId` | number | ✅       | ID of the assignment |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "id": 6,
+    "userId": 7,
+    "user": {
+      "username": "user01"
+    },
+    "language": "C",
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main(void) {\n    printf(\"Hello, World!\n\");\n    return 0;\n}",
+        "locked": false
+      }
+    ],
+    "createTime": "2026-01-07T11:03:16.730Z",
+    "result": "Accepted",
+    "submissionResult": [
+      {
+        "id": 6,
+        "cpuTime": "12345",
+        "memoryUsage": 12345,
+        "problemTestcaseId": 1,
+        "result": "Accepted"
+      }
+    ],
+    "codeSize": null
+  }
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `id` | number | ✅       |  id |
+  | `userId` | number | ✅       | 제출자의 id |
+  | `username` | string | ✅       | 제출자 이름 |
+  | `language` | string | ✅       | 제출 언어 |
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | number | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `createTime` | date | ✅       | 제출 시간 |
+  | `result` | string | ✅       | 제출 결과 |
+  | `id` | number | ✅       | 제출의 id |
+  | `cpuTime` | string | ✅       | 실행시간 |
+  | `memoryUsage` | number | ✅       | 메모리 사용량 |
+  | `problemTestcaseId` | number | ✅       | 테스트 케이스 id |
+  | `result` | string | ✅       | 테스트 케이스 결과 |
+  | `codeSize` | number | ✅       | 제출 코드 길이 |
+}
