@@ -19,7 +19,10 @@ import {
   processDetector
 } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
-import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
+import {
+  AggregationType,
+  PeriodicExportingMetricReader
+} from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
@@ -61,6 +64,15 @@ class Instrumentation {
       new AmqplibInstrumentation()
     ]
 
+    // nestjs-otel apiMetrics도 HttpInstrumentation과 같은 이름으로 기록하므로 한쪽만 남긴다
+    const views = [
+      {
+        meterName: 'nestjs-otel',
+        instrumentName: 'http.server.duration',
+        aggregation: { type: AggregationType.DROP }
+      }
+    ]
+
     Instrumentation.sdk = new NodeSDK({
       resourceDetectors: [
         processDetector,
@@ -71,6 +83,7 @@ class Instrumentation {
       ],
       spanProcessors,
       metricReader,
+      views,
       logRecordProcessors,
       textMapPropagator,
       instrumentations
