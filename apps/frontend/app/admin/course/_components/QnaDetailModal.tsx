@@ -230,7 +230,7 @@ function QnaDetailContent({
           ))
         ) : (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex w-full flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <WarningIcon w={30} h={30} className="text-color-neutral-80" />
+            <WarningIcon className="text-color-neutral-80 size-[30px]" />
             <span>Comments not registered</span>
           </div>
         )}

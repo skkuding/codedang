@@ -86,7 +86,7 @@ export function Modal({
       >
         <DialogHeader className="flex flex-col items-center justify-center space-y-0">
           {type === 'warning' && (
-            <WarningIcon width={42} height={42} className="text-error" />
+            <WarningIcon className="text-error size-[42px]" />
           )}
           <DialogTitle
             className={cn(

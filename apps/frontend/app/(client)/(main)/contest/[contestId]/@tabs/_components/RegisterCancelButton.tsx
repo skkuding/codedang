@@ -58,7 +58,7 @@ export function RegisterCancelButton({
           onEscapeKeyDown={() => setDeleteModalFlag(false)}
         >
           <AlertDialogHeader className="mt-[2px] flex flex-col items-center justify-center">
-            <WarningIcon width={42} height={42} className="text-error" />
+            <WarningIcon className="text-error size-[42px]" />
             <AlertDialogTitle
               className={'w-full text-center text-2xl font-semibold'}
             >

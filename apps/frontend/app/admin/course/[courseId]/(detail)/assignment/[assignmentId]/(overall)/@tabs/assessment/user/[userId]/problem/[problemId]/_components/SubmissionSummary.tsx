@@ -34,7 +34,7 @@ function SubmissionSummaryItem({
 export function SubmissionSummaryError() {
   return (
     <div className="flex flex-col items-center gap-4 py-4 text-center">
-      <WarningIcon width={50} height={50} className="text-error" />
+      <WarningIcon className="text-error size-[50px]" />
       <p className="text-xl font-medium">No Submission</p>
       <div className="text-sm font-normal">
         <p>No code has been submitted by this student.</p>
