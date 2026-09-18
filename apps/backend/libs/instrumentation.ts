@@ -148,11 +148,6 @@ export default Instrumentation
 
 export const openTelemetryModuleOption = {
   metrics: {
-    hostMetrics: true,
-    apiMetrics: {
-      enable: true,
-      ignoreRoutes: ['/favicon.ico'],
-      ignoreUndefinedRoutes: false
-    }
+    hostMetrics: true
   }
 }
