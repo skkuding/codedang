@@ -1,11 +1,75 @@
 import { encode, getToken } from 'next-auth/jwt'
+import type { JWT } from 'next-auth/jwt'
 import { NextResponse, type NextRequest } from 'next/server'
-import { getJWTFromResponse } from './libs/auth/getJWTFromResponse'
-import { baseUrl } from './libs/constants'
+import { reissueAccessToken } from './libs/auth/reissueAccessToken'
 
 const sessionCookieName = process.env.NEXTAUTH_URL?.startsWith('https://')
   ? '__Secure-next-auth.session-token'
   : 'next-auth.session-token'
+
+const sessionCookieOptions = {
+  maxAge: 24 * 60 * 60,
+  secure:
+    process.env.APP_ENV === 'production' || process.env.APP_ENV === 'stage',
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  path: '/'
+}
+
+const isProtectedCoursePath = (pathname: string) =>
+  /^\/course\/.+/.test(pathname)
+
+const createLoginUrl = (req: NextRequest) => {
+  const loginUrl = new URL('/login', req.url)
+  loginUrl.searchParams.set('redirectUrl', req.nextUrl.pathname)
+  return loginUrl
+}
+
+const logPwaAccess = (req: NextRequest, token: JWT | null) => {
+  if (req.nextUrl.searchParams.get('isPWA') !== 'true') {
+    return
+  }
+
+  console.log(
+    JSON.stringify({
+      event: 'PWA',
+      timestamp: new Date().toISOString(),
+      path: req.nextUrl.pathname,
+      user: {
+        username: token?.username,
+        name: token?.name,
+        role: token?.role
+      },
+      ip: req.headers.get('x-real-ip'),
+      userAgent: req.headers.get('user-agent'),
+      referer: req.headers.get('referer')
+    })
+  )
+}
+
+const clearSession = (req: NextRequest, response: NextResponse) => {
+  req.cookies.delete(sessionCookieName)
+  response.cookies.delete(sessionCookieName)
+  return response
+}
+
+const handleReissueFailure = (req: NextRequest) => {
+  const { pathname } = req.nextUrl
+  const isAuthRequest = pathname.startsWith('/next-auth/api/auth/')
+
+  if (pathname === '/login' || isAuthRequest) {
+    return clearSession(
+      req,
+      NextResponse.next({
+        request: {
+          headers: new Headers(req.headers)
+        }
+      })
+    )
+  }
+
+  return clearSession(req, NextResponse.redirect(createLoginUrl(req)))
+}
 
 export const middleware = async (req: NextRequest) => {
   const token = await getToken({
@@ -15,65 +79,25 @@ export const middleware = async (req: NextRequest) => {
 
   const { pathname } = req.nextUrl
 
-  const isCourseDetailPath = /^\/course\/.+/.test(pathname)
-
-  if (isCourseDetailPath && !token) {
-    const loginUrl = new URL('/login', req.url)
-    loginUrl.searchParams.set('redirectUrl', pathname)
-    return NextResponse.redirect(loginUrl)
+  if (isProtectedCoursePath(pathname) && !token) {
+    return NextResponse.redirect(createLoginUrl(req))
   }
 
-  if (req.nextUrl.searchParams.get('isPWA') === 'true') {
-    console.log(
-      JSON.stringify(
-        {
-          event: 'PWA',
-          timestamp: new Date().toISOString(),
-          path: pathname,
-          user: {
-            username: token?.username,
-            name: token?.name,
-            role: token?.role
-          },
-          ip: req.headers.get('x-real-ip'),
-          userAgent: req.headers.get('user-agent'),
-          referer: req.headers.get('referer')
-        },
-        null,
-        0
-      )
-    )
-  }
+  logPwaAccess(req, token)
 
   if (token && token.accessTokenExpires <= Date.now()) {
-    // Handle unauthorized access to admin page
-    // if (
-    //   req.nextUrl.pathname.startsWith('/admin') &&
-    //   (!token || token.role === 'User')
-    // ) {
-    //   return NextResponse.redirect(new URL('/', req.url))
-    // }
+    if (token.refreshTokenExpires <= Date.now()) {
+      return handleReissueFailure(req)
+    }
 
-    // Handle reissue of access token
     try {
-      const reissueRes = await fetch(`${baseUrl}/auth/reissue`, {
-        headers: {
-          cookie: `refresh_token=${token.refreshToken}`
-        },
-        cache: 'no-store'
-      })
-
-      if (!reissueRes.ok) {
-        throw new Error('Failed to reissue token')
-      }
-
-      // If reissue is successful, update session token.
       const {
         accessToken,
         refreshToken,
         accessTokenExpires,
         refreshTokenExpires
-      } = getJWTFromResponse(reissueRes)
+      } = await reissueAccessToken(token.refreshToken)
+
       const newToken = await encode({
         secret: process.env.NEXTAUTH_SECRET as string,
         token: {
@@ -87,34 +111,28 @@ export const middleware = async (req: NextRequest) => {
       })
 
       req.cookies.set(sessionCookieName, newToken)
-
       const reissuedResponse = NextResponse.next({
         request: {
           headers: new Headers(req.headers)
         }
       })
-      reissuedResponse.cookies.set(sessionCookieName, newToken, {
-        maxAge: 24 * 60 * 60,
-        secure:
-          process.env.APP_ENV === 'production' ||
-          process.env.APP_ENV === 'stage',
-        httpOnly: true,
-        sameSite: 'lax'
-      })
+      reissuedResponse.cookies.set(
+        sessionCookieName,
+        newToken,
+        sessionCookieOptions
+      )
 
       return reissuedResponse
     } catch {
-      // If reissue is failed, delete session token.
-      req.cookies.delete(sessionCookieName)
-
-      const deletedResponse = NextResponse.next({
-        request: {
-          headers: new Headers(req.headers)
-        }
-      })
-      deletedResponse.cookies.delete(sessionCookieName)
-
-      return deletedResponse
+      return handleReissueFailure(req)
     }
   }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff|woff2)$).*)'
+  ]
 }

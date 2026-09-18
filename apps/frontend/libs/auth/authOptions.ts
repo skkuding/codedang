@@ -41,9 +41,7 @@ export const authOptions: NextAuthOptions = {
 
       session.token = {
         accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
-        accessTokenExpires: token.accessTokenExpires,
-        refreshTokenExpires: token.refreshTokenExpires
+        accessTokenExpires: token.accessTokenExpires
       }
 
       return session
