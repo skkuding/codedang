@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  APP_ENV: 'production'
   name: client-api-env
   namespace: client-api
 data:

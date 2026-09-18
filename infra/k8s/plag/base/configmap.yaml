@@ -12,6 +12,8 @@ data:
   RABBITMQ_SSL: 'true'
   RABBITMQ_DEFAULT_VHOST: 'vh'
   OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
+  OTEL_EXPORTER_OTLP_ENDPOINT: 'http://simplest-collector.monitoring-otel.svc.cluster.local:4317'
+  OTEL_SERVICE_NAME: 'PLAG'
   CHECK_CONSUMER_CONNECTION_NAME: 'plag-consumer'
   CHECK_QUEUE_NAME: 'plag.q.check.request'
   CHECK_TAG: 'check-consumer'
