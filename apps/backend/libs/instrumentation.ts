@@ -22,7 +22,10 @@ import {
   resourceFromAttributes
 } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
-import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
+import {
+  AggregationType,
+  PeriodicExportingMetricReader
+} from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import {
@@ -116,10 +119,20 @@ class Instrumentation {
       new AmqplibInstrumentation()
     ]
 
+    // nestjs-otel apiMetrics도 HttpInstrumentation과 같은 이름으로 기록하므로 한쪽만 남긴다
+    const views = [
+      {
+        meterName: 'nestjs-otel',
+        instrumentName: 'http.server.duration',
+        aggregation: { type: AggregationType.DROP }
+      }
+    ]
+
     Instrumentation.sdk = new NodeSDK({
       resource,
       spanProcessors,
       metricReader,
+      views,
       logRecordProcessors,
       textMapPropagator,
       instrumentations
@@ -148,6 +161,11 @@ export default Instrumentation
 
 export const openTelemetryModuleOption = {
   metrics: {
-    hostMetrics: true
+    hostMetrics: true,
+    apiMetrics: {
+      enable: true,
+      ignoreRoutes: ['/favicon.ico'],
+      ignoreUndefinedRoutes: false
+    }
   }
 }
