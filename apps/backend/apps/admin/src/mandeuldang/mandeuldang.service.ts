@@ -18,7 +18,6 @@ export class MandeuldangService {
     userId: number,
     userRole: Role
   ) {
-    //DB에 파일 저장
     return await this.fileService.uploadMandeuldangToolFile(
       problemId,
       toolType,
@@ -34,7 +33,7 @@ export class MandeuldangService {
     userId: number,
     userRole: Role
   ) {
-    return this.fileService.deleteMandeuldangFile(
+    return this.fileService.deleteMandeuldangToolFile(
       problemId,
       toolType,
       userId,
@@ -45,18 +44,23 @@ export class MandeuldangService {
   //파일 실행
   async runGenerator(
     problemId: number,
+    requesterId: number,
     generatorArgs: string[],
-    testCaseCount: number
+    testcaseCount: number
   ) {
     await this.publicationService.publishGeneratorMessage(
       problemId,
+      requesterId,
       generatorArgs,
-      testCaseCount
+      testcaseCount
     )
   }
 
-  async runValidator(problemId: number) {
-    await this.publicationService.publishValidatorMessage(problemId)
+  async runValidator(problemId: number, requesterId: number) {
+    return await this.publicationService.publishValidatorMessage(
+      problemId,
+      requesterId
+    )
   }
 
   //테스트케이스 저장
