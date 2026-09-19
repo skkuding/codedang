@@ -2,16 +2,15 @@
 
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import { ChevronDown } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
 import { inputStyle } from '../../_libs/utils'
+import { formVariants } from './FormStyles'
 
 interface InputFormProps {
   placeholder?: string
   className?: string
   label?: string
-  isLabeled?: boolean
   name: string
   maxLength?: number
   type: 'text' | 'email' | 'number'
@@ -25,7 +24,6 @@ export function InputForm({
   placeholder,
   className,
   label,
-  isLabeled = Boolean(label),
   name,
   maxLength,
   type,
@@ -44,24 +42,13 @@ export function InputForm({
   const watchedValue = watch(name)
   const inputCount = String(value || watchedValue || '').length
   const error = Boolean(errors[name])
+  const status = error ? 'error' : 'default'
 
   const labelGap = { large: 'gap-2', middle: 'gap-1.5', small: 'gap-1' }
 
-  const containerHeight = {
-    large: 'h-[56px]',
-    middle: 'h-[46px]',
-    small: 'h-[38px]'
-  }
-
-  const containerRadius = {
-    large: 'rounded-[12px]',
-    middle: 'rounded-[12px]',
-    small: 'rounded-[10px]'
-  }
-
   return (
     <div className={cn(className, labelGap[size], 'flex w-full flex-col')}>
-      {label ? (
+      {label && (
         <span
           className={cn(
             'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
@@ -69,15 +56,13 @@ export function InputForm({
           )}
         >
           {label}
-          {isLabeled && <span className="mt-0.5 text-red-500">*</span>}
+          {/* {isMandatory && <span className="mt-0.5 text-red-500">*</span>} */}
         </span>
-      ) : null}
+      )}
       <div
         className={cn(
           'border-line flex items-center gap-2 border bg-white pr-4',
-          containerRadius[size],
-          containerHeight[size],
-          error && 'border-error',
+          formVariants({ size, status }),
           disabled && 'bg-color-neutral-95'
         )}
       >
@@ -130,7 +115,6 @@ export function InputForm({
             {inputCount}/{maxLength}
           </span>
         )}
-        <ChevronDown className="h-6 w-6 shrink-0" />
       </div>
       {errors[name] &&
         (errors[name]?.type === 'required' ? (

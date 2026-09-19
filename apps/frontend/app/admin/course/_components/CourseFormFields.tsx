@@ -78,12 +78,18 @@ export function CourseFormFields() {
         maxLength={2}
         disabled
       />
-      <FormSection isFlexColumn title="Week" className="gap-[6px]">
-        <DropdownForm name="week" items={weekOptions} />
-      </FormSection>
-      <FormSection isFlexColumn title="Semester" className="gap-[6px]">
-        <DropdownForm name="semester" items={semesterItems} />
-      </FormSection>
+      <DropdownForm
+        name="week"
+        label="Week"
+        items={weekOptions}
+        placeholder="16weeks"
+      />
+      <DropdownForm
+        name="semester"
+        label="Semester"
+        items={semesterItems}
+        placeholder={semesterItems[0]}
+      />
       <span className="whitespace-nowrap text-lg">Contact</span>
       <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
         <FormSection

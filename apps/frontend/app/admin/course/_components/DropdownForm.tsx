@@ -1,15 +1,26 @@
 'use client'
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
+import { cn } from '@/libs/utils'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
+import { formVariants } from './FormStyles'
 
 interface DropdownFormProps {
   name: string
+  size?: 'large' | 'middle' | 'small'
+  label?: string
+  placeholder?: string
   items: (string | number | { label: string; value: string | number })[]
 }
 
-export function DropdownForm({ name, items }: DropdownFormProps) {
+export function DropdownForm({
+  name,
+  size = 'middle',
+  label,
+  placeholder,
+  items
+}: DropdownFormProps) {
   const {
     formState: { errors }
   } = useFormContext()
@@ -31,10 +42,24 @@ export function DropdownForm({ name, items }: DropdownFormProps) {
     defaultValue: ''
   })
 
+  const labelGap = { large: 'gap-2', middle: 'gap-1.5', small: 'gap-1' }
+  const status = errors[name] ? 'error' : 'default'
+
   return (
-    <div className="flex flex-col gap-1">
+    <div className={cn('flex flex-col', labelGap[size])}>
+      {label && (
+        <p
+          className={cn(
+            'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
+            size === 'small' && 'text-sub4_sb_14'
+          )}
+        >
+          {label}
+        </p>
+      )}
       <OptionSelect
-        className="w-full"
+        className={cn('w-full', formVariants({ size, status }))}
+        placeholder={placeholder}
         options={normalizedItems.map((item) => ({
           label: item.label,
           value: String(item.value)
