@@ -1,6 +1,6 @@
 'use client'
 
-import CalendarGrayIcon from '@/public/icons/calendar-gray.svg'
+import CalendarGrayIcon from '@/public/icons/calendar.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { JoinedCourse } from '@/types/type'
 
@@ -53,7 +53,7 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
         <div className="flex flex-col gap-[6px] pt-4">
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <CalendarGrayIcon width={24} height={24} />
+            <CalendarGrayIcon className="text-color-cool-neutral-60 size-6" />
             <span className="text-color-cool-neutral-40 text-body3_r_16">
               {course.courseInfo.semester}
             </span>

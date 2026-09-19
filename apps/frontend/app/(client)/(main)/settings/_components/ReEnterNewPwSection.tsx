@@ -45,7 +45,11 @@ export function ReEnterNewPwSection({
             className="absolute right-0 top-0 flex h-full cursor-pointer items-center p-3"
             onClick={() => setConfirmPasswordShow(!confirmPasswordShow)}
           >
-            {confirmPasswordShow ? <VisibleIcon /> : <InvisibleIcon />}
+            {confirmPasswordShow ? (
+              <VisibleIcon className="text-color-blue-60 size-6" />
+            ) : (
+              <InvisibleIcon />
+            )}
           </span>
         </div>
       </div>
