@@ -1,0 +1,84 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation PublishMandeuldangProblem($id: Int!) {
+    publishMandeuldangProblem(id: $id) {
+      id
+      title
+      status
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 12
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📘 Publish Mandeuldang Problem
+
+  **POST** `/graphql (mutation: publishMandeuldangProblem)`
+
+  Publishes a Ready Mandeuldang problem, making it publicly accessible.
+
+  Ready 상태의 만들당 문제를 발행하여 공개 상태(Published)로 전환합니다.
+
+  - **권한**: Owner만 발행 가능. Editor/Reviewer 및 협업자가 아닌 사용자는 거부됩니다.
+  - **상태 조건**: 문제 상태가 Ready여야만 발행할 수 있습니다. Draft 상태는 거부됩니다.
+  - 발행 직전에 발행 조건(본문 완성/솔루션/테스트파일)을 다시 검증하며, 하나라도 만족하지 않으면 발행이 거부됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Owner)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  |---|---|---|---|
+  | `id` | Int | ✅ | 발행할 문제의 ID |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "publishMandeuldangProblem": {
+        "id": 12,
+        "title": "발행할 문제",
+        "status": "Published"
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  |--------|------|------|
+  | `id` | Int | 문제 ID |
+  | `title` | String | 문제 제목 |
+  | `status` | ProblemStatus | 발행 후 상태 (`Published`) |
+}
