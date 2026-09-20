@@ -251,6 +251,8 @@ export class MandeuldangProblemService {
       throw new ForbiddenException('Only the owner can delete this problem')
     }
 
+    // Disable attachment deletion until the file deletion policy is defined.
+    /*
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
 
@@ -269,6 +271,7 @@ export class MandeuldangProblemService {
 
       await Promise.all(deleteFromS3Results)
     }
+    */
 
     return await this.prisma.problem.delete({
       where: { id }
