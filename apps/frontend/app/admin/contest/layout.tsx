@@ -9,17 +9,21 @@ export const dynamic = 'force-dynamic'
 // ManagementSidebar.tsx에도 중복되어 있어 동일하게 유지해야 함
 async function canManageContest() {
   try {
-    const [user, userContests] = await Promise.all([
-      safeFetcherWithAuth.get('user').json<User>(),
-      safeFetcherWithAuth.get('contest/role').json<UserContest[]>()
-    ])
+    const user = await safeFetcherWithAuth.get('user').json<User>()
 
-    return (
-      user.canCreateContest ||
-      userContests.some(
-        ({ role }) =>
-          role !== ContestRole.Participant && role !== ContestRole.Reviewer
-      )
+    if (user.canCreateContest) {
+      return true
+    }
+
+    // NOTE: /contest/role은 인증 실패 시 401 대신 200을 반환하므로,
+    // 인증이 유효함이 확인된 뒤에 호출해야 함 (병렬 호출 금지)
+    const userContests = await safeFetcherWithAuth
+      .get('contest/role')
+      .json<UserContest[]>()
+
+    return userContests.some(
+      ({ role }) =>
+        role !== ContestRole.Participant && role !== ContestRole.Reviewer
     )
   } catch (error) {
     console.error('Error fetching contest permission:', error)
