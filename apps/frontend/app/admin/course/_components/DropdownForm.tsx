@@ -100,7 +100,7 @@ export function DropdownForm({
       >
         <SelectTrigger
           className={cn(
-            'focus:ring-primary text-body1_m_16 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 focus:ring-offset-0',
+            'focus:ring-primary text-body1_m_16 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 focus:ring-offset-0 disabled:opacity-100',
             size === 'small' && 'text-body2_m_14',
             formVariants({ size, status }),
             disabled &&

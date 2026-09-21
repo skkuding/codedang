@@ -69,8 +69,7 @@ export function InputForm({
       <div
         className={cn(
           'flex items-center gap-2 pr-4',
-          formVariants({ size, status }),
-          disabled && 'bg-color-neutral-95'
+          formVariants({ size, status })
         )}
       >
         <Input
@@ -83,7 +82,8 @@ export function InputForm({
           className={cn(
             inputStyle,
             'placeholder:text-color-neutral-90 disabled:placeholder:text-color-neutral-60 disabled:bg-color-neutral-95 text-body1_m_16 h-full rounded-full border-none px-4 focus-visible:ring-0',
-            size === 'small' && 'text-body2_m_14'
+            size === 'small' && 'text-body2_m_14',
+            disabled && 'placeholder:text-color-neutral-60'
           )}
           maxLength={maxLength || 120}
           {...register(name, {
