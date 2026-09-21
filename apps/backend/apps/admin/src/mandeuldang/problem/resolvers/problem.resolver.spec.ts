@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { ProblemStatus, Role } from '@prisma/client'
+import { ProblemStatus } from '@generated'
+import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import type { AuthenticatedRequest } from '@libs/auth'
