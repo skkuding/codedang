@@ -42,7 +42,14 @@ export function InputForm({
   const watchedValue = watch(name)
   const inputCount = String(value || watchedValue || '').length
   const error = Boolean(errors[name])
-  const status = error ? 'error' : 'default'
+  let status: 'default' | 'error' | 'disabled' = 'default'
+
+  if (error) {
+    status = 'error'
+  }
+  if (disabled) {
+    status = 'disabled'
+  }
 
   const labelGap = { large: 'gap-2', middle: 'gap-1.5', small: 'gap-1' }
 
@@ -75,8 +82,8 @@ export function InputForm({
           sizeVariant="md"
           className={cn(
             inputStyle,
-            'placeholder:text-color-neutral-90 disabled:placeholder:text-color-neutral-60 disabled:bg-color-neutral-95 placeholder:text-body1_m_16 h-full rounded-full border-none px-4 focus-visible:ring-0',
-            size === 'small' && 'placeholder:text-body2_m_14'
+            'placeholder:text-color-neutral-90 disabled:placeholder:text-color-neutral-60 disabled:bg-color-neutral-95 text-body1_m_16 h-full rounded-full border-none px-4 focus-visible:ring-0',
+            size === 'small' && 'text-body2_m_14'
           )}
           maxLength={maxLength || 120}
           {...register(name, {
@@ -117,6 +124,7 @@ export function InputForm({
         )}
       </div>
       {errors[name] &&
+        !disabled &&
         (errors[name]?.type === 'required' ? (
           <ErrorMessage />
         ) : (

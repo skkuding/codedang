@@ -54,7 +54,14 @@ export function DropdownForm({
   })
 
   const labelGap = { large: 'gap-2', middle: 'gap-1.5', small: 'gap-1' }
-  const status = errors[name] ? 'error' : 'default'
+  let status: 'default' | 'error' | 'disabled' = 'default'
+
+  if (errors[name]) {
+    status = 'error'
+  }
+  if (disabled) {
+    status = 'disabled'
+  }
 
   return (
     <div className={cn('flex flex-col', labelGap[size])}>
@@ -93,8 +100,11 @@ export function DropdownForm({
       >
         <SelectTrigger
           className={cn(
-            'focus:ring-primary text-sub4_sb_14 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 hover:bg-gray-50 focus:ring-offset-0',
-            formVariants({ size, status })
+            'focus:ring-primary text-body1_m_16 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 focus:ring-offset-0',
+            size === 'small' && 'text-body2_m_14',
+            formVariants({ size, status }),
+            disabled &&
+              'data-[placeholder]:text-color-neutral-90 bg-color-neutral-95'
           )}
         >
           <SelectValue placeholder={placeholder} />
@@ -116,6 +126,7 @@ export function DropdownForm({
         </SelectContent>
       </Select>
       {errors[name] &&
+        !disabled &&
         (errors[name]?.type === 'required' ? (
           <ErrorMessage />
         ) : (

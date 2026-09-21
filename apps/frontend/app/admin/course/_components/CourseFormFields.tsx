@@ -65,6 +65,7 @@ export function CourseFormFields() {
           maxLength={7}
           value={courseNumber}
           onChange={handleCourseNumberChange}
+          disabled
         />
       </div>
       <InputForm
@@ -79,6 +80,7 @@ export function CourseFormFields() {
         label="Week"
         items={weekOptions}
         placeholder="16 weeks"
+        disabled
       />
       <DropdownForm
         name="semester"
