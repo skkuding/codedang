@@ -63,7 +63,7 @@ services:
     image: redis:7-alpine
     ports:
       - 6380:6379
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass 'skku1234'
 
   rabbitmq:
     container_name: codedang-rabbitmq
@@ -78,8 +78,96 @@ services:
     volumes:
       - codedang-rabbitmq:/var/lib/rabbitmq
 
+  otel-collector:
+    profiles: ['observability']
+    container_name: codedang-otel-collector
+    image: otel/opentelemetry-collector-contrib:0.161.0
+    command: ['--config=/etc/otelcol-contrib/config.yaml']
+    ports:
+      - 4317:4317 # OTLP gRPC
+    volumes:
+      - ./docker/observability/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+
+  tempo:
+    profiles: ['observability']
+    container_name: codedang-tempo
+    image: grafana/tempo:2.8.2
+    command: ['-config.file=/etc/tempo/tempo.yaml']
+    ports:
+      - 3200:3200 # Tempo HTTP API
+    volumes:
+      - ./docker/observability/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - codedang-tempo:/var/tempo
+
+  loki:
+    profiles: ['observability']
+    container_name: codedang-loki
+    image: grafana/loki:3.5.7
+    command: ['-config.file=/etc/loki/loki.yaml']
+    ports:
+      - 3100:3100 # Loki HTTP API
+    volumes:
+      - ./docker/observability/loki.yaml:/etc/loki/loki.yaml:ro
+      - codedang-loki:/loki
+
+  prometheus:
+    profiles: ['observability']
+    container_name: codedang-prometheus
+    image: prom/prometheus:v3.7.3
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      # Tempo metrics_generator의 remote write 수신용
+      - '--web.enable-remote-write-receiver'
+      - '--enable-feature=exemplar-storage'
+    ports:
+      - 9090:9090 # Prometheus UI/API
+    volumes:
+      - ./docker/observability/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+      - codedang-prometheus:/prometheus
+
+  # 커뮤니티 대시보드를 grafana.com에서 받아 grafana와 공유하는 볼륨에 둔다.
+  grafana-dashboards:
+    profiles: ['observability']
+    container_name: codedang-grafana-dashboards
+    image: curlimages/curl:8.16.0
+    user: '0' # 새로 만든 볼륨에 쓰기 위해
+    entrypoint: ['sh', '/download-dashboards.sh']
+    volumes:
+      - ./docker/observability/download-dashboards.sh:/download-dashboards.sh:ro
+      - codedang-grafana-dashboards:/dashboards
+
+  grafana:
+    profiles: ['observability']
+    container_name: codedang-grafana
+    image: grafana/grafana:12.3.0
+    ports:
+      - 3030:3000
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: 'Admin'
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_USERS_DEFAULT_LANGUAGE: 'ko-KR'
+    volumes:
+      - ./docker/observability/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./docker/observability/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - codedang-grafana-dashboards:/var/lib/grafana/dashboards/community:ro
+    depends_on:
+      tempo:
+        condition: service_started
+      loki:
+        condition: service_started
+      prometheus:
+        condition: service_started
+      grafana-dashboards:
+        condition: service_completed_successfully
+
 volumes:
   codedang-storage:
   codedang-database:
   codedang-test-database:
   codedang-rabbitmq:
+  codedang-tempo:
+  codedang-loki:
+  codedang-prometheus:
+  codedang-grafana-dashboards:
