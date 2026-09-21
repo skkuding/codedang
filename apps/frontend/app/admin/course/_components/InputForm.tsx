@@ -61,7 +61,7 @@ export function InputForm({
       )}
       <div
         className={cn(
-          'border-line flex items-center gap-2 border bg-white pr-4',
+          'flex items-center gap-2 pr-4',
           formVariants({ size, status }),
           disabled && 'bg-color-neutral-95'
         )}

@@ -78,7 +78,7 @@ export function CourseFormFields() {
         name="week"
         label="Week"
         items={weekOptions}
-        placeholder="16weeks"
+        placeholder="16 weeks"
       />
       <DropdownForm
         name="semester"

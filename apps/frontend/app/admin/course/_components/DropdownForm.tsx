@@ -93,7 +93,7 @@ export function DropdownForm({
       >
         <SelectTrigger
           className={cn(
-            'focus:ring-primary text-sub4_sb_14 w-full rounded-full bg-white p-4 hover:bg-gray-50 focus:ring-offset-0',
+            'focus:ring-primary text-sub4_sb_14 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 hover:bg-gray-50 focus:ring-offset-0',
             formVariants({ size, status })
           )}
         >
