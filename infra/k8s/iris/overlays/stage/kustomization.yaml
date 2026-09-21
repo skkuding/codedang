@@ -8,6 +8,7 @@ resources:
   - database-credentials.yaml
   - pprof-basicauth.yaml
   - pprof-basicauth-credential.yaml
+  - pprof-client.yaml
 
 replicas:
   - name: iris
@@ -22,7 +23,7 @@ patches:
     target:
       kind: Deployment
       name: iris
-  - path: HTTPRoutes.yaml
+  - path: httproute.yaml
     target:
       kind: HTTPRoute
       name: iris-pprof-httproute

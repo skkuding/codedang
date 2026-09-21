@@ -7,5 +7,6 @@ resources:
   - traefik-config.yaml
   - gateway.yaml
   - TLSRedirect.yaml
+  - internal-deny-route.yaml
 commonAnnotations:
   managed-by: kustomize
