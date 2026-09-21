@@ -1,6 +1,15 @@
 'use client'
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
+import { ScrollArea } from '@/components/shadcn/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/shadcn/select'
 import { cn } from '@/libs/utils'
 import { useController, useFormContext } from 'react-hook-form'
 import { ErrorMessage } from '../../_components/ErrorMessage'
@@ -12,6 +21,7 @@ interface DropdownFormProps {
   label?: string
   placeholder?: string
   items: (string | number | { label: string; value: string | number })[]
+  disabled?: boolean
 }
 
 export function DropdownForm({
@@ -19,7 +29,8 @@ export function DropdownForm({
   size = 'middle',
   label,
   placeholder,
-  items
+  items,
+  disabled
 }: DropdownFormProps) {
   const {
     formState: { errors }
@@ -57,7 +68,7 @@ export function DropdownForm({
           {label}
         </p>
       )}
-      <OptionSelect
+      {/* <OptionSelect
         className={cn('w-full', formVariants({ size, status }))}
         placeholder={placeholder}
         options={normalizedItems.map((item) => ({
@@ -70,7 +81,40 @@ export function DropdownForm({
         onChange={(value) => {
           field.onChange(areValuesNumeric ? Number(value) : value)
         }}
-      />
+      /> */}
+      <Select
+        value={
+          areValuesNumeric ? String(field.value ?? '') : (field.value ?? '')
+        }
+        onValueChange={(value) => {
+          field.onChange(areValuesNumeric ? Number(value) : value)
+        }}
+        disabled={disabled}
+      >
+        <SelectTrigger
+          className={cn(
+            'focus:ring-primary text-sub4_sb_14 w-full rounded-full bg-white p-4 hover:bg-gray-50 focus:ring-offset-0',
+            formVariants({ size, status })
+          )}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-white">
+          <ScrollArea>
+            <SelectGroup className="flex flex-col gap-1 p-5">
+              {normalizedItems.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={String(option.value)}
+                  className="cursor-pointer hover:bg-gray-100/80"
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </ScrollArea>
+        </SelectContent>
+      </Select>
       {errors[name] &&
         (errors[name]?.type === 'required' ? (
           <ErrorMessage />
