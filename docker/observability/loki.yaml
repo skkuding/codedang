@@ -1,0 +1,36 @@
+# 로컬 개발용 Loki 단일 바이너리 설정.
+# limits_config.otlp_config는 클러스터
+# (infra/k8s/monitoring/loki/values.yaml)와 의도적으로 동일하게 둔다.
+# 인덱스 라벨 변경을 로컬에서 먼저 확인하기 위한 것이다.
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+distributor:
+  otlp_config:
+    default_resource_attributes_as_index_labels:
+      # these keys will be indexed
+      ['service.name', 'service.version', 'service.environment']
