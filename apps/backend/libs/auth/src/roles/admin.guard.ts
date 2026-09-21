@@ -24,6 +24,10 @@ export class AdminGuard implements CanActivate {
       [context.getHandler(), context.getClass()]
     )
 
+    if (isAdminNotNeeded === true) {
+      return true
+    }
+
     let request: AuthenticatedRequest
     if (context.getType<GqlContextType>() === 'graphql') {
       request = GqlExecutionContext.create(context).getContext().req
@@ -37,9 +41,6 @@ export class AdminGuard implements CanActivate {
       user.role = userRole
     }
 
-    if (isAdminNotNeeded === true) {
-      return true
-    }
     if (user.role === Role.User) {
       return false
     }
