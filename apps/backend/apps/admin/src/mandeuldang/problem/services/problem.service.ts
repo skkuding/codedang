@@ -198,21 +198,24 @@ export class MandeuldangProblemService {
     }
 
     // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
+    const isOwner = problem.createdById === userId
     const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_userId: { problemId: id, userId } }
     })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role === CollaboratorRole.Reviewer
-    ) {
+    const isApprovedEditor =
+      collaborator?.status === CollaboratorStatus.Approved &&
+      collaborator.role === CollaboratorRole.Editor
+    if (!isOwner && !isApprovedEditor) {
       throw new ForbiddenAccessException('Only Owner or Editor can edit')
     }
 
     // 제목은 빈 문자열일 수 없다.
     let normalizedTitle: string | undefined
     if (title !== undefined) {
+      if (title === null) {
+        throw new UnprocessableDataException('Title cannot be empty')
+      }
       normalizedTitle = title.trim()
       if (!normalizedTitle) {
         throw new UnprocessableDataException('Title cannot be empty')
@@ -249,7 +252,7 @@ export class MandeuldangProblemService {
       )
 
       // publish 상태인 문제인 경우 조건 만족시에만 저장 가능
-      if (problem.status === ProblemStatus.Published) {
+      if (updated.status === ProblemStatus.Published) {
         if (!canPublish) {
           throw new UnprocessableDataException(
             'Edits that break publishing requirements cannot be saved.'
@@ -261,7 +264,7 @@ export class MandeuldangProblemService {
       // draft 상태인 문제인 경우 조건 만족시 draft->ready로 자동 승격
       // ready 상태인 문제인 경우 조건 불만족시 ready->draft로 자동 승격
       const nextStatus = canPublish ? ProblemStatus.Ready : ProblemStatus.Draft
-      if (nextStatus !== problem.status) {
+      if (nextStatus !== updated.status) {
         await tx.problem.update({
           where: { id: problem.id },
           data: { status: nextStatus }
@@ -287,15 +290,15 @@ export class MandeuldangProblemService {
     }
 
     // 발행 권한이 있는지 확인 (Owner만 가능)
+    const isOwner = problem.createdById === userId
     const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_userId: { problemId, userId } }
     })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role !== CollaboratorRole.Owner
-    ) {
+    const isApprovedOwner =
+      collaborator?.status === CollaboratorStatus.Approved &&
+      collaborator.role === CollaboratorRole.Owner
+    if (!isOwner && !isApprovedOwner) {
       throw new ForbiddenAccessException('Only Owner can publish a problem')
     }
 
