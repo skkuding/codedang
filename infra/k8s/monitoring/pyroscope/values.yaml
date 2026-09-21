@@ -1,0 +1,61 @@
+# Pyroscope v2 single-binary backend. Alloy is deployed separately in the next step.
+architecture:
+  storage:
+    v1: false
+    v2: true
+  microservices:
+    enabled: false
+
+alloy:
+  enabled: false
+agent:
+  enabled: false
+minio:
+  enabled: false
+
+pyroscope:
+  replicaCount: 1
+  extraArgs:
+    log.level: info
+    config.expand-env: 'true'
+    metastore.index.cleanup-interval: 15m
+  extraEnvFrom:
+    - secretRef:
+        name: monitoring-user
+  # The MinIO Tenant creates buckets only during initial provisioning. Also
+  # create the bucket when adding Pyroscope to an already running tenant.
+  initContainers:
+    - name: create-profile-bucket
+      image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+      command: ['/bin/sh', '-ec']
+      args:
+        - |
+          mc alias set monitoring http://minio.monitoring-minio.svc.cluster.local:80 "$CONSOLE_ACCESS_KEY" "$CONSOLE_SECRET_KEY"
+          mc mb --ignore-existing monitoring/pyroscope
+      envFrom:
+        - secretRef:
+            name: monitoring-user
+      env:
+        - name: MC_CONFIG_DIR
+          value: /tmp/mc
+  persistence:
+    enabled: true # Pyroscope v2 metastore Raft state must survive Pod restarts.
+    size: 10Gi
+    storageClassName: local-path
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: '1'
+      memory: 2Gi
+  structuredConfig:
+    storage:
+      backend: s3
+      s3:
+        bucket_name: pyroscope
+        endpoint: minio.monitoring-minio.svc.cluster.local:80
+        insecure: true
+        bucket_lookup_type: path-style
+        access_key_id: ${CONSOLE_ACCESS_KEY}
+        secret_access_key: ${CONSOLE_SECRET_KEY}
