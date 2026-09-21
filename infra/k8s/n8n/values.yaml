@@ -140,7 +140,7 @@ main:
       mountPath: /run/secrets/notion-s3-backup
       readOnly: true
 ingress:
-  enabled: true
+  enabled: false
   className: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -154,127 +154,28 @@ ingress:
         - path: /
           pathType: Prefix
 
-log:
-  level: info
+extraManifests:
+  - apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: n8n-httproute
+      namespace: n8n
+    spec:
+      parentRefs:
+        - name: main-gateway
+          namespace: kube-system
+          sectionName: https-wildcard
+      hostnames:
+        - n8n.codedang.com
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          backendRefs:
+            - name: n8n
+              port: 5678
 
-main:
-  count: 1
-  resources:
-    requests:
-      cpu: 250m
-      memory: 512Mi
-    limits:
-      cpu: '1'
-      memory: 1Gi
-  persistence:
-    enabled: true
-    existingClaim: n8n-data
-    volumeName: n8n-data
-    storageClass: local-path
-    accessMode: ReadWriteOnce
-    size: 8Gi
-    annotations:
-      helm.sh/resource-policy: keep
-  extraEnvVars:
-    db_sqlite_pool_size: '2'
-    executions_data_max_age: '168'
-    executions_data_prune: 'true'
-    executions_data_prune_max_count: '100'
-    executions_data_save_on_error: all
-    executions_data_save_on_progress: 'false'
-    executions_data_save_on_success: none
-    executions_timeout: '43200'
-    executions_timeout_max: '43200'
-    n8n_block_env_access_in_node: 'false'
-    n8n_concurrency_production_limit: '1'
-    n8n_git_node_disable_bare_repos: 'true'
-  initContainers:
-    - name: import-managed-workflows
-      image: n8nio/n8n:1.120.4
-      imagePullPolicy: IfNotPresent
-      command: ['/bin/sh', '-c']
-      args:
-        - |
-          set -eu
-          node /opt/n8n-provisioning/notion-s3-preflight.mjs
-          marker=/home/node/.n8n/.managed-workflows-v6
-          if [ ! -f "$marker" ]; then
-            if n8n import:credentials --separate --input=/opt/n8n-credentials \
-              && n8n import:workflow --input=/opt/n8n-provisioning/github-notion.json \
-              && n8n import:workflow --input=/opt/n8n-provisioning/notion-activity.json \
-              && n8n import:workflow --input=/opt/n8n-provisioning/notion-activity-backup.json \
-              && n8n import:workflow --input=/opt/n8n-provisioning/notion-backup.json \
-              && n8n update:workflow --id=Kk6GC9syEGfI5u0e --active=true \
-              && n8n update:workflow --id=notionActivityV1 --active=true \
-              && n8n update:workflow --id=notionActivityBackupV1 --active=true \
-              && n8n update:workflow --id=notionBackupV1 --active=false; then
-              touch "$marker"
-            else
-              echo 'Managed workflow import failed; leaving the marker absent for retry'
-              exit 1
-            fi
-          fi
-      envFrom:
-        - configMapRef:
-            name: n8n-database-configmap
-        - secretRef:
-            name: n8n-encryption-key-secret-v2
-      volumeMounts:
-        - name: n8n-data
-          mountPath: /home/node/.n8n
-        - name: provisioning
-          mountPath: /opt/n8n-provisioning
-          readOnly: true
-        - name: integration-credentials
-          mountPath: /opt/n8n-credentials
-          readOnly: true
-  volumes:
-    - name: provisioning
-      configMap:
-        name: n8n-provisioning
-    - name: backup-credentials
-      secret:
-        secretName: notion-backup-credentials
-        optional: true
-    - name: integration-credentials
-      secret:
-        secretName: n8n-credentials
-    - name: activity-backup-credentials
-      secret:
-        secretName: notion-activity-backup-credentials
-        optional: true
-    - name: notion-s3-backup-credentials
-      secret:
-        secretName: notion-backup-s3-credentials
-        optional: true
-  volumeMounts:
-    - name: provisioning
-      mountPath: /opt/n8n-provisioning
-      readOnly: true
-    - name: backup-credentials
-      mountPath: /run/secrets/notion-backup
-      readOnly: true
-    - name: activity-backup-credentials
-      mountPath: /run/secrets/notion-activity-backup
-      readOnly: true
-    - name: notion-s3-backup-credentials
-      mountPath: /run/secrets/notion-s3-backup
-      readOnly: true
-
-nodes:
-  builtin:
-    enabled: true
-    modules:
-      - crypto
-      - fs
-
+# Enable Prometheus monitoring
 serviceMonitor:
   enabled: true
-
-strategy:
-  type: Recreate
-
-timezone: Asia/Seoul
-
-versionNotifications:
-  enabled: false
