@@ -104,10 +104,16 @@ export function DropdownForm({
             size === 'small' && 'text-body2_m_14',
             formVariants({ size, status }),
             disabled &&
-              'data-[placeholder]:text-color-neutral-90 bg-color-neutral-95'
+              'data-[placeholder]:text-color-neutral-90 bg-color-neutral-95',
+            '[&>svg]:text-color-common-0 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:opacity-100'
           )}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue
+            placeholder={placeholder}
+            className={cn(
+              disabled && 'text-color-neutral-90 bg-color-neutral-95'
+            )}
+          />
         </SelectTrigger>
         <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-white">
           <ScrollArea>
