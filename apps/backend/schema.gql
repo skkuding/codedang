@@ -3260,6 +3260,11 @@ type ProblemCountAggregate {
   visibleLockTime: Int!
 }
 
+enum ProblemCreationMode {
+  Legacy
+  Mandeuldang
+}
+
 enum ProblemField {
   description
   hint
@@ -3268,6 +3273,17 @@ enum ProblemField {
   testcase
   timeLimit
   title
+}
+
+enum ProblemStatus {
+  Draft
+  Ready
+  Published
+}
+
+enum ProblemType {
+  General
+  SpecialJudge
 }
 
 type ProblemMaxAggregate {
