@@ -30,7 +30,7 @@ export class FileService {
       return
     }
 
-    const problem = await this.prisma.mandeuldangProblem.findUniqueOrThrow({
+    const problem = await this.prisma.problem.findUniqueOrThrow({
       where: {
         id: problemId
       },
@@ -39,7 +39,7 @@ export class FileService {
         mandeuldangCollaborators: {
           where: {
             userId,
-            status: CollaboratorStatus.Active
+            status: CollaboratorStatus.Approved
           },
           select: {
             role: true

@@ -751,11 +751,11 @@ type ClusterSummary {
 enum CollaboratorRole {
   Editor
   Owner
-  Viewer
+  Reviewer
 }
 
 enum CollaboratorStatus {
-  Active
+  Approved
   Pending
 }
 
@@ -2338,82 +2338,10 @@ enum Level {
   Level5
 }
 
-type MandeuldangApprovalRequest {
-  id: ID!
-  message: String
-  problem: MandeuldangProblem!
-  problemId: Int!
-  rejectionReason: String
-  requester: User!
-  requesterId: Int!
-  reviewedAt: DateTime
-  reviewer: User
-  reviewerId: Int
-  status: MandeuldangApprovalStatus!
-  submittedAt: DateTime!
-}
-
-type MandeuldangApprovalRequestAvgAggregate {
-  id: Float
-  problemId: Float
-  requesterId: Float
-  reviewerId: Float
-}
-
-type MandeuldangApprovalRequestCountAggregate {
-  _all: Int!
-  id: Int!
-  message: Int!
-  problemId: Int!
-  rejectionReason: Int!
-  requesterId: Int!
-  reviewedAt: Int!
-  reviewerId: Int!
-  status: Int!
-  submittedAt: Int!
-}
-
-type MandeuldangApprovalRequestMaxAggregate {
-  id: Int
-  message: String
-  problemId: Int
-  rejectionReason: String
-  requesterId: Int
-  reviewedAt: DateTime
-  reviewerId: Int
-  status: MandeuldangApprovalStatus
-  submittedAt: DateTime
-}
-
-type MandeuldangApprovalRequestMinAggregate {
-  id: Int
-  message: String
-  problemId: Int
-  rejectionReason: String
-  requesterId: Int
-  reviewedAt: DateTime
-  reviewerId: Int
-  status: MandeuldangApprovalStatus
-  submittedAt: DateTime
-}
-
-type MandeuldangApprovalRequestSumAggregate {
-  id: Int
-  problemId: Int
-  requesterId: Int
-  reviewerId: Int
-}
-
-enum MandeuldangApprovalStatus {
-  Approved
-  Pending
-  Rejected
-}
-
 type MandeuldangCollaborator {
   createTime: DateTime!
   id: ID!
-  problem: MandeuldangProblem!
+  problem: Problem!
   problemId: Int!
   role: CollaboratorRole!
   status: CollaboratorStatus!
@@ -2461,117 +2389,91 @@ type MandeuldangCollaboratorSumAggregate {
   userId: Int
 }
 
-type MandeuldangProblem {
-  _count: MandeuldangProblemCount!
+type MandeuldangProblemOutput {
+  CheckRequest: [CheckRequest!]
+  ContestQnA: [ContestQnA!]
+  _count: ProblemCount!
+  acceptedCount: Int!
+  acceptedRate: Float!
+  announcement: [Announcement!]
+  assignmentProblem: [AssignmentProblem!]
+
+  """지금 상태로 발행 가능한지 여부. 상세 조회에서만 계산해 채운다."""
+  canPublish: Boolean
+  contestProblem: [ContestProblem!]
+  courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
   createdById: Int
-  description: String!
-  difficulty: Level!
+  creationMode: ProblemCreationMode!
+  description: String
+  difficulty: Level
+  engDescription: String
+  engHint: String
+  engInputDescription: String
+  engOutputDescription: String
+  engTitle: String
+  hint: String
   id: ID!
-  inputDescription: String!
+  inputDescription: String
+  isHiddenUploadedByZip: Boolean!
+  isSampleUploadedByZip: Boolean!
   languages: [Language!]
   lastRunPass: Boolean!
-  mandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
   mandeuldangCollaborators: [MandeuldangCollaborator!]
   mandeuldangRunRequests: [MandeuldangRunRequest!]
-  mandeuldangSamples: [MandeuldangSample!]
   mandeuldangSolution: MandeuldangSolution
   mandeuldangTestFiles: [MandeuldangTestFile!]
   mandeuldangTools: [MandeuldangTool!]
-  memoryLimit: Int!
-  outputDescription: String!
-  status: MandeuldangProblemStatus!
-  timeLimit: Int!
+  memoryLimit: Int
+
+  """
+  canPublish가 false일 때 무엇이 부족한지 나타내는 코드 목록 (STATEMENT/SOLUTION/TEST_FILES). 실제 발행 가능 여부의 최종 판단과 발행 자체는 Update/발행 담당 쪽에서 이뤄지므로, 이 값은 참고용 미리보기다.
+  """
+  missingForPublish: [String!]
+
+  """요청한 사용자가 이 문제에 대해 가진 협업 역할. Owner/Editor/Reviewer가 아니면 null."""
+  myRole: CollaboratorRole
+  outputDescription: String
+  problemTag: [ProblemTag!]
+  problemTestcase: [ProblemTestcase!]
+  problemType: ProblemType!
+  sharedGroups: [Group!]
+  solution: [JSON!]
+  source: String
+  status: ProblemStatus!
+  submission: [Submission!]
+  submissionCount: Int!
+
+  """
+  template code item structure
+  {
+  "lanaguage": Language,
+  "code": {
+  "id": number,
+  "text": string,
+  "locked": boolean
+  }[]
+  }
+  """
+  template: [JSON!]
+
+  """등록된 테스트 파일(.in/.out 쌍 기준이 아니라 개별 파일 개수)"""
+  testFileCount: Int
+  testSubmission: [TestSubmission!]
+  timeLimit: Int
   title: String!
+  updateContentTime: DateTime
+  updateHistory: [UpdateHistory!]
   updateTime: DateTime!
-}
-
-type MandeuldangProblemAvgAggregate {
-  createdById: Float
-  id: Float
-  memoryLimit: Float
-  timeLimit: Float
-}
-
-type MandeuldangProblemCount {
-  mandeuldangApprovalRequests: Int!
-  mandeuldangCollaborators: Int!
-  mandeuldangRunRequests: Int!
-  mandeuldangSamples: Int!
-  mandeuldangTestFiles: Int!
-  mandeuldangTools: Int!
-}
-
-type MandeuldangProblemCountAggregate {
-  _all: Int!
-  createTime: Int!
-  createdById: Int!
-  description: Int!
-  difficulty: Int!
-  id: Int!
-  inputDescription: Int!
-  languages: Int!
-  lastRunPass: Int!
-  memoryLimit: Int!
-  outputDescription: Int!
-  status: Int!
-  timeLimit: Int!
-  title: Int!
-  updateTime: Int!
-}
-
-type MandeuldangProblemMaxAggregate {
-  createTime: DateTime
-  createdById: Int
-  description: String
-  difficulty: Level
-  id: Int
-  inputDescription: String
-  lastRunPass: Boolean
-  memoryLimit: Int
-  outputDescription: String
-  status: MandeuldangProblemStatus
-  timeLimit: Int
-  title: String
-  updateTime: DateTime
-}
-
-type MandeuldangProblemMinAggregate {
-  createTime: DateTime
-  createdById: Int
-  description: String
-  difficulty: Level
-  id: Int
-  inputDescription: String
-  lastRunPass: Boolean
-  memoryLimit: Int
-  outputDescription: String
-  status: MandeuldangProblemStatus
-  timeLimit: Int
-  title: String
-  updateTime: DateTime
-}
-
-enum MandeuldangProblemStatus {
-  Draft
-  PendingApproval
-  Published
-  Ready
-  Rejected
-}
-
-type MandeuldangProblemSumAggregate {
-  createdById: Int
-  id: Int
-  memoryLimit: Int
-  timeLimit: Int
+  visibleLockTime: DateTime!
+  workbookProblem: [WorkbookProblem!]
 }
 
 type MandeuldangRunRequest {
   completedAt: DateTime
   id: ID!
-  problem: MandeuldangProblem!
+  problem: Problem!
   problemId: Int!
   requestArgs: JSON
   requester: User!
@@ -2638,63 +2540,13 @@ enum MandeuldangRunStatus {
   Success
 }
 
-type MandeuldangSample {
-  createTime: DateTime!
-  id: ID!
-  inputText: String!
-  order: Int!
-  outputText: String!
-  problem: MandeuldangProblem!
-  problemId: Int!
-}
-
-type MandeuldangSampleAvgAggregate {
-  id: Float
-  order: Float
-  problemId: Float
-}
-
-type MandeuldangSampleCountAggregate {
-  _all: Int!
-  createTime: Int!
-  id: Int!
-  inputText: Int!
-  order: Int!
-  outputText: Int!
-  problemId: Int!
-}
-
-type MandeuldangSampleMaxAggregate {
-  createTime: DateTime
-  id: Int
-  inputText: String
-  order: Int
-  outputText: String
-  problemId: Int
-}
-
-type MandeuldangSampleMinAggregate {
-  createTime: DateTime
-  id: Int
-  inputText: String
-  order: Int
-  outputText: String
-  problemId: Int
-}
-
-type MandeuldangSampleSumAggregate {
-  id: Int
-  order: Int
-  problemId: Int
-}
-
 type MandeuldangSolution {
   createTime: DateTime!
   fileName: String!
   filePath: String!
   id: ID!
   language: Language!
-  problem: MandeuldangProblem!
+  problem: Problem!
   problemId: Int!
   updateTime: DateTime!
 }
@@ -2748,7 +2600,7 @@ type MandeuldangTestFile {
   fileSize: String!
   fileType: TestFileType!
   id: ID!
-  problem: MandeuldangProblem!
+  problem: Problem!
   problemId: Int!
 }
 
@@ -2803,7 +2655,7 @@ type MandeuldangTool {
   fileName: String!
   filePath: String!
   id: ID!
-  problem: MandeuldangProblem!
+  problem: Problem!
   problemId: Int!
   toolType: ToolType!
   updateTime: DateTime!
@@ -3157,26 +3009,35 @@ type Problem {
   createTime: DateTime!
   createdBy: User
   createdById: Int
-  description: String!
-  difficulty: Level!
+  creationMode: ProblemCreationMode!
+  description: String
+  difficulty: Level
   engDescription: String
   engHint: String
   engInputDescription: String
   engOutputDescription: String
   engTitle: String
-  hint: String!
+  hint: String
   id: ID!
-  inputDescription: String!
+  inputDescription: String
   isHiddenUploadedByZip: Boolean!
   isSampleUploadedByZip: Boolean!
   languages: [Language!]
-  memoryLimit: Int!
-  outputDescription: String!
+  lastRunPass: Boolean!
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
+  memoryLimit: Int
+  outputDescription: String
   problemTag: [ProblemTag!]
   problemTestcase: [ProblemTestcase!]
+  problemType: ProblemType!
   sharedGroups: [Group!]
   solution: [JSON!]
-  source: String!
+  source: String
+  status: ProblemStatus!
   submission: [Submission!]
   submissionCount: Int!
 
@@ -3193,7 +3054,7 @@ type Problem {
   """
   template: [JSON!]
   testSubmission: [TestSubmission!]
-  timeLimit: Int!
+  timeLimit: Int
   title: String!
   updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
@@ -3219,6 +3080,10 @@ type ProblemCount {
   assignmentProblem: Int!
   contestProblem: Int!
   courseQnA: Int!
+  mandeuldangCollaborators: Int!
+  mandeuldangRunRequests: Int!
+  mandeuldangTestFiles: Int!
+  mandeuldangTools: Int!
   problemTag: Int!
   problemTestcase: Int!
   sharedGroups: Int!
@@ -3234,6 +3099,7 @@ type ProblemCountAggregate {
   acceptedRate: Int!
   createTime: Int!
   createdById: Int!
+  creationMode: Int!
   description: Int!
   difficulty: Int!
   engDescription: Int!
@@ -3247,10 +3113,13 @@ type ProblemCountAggregate {
   isHiddenUploadedByZip: Int!
   isSampleUploadedByZip: Int!
   languages: Int!
+  lastRunPass: Int!
   memoryLimit: Int!
   outputDescription: Int!
+  problemType: Int!
   solution: Int!
   source: Int!
+  status: Int!
   submissionCount: Int!
   template: Int!
   timeLimit: Int!
@@ -3258,6 +3127,11 @@ type ProblemCountAggregate {
   updateContentTime: Int!
   updateTime: Int!
   visibleLockTime: Int!
+}
+
+enum ProblemCreationMode {
+  Legacy
+  Mandeuldang
 }
 
 enum ProblemField {
@@ -3275,6 +3149,7 @@ type ProblemMaxAggregate {
   acceptedRate: Float
   createTime: DateTime
   createdById: Int
+  creationMode: ProblemCreationMode
   description: String
   difficulty: Level
   engDescription: String
@@ -3287,9 +3162,12 @@ type ProblemMaxAggregate {
   inputDescription: String
   isHiddenUploadedByZip: Boolean
   isSampleUploadedByZip: Boolean
+  lastRunPass: Boolean
   memoryLimit: Int
   outputDescription: String
+  problemType: ProblemType
   source: String
+  status: ProblemStatus
   submissionCount: Int
   timeLimit: Int
   title: String
@@ -3303,6 +3181,7 @@ type ProblemMinAggregate {
   acceptedRate: Float
   createTime: DateTime
   createdById: Int
+  creationMode: ProblemCreationMode
   description: String
   difficulty: Level
   engDescription: String
@@ -3315,9 +3194,12 @@ type ProblemMinAggregate {
   inputDescription: String
   isHiddenUploadedByZip: Boolean
   isSampleUploadedByZip: Boolean
+  lastRunPass: Boolean
   memoryLimit: Int
   outputDescription: String
+  problemType: ProblemType
   source: String
+  status: ProblemStatus
   submissionCount: Int
   timeLimit: Int
   title: String
@@ -3344,6 +3226,12 @@ type ProblemScore {
 input ProblemScoreInput {
   problemId: Int!
   score: IntScore!
+}
+
+enum ProblemStatus {
+  Draft
+  Published
+  Ready
 }
 
 type ProblemSumAggregate {
@@ -3506,6 +3394,11 @@ type ProblemTestcaseSumAggregate {
   submissionCount: Int
 }
 
+enum ProblemType {
+  General
+  SpecialJudge
+}
+
 type ProblemWithIsVisible {
   CheckRequest: [CheckRequest!]
   ContestQnA: [ContestQnA!]
@@ -3519,6 +3412,7 @@ type ProblemWithIsVisible {
   createTime: DateTime!
   createdBy: User
   createdById: Int
+  creationMode: ProblemCreationMode!
   description: String!
   difficulty: Level!
   engDescription: String
@@ -3533,13 +3427,21 @@ type ProblemWithIsVisible {
   isSampleUploadedByZip: Boolean!
   isVisible: Boolean
   languages: [Language!]
+  lastRunPass: Boolean!
+  mandeuldangCollaborators: [MandeuldangCollaborator!]
+  mandeuldangRunRequests: [MandeuldangRunRequest!]
+  mandeuldangSolution: MandeuldangSolution
+  mandeuldangTestFiles: [MandeuldangTestFile!]
+  mandeuldangTools: [MandeuldangTool!]
   memoryLimit: Int!
   outputDescription: String!
   problemTag: [ProblemTag!]
   problemTestcase: [ProblemTestcase!]
+  problemType: ProblemType!
   sharedGroups: [Group!]!
   solution: [JSON!]
   source: String!
+  status: ProblemStatus!
   submission: [Submission!]
   submissionCount: Int!
   tag: [ProblemTag!]!
@@ -3671,8 +3573,11 @@ type Query {
   getCoursesUserLead: [FindGroup!]!
   getGroupMember(groupId: Int!, userId: Int!): GroupMember!
   getGroupMembers(cursor: Int, groupId: Int!, leaderOnly: Boolean! = false, take: Int! = 10): [GroupMember!]!
+  getInProgressMandeuldangProblems(cursor: Int, status: ProblemStatus, take: Int! = 10): [MandeuldangProblemOutput!]!
   getJoinRequests(groupId: Int!): [User!]!
   getLatestSubmissionCountByLanguage(assignmentId: Int!, groupId: Int!, problemId: Int!): [SubmissionCountByLanguage!]!
+  getMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
+  getMyMandeuldangProblems(cursor: Int, status: ProblemStatus, take: Int! = 10): [MandeuldangProblemOutput!]!
   getNotice(noticeId: Int!): Notice!
   getNotices(cursor: Int, take: Int! = 10): [Notice]!
   getProblem(id: Int!): ProblemWithIsVisible!
@@ -4495,10 +4400,7 @@ type User {
   id: ID!
   lastLogin: DateTime
   major: String
-  mandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
   mandeuldangCollaborations: [MandeuldangCollaborator!]
-  mandeuldangProblems: [MandeuldangProblem!]
-  mandeuldangReviewedApprovals: [MandeuldangApprovalRequest!]
   mandeuldangRunRequests: [MandeuldangRunRequest!]
   notice: [Notice!]
   problem: [Problem!]
@@ -4631,10 +4533,7 @@ type UserCount {
   createdQnAComments: Int!
   createdQnAs: Int!
   file: Int!
-  mandeuldangApprovalRequests: Int!
   mandeuldangCollaborations: Int!
-  mandeuldangProblems: Int!
-  mandeuldangReviewedApprovals: Int!
   mandeuldangRunRequests: Int!
   notice: Int!
   problem: Int!
