@@ -87,9 +87,9 @@ export class CollaboratorService {
         problemId,
         userId
       },
-      select: { id: true }
+      select: { id: true, status: true }
     })
-    if (existing) {
+    if (existing && existing.status !== CollaboratorStatus.Rejected) {
       throw new DuplicateFoundException('invited existing Collaborator')
     }
     if (userId === problem.createdById) {
@@ -99,22 +99,48 @@ export class CollaboratorService {
       ? CollaboratorStatus.Approved
       : CollaboratorStatus.Pending
 
+    const invitedAt = new Date()
+
     try {
+      if (existing) {
+        return await this.prisma.mandeuldangCollaborator.update({
+          where: {
+            id: existing.id,
+            status: CollaboratorStatus.Rejected
+          },
+          data: {
+            role,
+            status,
+            invitedById: inviterId,
+            invitedAt,
+            approvedAt: isOwner ? invitedAt : null
+          }
+        })
+      }
       return await this.prisma.mandeuldangCollaborator.create({
         data: {
           problemId,
           userId,
           role,
-          status
+          status,
+          invitedById: inviterId,
+          invitedAt,
+          approvedAt: isOwner ? invitedAt : null
         }
       })
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new DuplicateFoundException('Collaborator is already invited')
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new DuplicateFoundException('Collaborator is already invited')
+        }
+
+        if (error.code === 'P2025') {
+          throw new UnprocessableDataException(
+            'Invitation state has changed. Please refresh and try again'
+          )
+        }
       }
+
       throw error
     }
   }
@@ -216,8 +242,14 @@ export class CollaboratorService {
     }
 
     return await this.prisma.mandeuldangCollaborator.update({
-      where: { id: collaborator.id },
-      data: { status: CollaboratorStatus.Approved }
+      where: {
+        id: collaborator.id,
+        status: CollaboratorStatus.Pending
+      },
+      data: {
+        status: CollaboratorStatus.Approved,
+        approvedAt: new Date()
+      }
     })
   }
 
@@ -263,8 +295,15 @@ export class CollaboratorService {
       throw new UnprocessableDataException('Invitation is not pending')
     }
 
-    return await this.prisma.mandeuldangCollaborator.delete({
-      where: { id: collaborator.id }
+    return await this.prisma.mandeuldangCollaborator.update({
+      where: {
+        id: collaborator.id,
+        status: CollaboratorStatus.Pending
+      },
+      data: {
+        status: CollaboratorStatus.Rejected,
+        approvedAt: null
+      }
     })
   }
 
