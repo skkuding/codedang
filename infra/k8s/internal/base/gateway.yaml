@@ -32,6 +32,7 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - kube-system
                   - admin-api
                   - client-api
                   - frontend
@@ -53,6 +54,7 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - kube-system
                   - admin-api
                   - argocd
                   - client-api
@@ -82,7 +84,9 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - kube-system
                   - cloud-beaver
+                  - frigate
                   - headlamp
                   - iris
                   - minio
@@ -108,6 +112,7 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - kube-system
                   - frontend-preview
 
       # minio domain listener
@@ -127,4 +132,5 @@ spec:
               - key: kubernetes.io/metadata.name
                 operator: In
                 values:
+                  - kube-system
                   - monitoring-minio

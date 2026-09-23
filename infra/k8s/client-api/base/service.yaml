@@ -3,9 +3,12 @@ kind: Service
 metadata:
   name: client-api-server
   namespace: client-api
+  labels:
+    app: client-api
 spec:
   selector:
     app: client-api
   ports:
-    - port: 4000
+    - name: http
+      port: 4000
       targetPort: 4000
