@@ -1,0 +1,18 @@
+# HSTS for codedang.com and all HTTPS listeners on websecure.
+# School networks that block TCP 80 never reach TLSRedirect; browsers that
+# have seen this header (or have the domain on the HSTS preload list) upgrade
+# http:// to https:// before opening a socket, so they use TCP 443 instead.
+#
+# Do not set forceSTSHeader: HSTS must only appear on HTTPS responses.
+# After this header is live with max-age >= 1y, includeSubDomains, and preload,
+# submit codedang.com at https://hstspreload.org (ops follow-up; slow to roll out).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: hsts
+  namespace: kube-system
+spec:
+  headers:
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
