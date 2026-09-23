@@ -33,7 +33,7 @@ export function CreateCourseForm({
       courseNum: '',
       classNum: 1,
       semester: '',
-      week: 0,
+      week: undefined,
       email: '',
       phoneNum: '',
       phoneNum1: '',
