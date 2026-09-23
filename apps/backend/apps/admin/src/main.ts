@@ -41,6 +41,7 @@ const bootstrap = async () => {
   app.useLogger(app.get(Logger))
   app.useGlobalInterceptors(new LoggerErrorInterceptor())
   app.useGlobalPipes(new ValidationPipe())
+  app.enableShutdownHooks()
   await app.listen(3000)
 }
 
