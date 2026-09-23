@@ -63,30 +63,31 @@ model User {
   createdCourseQnAs        CourseQnA[]        @relation("CreatedByUserCourseQnA")
   createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
 
-  userProfile               UserProfile?
-  userGroup                 UserGroup[]
-  notice                    Notice[]
-  problem                   Problem[]
-  assignment                Assignment[]
-  assignmentRecord          AssignmentRecord[]
-  contest                   Contest[]
-  userContest               UserContest[]
-  contestRecord             ContestRecord[]
-  workbook                  Workbook[]
-  submission                Submission[]
-  useroauth                 UserOAuth[]
-  file                      File[]
-  testSubmission            TestSubmission[]
-  UpdateHistory             UpdateHistory[]
-  createdQnAs               ContestQnA[]              @relation("CreatedByUser")
-  createdQnAComments        ContestQnAComment[]       @relation("CreatedByUser")
-  NotificationRecord        NotificationRecord[]
-  PushSubscription          PushSubscription[]
-  CourseNotice              CourseNotice[]
-  CourseNoticeComment       CourseNoticeComment[]
-  CheckRequest              CheckRequest[]
-  mandeuldangCollaborations MandeuldangCollaborator[] @relation("MandeuldangCollaborator")
-  mandeuldangRunRequests    MandeuldangRunRequest[]   @relation("MandeuldangRunRequester")
+  userProfile                UserProfile?
+  userGroup                  UserGroup[]
+  notice                     Notice[]
+  problem                    Problem[]
+  assignment                 Assignment[]
+  assignmentRecord           AssignmentRecord[]
+  contest                    Contest[]
+  userContest                UserContest[]
+  contestRecord              ContestRecord[]
+  workbook                   Workbook[]
+  submission                 Submission[]
+  useroauth                  UserOAuth[]
+  file                       File[]
+  testSubmission             TestSubmission[]
+  UpdateHistory              UpdateHistory[]
+  createdQnAs                ContestQnA[]              @relation("CreatedByUser")
+  createdQnAComments         ContestQnAComment[]       @relation("CreatedByUser")
+  NotificationRecord         NotificationRecord[]
+  PushSubscription           PushSubscription[]
+  CourseNotice               CourseNotice[]
+  CourseNoticeComment        CourseNoticeComment[]
+  CheckRequest               CheckRequest[]
+  mandeuldangCollaborations  MandeuldangCollaborator[] @relation("MandeuldangCollaborator")
+  mandeuldangInvitationsSent MandeuldangCollaborator[] @relation("MandeuldangCollaboratorInviter")
+  mandeuldangRunRequests     MandeuldangRunRequest[]   @relation("MandeuldangRunRequester")
 
   @@map("user")
 }
@@ -1077,6 +1078,7 @@ enum CollaboratorRole {
 enum CollaboratorStatus {
   Pending
   Approved
+  Rejected
 }
 
 enum ToolType {
@@ -1114,9 +1116,9 @@ model MandeuldangSolution {
   problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId Int     @unique @map("problem_id")
 
-  fileName    String   @map("file_name") // 원본 파일명 (solution.cpp)
-  filePath String @map("file_path") // S3 key
-  language    Language
+  fileName String   @map("file_name") // 원본 파일명 (solution.cpp)
+  filePath String   @map("file_path") // S3 key
+  language Language
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -1129,9 +1131,9 @@ model MandeuldangTool {
   problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
   problemId Int     @map("problem_id")
 
-  toolType    ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
-  fileName    String   @map("file_name")
-  filePath String @map("file_path") // S3 key
+  toolType ToolType @map("tool_type") // 'generator' | 'validator' | 'checker'
+  fileName String   @map("file_name")
+  filePath String   @map("file_path") // S3 key
 
   createTime DateTime @default(now()) @map("create_time")
   updateTime DateTime @updatedAt @map("update_time")
@@ -1148,10 +1150,15 @@ model MandeuldangCollaborator {
   user   User @relation("MandeuldangCollaborator", fields: [userId], references: [id])
   userId Int  @map("user_id")
 
-  role   CollaboratorRole // Owner | Editor | Reviewer
-  status CollaboratorStatus @default(Pending) // Pending | Approved
+  invitedBy   User? @relation("MandeuldangCollaboratorInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedById Int?  @map("invited_by_id")
 
-  createTime DateTime @default(now()) @map("create_time")
+  role   CollaboratorRole // Owner | Editor | Reviewer
+  status CollaboratorStatus @default(Pending) // Pending | Approved | Rejected
+
+  createTime DateTime  @default(now()) @map("create_time")
+  invitedAt  DateTime? @map("invited_at")
+  approvedAt DateTime? @map("approved_at")
 
   @@unique([problemId, userId])
   @@map("mandeuldang_collaborator")
