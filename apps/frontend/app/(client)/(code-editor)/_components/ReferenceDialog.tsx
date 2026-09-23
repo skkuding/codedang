@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/shadcn/dialog'
-import CompileVersionIcon from '@/public/icons/compile-version.svg'
+import CompileVersionIcon from '@/public/icons/file-with-info.svg'
 import { FaRegFile } from 'react-icons/fa6'
 
 export function ReferenceDialog() {
@@ -13,7 +13,7 @@ export function ReferenceDialog() {
     <div className="flex px-6">
       <Dialog>
         <DialogTrigger asChild>
-          <CompileVersionIcon className="cursor-pointer" width={24} />
+          <CompileVersionIcon className="size-6 cursor-pointer text-white" />
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}

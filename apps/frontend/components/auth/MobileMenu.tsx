@@ -7,8 +7,8 @@ import {
   SheetTrigger,
   SheetClose
 } from '@/components/shadcn/sheet'
-import CourseSidebarIcon from '@/public/icons/course-sidebar.svg'
 import DetailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
+import CourseSidebarIcon from '@/public/icons/graduation_blue.svg'
 import LoginMobileIcon from '@/public/icons/login-mobile.svg'
 import LogoutMobileIcon from '@/public/icons/logout-mobile.svg'
 import NotificationIcon from '@/public/icons/notification.svg'

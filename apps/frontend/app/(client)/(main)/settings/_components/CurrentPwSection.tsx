@@ -49,7 +49,11 @@ export function CurrentPwSection({
             className="absolute right-0 top-0 flex h-full cursor-pointer items-center p-3"
             onClick={() => setPasswordShow(!passwordShow)}
           >
-            {passwordShow ? <VisibleIcon /> : <InvisibleIcon />}
+            {passwordShow ? (
+              <VisibleIcon className="text-color-blue-60 size-6" />
+            ) : (
+              <InvisibleIcon />
+            )}
           </span>
         </div>
         <Button
