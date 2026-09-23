@@ -46,6 +46,10 @@ spec:
               containerPort: 8971
               protocol: TCP
 
+            - name: internal-http
+              containerPort: 5000
+              protocol: TCP
+
           resources:
             requests:
               cpu: "1"
@@ -55,18 +59,31 @@ spec:
               memory: 4Gi
 
           startupProbe:
-            tcpSocket:
-              port: http
+            httpGet:
+              path: /api/version
+              port: internal-http
+              scheme: HTTP
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 60
 
           readinessProbe:
-            tcpSocket:
-              port: http
+            httpGet:
+              path: /api/version
+              port: internal-http
+              scheme: HTTP
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /api/version
+              port: internal-http
+              scheme: HTTP
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
 
           volumeMounts:
             - name: camera
