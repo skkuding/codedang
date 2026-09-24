@@ -53,22 +53,16 @@ func main() {
 		}()
 	}
 
-	disableInstrumentation := utils.Getenv("DISABLE_INSTRUMENTATION", "false") == "true"
-	if !disableInstrumentation {
-		otelExporterUrl := utils.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT_URL", "")
-		if otelExporterUrl != "" {
-			// TODO: ServiceName, ServiceVersion을 환경변수를 통해 동적으로 로드
-			shutdown, err := instrumentation.Init(ctx, "PLAG", "1.0.0", otelExporterUrl)
-			if err != nil {
-				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
-			}
-			defer shutdown(ctx)
-
-			instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
-			instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
-		} else {
-			logProvider.Log(logger.INFO, "Cannot find OTEL_EXPORTER_OTLP_ENDPOINT_URL")
+	// Go SDK는 OTEL_SDK_DISABLED를 읽지 않아 앱에서 직접 확인한다
+	if utils.Getenv("OTEL_SDK_DISABLED", "false") != "true" {
+		shutdown, err := instrumentation.Init(ctx)
+		if err != nil {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
 		}
+		defer shutdown(ctx)
+
+		instrumentation.GetMemoryMeter(otel.Meter("memory-metrics"))
+		instrumentation.GetCPUMeter(otel.Meter("cpu-metrics"), 15*time.Second)
 	}
 	defaultTracer := otel.Tracer("default")
 

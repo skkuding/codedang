@@ -1,6 +1,8 @@
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import type { NestExpressApplication } from '@nestjs/platform-express'
+import { config } from 'dotenv'
+import { expand } from 'dotenv-expand'
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs'
 import Instrumentation from '@libs/instrumentation'
 
@@ -10,14 +12,8 @@ import Instrumentation from '@libs/instrumentation'
   자세한 이유는 [이 comment](https://github.com/skkuding/codedang/pull/2705#discussion_r2072945663)를 참고해주세요.
 */
 const bootstrap = async () => {
-  const isInstrumentationDisabled =
-    process.env.DISABLE_INSTRUMENTATION === 'true'
-  if (!isInstrumentationDisabled) {
-    const otlpEndpointUrl =
-      process.env.OTEL_EXPORTER_OTLP_ENDPOINT_URL || 'localhost:4317'
-    const resource = await Instrumentation.getResource('ADMIN-API', '2.2.0')
-    await Instrumentation.start(otlpEndpointUrl, resource)
-  }
+  expand(config())
+  await Instrumentation.start()
 
   const { AdminModule } = await import('./admin.module')
   const app = await NestFactory.create<NestExpressApplication>(AdminModule, {
