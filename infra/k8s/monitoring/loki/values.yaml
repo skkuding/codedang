@@ -8,6 +8,11 @@ loki:
     replication_factor: 1
   limits_config:
     retention_period: 2160h # 90 days
+    # Iris stderr can emit multi-MB single lines; Loki's 256KB default
+    # rejected them (400 "max entry size exceeded"), causing promtail retry
+    # storms. Raise the limit and truncate anything still oversized.
+    max_line_size: 10MB
+    max_line_size_truncate: true
   compactor:
     retention_enabled: true
     delete_request_store: s3
