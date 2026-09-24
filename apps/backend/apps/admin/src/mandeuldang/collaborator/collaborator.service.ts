@@ -241,16 +241,29 @@ export class CollaboratorService {
       throw new UnprocessableDataException('Invitation is not pending')
     }
 
-    return await this.prisma.mandeuldangCollaborator.update({
-      where: {
-        id: collaborator.id,
-        status: CollaboratorStatus.Pending
-      },
-      data: {
-        status: CollaboratorStatus.Approved,
-        approvedAt: new Date()
+    try {
+      return await this.prisma.mandeuldangCollaborator.update({
+        where: {
+          id: collaborator.id,
+          status: CollaboratorStatus.Pending
+        },
+        data: {
+          status: CollaboratorStatus.Approved,
+          approvedAt: new Date()
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new UnprocessableDataException(
+          'Invitation state has changed. Please refresh and try again'
+        )
       }
-    })
+
+      throw error
+    }
   }
 
   /**
@@ -295,16 +308,29 @@ export class CollaboratorService {
       throw new UnprocessableDataException('Invitation is not pending')
     }
 
-    return await this.prisma.mandeuldangCollaborator.update({
-      where: {
-        id: collaborator.id,
-        status: CollaboratorStatus.Pending
-      },
-      data: {
-        status: CollaboratorStatus.Rejected,
-        approvedAt: null
+    try {
+      return await this.prisma.mandeuldangCollaborator.update({
+        where: {
+          id: collaborator.id,
+          status: CollaboratorStatus.Pending
+        },
+        data: {
+          status: CollaboratorStatus.Rejected,
+          approvedAt: null
+        }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new UnprocessableDataException(
+          'Invitation state has changed. Please refresh and try again'
+        )
       }
-    })
+
+      throw error
+    }
   }
 
   /**
