@@ -6,7 +6,6 @@ import {
   ToolType
 } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { extname } from 'path'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
@@ -94,8 +93,7 @@ export class FileService {
     const fileContent = Buffer.concat(chunks).toString('utf-8')
 
     // S3에 저장
-    const ext = extname(filename)
-    const filePath = `mandeuldang/${problemId}/tools/${toolType}${ext}`
+    const filePath = `mandeuldang/${problemId}/tools/${toolType}`
     await this.storageService.uploadObject(
       filePath,
       fileContent,
