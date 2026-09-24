@@ -1,5 +1,10 @@
 import { Test } from '@nestjs/testing'
-import { CollaboratorRole, CollaboratorStatus, Prisma } from '@prisma/client'
+import {
+  CollaboratorRole,
+  CollaboratorStatus,
+  Prisma,
+  ProblemCreationMode
+} from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -124,6 +129,87 @@ describe('CollaboratorService', () => {
       expect(data.approvedAt).to.equal(null)
     }
   }
+  describe('만들당 문제 검사', () => {
+    const actions = [
+      {
+        name: '초대',
+        run: () => service.inviteCollaborator(ownerId, problemId, inviteInput)
+      },
+      {
+        name: '목록 조회',
+        run: () =>
+          service.getCollaboratorsByStatus(
+            ownerId,
+            problemId,
+            CollaboratorStatus.Approved
+          )
+      },
+      {
+        name: '승인',
+        run: () => service.approveCollaborator(ownerId, problemId, inviteeId)
+      },
+      {
+        name: '거절',
+        run: () => service.rejectCollaborator(ownerId, problemId, inviteeId)
+      },
+      {
+        name: '역할 변경',
+        run: () =>
+          service.updateCollaboratorRole(ownerId, problemId, {
+            userId: inviteeId,
+            role: CollaboratorRole.Editor
+          })
+      },
+      {
+        name: '제거',
+        run: () => service.removeCollaborator(ownerId, problemId, inviteeId)
+      }
+    ]
+
+    for (const action of actions) {
+      it(`${action.name}: 만들당 조건으로 조회하고 대상이 없으면 차단한다`, async () => {
+        db.problem.findUnique.resolves(null)
+
+        await expect(action.run()).to.be.rejectedWith(EntityNotExistException)
+
+        expect(db.problem.findUnique.calledOnce).to.equal(true)
+        expect(db.problem.findUnique.firstCall.args[0].where).to.deep.equal({
+          id: problemId,
+          creationMode: ProblemCreationMode.Mandeuldang
+        })
+        expectNoWrites()
+      })
+    }
+  })
+
+  describe('Owner 보호', () => {
+    for (const role of [CollaboratorRole.Editor, CollaboratorRole.Reviewer]) {
+      it(`Owner를 ${role}로 변경할 수 없다`, async () => {
+        await expect(
+          service.updateCollaboratorRole(ownerId, problemId, {
+            userId: ownerId,
+            role
+          })
+        ).to.be.rejectedWith(
+          UnprocessableDataException,
+          'Cannot change the owner role'
+        )
+
+        expectNoWrites()
+      })
+    }
+
+    it('Owner를 제거할 수 없다', async () => {
+      await expect(
+        service.removeCollaborator(ownerId, problemId, ownerId)
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Cannot remove the owner'
+      )
+
+      expectNoWrites()
+    })
+  })
 
   describe('inviteCollaborator', () => {
     it('Owner 초대는 Approved로 생성하고 초대·승인 정보를 저장한다', async () => {

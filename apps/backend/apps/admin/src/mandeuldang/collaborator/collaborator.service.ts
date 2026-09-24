@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { CollaboratorRole, CollaboratorStatus, Prisma } from '@prisma/client'
+import {
+  CollaboratorRole,
+  CollaboratorStatus,
+  Prisma,
+  ProblemCreationMode
+} from '@prisma/client'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
@@ -56,7 +61,7 @@ export class CollaboratorService {
     const userId = user.id
 
     const problem = await this.prisma.problem.findUnique({
-      where: { id: problemId },
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
@@ -164,7 +169,7 @@ export class CollaboratorService {
     status: CollaboratorStatus
   ) {
     const problem = await this.prisma.problem.findUnique({
-      where: { id: problemId },
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
@@ -220,7 +225,7 @@ export class CollaboratorService {
     userId: number
   ) {
     const problem = await this.prisma.problem.findUnique({
-      where: { id: problemId },
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
@@ -287,7 +292,7 @@ export class CollaboratorService {
     userId: number
   ) {
     const problem = await this.prisma.problem.findUnique({
-      where: { id: problemId },
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
@@ -361,7 +366,7 @@ export class CollaboratorService {
       throw new UnprocessableDataException('Cannot assign Owner role')
     }
     const problem = await this.prisma.problem.findUnique({
-      where: { id: problemId },
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
@@ -370,6 +375,10 @@ export class CollaboratorService {
     const isOwner = problem.createdById === inviterId
     if (!isOwner)
       throw new ForbiddenAccessException('No permission to update role')
+
+    if (userId === problem.createdById) {
+      throw new UnprocessableDataException('Cannot change the owner role')
+    }
 
     const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
       where: { problemId, userId },
@@ -409,11 +418,15 @@ export class CollaboratorService {
     userId: number
   ) {
     const problem = await this.prisma.problem.findUnique({
-      where: { id: problemId },
+      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
       throw new EntityNotExistException('MandeuldangProblem not found')
+
+    if (userId === problem.createdById) {
+      throw new UnprocessableDataException('Cannot remove the owner')
+    }
 
     if (problem.createdById !== createdById) {
       throw new ForbiddenAccessException('No permission to remove collaborator')
