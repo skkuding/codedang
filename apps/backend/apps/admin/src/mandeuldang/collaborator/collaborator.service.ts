@@ -151,22 +151,24 @@ export class CollaboratorService {
   }
 
   /**
-   * Status에 따른 협업자 목록을 반환합니다.
+   * 요청한 상태의 만들당 협업자 목록을 반환합니다.
    *
-   * status : Pending(수락 대기 중), Approved(승인됨)
-   * @param {number} userId 문제 소유자의 id
-   * @param {number} problemId 생성 문제의 id
-   * @param {CollaboratorStatus} status 협업자의 상태
-   * @returns {MandeuldangCollaborator[]} 협업자 목록
-   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 해당 problemId에 해당하는 문제가 존재하지 않는 경우
-   * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
-   * - 협업자 목록 요청자가 문제 소유자가 아닌 경우
+   * - Approved 목록: Owner 또는 승인된 Editor·Reviewer가 조회할 수 있습니다.
+   * - Pending·Rejected 목록: Owner만 조회할 수 있습니다.
+   *
+   * @param userId 조회 요청자의 ID
+   * @param problemId 만들당 문제 ID
+   * @param requestedStatus 조회할 협업 상태
+   * @returns 협업자의 사용자 ID, 사용자명, 이메일, 역할 목록
+   * @throws {EntityNotExistException}
+   * 문제가 존재하지 않거나 만들당 문제가 아닌 경우
+   * @throws {ForbiddenAccessException}
+   * 요청한 목록을 조회할 권한이 없는 경우
    */
   async getCollaboratorsByStatus(
     userId: number,
     problemId: number,
-    status: CollaboratorStatus
+    requestedStatus: CollaboratorStatus
   ) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
@@ -175,17 +177,55 @@ export class CollaboratorService {
     if (!problem)
       throw new EntityNotExistException('MandeuldangProblem not found')
 
-    if (problem.createdById !== userId) {
-      throw new ForbiddenAccessException('No permission to view collaborators')
+    const isOwner = problem.createdById === userId
+
+    if (requestedStatus === CollaboratorStatus.Approved) {
+      // 승인된 참여자 목록: Owner 또는 승인된 Editor·Reviewer가 조회
+      if (!isOwner) {
+        const requester = await this.prisma.mandeuldangCollaborator.findFirst({
+          where: {
+            problemId,
+            userId,
+            status: CollaboratorStatus.Approved,
+            role: {
+              in: [CollaboratorRole.Editor, CollaboratorRole.Reviewer]
+            }
+          },
+          select: { id: true }
+        })
+
+        if (!requester) {
+          throw new ForbiddenAccessException(
+            'No permission to view collaborators'
+          )
+        }
+      }
+    } else {
+      // Pending·Rejected 목록: Owner만 조회
+      if (!isOwner) {
+        throw new ForbiddenAccessException(
+          'No permission to view collaborators'
+        )
+      }
     }
 
     const collaborators = await this.prisma.mandeuldangCollaborator.findMany({
       where: {
         problemId,
-        status
+        status: requestedStatus
       },
       select: {
         role: true,
+        status: true,
+        createTime: true,
+        invitedAt: true,
+        approvedAt: true,
+        invitedBy: {
+          select: {
+            id: true,
+            username: true
+          }
+        },
         user: {
           select: {
             username: true,
@@ -200,7 +240,12 @@ export class CollaboratorService {
       username: c.user.username,
       id: c.user.id,
       email: c.user.email,
-      role: c.role
+      role: c.role,
+      status: c.status,
+      invitedBy: c.invitedBy,
+      invitedAt: c.invitedAt,
+      approvedAt: c.approvedAt,
+      createTime: c.createTime
     }))
   }
 

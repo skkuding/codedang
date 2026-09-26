@@ -7,6 +7,7 @@ import {
   CollaboratorInput,
   CollaboratorUpdateInput
 } from './model/collaborator.input'
+import { CollaboratorOutput } from './model/collaborator.output'
 
 @Resolver()
 export class CollaboratorResolver {
@@ -29,7 +30,7 @@ export class CollaboratorResolver {
   async getApprovedCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
-  ) {
+  ): Promise<CollaboratorOutput[]> {
     return await this.collaboratorService.getCollaboratorsByStatus(
       req.user.id,
       problemId,
@@ -37,11 +38,11 @@ export class CollaboratorResolver {
     )
   }
 
-  @Query()
+  @Query(() => [CollaboratorOutput])
   async getPendingCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
-  ) {
+  ): Promise<CollaboratorOutput[]> {
     return await this.collaboratorService.getCollaboratorsByStatus(
       req.user.id,
       problemId,

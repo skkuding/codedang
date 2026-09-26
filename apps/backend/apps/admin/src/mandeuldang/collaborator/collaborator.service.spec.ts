@@ -1,10 +1,5 @@
 import { Test } from '@nestjs/testing'
-import {
-  CollaboratorRole,
-  CollaboratorStatus,
-  Prisma,
-  ProblemCreationMode
-} from '@prisma/client'
+import { CollaboratorStatus, Prisma, ProblemCreationMode } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -14,6 +9,7 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { CollaboratorRole } from '@admin/@generated'
 import { CollaboratorService } from './collaborator.service'
 
 const problemId = 10
@@ -527,17 +523,27 @@ describe('CollaboratorService', () => {
   describe('getCollaboratorsByStatus', () => {
     for (const status of [
       CollaboratorStatus.Approved,
-      CollaboratorStatus.Pending
+      CollaboratorStatus.Pending,
+      CollaboratorStatus.Rejected
     ]) {
-      it(`${status} 협업자 목록을 반환한다`, async () => {
+      it(`Owner가 ${status} 목록과 초대 정보를 조회한다`, async () => {
         const user = {
           id: inviteeId,
           username: 'invitee',
           email: inviteInput.userEmail
         }
-        db.mandeuldangCollaborator.findMany.resolves([
-          { role: CollaboratorRole.Reviewer, user }
-        ])
+        const metadata = {
+          role: CollaboratorRole.Reviewer,
+          status,
+          invitedBy: { id: editorId, username: 'editor' },
+          invitedAt: new Date('2026-09-01T00:00:00Z'),
+          approvedAt:
+            status === CollaboratorStatus.Approved
+              ? new Date('2026-09-02T00:00:00Z')
+              : null,
+          createTime: new Date('2026-09-01T00:00:00Z')
+        }
+        db.mandeuldangCollaborator.findMany.resolves([{ user, ...metadata }])
 
         const result = await service.getCollaboratorsByStatus(
           ownerId,
@@ -545,14 +551,111 @@ describe('CollaboratorService', () => {
           status
         )
 
-        expect(result).to.deep.equal([
-          { ...user, role: CollaboratorRole.Reviewer }
-        ])
-        expect(
-          db.mandeuldangCollaborator.findMany.firstCall.args[0].where
-        ).to.deep.equal({ problemId, status })
+        expect(result).to.deep.equal([{ ...user, ...metadata }])
+        expect(db.mandeuldangCollaborator.findMany.calledOnce).to.equal(true)
+        const query = db.mandeuldangCollaborator.findMany.firstCall.args[0]
+        expect(query.where).to.deep.equal({ problemId, status })
+        expect(query.select).to.deep.equal({
+          role: true,
+          status: true,
+          createTime: true,
+          invitedAt: true,
+          approvedAt: true,
+          invitedBy: { select: { id: true, username: true } },
+          user: { select: { username: true, id: true, email: true } }
+        })
+        expect(db.mandeuldangCollaborator.findFirst.called).to.equal(false)
+        expectNoWrites()
       })
     }
+
+    it('기존 데이터의 없는 초대 정보는 null로 반환한다', async () => {
+      const user = { id: ownerId, username: 'owner', email: 'owner@test.com' }
+      const metadata = {
+        role: CollaboratorRole.Owner,
+        status: CollaboratorStatus.Approved,
+        invitedBy: null,
+        invitedAt: null,
+        approvedAt: null,
+        createTime: new Date('2026-09-01T00:00:00Z')
+      }
+      db.mandeuldangCollaborator.findMany.resolves([{ user, ...metadata }])
+      const result = await service.getCollaboratorsByStatus(
+        ownerId,
+        problemId,
+        CollaboratorStatus.Approved
+      )
+      expect(result).to.deep.equal([{ ...user, ...metadata }])
+      expectNoWrites()
+    })
+
+    for (const role of [CollaboratorRole.Editor, CollaboratorRole.Reviewer]) {
+      const requesterId =
+        role === CollaboratorRole.Editor ? editorId : reviewerId
+      it(`Approved ${role}는 활성 참여자 목록을 조회한다`, async () => {
+        // Prisma의 승인 상태·역할 필터를 만족하는 조회 결과를 모의한다.
+        db.mandeuldangCollaborator.findFirst.resolves({ id: 200 })
+        db.mandeuldangCollaborator.findMany.resolves([])
+        const result = await service.getCollaboratorsByStatus(
+          requesterId,
+          problemId,
+          CollaboratorStatus.Approved
+        )
+        expect(result).to.deep.equal([])
+        expect(db.mandeuldangCollaborator.findFirst.calledOnce).to.equal(true)
+        expect(
+          db.mandeuldangCollaborator.findFirst.firstCall.args[0].where
+        ).to.deep.equal({
+          problemId,
+          userId: requesterId,
+          status: CollaboratorStatus.Approved,
+          role: { in: [CollaboratorRole.Editor, CollaboratorRole.Reviewer] }
+        })
+        expect(db.mandeuldangCollaborator.findMany.calledOnce).to.equal(true)
+        expect(
+          db.mandeuldangCollaborator.findMany.firstCall.args[0].where
+        ).to.deep.equal({
+          problemId,
+          status: CollaboratorStatus.Approved
+        })
+        expectNoWrites()
+      })
+
+      for (const status of [
+        CollaboratorStatus.Pending,
+        CollaboratorStatus.Rejected
+      ]) {
+        it(`${role}는 ${status} 목록을 조회할 수 없다`, async () => {
+          db.mandeuldangCollaborator.findFirst.resolves({ id: 200 })
+          await expect(
+            service.getCollaboratorsByStatus(requesterId, problemId, status)
+          ).to.be.rejectedWith(ForbiddenAccessException)
+          expect(db.mandeuldangCollaborator.findMany.called).to.equal(false)
+          expectNoWrites()
+        })
+      }
+    }
+
+    it('승인된 참여자 조회 조건에 맞는 사용자가 없으면 차단한다', async () => {
+      db.mandeuldangCollaborator.findFirst.resolves(null)
+      await expect(
+        service.getCollaboratorsByStatus(
+          inviteeId,
+          problemId,
+          CollaboratorStatus.Approved
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(
+        db.mandeuldangCollaborator.findFirst.firstCall.args[0].where
+      ).to.deep.equal({
+        problemId,
+        userId: inviteeId,
+        status: CollaboratorStatus.Approved,
+        role: { in: [CollaboratorRole.Editor, CollaboratorRole.Reviewer] }
+      })
+      expect(db.mandeuldangCollaborator.findMany.called).to.equal(false)
+      expectNoWrites()
+    })
   })
 
   describe('updateCollaboratorRole', () => {
