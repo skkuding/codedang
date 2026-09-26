@@ -1,5 +1,7 @@
 import { Field, GraphQLISODateTime, Int, ObjectType } from '@nestjs/graphql'
+import { PickType } from '@nestjs/graphql'
 import { CollaboratorRole, CollaboratorStatus } from '@admin/@generated'
+import { MandeuldangCollaborator } from '@admin/@generated'
 
 @ObjectType()
 export class CollaboratorInviterOutput {
@@ -40,3 +42,19 @@ export class CollaboratorOutput {
   @Field(() => GraphQLISODateTime)
   createTime!: Date
 }
+
+@ObjectType()
+export class CollaboratorMutationOutput extends PickType(
+  MandeuldangCollaborator,
+  [
+    'id',
+    'problemId',
+    'userId',
+    'role',
+    'status',
+    'invitedById',
+    'invitedAt',
+    'approvedAt',
+    'createTime'
+  ] as const
+) {}

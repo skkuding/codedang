@@ -1,24 +1,28 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { CollaboratorStatus } from '@prisma/client'
-import { AuthenticatedRequest } from '@libs/auth'
+import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { IDValidationPipe } from '@libs/pipe'
 import { CollaboratorService } from './collaborator.service'
 import {
   CollaboratorInput,
   CollaboratorUpdateInput
 } from './model/collaborator.input'
-import { CollaboratorOutput } from './model/collaborator.output'
+import {
+  CollaboratorOutput,
+  CollaboratorMutationOutput
+} from './model/collaborator.output'
 
 @Resolver()
+@UseDisableAdminGuard()
 export class CollaboratorResolver {
   constructor(private readonly collaboratorService: CollaboratorService) {}
 
-  @Mutation()
+  @Mutation(() => CollaboratorMutationOutput)
   async inviteCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('input') input: CollaboratorInput
-  ) {
+  ): Promise<CollaboratorMutationOutput> {
     return await this.collaboratorService.inviteCollaborator(
       req.user.id,
       problemId,
@@ -26,7 +30,7 @@ export class CollaboratorResolver {
     )
   }
 
-  @Query()
+  @Query(() => [CollaboratorOutput])
   async getApprovedCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
@@ -50,12 +54,12 @@ export class CollaboratorResolver {
     )
   }
 
-  @Mutation()
+  @Mutation(() => CollaboratorMutationOutput)
   async approveInvite(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
-  ) {
+  ): Promise<CollaboratorMutationOutput> {
     return await this.collaboratorService.approveCollaborator(
       req.user.id,
       problemId,
@@ -63,12 +67,12 @@ export class CollaboratorResolver {
     )
   }
 
-  @Mutation()
+  @Mutation(() => CollaboratorMutationOutput)
   async rejectInvite(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
-  ) {
+  ): Promise<CollaboratorMutationOutput> {
     return await this.collaboratorService.rejectCollaborator(
       req.user.id,
       problemId,
@@ -76,12 +80,12 @@ export class CollaboratorResolver {
     )
   }
 
-  @Mutation()
+  @Mutation(() => CollaboratorMutationOutput)
   async updateCollaboratorRole(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('input') input: CollaboratorUpdateInput
-  ) {
+  ): Promise<CollaboratorMutationOutput> {
     return await this.collaboratorService.updateCollaboratorRole(
       req.user.id,
       problemId,
@@ -89,12 +93,12 @@ export class CollaboratorResolver {
     )
   }
 
-  @Mutation()
+  @Mutation(() => CollaboratorMutationOutput)
   async removeCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
-  ) {
+  ): Promise<CollaboratorMutationOutput> {
     return await this.collaboratorService.removeCollaborator(
       req.user.id,
       problemId,
