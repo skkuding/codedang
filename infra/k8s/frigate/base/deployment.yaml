@@ -37,6 +37,9 @@ spec:
           image: ghcr.io/blakeblackshear/frigate:stable
           imagePullPolicy: Always
 
+          securityContext:
+            privileged: true
+
           env:
             - name: TZ
               value: Asia/Seoul
