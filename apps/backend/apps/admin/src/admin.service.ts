@@ -17,7 +17,7 @@ export class AdminService {
   async isReady(): Promise<boolean> {
     const checks = await Promise.allSettled([
       this.prisma.$queryRaw`SELECT 1`,
-      this.cacheManager.get('__readiness__')
+      this.cacheManager.stores[0].get('__readiness__')
     ])
 
     return checks.every(({ status }) => status === 'fulfilled')

@@ -12,11 +12,13 @@ describe('AdminController', () => {
   let adminController: AdminController
   let queryDatabase: SinonStub
   let queryCache: SinonStub
+  let aggregateCacheGet: SinonStub
   let response: Response
 
   beforeEach(async () => {
     queryDatabase = stub().resolves([{ value: 1 }])
     queryCache = stub().resolves(undefined)
+    aggregateCacheGet = stub().resolves(undefined)
     response = {
       status: stub()
     } as unknown as Response
@@ -31,7 +33,10 @@ describe('AdminController', () => {
         },
         {
           provide: CACHE_MANAGER,
-          useValue: { get: queryCache }
+          useValue: {
+            get: aggregateCacheGet,
+            stores: [{ get: queryCache }]
+          }
         }
       ]
     }).compile()
@@ -63,6 +68,20 @@ describe('AdminController', () => {
           HttpStatus.SERVICE_UNAVAILABLE
         )
       ).to.be.true
+    })
+
+    it('should report unavailable when Redis is unavailable', async () => {
+      queryCache.rejects(new Error('Redis unavailable'))
+
+      expect(await adminController.getReadiness(response)).to.deep.equal({
+        status: 'unavailable'
+      })
+      expect(
+        (response.status as SinonStub).calledWith(
+          HttpStatus.SERVICE_UNAVAILABLE
+        )
+      ).to.be.true
+      expect(aggregateCacheGet.notCalled).to.be.true
     })
   })
 })
