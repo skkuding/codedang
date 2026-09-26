@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: generic-device-plugin-stage
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/environment: stage
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/skkuding/codedang
+    targetRevision: main
+    path: infra/k8s/generic-device-plugin/overlays/stage
+
+  destination:
+    name: stage
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - PrunePropagationPolicy=foreground
