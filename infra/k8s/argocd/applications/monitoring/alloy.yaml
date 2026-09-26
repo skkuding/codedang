@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: alloy
+  namespace: argocd
+spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'alloy-{{.env}}'
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        - repoURL: https://grafana.github.io/helm-charts
+          chart: alloy
+          targetRevision: '1.12.1'
+          helm:
+            releaseName: alloy
+            valueFiles:
+              - '$codedang/infra/k8s/monitoring/alloy/values.yaml'
+              - '$codedang/infra/k8s/monitoring/alloy/values-{{.env}}.yaml'
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          ref: codedang
+      destination:
+        name: '{{.env}}'
+        namespace: monitoring-alloy
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
