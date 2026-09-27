@@ -13,6 +13,7 @@ import {
   QnACategory,
   ResultStatus,
   Role,
+  TestFileType,
   type Announcement,
   type Assignment,
   type AssignmentRecord,
@@ -1247,7 +1248,25 @@ const createMandeuldangProblems = async () => {
         language: Language.Cpp
       }
     },
-    problemTestcase: { create: {} }
+    problemTestcase: { create: {} },
+    mandeuldangTestFiles: {
+      create: [
+        {
+          fileName: '1.in',
+          baseName: '1',
+          fileType: TestFileType.IN,
+          filePath: 'mandeuldang/seed/1.in',
+          fileSize: 1
+        },
+        {
+          fileName: '1.out',
+          baseName: '1',
+          fileType: TestFileType.OUT,
+          filePath: 'mandeuldang/seed/1.out',
+          fileSize: 1
+        }
+      ]
+    }
   }
 
   await prisma.problem.create({
