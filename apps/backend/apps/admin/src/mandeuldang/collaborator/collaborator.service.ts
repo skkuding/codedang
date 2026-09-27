@@ -433,12 +433,17 @@ export class CollaboratorService {
       throw new EntityNotExistException('Collaborator not found')
     }
 
-    if (collaborator.status !== CollaboratorStatus.Approved) {
-      throw new UnprocessableDataException('Collaborator is not approved')
+    if (collaborator.status === CollaboratorStatus.Rejected) {
+      throw new UnprocessableDataException(
+        'Cannot change the role of a rejected collaborator'
+      )
     }
 
     return await this.prisma.mandeuldangCollaborator.update({
-      where: { id: collaborator.id },
+      where: {
+        id: collaborator.id,
+        status: { not: CollaboratorStatus.Rejected }
+      },
       data: { role }
     })
   }

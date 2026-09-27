@@ -659,42 +659,119 @@ describe('CollaboratorService', () => {
   })
 
   describe('updateCollaboratorRole', () => {
-    it('Owner가 Approved 협업자의 역할을 변경한다', async () => {
+    for (const status of [
+      CollaboratorStatus.Pending,
+      CollaboratorStatus.Approved
+    ]) {
+      for (const role of [CollaboratorRole.Editor, CollaboratorRole.Reviewer]) {
+        it(`Owner가 ${status} 협업자를 ${role}로 변경하고 상태와 시각은 유지한다`, async () => {
+          const existing = {
+            ...collaborator,
+            status,
+            role:
+              role === CollaboratorRole.Editor
+                ? CollaboratorRole.Reviewer
+                : CollaboratorRole.Editor,
+            approvedAt:
+              status === CollaboratorStatus.Approved
+                ? new Date('2026-09-02T00:00:00Z')
+                : null
+          }
+          db.mandeuldangCollaborator.findFirst.resolves(existing)
+          db.mandeuldangCollaborator.update.callsFake(async ({ data }) => ({
+            ...existing,
+            ...data
+          }))
+
+          const result = await service.updateCollaboratorRole(
+            ownerId,
+            problemId,
+            {
+              userId: inviteeId,
+              role
+            }
+          )
+
+          expect(result).to.deep.equal({ ...existing, role })
+          expect(db.mandeuldangCollaborator.update.calledOnce).to.equal(true)
+          expect(
+            db.mandeuldangCollaborator.update.firstCall.args[0]
+          ).to.deep.equal({
+            where: {
+              id: collaborator.id,
+              status: { not: CollaboratorStatus.Rejected }
+            },
+            data: { role }
+          })
+          expect(db.mandeuldangCollaborator.create.called).to.equal(false)
+          expect(db.mandeuldangCollaborator.delete.called).to.equal(false)
+        })
+      }
+    }
+
+    it('Rejected 협업자의 역할은 변경할 수 없다', async () => {
       db.mandeuldangCollaborator.findFirst.resolves({
         ...collaborator,
-        status: CollaboratorStatus.Approved
+        status: CollaboratorStatus.Rejected
       })
-
-      const saved = {
-        ...collaborator,
-        status: CollaboratorStatus.Approved,
-        role: CollaboratorRole.Editor
-      }
-      db.mandeuldangCollaborator.update.resolves(saved)
-
-      const result = await service.updateCollaboratorRole(ownerId, problemId, {
-        userId: inviteeId,
-        role: CollaboratorRole.Editor
-      })
-
-      expect(result).to.deep.equal(saved)
-      expect(db.mandeuldangCollaborator.update.firstCall.args[0]).to.deep.equal(
-        {
-          where: { id: collaborator.id },
-          data: { role: CollaboratorRole.Editor }
-        }
-      )
-    })
-
-    it('Editor는 역할을 변경할 수 없다', async () => {
       await expect(
-        service.updateCollaboratorRole(editorId, problemId, {
+        service.updateCollaboratorRole(ownerId, problemId, {
           userId: inviteeId,
           role: CollaboratorRole.Editor
         })
-      ).to.be.rejectedWith(ForbiddenAccessException)
-
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Cannot change the role of a rejected collaborator'
+      )
       expectNoWrites()
+    })
+
+    for (const requesterId of [editorId, reviewerId]) {
+      it(`Owner가 아닌 사용자 ${requesterId}는 역할을 변경할 수 없다`, async () => {
+        await expect(
+          service.updateCollaboratorRole(requesterId, problemId, {
+            userId: inviteeId,
+            role: CollaboratorRole.Editor
+          })
+        ).to.be.rejectedWith(ForbiddenAccessException)
+        expectNoWrites()
+      })
+    }
+
+    it('Owner 역할을 부여할 수 없다', async () => {
+      await expect(
+        service.updateCollaboratorRole(ownerId, problemId, {
+          userId: inviteeId,
+          role: CollaboratorRole.Owner
+        })
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Cannot assign Owner role'
+      )
+      expectNoWrites()
+    })
+
+    it('대상 협업자가 없으면 변경하지 않는다', async () => {
+      db.mandeuldangCollaborator.findFirst.resolves(null)
+      await expect(
+        service.updateCollaboratorRole(ownerId, problemId, {
+          userId: inviteeId,
+          role: CollaboratorRole.Editor
+        })
+      ).to.be.rejectedWith(EntityNotExistException)
+      expectNoWrites()
+    })
+
+    it('그 외 DB 오류는 그대로 전달한다', async () => {
+      const error = new Error('Unexpected database failure')
+      db.mandeuldangCollaborator.findFirst.resolves(collaborator)
+      db.mandeuldangCollaborator.update.rejects(error)
+      await expect(
+        service.updateCollaboratorRole(ownerId, problemId, {
+          userId: inviteeId,
+          role: CollaboratorRole.Editor
+        })
+      ).to.be.rejectedWith(Error, error.message)
     })
   })
 })
