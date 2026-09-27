@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Language } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { PrismaService } from '@libs/prisma'
 import { ToolType } from '@admin/@generated'
@@ -27,6 +28,18 @@ export class MandeuldangService {
 
   async deleteMandeuldangTool(problemId: number, toolType: ToolType) {
     return this.fileService.deleteMandeuldangToolFile(problemId, toolType)
+  }
+
+  async uploadMandeuldangSolution(
+    problemId: number,
+    language: Language,
+    file: FileUpload
+  ) {
+    return this.fileService.uploadMandeuldangSolution(problemId, language, file)
+  }
+
+  async deleteMandeuldangSolution(problemId: number) {
+    return this.fileService.deleteMandeuldangSolution(problemId)
   }
 
   //파일 실행

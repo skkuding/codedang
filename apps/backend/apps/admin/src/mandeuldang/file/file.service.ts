@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma, ToolType } from '@prisma/client'
+import { Language } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { extname } from 'path'
 import {
@@ -101,5 +102,72 @@ export class FileService {
       }
       throw error
     }
+  }
+
+  async uploadMandeuldangSolution(
+    problemId: number,
+    language: Language,
+    file: FileUpload
+  ) {
+    const { filename, createReadStream } = file
+
+    //ReadStream → [chunk1, chunk2, chunk3, ...] → Buffer.concat
+    //→ 최종 Buffer로 변환해 → S3에 저장
+    const chunks: Buffer[] = []
+    let total = 0
+    for await (const chunk of createReadStream()) {
+      total += chunk.length
+      if (total > MAX_TOOL_FILE_SIZE) {
+        throw new UnprocessableDataException('File size exceeds maximum limit')
+      }
+      chunks.push(chunk)
+    }
+    const fileContent = Buffer.concat(chunks).toString('utf-8')
+
+    // S3에 저장
+    const filePath = `mandeuldang/${problemId}/solution`
+    await this.storageService.uploadObject(
+      filePath,
+      fileContent,
+      'txt',
+      undefined,
+      'mandeuldang'
+    )
+
+    // DB엔 경로만 저장
+    const solution = await this.prisma.mandeuldangSolution.upsert({
+      where: { problemId },
+      update: { fileName: filename, filePath, language },
+      create: { problemId, fileName: filename, filePath, language }
+    })
+    return solution
+  }
+
+  async deleteMandeuldangSolution(problemId: number) {
+    const solution = await this.prisma.mandeuldangSolution.delete({
+      where: { problemId }
+    })
+    // DB row 삭제 후 S3 파일도 삭제
+    await this.storageService.deleteObject(solution.filePath, 'mandeuldang')
+
+    const testcasePrefix = `${problemId}/`
+    const testcaseFiles = await this.storageService.listObjects(
+      testcasePrefix,
+      'testcase'
+    )
+
+    await Promise.all(
+      testcaseFiles.map(async (file) => {
+        if (file.Key) {
+          await this.storageService.deleteObject(file.Key, 'testcase')
+        }
+      })
+    )
+
+    await this.prisma.mandeuldangTestFile.deleteMany({
+      where: { problemId }
+    })
+
+    return solution
   }
 }

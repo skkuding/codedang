@@ -1,12 +1,13 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
-import { ToolType } from '@admin/@generated'
+import { MandeuldangSolution, ToolType } from '@admin/@generated'
 import {
   MandeuldangProblem,
   MandeuldangRunRequest,
   MandeuldangTool
 } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
+import type { UploadMandeuldangSolutionInput } from './model/mandeuldang-solution.input'
 import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
 @Resolver(() => MandeuldangProblem)
@@ -31,6 +32,24 @@ export class MandeuldangResolver {
     @Args('toolType', { type: () => ToolType }) toolType: ToolType
   ) {
     return this.mandeuldangService.deleteMandeuldangTool(problemId, toolType)
+  }
+
+  @Mutation(() => MandeuldangSolution)
+  async uploadMandeuldangSolution(
+    @Args('input') input: UploadMandeuldangSolutionInput
+  ) {
+    return await this.mandeuldangService.uploadMandeuldangSolution(
+      input.problemId,
+      input.language,
+      await input.file
+    )
+  }
+
+  @Mutation(() => MandeuldangSolution)
+  async deleteMandeuldangSolution(
+    @Args('problemId', { type: () => Int }) problemId: number
+  ) {
+    return this.mandeuldangService.deleteMandeuldangSolution(problemId)
   }
 
   @Mutation(() => MandeuldangRunRequest)
