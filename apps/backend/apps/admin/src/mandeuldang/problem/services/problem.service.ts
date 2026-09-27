@@ -187,7 +187,7 @@ export class MandeuldangProblemService {
    * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
    */
   async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
-    const { id, title, ...rest } = input
+    const { id, title, languages, ...rest } = input
 
     const problem = await this.prisma.problem.findUnique({
       where: { id }
@@ -205,7 +205,8 @@ export class MandeuldangProblemService {
     })
     const isApprovedEditor =
       collaborator?.status === CollaboratorStatus.Approved &&
-      collaborator.role === CollaboratorRole.Editor
+      (collaborator.role === CollaboratorRole.Editor ||
+        collaborator.role === CollaboratorRole.Owner)
     if (!isOwner && !isApprovedEditor) {
       throw new ForbiddenAccessException('Only Owner or Editor can edit')
     }
@@ -237,6 +238,7 @@ export class MandeuldangProblemService {
 
     const data = {
       ...rest,
+      ...(languages != null && { languages }),
       ...(normalizedTitle !== undefined && { title: normalizedTitle })
     }
 
@@ -265,7 +267,7 @@ export class MandeuldangProblemService {
       // ready 상태인 문제인 경우 조건 불만족시 ready->draft로 자동 승격
       const nextStatus = canPublish ? ProblemStatus.Ready : ProblemStatus.Draft
       if (nextStatus !== updated.status) {
-        await tx.problem.update({
+        return await tx.problem.update({
           where: { id: problem.id },
           data: { status: nextStatus }
         })
@@ -302,13 +304,16 @@ export class MandeuldangProblemService {
       throw new ForbiddenAccessException('Only Owner can publish a problem')
     }
 
-    if (problem.status !== ProblemStatus.Ready) {
-      throw new UnprocessableDataException(
-        'Only a Ready problem can be published'
-      )
-    }
-
     return await this.prisma.$transaction(async (tx) => {
+      const current = await tx.problem.findUniqueOrThrow({
+        where: { id: problem.id },
+        select: { status: true }
+      })
+      if (current.status !== ProblemStatus.Ready) {
+        throw new UnprocessableDataException(
+          'Only a Ready problem can be published'
+        )
+      }
       const { canPublish, missing } = await this.publishCheckService.check(
         problem.id,
         tx

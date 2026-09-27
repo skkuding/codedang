@@ -530,6 +530,7 @@ describe('MandeuldangProblemService', () => {
     }
 
     const readyToPublishSnapshot = {
+      status: ProblemStatus.Ready,
       ...fullStatementFields,
       mandeuldangSolution: { id: 1 },
       mandeuldangTestFiles: [{ id: 1 }]
@@ -583,7 +584,12 @@ describe('MandeuldangProblemService', () => {
         role: CollaboratorRole.Owner,
         status: CollaboratorStatus.Approved
       })
-      // findUniqueOrThrow의 기본 stub은 emptyStatementFields라 canPublish=false
+      db.problem.findUniqueOrThrow.resolves({
+        status: ProblemStatus.Ready,
+        ...emptyStatementFields,
+        mandeuldangSolution: null,
+        mandeuldangTestFiles: []
+      })
 
       try {
         await service.publishProblem(10, ownerId)
