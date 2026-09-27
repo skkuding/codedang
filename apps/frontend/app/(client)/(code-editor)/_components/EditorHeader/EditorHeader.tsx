@@ -97,6 +97,11 @@ export function EditorHeader({
   const loading = isTesting || isSubmitting
 
   const [submissionId, setSubmissionId] = useState<number | null>(null)
+  const pollingRequestRef = useRef(false)
+  const pollingGenerationRef = useRef(0)
+  const finishedSubmissionRef = useRef<number | null>(null)
+  const pollingFailuresRef = useRef(0)
+  const nextPollAtRef = useRef(0)
   const [templateCode, setTemplateCode] = useState<string>('')
   const [userName, setUserName] = useState('')
   const router = useRouter()
@@ -134,24 +139,52 @@ export function EditorHeader({
     problemId: problem.id,
     enabled: isSubmitted
   })
+  useEffect(() => {
+    const generationRef = pollingGenerationRef
+    return () => {
+      // Invalidate requests that outlive this editor.
+      generationRef.current++
+    }
+  }, [])
   useInterval(
     async () => {
-      // TODO: Implement assignment submission
-      const res = await fetcherWithAuth(`submission/${submissionId}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache'
-        },
-        searchParams: {
-          problemId: problem.id,
-          pollingTime: Date.now(),
-          ...(contestId && { contestId }),
-          ...(assignmentId && { assignmentId }),
-          ...(exerciseId && { assignmentId: exerciseId })
+      if (
+        submissionId === null ||
+        pollingRequestRef.current ||
+        finishedSubmissionRef.current === submissionId ||
+        Date.now() < nextPollAtRef.current
+      ) {
+        return
+      }
+
+      const generation = pollingGenerationRef.current
+      pollingRequestRef.current = true
+      try {
+        // TODO: Implement assignment submission
+        const res = await fetcherWithAuth(`submission/${submissionId}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          },
+          searchParams: {
+            problemId: problem.id,
+            pollingTime: Date.now(),
+            ...(contestId && { contestId }),
+            ...(assignmentId && { assignmentId }),
+            ...(exerciseId && { assignmentId: exerciseId })
+          }
+        })
+        if (!res.ok) {
+          throw new Error(`Submission status request failed: ${res.status}`)
         }
-      })
-      if (res.ok) {
+
         const submission: SubmissionDetail = await res.json()
+        if (generation !== pollingGenerationRef.current) {
+          return
+        }
+
+        pollingFailuresRef.current = 0
+        nextPollAtRef.current = 0
         const total = submission.testcaseResult.length
         const completed = submission.testcaseResult.filter(
           (testcase) => testcase.result !== 'Judging'
@@ -171,6 +204,7 @@ export function EditorHeader({
             0,
             ...submission.testcaseResult.map((testcase) => testcase.memoryUsage)
           )
+          finishedSubmissionRef.current = submissionId
           setSubmissionProgress({
             stage: 'finished',
             completed: total,
@@ -194,10 +228,25 @@ export function EditorHeader({
             total
           })
         }
-      } else {
-        setIsSubmitting(false)
-        setSubmissionProgress(null)
-        toast.error('Please try again later.')
+      } catch {
+        if (generation !== pollingGenerationRef.current) {
+          return
+        }
+
+        pollingFailuresRef.current++
+        nextPollAtRef.current =
+          Date.now() +
+          Math.min(
+            1000 * 2 ** Math.min(pollingFailuresRef.current - 1, 4),
+            10000
+          )
+        if (pollingFailuresRef.current === 1) {
+          toast.error('Unable to check submission status. Retrying...')
+        }
+      } finally {
+        if (generation === pollingGenerationRef.current) {
+          pollingRequestRef.current = false
+        }
       }
     },
     isSubmitting && submissionId ? 500 : null
@@ -285,6 +334,11 @@ export function EditorHeader({
       return
     }
 
+    pollingGenerationRef.current++
+    pollingRequestRef.current = false
+    finishedSubmissionRef.current = null
+    pollingFailuresRef.current = 0
+    nextPollAtRef.current = 0
     setSubmissionId(null)
     setIsSubmitting(true)
     setActiveTestcaseTab(TESTCASE_RESULT_TAB)
