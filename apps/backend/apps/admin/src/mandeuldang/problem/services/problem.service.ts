@@ -305,15 +305,6 @@ export class MandeuldangProblemService {
     }
 
     return await this.prisma.$transaction(async (tx) => {
-      const current = await tx.problem.findUniqueOrThrow({
-        where: { id: problem.id },
-        select: { status: true }
-      })
-      if (current.status !== ProblemStatus.Ready) {
-        throw new UnprocessableDataException(
-          'Only a Ready problem can be published'
-        )
-      }
       const { canPublish, missing } = await this.publishCheckService.check(
         problem.id,
         tx
@@ -324,10 +315,16 @@ export class MandeuldangProblemService {
         )
       }
 
-      return await tx.problem.update({
-        where: { id: problem.id },
+      const result = await tx.problem.updateMany({
+        where: { id: problem.id, status: ProblemStatus.Ready },
         data: { status: ProblemStatus.Published }
       })
+      if (result.count === 0) {
+        throw new UnprocessableDataException(
+          'Only a Ready problem can be published'
+        )
+      }
+      return await tx.problem.findUniqueOrThrow({ where: { id: problem.id } })
     })
   }
 

@@ -64,7 +64,8 @@ const db = {
     findMany: stub(),
     findUnique: stub(),
     findUniqueOrThrow: stub(),
-    update: stub()
+    update: stub(),
+    updateMany: stub()
   },
   mandeuldangCollaborator: {
     findUnique: stub()
@@ -87,6 +88,8 @@ describe('MandeuldangProblemService', () => {
     })
     db.problem.update.reset()
     db.problem.update.resolvesArg(0)
+    db.problem.updateMany.reset()
+    db.problem.updateMany.resolves({ count: 1 })
     db.mandeuldangCollaborator.findUnique.reset()
     db.$transaction.reset()
     db.$transaction.callsFake((cb: (tx: typeof db) => unknown) => cb(db))
@@ -574,7 +577,7 @@ describe('MandeuldangProblemService', () => {
         await service.publishProblem(10, ownerId)
         expect.fail('should have thrown')
       } catch (err) {
-        expect((err as Error).message).to.include('Ready')
+        expect((err as Error).message).to.include('Cannot publish')
       }
     })
 
@@ -609,8 +612,8 @@ describe('MandeuldangProblemService', () => {
 
       await service.publishProblem(10, ownerId)
 
-      const call = db.problem.update.firstCall.args[0]
-      expect(call.where).to.deep.equal({ id: 10 })
+      const call = db.problem.updateMany.firstCall.args[0]
+      expect(call.where).to.deep.equal({ id: 10, status: ProblemStatus.Ready })
       expect(call.data).to.deep.equal({ status: ProblemStatus.Published })
     })
   })
