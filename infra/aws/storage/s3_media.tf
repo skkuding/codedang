@@ -15,13 +15,33 @@ resource "aws_s3_bucket_public_access_block" "media_access" {
 }
 
 data "aws_iam_policy_document" "media_get_object" {
+  # Kept until persisted direct S3 URLs are migrated to the CloudFront hostname.
+  # Remove this statement (and the public access block exemption above) last.
   statement {
+    sid       = "PublicRead"
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.media.arn}/*"]
 
     principals {
       type        = "*"
       identifiers = ["*"]
+    }
+  }
+
+  statement {
+    sid       = "AllowCloudFrontOAC"
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.media.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.media.arn]
     }
   }
 }
