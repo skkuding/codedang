@@ -176,7 +176,23 @@ func main() {
 			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
 			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
-			MandeuldangKey: utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_KEY", logProvider),
+		},
+	).Connect(context.Background())
+
+	go connector.Factory(
+		connector.RABBIT_MQ,
+		connector.Providers{Router: routeProvider, Logger: logProvider},
+		rabbitmq.ConsumerConfig{
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("MANDEULDANG_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("MANDEULDANG_REQUEST_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("MANDEULDANG_REQUEST_CONSUMER_TAG", logProvider),
+		},
+		rabbitmq.ProducerConfig{
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("MANDEULDANG_EXCHANGE_NAME", logProvider),
+			RoutingKey:     utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_ROUTING_KEY", logProvider),
 		},
 	).Connect(context.Background())
 
