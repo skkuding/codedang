@@ -124,7 +124,10 @@ export class AssignmentService {
         }
       })
 
-      this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
+      await this.inviteAllCourseMembersToAssignment(
+        createdAssignment.id,
+        groupId
+      )
 
       this.eventEmitter.emit('assignment.created', {
         assignmentId: createdAssignment.id,
