@@ -1,10 +1,9 @@
 package judger
 
 import (
-	"bytes"
-	"fmt"
-
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"time"
@@ -81,9 +80,8 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 
 	cmd := exec.CommandContext(ctx, args.ExePath, args.Args...)
 	cmd.Env = append(cmd.Env, env)
-
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
+	cmd.Stdout = outputFile
+	cmd.Stderr = outputFile
 
 	startTime := time.Now()
 	err = cmd.Run()
@@ -95,9 +93,16 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 	}
 
 	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() >= 0 {
+			return sandbox.ExecResult{
+				ExitCode:   exitErr.ExitCode(),
+				StatusCode: sandbox.COMPILE_ERROR,
+			}, nil
+		}
 		return sandbox.ExecResult{
 			StatusCode: sandbox.StatusCode(SYSTEM_ERROR),
-		}, fmt.Errorf("%s", stderr.String())
+		}, fmt.Errorf("compiler execution failed: %w", err)
 	}
 
 	realTimeSpentMS := int(time.Since(startTime).Milliseconds())
