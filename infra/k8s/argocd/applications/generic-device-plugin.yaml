@@ -6,7 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   labels:
-    app.kubernetes.io/environment: stage
+    app.kubernetes.io/environment: 'stage'
 spec:
   project: default
 

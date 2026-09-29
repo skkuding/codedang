@@ -57,7 +57,7 @@ spec:
             limits:
               cpu: "4"
               memory: 4Gi
-              squat.ai/video: 1
+              devic.es/video: 1
 
           startupProbe:
             httpGet:
