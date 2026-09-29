@@ -5,10 +5,43 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
+	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+type fixedCompileArgs struct {
+	sandbox.LangConfig[JudgerConfig, ExecArgs]
+	args ExecArgs
+}
+
+func (f fixedCompileArgs) ToCompileExecArgs(string, sandbox.Language) (ExecArgs, error) {
+	return f.args, nil
+}
+
+func TestCompileReturnsCompilerFailureAndDiagnostic(t *testing.T) {
+	baseDir := t.TempDir()
+	dir := "source"
+	require.NoError(t, os.Mkdir(filepath.Join(baseDir, dir), 0700))
+	c := &compiler{
+		langConfig: fixedCompileArgs{args: ExecArgs{
+			ExePath:     "/bin/sh",
+			Args:        []string{"-c", "printf 'syntax error\\n' >&2; exit 1"},
+			OutputPath:  filepath.Join(baseDir, dir, constants.COMPILE_OUT_FILE),
+			MaxRealTime: 1000,
+		}},
+		file: file.NewFileManager(baseDir),
+	}
+
+	result, err := c.Compile(sandbox.CompileRequest{Dir: dir, Language: sandbox.CPP})
+
+	require.NoError(t, err)
+	assert.Equal(t, sandbox.COMPILE_ERROR, result.ExecResult.StatusCode)
+	assert.Equal(t, 1, result.ExecResult.ExitCode)
+	assert.Equal(t, "syntax error\n", result.ErrOutput)
+}
 
 func TestCompileExecClassifiesCompilerExit(t *testing.T) {
 	outputPath := filepath.Join(t.TempDir(), "compile.out")
@@ -38,5 +71,5 @@ func TestCompileExecReportsStartFailure(t *testing.T) {
 	})
 
 	require.Error(t, err)
-	assert.Equal(t, sandbox.StatusCode(SYSTEM_ERROR), result.StatusCode)
+	assert.Equal(t, sandbox.SERVER_ERROR, result.StatusCode)
 }
