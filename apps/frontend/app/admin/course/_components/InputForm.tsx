@@ -56,7 +56,7 @@ export function InputForm({
   return (
     <div className={cn(className, labelGap[size], 'flex w-full flex-col')}>
       {label && (
-        <span
+        <label
           className={cn(
             'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
             size === 'small' && 'text-sub4_sb_14'
@@ -64,7 +64,7 @@ export function InputForm({
         >
           {label}
           {/* {isMandatory && <span className="mt-0.5 text-red-500">*</span>} */}
-        </span>
+        </label>
       )}
       <div
         className={cn(
@@ -82,8 +82,7 @@ export function InputForm({
           className={cn(
             inputStyle,
             'placeholder:text-color-neutral-90 disabled:placeholder:text-color-neutral-60 disabled:bg-color-neutral-95 text-body1_m_16 h-full rounded-full border-none px-4 focus-visible:ring-0',
-            size === 'small' && 'text-body2_m_14',
-            disabled && 'placeholder:text-color-neutral-60'
+            size === 'small' && 'text-body2_m_14'
           )}
           maxLength={maxLength || 120}
           {...register(name, {

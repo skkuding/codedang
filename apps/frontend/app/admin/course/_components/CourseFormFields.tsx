@@ -65,7 +65,6 @@ export function CourseFormFields() {
           maxLength={7}
           value={courseNumber}
           onChange={handleCourseNumberChange}
-          disabled
         />
       </div>
       <InputForm
@@ -80,7 +79,6 @@ export function CourseFormFields() {
         label="Week"
         items={weekOptions}
         placeholder="16 weeks"
-        disabled
       />
       <DropdownForm
         name="semester"
@@ -90,7 +88,7 @@ export function CourseFormFields() {
       />
       <span className="whitespace-nowrap text-lg">Contact</span>
       <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
-        <div className="flex items-end items-center gap-2">
+        <div className="flex items-end gap-2">
           <InputForm
             label="Email"
             placeholder="example"

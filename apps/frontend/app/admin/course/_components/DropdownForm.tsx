@@ -66,14 +66,14 @@ export function DropdownForm({
   return (
     <div className={cn('flex flex-col', labelGap[size])}>
       {label && (
-        <p
+        <label
           className={cn(
             'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
             size === 'small' && 'text-sub4_sb_14'
           )}
         >
           {label}
-        </p>
+        </label>
       )}
       {/* <OptionSelect
         className={cn('w-full', formVariants({ size, status }))}
@@ -103,8 +103,7 @@ export function DropdownForm({
             'focus:ring-primary text-body1_m_16 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 focus:ring-offset-0 disabled:opacity-100',
             size === 'small' && 'text-body2_m_14',
             formVariants({ size, status }),
-            disabled &&
-              'data-[placeholder]:text-color-neutral-90 bg-color-neutral-95',
+            disabled && 'data-[placeholder]:text-color-neutral-60',
             '[&>svg]:text-color-common-0 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:opacity-100'
           )}
         >
