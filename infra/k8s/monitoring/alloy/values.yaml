@@ -1,0 +1,106 @@
+# This collector only pulls pprof profiles from Iris Pods.
+crds:
+  create: false
+
+controller:
+  type: deployment
+  replicas: 1
+
+rbac:
+  namespaces:
+    - iris
+  rules:
+    - apiGroups: ['']
+      resources: ['pods']
+      verbs: ['get', 'list', 'watch']
+  clusterRules: []
+
+alloy:
+  enableReporting: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  configMap:
+    content: |-
+      discovery.kubernetes "iris_pods" {
+        role = "pod"
+
+        namespaces {
+          names = ["iris"]
+        }
+
+        selectors {
+          role  = "pod"
+          label = "app in (iris,iris-test,iris-rejudge)"
+        }
+      }
+
+      discovery.relabel "iris_pprof" {
+        targets = discovery.kubernetes.iris_pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_ready"]
+          regex         = "true"
+          action        = "keep"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          regex         = "iris"
+          action        = "keep"
+        }
+
+        // iris-test and iris-rejudge also listen on 6060 but do not declare it as a container port.
+        rule {
+          source_labels = ["__meta_kubernetes_pod_ip"]
+          regex         = "(.+)"
+          replacement   = "${1}:6060"
+          target_label  = "__address__"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app"]
+          target_label  = "service_name"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+      }
+
+      pyroscope.scrape "iris" {
+        targets                  = discovery.relabel.iris_pprof.output
+        forward_to               = [pyroscope.write.local.receiver]
+        scrape_interval          = "60s"
+        scrape_timeout           = "20s"
+        delta_profiling_duration = "10s"
+
+        profiling_config {
+          profile.block {
+            enabled = false
+          }
+          profile.mutex {
+            enabled = false
+          }
+        }
+      }
+
+      pyroscope.write "local" {
+        endpoint {
+          url = "http://pyroscope.monitoring-pyroscope.svc.cluster.local:4040"
+        }
+
+        external_labels = {
+          environment = "{{ .Values.environment }}",
+        }
+      }
+
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: prometheus

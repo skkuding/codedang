@@ -9,7 +9,7 @@ metadata:
     app: minio
 spec:
   features:
-    bucketDNS: false # use path-style access to be compatible with Loki/Tempo S3 config
+    bucketDNS: false # use path-style access to be compatible with Loki/Tempo/Pyroscope S3 config
   users:
     - name: monitoring-user
   buckets:
@@ -17,6 +17,9 @@ spec:
       region: 'ap-northeast-2'
       objectLock: false
     - name: 'tempo'
+      region: 'ap-northeast-2'
+      objectLock: false
+    - name: 'pyroscope'
       region: 'ap-northeast-2'
       objectLock: false
   configuration:

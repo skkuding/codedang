@@ -86,6 +86,14 @@ datasources:
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
         editable: false
+      - name: Pyroscope
+        type: grafana-pyroscope-datasource
+        uid: pyroscope
+        access: proxy
+        url: http://pyroscope.monitoring-pyroscope.svc.cluster.local:4040
+        jsonData:
+          minStep: 1m
+        editable: false
       - name: CloudWatch
         type: cloudwatch
         uid: cloudwatch
