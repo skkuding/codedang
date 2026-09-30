@@ -116,17 +116,24 @@ export class AssignmentService {
     }
 
     try {
-      const createdAssignment = await this.prisma.assignment.create({
-        data: {
-          createdById: userId,
-          groupId,
-          ...assignment
-        }
-      })
+      const createdAssignment = await this.prisma.$transaction(
+        async (prisma) => {
+          const created = await prisma.assignment.create({
+            data: {
+              createdById: userId,
+              groupId,
+              ...assignment
+            }
+          })
 
-      await this.inviteAllCourseMembersToAssignment(
-        createdAssignment.id,
-        groupId
+          await this.inviteAllCourseMembersToAssignment(
+            created.id,
+            groupId,
+            prisma
+          )
+
+          return created
+        }
       )
 
       this.eventEmitter.emit('assignment.created', {
@@ -945,7 +952,13 @@ export class AssignmentService {
     ])
 
     if (courseMemberCount > assignmentParticipantCount) {
-      await this.inviteAllCourseMembersToAssignment(assignmentId, groupId)
+      await this.prisma.$transaction(async (prisma) => {
+        await this.inviteAllCourseMembersToAssignment(
+          assignmentId,
+          groupId,
+          prisma
+        )
+      })
     }
 
     const assignmentRecords = await this.prisma.assignmentRecord.findMany({
@@ -1343,9 +1356,10 @@ export class AssignmentService {
 
   private async inviteAllCourseMembersToAssignment(
     assignmentId: number,
-    groupId: number
+    groupId: number,
+    prisma: Prisma.TransactionClient
   ) {
-    const courseMembers = await this.prisma.userGroup.findMany({
+    const courseMembers = await prisma.userGroup.findMany({
       where: { groupId },
       select: { userId: true }
     })
@@ -1354,7 +1368,7 @@ export class AssignmentService {
       throw new EntityNotExistException('Course Member')
     }
 
-    const assignmentParticipants = await this.prisma.assignmentRecord.findMany({
+    const assignmentParticipants = await prisma.assignmentRecord.findMany({
       where: { assignmentId },
       select: { userId: true }
     })
@@ -1367,7 +1381,7 @@ export class AssignmentService {
       ({ userId }) => !participantIds.has(userId)
     )
 
-    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+    const assignmentProblems = await prisma.assignmentProblem.findMany({
       where: { assignmentId },
       select: { problemId: true }
     })
@@ -1380,16 +1394,14 @@ export class AssignmentService {
       }))
     )
 
-    await this.prisma.$transaction(async (prisma) => {
-      await prisma.assignmentRecord.createMany({
-        data: nonParticipants.map(({ userId }) => ({ userId, assignmentId })),
-        skipDuplicates: true
-      })
+    await prisma.assignmentRecord.createMany({
+      data: nonParticipants.map(({ userId }) => ({ userId, assignmentId })),
+      skipDuplicates: true
+    })
 
-      await prisma.assignmentProblemRecord.createMany({
-        data: assignmentProblemData,
-        skipDuplicates: true
-      })
+    await prisma.assignmentProblemRecord.createMany({
+      data: assignmentProblemData,
+      skipDuplicates: true
     })
   }
 }
