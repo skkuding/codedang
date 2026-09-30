@@ -25,12 +25,6 @@ provider "aws" {
   region = "ap-northeast-2"
 }
 
-# CloudFront only accepts ACM certificates issued in us-east-1.
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-}
-
 data "aws_vpc" "main" {
   tags = {
     Name = "Codedang-VPC"
