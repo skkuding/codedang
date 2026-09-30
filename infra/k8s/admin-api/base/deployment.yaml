@@ -5,6 +5,11 @@ metadata:
   namespace: admin-api
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: admin-api
@@ -13,6 +18,7 @@ spec:
       labels:
         app: admin-api
     spec:
+      terminationGracePeriodSeconds: 120
       containers:
         - name: admin-api
           image: ghcr.io/skkuding/codedang-admin-api
@@ -23,6 +29,24 @@ spec:
             requests:
               cpu: 0.2
               memory: 200Mi
+          startupProbe:
+            httpGet:
+              path: /health/ready
+              port: 3000
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 3000
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: ['sh', '-c', 'sleep 5']
           envFrom:
             - configMapRef:
                 name: admin-api-env
