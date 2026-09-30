@@ -332,36 +332,53 @@ describe('AssignmentService', () => {
   describe('createAssignment', () => {
     it('should return created assignment', async () => {
       db.group.findUnique.resolves(group)
+      db.assignment.create.resolves(assignment)
       db.assignment.create.resetHistory()
-      const createInTransaction = stub().resolves(assignment)
-      db.$transaction.callsFake(async (operation) =>
-        operation({
-          ...db,
-          assignment: { ...db.assignment, create: createInTransaction }
-        })
-      )
+      db.$transaction.resetHistory()
 
-      try {
-        const res = await service.createAssignment(groupId, userId, input)
-        expect(res).to.deep.equal(assignment)
-        expect(createInTransaction.calledOnce).to.be.true
-        expect(db.assignment.create.called).to.be.false
-      } finally {
-        db.$transaction.callsFake(mockTransaction)
-      }
+      const res = await service.createAssignment(groupId, userId, input)
+      expect(res).to.deep.equal(assignment)
+      expect(db.assignment.create.calledOnce).to.be.true
+      expect(db.$transaction.calledOnce).to.be.true
     })
 
-    it('should reject creation when invitations fail', async () => {
+    it('should delete the created assignment when no members can be invited', async () => {
       db.userGroup.findMany.resolves([])
       db.assignment.create.resolves(assignment)
       db.group.findUnique.resolves(group)
+      db.assignment.delete.resetHistory()
 
       try {
         await expect(
           service.createAssignment(groupId, userId, input)
         ).to.be.rejectedWith('Course Member')
+        expect(
+          db.assignment.delete.calledOnceWithExactly({
+            where: { id: assignmentId }
+          })
+        ).to.be.true
       } finally {
         db.userGroup.findMany.resolves([{ userId }])
+      }
+    })
+
+    it('should delete the created assignment when invitation writes fail', async () => {
+      db.assignmentProblemRecord.createMany.rejects(
+        new Error('Invitation failed')
+      )
+      db.assignment.delete.resetHistory()
+
+      try {
+        await expect(
+          service.createAssignment(groupId, userId, input)
+        ).to.be.rejectedWith('Invitation failed')
+        expect(
+          db.assignment.delete.calledOnceWithExactly({
+            where: { id: assignmentId }
+          })
+        ).to.be.true
+      } finally {
+        db.assignmentProblemRecord.createMany.resolves([])
       }
     })
   })
