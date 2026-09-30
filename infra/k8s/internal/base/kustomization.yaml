@@ -5,7 +5,10 @@ resources:
   - cluster-issuer-dns01.yaml
   - cluster-issuer-http01.yaml
   - traefik-config.yaml
+  - hsts.yaml
   - gateway.yaml
   - TLSRedirect.yaml
+  - internal-deny-route.yaml
 commonAnnotations:
   managed-by: kustomize
+

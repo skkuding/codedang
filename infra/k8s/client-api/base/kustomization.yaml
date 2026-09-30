@@ -10,3 +10,4 @@ resources:
   - redis-credentials.yaml
   - service.yaml
   - httproute.yaml
+  - service-monitor.yaml
