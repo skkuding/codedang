@@ -9,6 +9,12 @@ n8n is currently installed manually with Helm and is not managed by Argo CD. Cha
 
 The chart version is pinned to `1.23.0`. This version supports both `extraManifests`, which is used to create the `HTTPRoute`, and `main.extraEnv`, which is used to load credentials from Secrets.
 
+> [!WARNING]
+> `values.yaml` does not match the installed release. Reconcile it with `helm get values n8n --namespace n8n` before running the upgrade below.
+>
+> - **Storage**: the release mounts the `n8n-data` PVC (`local-path-retain`, `skkuding-4f-1`). `values.yaml` sets no `main.persistence.existingClaim`, so the chart mounts `n8n-main-persistence`, whose volume is on the removed node `skkuding-4f-4`. With the `Recreate` strategy, the running Pod stops first and the new Pod stays `Pending`. Set `main.persistence.existingClaim: n8n-data`.
+> - **Routing**: the release serves `n8n.codedang.com` through the chart `Ingress`. `values.yaml` disables the `Ingress` and adds an `HTTPRoute` on `https-wildcard`, so an upgrade switches routing to the Gateway.
+
 ### Install or upgrade
 
 Run the following commands from this directory:
