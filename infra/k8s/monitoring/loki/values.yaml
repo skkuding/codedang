@@ -65,8 +65,6 @@ singleBinary:
   persistence:
     whenDeleted: Retain
     whenScaled: Retain
-  nodeSelector:
-    kubernetes.io/hostname: skkuding-4f-1
 
 gateway:
   enabled: false
