@@ -1,5 +1,8 @@
 import { createContext, useContext, useRef, type ReactNode } from 'react'
 import { create, useStore } from 'zustand'
+import type { SubmissionProgress } from '../../_libs/submissionProgress'
+
+export type { SubmissionProgress } from '../../_libs/submissionProgress'
 
 interface TestPollingState {
   isTesting: boolean
@@ -10,16 +13,6 @@ interface TestPollingState {
   stopPolling: (type: 'non-user' | 'user') => void
   submissionProgress: SubmissionProgress | null
   setSubmissionProgress: (progress: SubmissionProgress | null) => void
-}
-
-export interface SubmissionProgress {
-  stage: 'waiting' | 'grading' | 'finished'
-  completed: number
-  total: number
-  result?: string
-  runtime?: number
-  memoryUsage?: number
-  failedCase?: number
 }
 
 const createTestPollingStore = () =>

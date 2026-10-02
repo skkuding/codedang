@@ -55,6 +55,7 @@ import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval, useKey } from 'react-use'
 import { toast } from 'sonner'
+import { getSubmissionProgress } from '../../_libs/submissionProgress'
 import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { BackCautionDialog } from './BackCautionDialog'
@@ -67,6 +68,7 @@ interface ProblemEditorProps {
   exerciseId?: number
   courseId?: number
   templateString: string
+  onSubmissionStart?: () => void
 }
 
 export function EditorHeader({
@@ -75,7 +77,8 @@ export function EditorHeader({
   assignmentId,
   exerciseId,
   courseId,
-  templateString
+  templateString,
+  onSubmissionStart
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(
     problem.id,
@@ -106,7 +109,7 @@ export function EditorHeader({
   const [userName, setUserName] = useState('')
   const router = useRouter()
   const pathname = usePathname()
-  const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
+  const confettiRef = useRef<JSConfetti | null>(null)
   const storageKey = useRef(
     getStorageKey(
       language,
@@ -141,7 +144,9 @@ export function EditorHeader({
   })
   useEffect(() => {
     const generationRef = pollingGenerationRef
+    confettiRef.current = new JSConfetti()
     return () => {
+      confettiRef.current?.destroyCanvas()
       // Invalidate requests that outlive this editor.
       generationRef.current++
     }
@@ -185,48 +190,18 @@ export function EditorHeader({
 
         pollingFailuresRef.current = 0
         nextPollAtRef.current = 0
-        const total = submission.testcaseResult.length
-        const completed = submission.testcaseResult.filter(
-          (testcase) => testcase.result !== 'Judging'
-        ).length
+        const progress = getSubmissionProgress(submission)
+        setSubmissionProgress(progress)
 
-        if (submission.result !== 'Judging') {
-          const failedCaseIndex = submission.testcaseResult.findIndex(
-            (testcase) => testcase.result !== 'Accepted'
-          )
-          const runtime = Math.max(
-            0,
-            ...submission.testcaseResult.map(
-              (testcase) => Number(testcase.cpuTime) || 0
-            )
-          )
-          const memoryUsage = Math.max(
-            0,
-            ...submission.testcaseResult.map((testcase) => testcase.memoryUsage)
-          )
+        if (progress.stage === 'finished') {
           finishedSubmissionRef.current = submissionId
-          setSubmissionProgress({
-            stage: 'finished',
-            completed: total,
-            total,
-            result: submission.result,
-            runtime,
-            memoryUsage,
-            failedCase: failedCaseIndex === -1 ? undefined : failedCaseIndex + 1
-          })
           setIsSubmitting(false)
           if (submission.result === 'Accepted') {
-            confetti?.addConfetti()
+            confettiRef.current?.addConfetti()
           }
           if (isSidePanelHidden) {
             toggleSidePanelVisibility()
           }
-        } else {
-          setSubmissionProgress({
-            stage: 'grading',
-            completed,
-            total
-          })
         }
       } catch {
         if (generation !== pollingGenerationRef.current) {
@@ -240,6 +215,16 @@ export function EditorHeader({
             1000 * 2 ** Math.min(pollingFailuresRef.current - 1, 4),
             10000
           )
+        if (pollingFailuresRef.current >= 5) {
+          setIsSubmitting(false)
+          setSubmissionProgress({
+            stage: 'error',
+            completed: 0,
+            total: 0,
+            message:
+              '채점 상태를 확인하지 못했습니다. 제출 내역에서 결과를 확인해 주세요.'
+          })
+        }
         if (pollingFailuresRef.current === 1) {
           toast.error('Unable to check submission status. Retrying...')
         }
@@ -321,6 +306,9 @@ export function EditorHeader({
   }
 
   const submit = async () => {
+    if (loading) {
+      return
+    }
     const code = getCode()
 
     if (session === null) {
@@ -334,94 +322,116 @@ export function EditorHeader({
       return
     }
 
-    pollingGenerationRef.current++
+    const generation = ++pollingGenerationRef.current
     pollingRequestRef.current = false
     finishedSubmissionRef.current = null
     pollingFailuresRef.current = 0
     nextPollAtRef.current = 0
     setSubmissionId(null)
     setIsSubmitting(true)
+    onSubmissionStart?.()
     setActiveTestcaseTab(TESTCASE_RESULT_TAB)
     setSubmissionProgress({ stage: 'waiting', completed: 0, total: 0 })
-    const res = await fetcherWithAuth.post('submission', {
-      json: {
-        language,
-        code: [
-          {
-            id: 1,
-            text: code,
-            locked: false
-          }
-        ]
-      },
-      searchParams: {
-        problemId: problem.id,
-        ...(contestId && { contestId }),
-        ...(assignmentId && { assignmentId }),
-        ...(exerciseId && { assignmentId: exerciseId })
-      },
-      next: {
-        revalidate: 0
-      }
-    })
-    if (res.ok) {
-      toast.success('Successfully submitted the code')
-      storeCodeToLocalStorage(code)
-      const submission: Submission = await res.json()
-
-      setSubmissionId(submission.id)
-      setSubmissionProgress({
-        stage: 'grading',
-        completed: 0,
-        total: problem.problemTestcase.length
+    try {
+      const res = await fetcherWithAuth.post('submission', {
+        json: {
+          language,
+          code: [
+            {
+              id: 1,
+              text: code,
+              locked: false
+            }
+          ]
+        },
+        searchParams: {
+          problemId: problem.id,
+          ...(contestId && { contestId }),
+          ...(assignmentId && { assignmentId }),
+          ...(exerciseId && { assignmentId: exerciseId })
+        },
+        next: {
+          revalidate: 0
+        }
       })
-      if (contestId) {
-        queryClient.invalidateQueries({
-          queryKey: contestProblemQueries.lists(contestId)
-        })
-        queryClient.invalidateQueries({
-          queryKey: contestSubmissionQueries.lists({
-            contestId,
-            problemId: problem.id
-          })
-        })
-        setIsSubmitted(true)
-      } else if (assignmentId) {
-        queryClient.invalidateQueries({
-          queryKey: assignmentProblemQueries.lists(assignmentId)
-        })
-        queryClient.invalidateQueries({
-          queryKey: assignmentSubmissionQueries.lists({
-            assignmentId,
-            problemId: problem.id
-          })
-        })
-      } else if (exerciseId) {
-        queryClient.invalidateQueries({
-          queryKey: assignmentProblemQueries.lists(exerciseId)
-        })
-        queryClient.invalidateQueries({
-          queryKey: assignmentSubmissionQueries.lists({
-            assignmentId: exerciseId,
-            problemId: problem.id
-          })
-        })
-      } else {
-        queryClient.invalidateQueries({
-          queryKey: problemSubmissionQueries.lists(problem.id)
-        })
+      if (generation !== pollingGenerationRef.current) {
+        return
       }
-    } else {
+      if (res.ok) {
+        toast.success('Successfully submitted the code')
+        storeCodeToLocalStorage(code)
+        const submission: Submission = await res.json()
+
+        if (generation !== pollingGenerationRef.current) {
+          return
+        }
+        setSubmissionId(submission.id)
+        setSubmissionProgress({
+          stage: 'waiting',
+          completed: 0,
+          total: 0
+        })
+        if (contestId) {
+          queryClient.invalidateQueries({
+            queryKey: contestProblemQueries.lists(contestId)
+          })
+          queryClient.invalidateQueries({
+            queryKey: contestSubmissionQueries.lists({
+              contestId,
+              problemId: problem.id
+            })
+          })
+          setIsSubmitted(true)
+        } else if (assignmentId) {
+          queryClient.invalidateQueries({
+            queryKey: assignmentProblemQueries.lists(assignmentId)
+          })
+          queryClient.invalidateQueries({
+            queryKey: assignmentSubmissionQueries.lists({
+              assignmentId,
+              problemId: problem.id
+            })
+          })
+        } else if (exerciseId) {
+          queryClient.invalidateQueries({
+            queryKey: assignmentProblemQueries.lists(exerciseId)
+          })
+          queryClient.invalidateQueries({
+            queryKey: assignmentSubmissionQueries.lists({
+              assignmentId: exerciseId,
+              problemId: problem.id
+            })
+          })
+        } else {
+          queryClient.invalidateQueries({
+            queryKey: problemSubmissionQueries.lists(problem.id)
+          })
+        }
+      } else {
+        setIsSubmitting(false)
+        setSubmissionProgress(null)
+        if (res.status === 401) {
+          showSignIn()
+          toast.error('Log in first to submit your code')
+        } else if (res.status === 404) {
+          toast.error('Submission period has ended.')
+        } else {
+          toast.error('Please try again later.')
+        }
+      }
+    } catch {
+      if (generation !== pollingGenerationRef.current) {
+        return
+      }
       setIsSubmitting(false)
-      setSubmissionProgress(null)
-      if (res.status === 401) {
-        showSignIn()
-        toast.error('Log in first to submit your code')
-      } else if (res.status === 404) {
-        toast.error('Submission period has ended.')
-      } else {
-        toast.error('Please try again later.')
-      }
+      setSubmissionProgress({
+        stage: 'error',
+        completed: 0,
+        total: 0,
+        message:
+          '제출 요청에 실패했습니다. 제출 내역을 확인한 뒤 다시 시도해 주세요.'
+      })
+      toast.error('Please try again later.')
     }
   }
 
@@ -643,7 +653,7 @@ export function EditorHeader({
         <TooltipProvider>
           {contestId === undefined && (
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   size="editor"
                   variant="editor"
@@ -661,7 +671,7 @@ export function EditorHeader({
           )}
 
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 size="editor"
                 variant="editor"
@@ -686,7 +696,7 @@ export function EditorHeader({
           />
 
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 size="editor"
                 variant="editor"
