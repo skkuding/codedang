@@ -1074,7 +1074,9 @@ export class WorkbookProblemService {
           problemId
         },
         problem: {
-          visibleLockTime: MIN_DATE
+          visibleLockTime: MIN_DATE,
+          // 발행 전(Draft/Ready) 만들당 문제는 워크북 상세 조회에도 노출하지 않는다.
+          ...PUBLISHED_PROBLEM_WHERE
         }
       },
       select: {
