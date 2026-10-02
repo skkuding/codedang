@@ -1,3 +1,8 @@
 script:pre-request {
-  await require("./login").loginAdmin(req);
+  if (req.getHeader("X-Collaborator-Test") === "true") {
+    const config = require("./collaborator.generated.js");
+    require("./collaborator-login").prepareCollaborator(req, bru, config);
+  } else {
+    await require("./login").loginAdmin(req);
+  }
 }
