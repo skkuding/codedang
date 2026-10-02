@@ -337,6 +337,14 @@ export class SubmissionService {
     if (problem.status !== ProblemStatus.Published) {
       throw new EntityNotExistException('Problem')
     }
+    // assignmentProblemRecord를 isSubmitted=true로 먼저 바꾸고 나면, createSubmission이
+    // 뒤에서 이 체크로 실패해도 "제출됨" 표시만 남고 실제 제출물은 없는 상태가 된다 —
+    // 레코드를 건드리기 전에 먼저 막는다.
+    if (problem.timeLimit == null || problem.memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be judged'
+      )
+    }
 
     await this.prisma.assignmentProblemRecord.upsert({
       where: {
