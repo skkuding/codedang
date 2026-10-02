@@ -13,6 +13,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { MandeuldangProblemOutput } from '../model/problem.output'
 
+/** 목록 조회 `take`에 허용하는 최대값. 클라이언트가 과도하게 큰 값을 요청해 한 번에 큰
+ *  결과셋을 조회해서 생기는 문제 방지를 위해 추가하였다. */
+const MAX_TAKE = 100
+
 /** 목록/상세 조회 모두에서 재사용하는, "요청자의 협업 역할" 계산 로직. */
 const resolveMyRole = (
   problem: {
@@ -33,7 +37,12 @@ const resolveMyRole = (
   const myCollaborator = problem.mandeuldangCollaborators.find(
     (collaborator) => collaborator.userId === userId
   )
-  return myCollaborator?.role ?? null
+  // 승인(Approved)되지 않은 협업자(Pending/Rejected)에게는 role을 노출하지 않는다 —
+  // Published 문제는 누구나 조회 가능하므로, status를 보지 않으면 거절 혹은 대기 중인
+  // 사용자에게도 Editor/Reviewer 권한이 있는 것처럼 보일 수 있다.
+  return myCollaborator?.status === CollaboratorStatus.Approved
+    ? myCollaborator.role
+    : null
 }
 
 @Injectable()
@@ -53,7 +62,7 @@ export class MandeuldangProblemService {
     const paginator = this.prisma.getPaginator(cursor)
     const problems = await this.prisma.problem.findMany({
       ...paginator,
-      take,
+      take: Math.min(take, MAX_TAKE),
       where: {
         creationMode: ProblemCreationMode.Mandeuldang,
         createdById: userId,
@@ -85,7 +94,7 @@ export class MandeuldangProblemService {
     const paginator = this.prisma.getPaginator(cursor)
     const problems = await this.prisma.problem.findMany({
       ...paginator,
-      take,
+      take: Math.min(take, MAX_TAKE),
       where: {
         creationMode: ProblemCreationMode.Mandeuldang,
         status: status ?? { not: ProblemStatus.Published },
