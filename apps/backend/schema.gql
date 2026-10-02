@@ -748,6 +748,40 @@ type ClusterSummary {
   strength: Float!
 }
 
+input CollaboratorInput {
+  role: CollaboratorRole!
+  userEmail: String!
+}
+
+type CollaboratorInviterOutput {
+  id: Int!
+  username: String!
+}
+
+type CollaboratorMutationOutput {
+  approvedAt: DateTime
+  createTime: DateTime!
+  id: ID!
+  invitedAt: DateTime
+  invitedById: Int
+  problemId: Int!
+  role: CollaboratorRole!
+  status: CollaboratorStatus!
+  userId: Int!
+}
+
+type CollaboratorOutput {
+  approvedAt: DateTime
+  createTime: DateTime!
+  email: String!
+  id: Int!
+  invitedAt: DateTime
+  invitedBy: CollaboratorInviterOutput
+  role: CollaboratorRole!
+  status: CollaboratorStatus!
+  username: String!
+}
+
 enum CollaboratorRole {
   Editor
   Owner
@@ -757,6 +791,12 @@ enum CollaboratorRole {
 enum CollaboratorStatus {
   Approved
   Pending
+  Rejected
+}
+
+input CollaboratorUpdateInput {
+  role: CollaboratorRole!
+  userId: Int!
 }
 
 type ComparedSubmissionInfo {
@@ -1950,6 +1990,18 @@ input CreateCourseNoticeInput {
   title: String!
 }
 
+input CreateMandeuldangProblemInput {
+  description: String
+  difficulty: Level
+  inputDescription: String
+  languages: [Language!]
+  memoryLimit: Int
+  outputDescription: String
+  problemType: ProblemType!
+  timeLimit: Int
+  title: String!
+}
+
 input CreateNoticeInput {
   content: String!
   isFixed: Boolean
@@ -2339,8 +2391,12 @@ enum Level {
 }
 
 type MandeuldangCollaborator {
+  approvedAt: DateTime
   createTime: DateTime!
   id: ID!
+  invitedAt: DateTime
+  invitedBy: User
+  invitedById: Int
   problem: Problem!
   problemId: Int!
   role: CollaboratorRole!
@@ -2351,14 +2407,18 @@ type MandeuldangCollaborator {
 
 type MandeuldangCollaboratorAvgAggregate {
   id: Float
+  invitedById: Float
   problemId: Float
   userId: Float
 }
 
 type MandeuldangCollaboratorCountAggregate {
   _all: Int!
+  approvedAt: Int!
   createTime: Int!
   id: Int!
+  invitedAt: Int!
+  invitedById: Int!
   problemId: Int!
   role: Int!
   status: Int!
@@ -2366,8 +2426,11 @@ type MandeuldangCollaboratorCountAggregate {
 }
 
 type MandeuldangCollaboratorMaxAggregate {
+  approvedAt: DateTime
   createTime: DateTime
   id: Int
+  invitedAt: DateTime
+  invitedById: Int
   problemId: Int
   role: CollaboratorRole
   status: CollaboratorStatus
@@ -2375,8 +2438,11 @@ type MandeuldangCollaboratorMaxAggregate {
 }
 
 type MandeuldangCollaboratorMinAggregate {
+  approvedAt: DateTime
   createTime: DateTime
   id: Int
+  invitedAt: DateTime
+  invitedById: Int
   problemId: Int
   role: CollaboratorRole
   status: CollaboratorStatus
@@ -2385,6 +2451,7 @@ type MandeuldangCollaboratorMinAggregate {
 
 type MandeuldangCollaboratorSumAggregate {
   id: Int
+  invitedById: Int
   problemId: Int
   userId: Int
 }
@@ -2398,7 +2465,7 @@ type MandeuldangProblemOutput {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
 
-  """지금 상태로 발행 가능한지 여부. 상세 조회에서만 계산해 채운다."""
+  """현재 상태에서 발행 가능한지 나타내는 미리보기 값"""
   canPublish: Boolean
   contestProblem: [ContestProblem!]
   courseQnA: [CourseQnA!]
@@ -2427,9 +2494,7 @@ type MandeuldangProblemOutput {
   mandeuldangTools: [MandeuldangTool!]
   memoryLimit: Int
 
-  """
-  canPublish가 false일 때 무엇이 부족한지 나타내는 코드 목록 (STATEMENT/SOLUTION/TEST_FILES). 실제 발행 가능 여부의 최종 판단과 발행 자체는 Update/발행 담당 쪽에서 이뤄지므로, 이 값은 참고용 미리보기다.
-  """
+  """발행에 필요한 누락 항목 코드 목록"""
   missingForPublish: [String!]
 
   """요청한 사용자가 이 문제에 대해 가진 협업 역할. Owner/Editor/Reviewer가 아니면 null."""
@@ -2458,7 +2523,7 @@ type MandeuldangProblemOutput {
   """
   template: [JSON!]
 
-  """등록된 테스트 파일(.in/.out 쌍 기준이 아니라 개별 파일 개수)"""
+  """등록된 테스트 파일의 개별 파일 개수"""
   testFileCount: Int
   testSubmission: [TestSubmission!]
   timeLimit: Int
@@ -2466,7 +2531,6 @@ type MandeuldangProblemOutput {
   updateContentTime: DateTime
   updateHistory: [UpdateHistory!]
   updateTime: DateTime!
-  visibleLockTime: DateTime!
   workbookProblem: [WorkbookProblem!]
 }
 
@@ -2712,6 +2776,7 @@ type Match {
 }
 
 type Mutation {
+  approveInvite(problemId: Int!, userId: Int!): CollaboratorMutationOutput!
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
   cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
@@ -2722,6 +2787,7 @@ type Mutation {
   createCourse(input: CourseInput!): Group!
   createCourseNotice(groupId: Int!, input: CreateCourseNoticeInput!): CourseNotice!
   createCourseQnAComment(content: String!, groupId: Int!, order: Int!): CourseQnAComment!
+  createMandeuldangProblem(input: CreateMandeuldangProblemInput!): MandeuldangProblemOutput!
   createNotice(input: CreateNoticeInput!): Notice!
   createProblem(input: CreateProblemInput!): ProblemWithIsVisible!
   createTag(tagName: String!): Tag!
@@ -2737,6 +2803,7 @@ type Mutation {
   deleteCourseQnAComment(commentOrder: Int!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   deleteFile(filename: String!): File!
   deleteGroupMember(groupId: Int!, userId: Int!): UserGroup!
+  deleteMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
   deleteMandeuldangTool(problemId: Int!, toolType: ToolType!): MandeuldangTool!
   deleteNotice(noticeId: Int!): Notice!
   deleteProblem(id: Int!): ProblemWithIsVisible!
@@ -2747,10 +2814,14 @@ type Mutation {
   handleJoinRequest(groupId: Int!, isAccept: Boolean!, userId: Int!): UserGroup!
   importProblemsToAssignment(assignmentId: Int!, assignmentProblemInput: [AssignmentProblemInput!]!, groupId: Int!): [AssignmentProblem!]!
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
+  inviteCollaborator(input: CollaboratorInput!, problemId: Int!): CollaboratorMutationOutput!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  publishMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
+  rejectInvite(problemId: Int!, userId: Int!): CollaboratorMutationOutput!
   rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
+  removeCollaborator(problemId: Int!, userId: Int!): CollaboratorMutationOutput!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
   removeProblemsFromContest(contestId: Int!, problemIds: [Int!]!): [ContestProblem!]!
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
@@ -2763,6 +2834,7 @@ type Mutation {
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
   updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
   updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
+  updateCollaboratorRole(input: CollaboratorUpdateInput!, problemId: Int!): CollaboratorMutationOutput!
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
@@ -2772,6 +2844,7 @@ type Mutation {
   updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
+  updateMandeuldangProblem(input: UpdateMandeuldangProblemInput!): MandeuldangProblemOutput!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
   updateProblem(input: UpdateProblemInput!): ProblemWithIsVisible!
   updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
@@ -3540,6 +3613,7 @@ type Query {
   announcement(contestId: Int!, id: Int!): Announcement!
   announcementByContestId(contestId: Int!): [AnnouncementWithProblemOrder!]!
   compressSourceCodes(assignmentId: Int!, groupId: Int!, problemId: Int!): String
+  getApprovedCollaborator(problemId: Int!): [CollaboratorOutput!]!
   getAssignment(assignmentId: Int!, groupId: Int!): AssignmentWithParticipants!
   getAssignmentLatestSubmission(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): SubmissionDetail!
   getAssignmentProblemRecord(assignmentId: Int!, groupId: Int!, problemId: Int!, userId: Int!): AssignmentProblemRecord!
@@ -3580,6 +3654,7 @@ type Query {
   getMyMandeuldangProblems(cursor: Int, status: ProblemStatus, take: Int! = 10): [MandeuldangProblemOutput!]!
   getNotice(noticeId: Int!): Notice!
   getNotices(cursor: Int, take: Int! = 10): [Notice]!
+  getPendingCollaborator(problemId: Int!): [CollaboratorOutput!]!
   getProblem(id: Int!): ProblemWithIsVisible!
   getProblems(contestId: Int, cursor: Int, input: FilterProblemsInput!, mode: String!, take: Int! = 10): [ProblemWithIsVisible!]!
   getSubmission(id: Int!): SubmissionDetail!
@@ -4319,6 +4394,19 @@ type UpdateHistorySumAggregate {
   updatedByid: Int
 }
 
+input UpdateMandeuldangProblemInput {
+  description: String
+  difficulty: Level
+  hint: String
+  id: Int!
+  inputDescription: String
+  languages: [Language!]
+  memoryLimit: Int
+  outputDescription: String
+  timeLimit: Int
+  title: String
+}
+
 input UpdateNoticeInput {
   content: String
   isFixed: Boolean
@@ -4401,6 +4489,7 @@ type User {
   lastLogin: DateTime
   major: String
   mandeuldangCollaborations: [MandeuldangCollaborator!]
+  mandeuldangInvitationsSent: [MandeuldangCollaborator!]
   mandeuldangRunRequests: [MandeuldangRunRequest!]
   notice: [Notice!]
   problem: [Problem!]
@@ -4534,6 +4623,7 @@ type UserCount {
   createdQnAs: Int!
   file: Int!
   mandeuldangCollaborations: Int!
+  mandeuldangInvitationsSent: Int!
   mandeuldangRunRequests: Int!
   notice: Int!
   problem: Int!
