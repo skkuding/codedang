@@ -840,6 +840,13 @@ export class SubmissionService {
       throw new EntityNotExistException('Problem')
     }
 
+    // 만들당 Draft/Ready 문제는 아직 공개되지 않았으므로 테스트 채점 대상이 될 수 없다.
+    if (problem.status !== ProblemStatus.Published) {
+      throw new UnprocessableDataException(
+        'Only published problems can be tested'
+      )
+    }
+
     // createSubmission과 동일한 이유 — 캐시에 Judging 상태를 써넣기 전에 먼저 막는다.
     if (problem.timeLimit == null || problem.memoryLimit == null) {
       throw new UnprocessableDataException(
