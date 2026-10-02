@@ -250,7 +250,10 @@ export class ProblemService {
           // TODO: 검색 방식 변경 시 함께 변경 요함
           contains: search
         },
-        visibleLockTime: MIN_DATE
+        visibleLockTime: MIN_DATE,
+        // 발행 전(Draft/Ready) 만들당 문제는 목록 쿼리와 동일하게 집계에서도 제외한다 —
+        // 그렇지 않으면 total이 실제 반환 가능한 행 수보다 커져서 뒷 페이지가 비어 보인다.
+        ...PUBLISHED_PROBLEM_WHERE
       }
     })
 
