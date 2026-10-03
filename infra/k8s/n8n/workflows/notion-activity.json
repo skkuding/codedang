@@ -1,0 +1,54 @@
+{
+  "name": "Notion Deletion and Restoration Log",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "notion-activity-1f32b75b01964764a474f6e05d8fe968",
+        "responseMode": "lastNode",
+        "options": {
+          "rawBody": true,
+          "responseData": "accepted"
+        }
+      },
+      "id": "74e9178a-98ab-4c88-84c0-cc18e1735968",
+      "name": "Notion Activity Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [260, 300],
+      "webhookId": "bd20d153-9545-43f2-8dc7-774849efcf05"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst input = $input.first();\nconst rawBody = Buffer.from(input.binary.data.data, 'base64');\nconst payload = JSON.parse(rawBody.toString('utf8'));\nconst directory = '/home/node/.n8n/notion-events';\nconst tokenPath = `${directory}/verification-token`;\n\nfs.mkdirSync(directory, { recursive: true });\n\nif (payload.verification_token) {\n  fs.writeFileSync(tokenPath, payload.verification_token, { mode: 0o600 });\n  return [{ json: { verification_received: true } }];\n}\n\nif (!fs.existsSync(tokenPath)) throw new Error('Notion webhook verification token is missing');\nconst verificationToken = fs.readFileSync(tokenPath, 'utf8').trim();\nconst receivedSignature = input.json.headers['x-notion-signature'] || '';\nconst expectedSignature = `sha256=${crypto.createHmac('sha256', verificationToken).update(rawBody).digest('hex')}`;\nconst valid = receivedSignature.length === expectedSignature.length &&\n  crypto.timingSafeEqual(Buffer.from(receivedSignature), Buffer.from(expectedSignature));\nif (!valid) throw new Error('Invalid Notion webhook signature');\n\nconst allowedTypes = new Set([\n  'page.created',\n  'page.content_updated',\n  'page.properties_updated',\n  'page.moved',\n  'page.deleted',\n  'page.undeleted',\n  'database.created',\n  'database.moved',\n  'database.deleted',\n  'database.undeleted',\n  'data_source.created',\n  'data_source.content_updated',\n  'data_source.schema_updated',\n  'data_source.moved',\n  'data_source.deleted',\n  'data_source.undeleted'\n]);\nif (!allowedTypes.has(payload.type)) return [{ json: { ignored: true, type: payload.type } }];\n\nconst event = {\n  schema_version: 1,\n  event_id: payload.id,\n  timestamp: payload.timestamp,\n  received_at: new Date().toISOString(),\n  type: payload.type,\n  api_version: payload.api_version || null,\n  workspace_id: payload.workspace_id,\n  workspace_name: payload.workspace_name || null,\n  subscription_id: payload.subscription_id || null,\n  integration_id: payload.integration_id || null,\n  entity_id: payload.entity?.id || null,\n  entity_type: payload.entity?.type || null,\n  parent_id: payload.data?.parent?.id || null,\n  parent_type: payload.data?.parent?.type || null,\n  authors: payload.authors || [],\n  attempt_number: payload.attempt_number || 1,\n  data: payload.data || {}\n};\nfs.appendFileSync(`${directory}/events.jsonl`, `${JSON.stringify(event)}\\n`, { mode: 0o600 });\nreturn [{ json: { logged: true, event_id: event.event_id, type: event.type } }];\n"
+      },
+      "id": "ef89487e-b250-4245-a18d-bc0e0ba10fb2",
+      "name": "Verify and Log Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Notion Activity Webhook": {
+      "main": [
+        [
+          {
+            "node": "Verify and Log Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Seoul"
+  },
+  "versionId": "48b2c9ca-a826-497f-880e-b8cc77ae815e",
+  "id": "notionActivityV1",
+  "tags": []
+}

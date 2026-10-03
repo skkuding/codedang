@@ -14,7 +14,7 @@ patches:
     target:
       kind: ConfigMap
       name: admin-api-env
-  - path: HTTPRoutes.yaml
+  - path: httproute.yaml
     target:
       kind: HTTPRoute
       name: admin-api-server-gateway

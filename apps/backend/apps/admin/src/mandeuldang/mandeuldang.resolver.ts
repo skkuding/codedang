@@ -1,6 +1,7 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { ToolType as GraphQLToolType } from '@generated'
+import type { ToolType } from '@prisma/client'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
-import { ToolType } from '@admin/@generated'
 import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
 import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
@@ -12,21 +13,30 @@ export class MandeuldangResolver {
 
   @Mutation(() => MandeuldangTool)
   async uploadMandeuldangTool(
+    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UploadMandeuldangToolInput
   ) {
-    return await this.mandeuldangService.uploadMandeuldangTool(
+    return this.mandeuldangService.uploadMandeuldangTool(
       input.problemId,
       input.toolType,
-      await input.file
+      await input.file,
+      req.user.id,
+      req.user.role
     )
   }
 
   @Mutation(() => MandeuldangTool)
   async deleteMandeuldangTool(
+    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('toolType', { type: () => ToolType }) toolType: ToolType
+    @Args('toolType', { type: () => GraphQLToolType }) toolType: ToolType
   ) {
-    return this.mandeuldangService.deleteMandeuldangTool(problemId, toolType)
+    return this.mandeuldangService.deleteMandeuldangTool(
+      problemId,
+      toolType,
+      req.user.id,
+      req.user.role
+    )
   }
 
   @Mutation(() => MandeuldangRunRequest)

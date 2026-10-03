@@ -2391,12 +2391,17 @@ enum Level {
 }
 
 type MandeuldangCollaborator {
+<<<<<<< HEAD
   approvedAt: DateTime
   createTime: DateTime!
   id: ID!
   invitedAt: DateTime
   invitedBy: User
   invitedById: Int
+=======
+  createTime: DateTime!
+  id: ID!
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   problem: Problem!
   problemId: Int!
   role: CollaboratorRole!
@@ -2407,18 +2412,26 @@ type MandeuldangCollaborator {
 
 type MandeuldangCollaboratorAvgAggregate {
   id: Float
+<<<<<<< HEAD
   invitedById: Float
+=======
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   problemId: Float
   userId: Float
 }
 
 type MandeuldangCollaboratorCountAggregate {
   _all: Int!
+<<<<<<< HEAD
   approvedAt: Int!
   createTime: Int!
   id: Int!
   invitedAt: Int!
   invitedById: Int!
+=======
+  createTime: Int!
+  id: Int!
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   problemId: Int!
   role: Int!
   status: Int!
@@ -2426,11 +2439,16 @@ type MandeuldangCollaboratorCountAggregate {
 }
 
 type MandeuldangCollaboratorMaxAggregate {
+<<<<<<< HEAD
   approvedAt: DateTime
   createTime: DateTime
   id: Int
   invitedAt: DateTime
   invitedById: Int
+=======
+  createTime: DateTime
+  id: Int
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   problemId: Int
   role: CollaboratorRole
   status: CollaboratorStatus
@@ -2438,11 +2456,16 @@ type MandeuldangCollaboratorMaxAggregate {
 }
 
 type MandeuldangCollaboratorMinAggregate {
+<<<<<<< HEAD
   approvedAt: DateTime
   createTime: DateTime
   id: Int
   invitedAt: DateTime
   invitedById: Int
+=======
+  createTime: DateTime
+  id: Int
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   problemId: Int
   role: CollaboratorRole
   status: CollaboratorStatus
@@ -2451,7 +2474,10 @@ type MandeuldangCollaboratorMinAggregate {
 
 type MandeuldangCollaboratorSumAggregate {
   id: Int
+<<<<<<< HEAD
   invitedById: Int
+=======
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   problemId: Int
   userId: Int
 }
@@ -2818,7 +2844,10 @@ type Mutation {
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
   publishMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
+<<<<<<< HEAD
   rejectInvite(problemId: Int!, userId: Int!): CollaboratorMutationOutput!
+=======
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeCollaborator(problemId: Int!, userId: Int!): CollaboratorMutationOutput!
@@ -4397,7 +4426,10 @@ type UpdateHistorySumAggregate {
 input UpdateMandeuldangProblemInput {
   description: String
   difficulty: Level
+<<<<<<< HEAD
   hint: String
+=======
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   id: Int!
   inputDescription: String
   languages: [Language!]
@@ -4489,7 +4521,10 @@ type User {
   lastLogin: DateTime
   major: String
   mandeuldangCollaborations: [MandeuldangCollaborator!]
+<<<<<<< HEAD
   mandeuldangInvitationsSent: [MandeuldangCollaborator!]
+=======
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   mandeuldangRunRequests: [MandeuldangRunRequest!]
   notice: [Notice!]
   problem: [Problem!]
@@ -4623,7 +4658,10 @@ type UserCount {
   createdQnAs: Int!
   file: Int!
   mandeuldangCollaborations: Int!
+<<<<<<< HEAD
   mandeuldangInvitationsSent: Int!
+=======
+>>>>>>> origin/t2935-implement-mandeuldang-problem-update-publish
   mandeuldangRunRequests: Int!
   notice: Int!
   problem: Int!

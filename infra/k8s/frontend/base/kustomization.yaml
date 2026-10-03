@@ -5,7 +5,7 @@ namespace: frontend
 resources:
   - configmap.yaml
   - deployment.yaml
-  - HTTPRoutes.yaml
+  - httproute.yaml
   - service.yaml
 
 commonAnnotations:

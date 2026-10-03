@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: admin-api-env
+  namespace: admin-api
+data:
+  DATABASE_CONNECTION_LIMIT: '25'

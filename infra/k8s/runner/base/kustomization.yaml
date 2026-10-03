@@ -4,7 +4,7 @@ namespace: runner
 
 resources:
   - namespace.yaml
-  - HTTPRoutes.yaml
+  - httproute.yaml
   - rbac.yaml
   - deployment.yaml
   - service.yaml

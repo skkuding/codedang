@@ -21,6 +21,10 @@ export class MandeuldangProblemOutput extends OmitType(Problem, [
   })
   myRole?: `${CollaboratorRole}` | null
 
+  // mandeuldangCollaborators/mandeuldangSolution/mandeuldangTools는 기존 생성된
+  // Problem 타입에 이미 관계 필드로 선언돼 있어(부모 필드) 여기서 다시 선언하지 않는다 —
+  // 서비스가 Prisma include로 채워 넣은 값이 그대로 상속된 필드에 실린다.
+
   @Field(() => Int, {
     nullable: true,
     description: '등록된 테스트 파일의 개별 파일 개수'

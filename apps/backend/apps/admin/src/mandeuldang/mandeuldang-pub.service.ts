@@ -19,17 +19,19 @@ export class MandeuldangPublicationService {
     testcaseCount: number
   ) {
     //DB에서 generator, solution 조회
-    const [generator, solution] = await Promise.all([
-      this.prisma.mandeuldangTool.findUniqueOrThrow({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          problemId_toolType: { problemId, toolType: ToolType.Generator }
+    const generator = await this.prisma.mandeuldangTool.findUniqueOrThrow({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        problemId_toolType: {
+          problemId,
+          toolType: ToolType.Generator
         }
-      }),
-      this.prisma.mandeuldangSolution.findUniqueOrThrow({
-        where: { problemId }
-      })
-    ])
+      }
+    })
+
+    const solution = await this.prisma.mandeuldangSolution.findUniqueOrThrow({
+      where: { problemId }
+    })
 
     const [generatorCode, solutionCode] = await Promise.all([
       this.storageService.readObject(generator.filePath, 'mandeuldang'),
