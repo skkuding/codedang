@@ -24,6 +24,13 @@ objects expire from etcd after roughly one hour, so `OOMKilled`,
 `FailedScheduling`, `Evicted`, `Unhealthy`, and `BackOff` reasons are otherwise
 unavailable for post-incident analysis. Loki retains them for 90 days.
 
+Alloy tracks its read position under `--storage.path=/tmp/alloy`, which the
+chart does not back with a volume, so a Pod restart replays the Events still in
+etcd. Loki accepts out-of-order writes but rejects entries more than one hour
+behind a stream's newest entry (`max_chunk_age / 2`), and drops exact duplicates
+silently. A restart can therefore lose the oldest Events of the replay window
+while the collector stays healthy.
+
 Lines are emitted as JSON, so LogQL parses fields with `| json`:
 
 ```logql
