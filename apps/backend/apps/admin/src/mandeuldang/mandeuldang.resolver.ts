@@ -1,10 +1,13 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
-import { ToolType } from '@prisma/client'
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs'
-import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
-import { MandeuldangProblem, MandeuldangTool } from '@admin/@generated'
+import { ToolType } from '@admin/@generated'
+import {
+  MandeuldangProblem,
+  MandeuldangRunRequest,
+  MandeuldangTool
+} from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
+import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
 @Resolver(() => MandeuldangProblem)
 @UseDisableAdminGuard()
@@ -14,14 +17,12 @@ export class MandeuldangResolver {
   @Mutation(() => MandeuldangTool)
   async uploadMandeuldangTool(
     @Context('req') req: AuthenticatedRequest,
-    @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('toolType', { type: () => ToolType }) toolType: ToolType,
-    @Args('file', { type: () => GraphQLUpload }) file: Promise<FileUpload>
+    @Args('input') input: UploadMandeuldangToolInput
   ) {
     return this.mandeuldangService.uploadMandeuldangTool(
-      problemId,
-      toolType,
-      await file,
+      input.problemId,
+      input.toolType,
+      await input.file,
       req.user.id,
       req.user.role
     )
@@ -39,5 +40,28 @@ export class MandeuldangResolver {
       req.user.id,
       req.user.role
     )
+  }
+
+  @Mutation(() => MandeuldangRunRequest)
+  async runGenerator(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('problemId', { type: () => Int }) problemId: number,
+    @Args('generatorArgs', { type: () => [String] }) generatorArgs: string[],
+    @Args('testcaseCount', { type: () => Int }) testcaseCount: number
+  ) {
+    return this.mandeuldangService.runGenerator(
+      problemId,
+      req.user.id,
+      generatorArgs,
+      testcaseCount
+    )
+  }
+
+  @Mutation(() => MandeuldangRunRequest)
+  async runValidator(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('problemId', { type: () => Int }) problemId: number
+  ) {
+    return this.mandeuldangService.runValidator(problemId, req.user.id)
   }
 }
