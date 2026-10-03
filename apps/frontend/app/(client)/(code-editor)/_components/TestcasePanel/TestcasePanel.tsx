@@ -13,8 +13,10 @@ import { DiffMatchPatch } from 'diff-match-patch-typescript'
 import { useEffect, useState, type ReactNode, type JSX } from 'react'
 import { IoMdClose } from 'react-icons/io'
 import { WhitespaceVisualizer } from '../WhitespaceVisualizer'
+import { useTestPollingStore } from '../context/TestPollingStoreProvider'
 import { AddUserTestcaseDialog } from './AddUserTestcaseDialog'
 import { RunnerTab } from './RunnerTab'
+import { SubmissionProgressPanel } from './SubmissionProgressPanel'
 import { TestcaseTable } from './TestcaseTable'
 import { useTestResults } from './useTestResults'
 
@@ -36,6 +38,18 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   const [testcaseTabList, setTestcaseTabList] = useState<TabbedTestResult[]>([])
   const { activeTab, setActiveTab } = useTestcaseTabStore()
   const [detailTabId, setDetailTabId] = useState<number | null>(null)
+  const submissionProgress = useTestPollingStore(
+    (state) => state.submissionProgress
+  )
+  const submissionStage = submissionProgress?.stage
+
+  // A submission must open its progress view even when a testcase detail is open.
+  useEffect(() => {
+    if (submissionStage === 'waiting') {
+      setActiveTab(TESTCASE_RESULT_TAB)
+      setDetailTabId(null)
+    }
+  }, [submissionStage, setActiveTab])
 
   const moveToDetailTab = (result: TabbedTestResult) => {
     setTestcaseTabList((state) =>
@@ -66,7 +80,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
       setActiveTab(TESTCASE_RESULT_TAB)
       setDetailTabId(null)
     }
-  }, [isContest])
+  }, [isContest, setActiveTab])
 
   const MAX_OUTPUT_LENGTH = 100000
   const testResults = useTestResults()
@@ -87,10 +101,18 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   const currentVisibleTabIndex = testcaseTabList.findIndex(
     (tab) => tab.originalId === currentVisibleTab
   )
+  const testcaseResultContent = submissionProgress ? (
+    <SubmissionProgressPanel progress={submissionProgress} />
+  ) : (
+    <div className="flex flex-col gap-6 p-5 pb-14">
+      <TestSummary data={summaryData} />
+      <TestcaseTable data={processedData} moveToDetailTab={moveToDetailTab} />
+    </div>
+  )
 
   return (
-    <>
-      <div className="flex h-12 w-full items-center overflow-x-auto">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex h-12 w-full shrink-0 items-center overflow-x-auto">
         {!isContest && (
           <TestcaseTab
             isActive={currentVisibleTab === RUN_CODE_TAB}
@@ -204,15 +226,9 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
       <RunnerTab
         className={cn(currentVisibleTab === RUN_CODE_TAB ? 'block' : 'hidden')}
       />
-      <ScrollArea className="h-full">
+      <ScrollArea className="[&>div>div]:block! min-h-0 flex-1">
         {currentVisibleTab === TESTCASE_RESULT_TAB ? (
-          <div className="flex flex-col gap-6 p-5 pb-14">
-            <TestSummary data={summaryData} />
-            <TestcaseTable
-              data={processedData}
-              moveToDetailTab={moveToDetailTab}
-            />
-          </div>
+          testcaseResultContent
         ) : (
           <TestResultDetail
             data={processedData.find(
@@ -221,7 +237,7 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
           />
         )}
       </ScrollArea>
-    </>
+    </div>
   )
 }
 
