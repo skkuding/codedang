@@ -1,4 +1,5 @@
-# This collector only pulls pprof profiles from Iris Pods.
+# This collector pulls pprof profiles from Iris Pods and watches cluster-wide
+# Kubernetes Events.
 crds:
   create: false
 
@@ -13,7 +14,31 @@ rbac:
     - apiGroups: ['']
       resources: ['pods']
       verbs: ['get', 'list', 'watch']
+  # The chart renders either namespaced Roles or a ClusterRole, never both, and
+  # drops clusterRules while namespaces is set. Event RBAC is in extraObjects.
   clusterRules: []
+
+extraObjects:
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: '{{ include "alloy.fullname" . }}-events'
+    rules:
+      - apiGroups: ['']
+        resources: ['events']
+        verbs: ['get', 'list', 'watch']
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: '{{ include "alloy.fullname" . }}-events'
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: '{{ include "alloy.fullname" . }}-events'
+    subjects:
+      - kind: ServiceAccount
+        name: '{{ include "alloy.serviceAccountName" . }}'
+        namespace: '{{ include "alloy.namespace" . }}'
 
 alloy:
   enableReporting: false
@@ -93,6 +118,22 @@ alloy:
       pyroscope.write "local" {
         endpoint {
           url = "http://pyroscope.monitoring-pyroscope.svc.cluster.local:4040"
+        }
+
+        external_labels = {
+          environment = "{{ .Values.environment }}",
+        }
+      }
+
+      loki.source.kubernetes_events "cluster" {
+        forward_to = [loki.write.loki.receiver]
+        job_name   = "kubernetes-events"
+        log_format = "json"
+      }
+
+      loki.write "loki" {
+        endpoint {
+          url = "http://loki.monitoring-loki.svc.cluster.local:3100/loki/api/v1/push"
         }
 
         external_labels = {
