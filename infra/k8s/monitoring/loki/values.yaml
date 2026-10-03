@@ -43,7 +43,7 @@ loki:
     otlp_config:
       default_resource_attributes_as_index_labels:
         # these keys will be indexed
-        ['service.name', 'service.version', 'service.environment']
+        ['service.name', 'service.version', 'deployment.environment.name']
   storage_config:
     tsdb_shipper:
       query_ready_num_days: 90
