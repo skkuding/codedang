@@ -16,7 +16,8 @@ import {
   envDetector,
   hostDetector,
   osDetector,
-  processDetector
+  processDetector,
+  resourceFromAttributes
 } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import {
@@ -25,6 +26,7 @@ import {
 } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 /**
@@ -38,7 +40,10 @@ class Instrumentation {
   private static sdk: NodeSDK | null = null
   static readonly logger: Logger = new Logger('Instrumentation')
 
-  static async start(): Promise<void> {
+  /**
+   * @param serviceName 서비스 이름. OTEL_SERVICE_NAME 환경변수가 있으면 그 값이 우선한다
+   */
+  static async start(serviceName: string): Promise<void> {
     if (Instrumentation.sdk) {
       return // 이미 초기화된 경우 다시 초기화하지 않음
     }
@@ -74,6 +79,7 @@ class Instrumentation {
     ]
 
     Instrumentation.sdk = new NodeSDK({
+      resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),
       resourceDetectors: [
         processDetector,
         hostDetector,

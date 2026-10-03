@@ -13,7 +13,7 @@ import Instrumentation from '@libs/instrumentation'
 */
 const bootstrap = async () => {
   expand(config())
-  await Instrumentation.start()
+  await Instrumentation.start('admin-api')
 
   const { AdminModule } = await import('./admin.module')
   const app = await NestFactory.create<NestExpressApplication>(AdminModule, {

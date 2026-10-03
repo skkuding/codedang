@@ -14,7 +14,6 @@ data:
   # TODO: 표준 환경변수 키(OTEL_EXPORTER_OTLP_ENDPOINT)로 변경 예정
   OTEL_EXPORTER_OTLP_ENDPOINT_URL: 'simplest-collector.monitoring-otel.svc.cluster.local:4317'
   OTEL_EXPORTER_OTLP_ENDPOINT: 'http://simplest-collector.monitoring-otel.svc.cluster.local:4317'
-  OTEL_SERVICE_NAME: 'iris'
   JUDGE_REQUEST_CONSUMER_CONNECTION_NAME: 'iris-consumer'
   JUDGE_REQUEST_QUEUE_NAME: 'client.q.judge.submission'
   JUDGE_REQUEST_CONSUMER_TAG: 'consumer-tag'

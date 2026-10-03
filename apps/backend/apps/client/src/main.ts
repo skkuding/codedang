@@ -13,7 +13,7 @@ import Instrumentation from '@libs/instrumentation'
 */
 const bootstrap = async () => {
   expand(config())
-  await Instrumentation.start()
+  await Instrumentation.start('client-api')
 
   const { AppModule } = await import('./app.module')
   const app = await NestFactory.create(AppModule, {

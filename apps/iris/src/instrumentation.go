@@ -22,6 +22,7 @@ import (
 	otel_metric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
 var (
@@ -32,8 +33,9 @@ var (
 	loggerProvider *otel_log.LoggerProvider
 )
 
-func newResource(ctx context.Context) (*resource.Resource, error) {
+func newResource(ctx context.Context, serviceName string) (*resource.Resource, error) {
 	attrs := []resource.Option{
+		resource.WithAttributes(semconv.ServiceName(serviceName)),
 		resource.WithProcess(),
 		resource.WithHost(),
 		resource.WithContainer(),
@@ -49,9 +51,10 @@ func newResource(ctx context.Context) (*resource.Resource, error) {
 	return res, nil
 }
 
-func Init(ctx context.Context) (shutdown func(context.Context) error, err error) {
+// serviceName은 OTEL_SERVICE_NAME 환경변수가 있으면 그 값으로 덮인다
+func Init(ctx context.Context, serviceName string) (shutdown func(context.Context) error, err error) {
 	initOnce.Do(func() {
-		res, rErr := newResource(ctx)
+		res, rErr := newResource(ctx, serviceName)
 		if rErr != nil {
 			err = fmt.Errorf("failed to initialize resource: %w", rErr)
 			return

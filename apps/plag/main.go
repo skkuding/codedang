@@ -55,7 +55,7 @@ func main() {
 
 	// Go SDK는 OTEL_SDK_DISABLED를 읽지 않아 앱에서 직접 확인한다
 	if utils.Getenv("OTEL_SDK_DISABLED", "false") != "true" {
-		shutdown, err := instrumentation.Init(ctx)
+		shutdown, err := instrumentation.Init(ctx, "plag")
 		if err != nil {
 			logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to initialize instrumentation: %v", err))
 		}
