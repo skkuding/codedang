@@ -20,6 +20,29 @@ const pinoPrettyOptions: PrettyOptions = {
   ignore: 'context,hostname,pid,message'
 }
 
+// 비밀번호는 모든 환경에서 가린다.
+const passwordPaths = [
+  'password',
+  'req.body.password',
+  'req.body.passwordAgain'
+]
+
+// 인증 토큰은 production에서만 가린다.
+// stage와 로컬은 쿠키 이름과 토큰 값이 디버깅에 필요해 그대로 둔다.
+const credentialHeaderPaths = [
+  'req.headers.authorization',
+  'res.headers.authorization',
+  'req.headers["email-auth"]',
+  'res.headers["email-auth"]',
+  'req.headers.cookie',
+  'res.headers["set-cookie"]'
+]
+
+export const buildRedactPaths = (appEnv?: string): string[] =>
+  appEnv === 'production'
+    ? [...credentialHeaderPaths, ...passwordPaths]
+    : passwordPaths
+
 // TODO: change log level to nestjs-style. e.g. INFO -> LOG
 export const pinoLoggerModuleOption: Params = {
   pinoHttp: {
@@ -63,16 +86,6 @@ export const pinoLoggerModuleOption: Params = {
         return req
       }
     },
-    redact: [
-      'req.headers.authorization',
-      'res.headers.authorization',
-      'req.headers["email-auth"]',
-      'res.headers["email-auth"]',
-      'req.headers.cookie',
-      'res.headers["set-cookie"]',
-      'password',
-      'req.body.password',
-      'req.body.passwordAgain'
-    ]
+    redact: buildRedactPaths(process.env.APP_ENV)
   }
 }
