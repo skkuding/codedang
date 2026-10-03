@@ -126,6 +126,7 @@
     "chai-as-promised": "^7.1.2",
     "mocha": "^11.7.1",
     "nyc": "^17.1.0",
+    "pino": "^9.7.0",
     "prisma": "^6.13.0",
     "prisma-nestjs-graphql": "^21.2.0",
     "proxyquire": "^2.1.3",
