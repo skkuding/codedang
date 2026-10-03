@@ -27,8 +27,9 @@ const passwordPaths = [
   'req.body.passwordAgain'
 ]
 
-// 인증 토큰은 production에서만 가린다.
-// stage와 로컬은 쿠키 이름과 토큰 값이 디버깅에 필요해 그대로 둔다.
+// 인증 토큰은 stage를 제외한 모든 환경에서 가린다.
+// stage는 쿠키 이름과 토큰 값이 디버깅에 필요해 그대로 둔다.
+// APP_ENV가 비었거나 알 수 없는 값이면 가리는 쪽으로 떨어진다.
 const credentialHeaderPaths = [
   'req.headers.authorization',
   'res.headers.authorization',
@@ -39,9 +40,9 @@ const credentialHeaderPaths = [
 ]
 
 export const buildRedactPaths = (appEnv?: string): string[] =>
-  appEnv === 'production'
-    ? [...credentialHeaderPaths, ...passwordPaths]
-    : passwordPaths
+  appEnv === 'stage'
+    ? passwordPaths
+    : [...credentialHeaderPaths, ...passwordPaths]
 
 // TODO: change log level to nestjs-style. e.g. INFO -> LOG
 export const pinoLoggerModuleOption: Params = {

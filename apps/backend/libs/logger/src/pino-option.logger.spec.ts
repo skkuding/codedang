@@ -43,7 +43,7 @@ describe('buildRedactPaths', () => {
     expect(log.req.body.passwordAgain).to.equal('[Redacted]')
   })
 
-  it('production이 아니면 비밀번호만 마스킹하고 인증 헤더는 남긴다', () => {
+  it('stage에서는 비밀번호만 마스킹하고 인증 헤더는 남긴다', () => {
     const log = logSample(buildRedactPaths('stage'))
 
     expect(log.password).to.equal('[Redacted]')
@@ -54,7 +54,12 @@ describe('buildRedactPaths', () => {
     expect(log.res.headers['set-cookie']).to.deep.equal(['refresh_token=token'])
   })
 
-  it('APP_ENV가 없으면 production이 아닌 것으로 본다', () => {
-    expect(buildRedactPaths(undefined)).to.deep.equal(buildRedactPaths('stage'))
+  it('APP_ENV가 없거나 알 수 없는 값이면 가리는 쪽으로 떨어진다', () => {
+    const production = buildRedactPaths('production')
+
+    expect(buildRedactPaths(undefined)).to.deep.equal(production)
+    expect(buildRedactPaths('')).to.deep.equal(production)
+    expect(buildRedactPaths('producton')).to.deep.equal(production)
+    expect(buildRedactPaths('local')).to.deep.equal(production)
   })
 })
