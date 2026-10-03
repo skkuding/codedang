@@ -13,3 +13,10 @@ spec:
         # Needed for the iris/kubernetes-apiserver ExternalName Service used by
         # the pprof TraefikService.
         allowExternalNameServices: true
+    # Apply HSTS to every router on the HTTPS entrypoint (Gateway listeners on 8443).
+    # Middleware FQDN is <namespace>-<name>@kubernetescrd.
+    ports:
+      websecure:
+        http:
+          middlewares:
+            - kube-system-hsts@kubernetescrd

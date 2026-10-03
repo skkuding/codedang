@@ -115,8 +115,9 @@ export class AssignmentService {
       throw new EntityNotExistException('Group')
     }
 
+    let createdAssignment: Assignment | null = null
     try {
-      const createdAssignment = await this.prisma.assignment.create({
+      createdAssignment = await this.prisma.assignment.create({
         data: {
           createdById: userId,
           groupId,
@@ -124,7 +125,10 @@ export class AssignmentService {
         }
       })
 
-      this.inviteAllCourseMembersToAssignment(createdAssignment.id, groupId)
+      await this.inviteAllCourseMembersToAssignment(
+        createdAssignment.id,
+        groupId
+      )
 
       this.eventEmitter.emit('assignment.created', {
         assignmentId: createdAssignment.id,
@@ -133,6 +137,11 @@ export class AssignmentService {
 
       return createdAssignment
     } catch (error) {
+      if (createdAssignment) {
+        await this.prisma.assignment.delete({
+          where: { id: createdAssignment.id }
+        })
+      }
       throw new UnprocessableDataException(error.message)
     }
   }

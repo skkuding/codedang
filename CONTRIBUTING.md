@@ -45,7 +45,7 @@ SKKUDING에 contribution 해주셔서 감사합니다! 이 글은 contribute 시
 
 ### Branch
 
-- Branch 이름의 모든 글자는 숫자, 소문자, 그리고 `-`로만 이루어져야 합니다. 
+- Branch 이름의 모든 글자는 숫자, 소문자, 그리고 `-`로만 이루어져야 합니다.
 - 내부 기여자는 Branch 이름을 t{task-id}-{description} 형식으로 짓습니다.
 예를 들어 로그인 페이지를 구현하는 `TAS-123` task와 연결된 branch는 `t123-login-page`로 이름 짓습니다.
 사용 가능한 문자는 숫자, 영문 소문자, 그리고 -만 허용됩니다.
@@ -123,3 +123,30 @@ Visual Studio Code와 GitPod에서 개발 환경을 세팅하는 방법을 문�
 ## Testing & Debugging 🐞
 
 WIP
+
+### Observability
+
+트레이스·로그·메트릭이 실제로 나가는지 로컬에서 확인할 때 사용합니다. 평소 개발에는 필요 없습니다.
+구성과 데이터 흐름은 [docker/observability/README.md](docker/observability/README.md)에 정리돼 있습니다.
+
+```bash
+docker compose --profile observability up -d
+```
+
+| 주소                    | 용도                                             |
+| ----------------------- | ------------------------------------------------ |
+| <http://localhost:3030> | Grafana (로그인 없이 접속, 데이터소스 자동 등록) |
+| <http://localhost:3200> | Tempo API                                        |
+| <http://localhost:3100> | Loki API                                         |
+| <http://localhost:9090> | Prometheus UI/API                                |
+| localhost:4317          | Collector OTLP gRPC 수신                         |
+
+#### 드릴다운에서 보기
+
+Grafana 왼쪽 메뉴의 **드릴다운**에서 원하는 데이터를 선택합니다.
+
+| 신호     | 화면                                                             |
+| -------- | ---------------------------------------------------------------- |
+| 트레이스 | <http://localhost:3030/a/grafana-exploretraces-app/>             |
+| 로그     | <http://localhost:3030/a/grafana-lokiexplore-app/explore>        |
+| 메트릭   | <http://localhost:3030/a/grafana-metricsdrilldown-app/drilldown> |

@@ -52,7 +52,11 @@ requests:
 persistence:
   type: pvc
   enabled: true
+  existingClaim: grafana-data
   size: 10Gi
+
+nodeSelector:
+  kubernetes.io/hostname: skkuding-4f-1
 
 admin:
   existingSecret: grafana-admin-user
@@ -81,6 +85,14 @@ datasources:
         uid: tempo
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
+        editable: false
+      - name: Pyroscope
+        type: grafana-pyroscope-datasource
+        uid: pyroscope
+        access: proxy
+        url: http://pyroscope.monitoring-pyroscope.svc.cluster.local:4040
+        jsonData:
+          minStep: 1m
         editable: false
       - name: CloudWatch
         type: cloudwatch

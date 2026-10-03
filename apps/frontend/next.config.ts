@@ -29,6 +29,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'media.codedang.com'
+      },
+      {
+        protocol: 'https',
         hostname: 'minio.stage.codedang.com'
       },
       {

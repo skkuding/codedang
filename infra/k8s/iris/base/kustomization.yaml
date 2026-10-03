@@ -8,7 +8,7 @@ resources:
   - deployment.yaml
   - deployment-test.yaml
   - deployment-rejudge.yaml
-  - HTTPRoutes.yaml
+  - httproute.yaml
   - middlewares.yaml
   - namespace.yaml
   - rabbitmq-credentials.yaml
