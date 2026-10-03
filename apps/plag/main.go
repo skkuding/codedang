@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/joho/godotenv"
+
 	instrumentation "github.com/skkuding/codedang/apps/plag/src"
 	"github.com/skkuding/codedang/apps/plag/src/connector"
 	"github.com/skkuding/codedang/apps/plag/src/connector/rabbitmq"
@@ -39,6 +41,8 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	godotenv.Load()
+
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
 
