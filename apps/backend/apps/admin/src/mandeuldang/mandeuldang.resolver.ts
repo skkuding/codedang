@@ -1,6 +1,7 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { ToolType as GraphQLToolType } from '@generated'
+import type { ToolType } from '@prisma/client'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
-import { ToolType } from '@admin/@generated'
 import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
 import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
@@ -28,7 +29,7 @@ export class MandeuldangResolver {
   async deleteMandeuldangTool(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('toolType', { type: () => ToolType }) toolType: ToolType
+    @Args('toolType', { type: () => GraphQLToolType }) toolType: ToolType
   ) {
     return this.mandeuldangService.deleteMandeuldangTool(
       problemId,
