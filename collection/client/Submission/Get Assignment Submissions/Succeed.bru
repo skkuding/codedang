@@ -26,24 +26,46 @@ script:pre-request {
 }
 
 docs {
-  # Get Assignment Submissions
-
-  > 로그인이 필요한 API입니다.
-
+  # 📘 Get Assignment Submissions
+  
+  **Get** `assignment/:assignmentId/submission?:problemId`
+  
+  Get a user's submissions for a specific assignment.
+  
   Assignment 문제의 제출 내역을 가져옵니다.
+  
   AssignmentProblem 정보를 포함합니다.
-
-  ## Query
-
-  > 필수 query는 * 표시하였습니다.
-
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |problemId *|Integer|문제 ID|
-  |take|Integer|가져올 제출 내역 개수 (default: 10)|
-  |cursor|Integer|cursor 값 다음의 ID를 가진 제출 내역들을 반환|
-
-  ```
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |    ✅    | 문제 ID |
+  | `cursor` | number |        | cursor 값 다음의 ID를 가진 제출 내역들을 반환 |
+  | `take` | number |        | 가져올 제출 내역 개수 (default: 10)|
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `assignmentId` | number | ✅       | ID of the assignment |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
   {
     "data": [
       {
@@ -81,5 +103,23 @@ docs {
       }
     }
   }
+  
   ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `data` | array | ✅       | 각 제출의 목록 |
+  | `id` | number | ✅       | 제출의 id |
+  | `username` | string | ✅       | 제출자 이름 |
+  | `createTime` | date | ✅       | 제출 시간 |
+  | `language` | string | ✅       | 제출 언어 |
+  | `result` | string | ✅       | 제출 결과 |
+  | `codeSize` | number | ✅       | 제출 코드 길이 |
+  | `total` | number | ✅       | 전체 제출 수 |
+  | `order` | number | ✅       | 과제 내 문제 순서 |
+  | `id` | number | ✅       | 문제 id |
+  | `title` | string | ✅       | 문제 제목 |
+  | `id` | number | ✅       | 과제 제목 |
+  | `isJudgeResultVisible` | boolean | ✅       | 결과 공개 여부 |
+  | `title` | string | ✅       | 과제 제목 |
 }

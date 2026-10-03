@@ -24,3 +24,96 @@ assert {
 script:pre-request {
   await require("./login").loginUser(req);
 }
+
+docs {
+  # [404] Nonexistent Problem
+  
+  존재하지 않는 Problem의 제출 내역을 가져옵니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |    ✅    | 문제 ID |
+  | `cursor` | number |        | cursor 값 다음의 ID를 가진 제출 내역들을 반환 |
+  | `take` | number |        | 가져올 제출 내역 개수 (default: 10)|
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `assignmentId` | number | ✅       | ID of the assignment |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "data": [
+      {
+        "id": 14,
+        "user": {
+          "username": "user01"
+        },
+        "createTime": "2025-03-07T16:39:14.492Z",
+        "language": "Cpp",
+        "result": "WrongAnswer",
+        "codeSize": 88
+      },
+      {
+        "id": 13,
+        "user": {
+          "username": "user01"
+        },
+        "createTime": "2025-03-07T16:39:11.714Z",
+        "language": "Cpp",
+        "result": "WrongAnswer",
+        "codeSize": 88
+      }
+    ],
+    "total": 2,
+    "assignmentProblem": {
+      "order": 0,
+      "problem": {
+        "id": 7,
+        "title": "천재 디자이너"
+      },
+      "assignment": {
+        "id": 19,
+        "isJudgeResultVisible": true,
+        "title": "24학년도 성민규 과제"
+      }
+    }
+  }
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `data` | array | ✅       | 각 제출의 목록 |
+  | `id` | number | ✅       | 제출의 id |
+  | `username` | string | ✅       | 제출자 이름 |
+  | `createTime` | date | ✅       | 제출 시간 |
+  | `language` | string | ✅       | 제출 언어 |
+  | `result` | string | ✅       | 제출 결과 |
+  | `codeSize` | number | ✅       | 제출 코드 길이 |
+  | `total` | number | ✅       | 전체 제출 수 |
+  | `order` | number | ✅       | 과제 내 문제 순서 |
+  | `id` | number | ✅       | 문제 id |
+  | `title` | string | ✅       | 문제 제목 |
+  | `id` | number | ✅       | 과제 제목 |
+  | `isJudgeResultVisible` | boolean | ✅       | 결과 공개 여부 |
+  | `title` | string | ✅       | 과제 제목 |
+}

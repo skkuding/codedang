@@ -10,7 +10,7 @@ post {
   auth: none
 }
 
-query {
+params:query {
   problemId: 1
   contestId: 1
   ~workbookId: 1
@@ -50,23 +50,96 @@ script:pre-request {
 
 docs {
   ## Create Submission (TLE)
-
+  
   `Contest`에 TLE 판정을 받는 코드를 제출하여, 채점 요청을 보냅니다.
-
-  ### Query
-
-  > 필수 query는 * 표시하였습니다.
-
-  | 이름 | 타입 | 설명 |
-  |-----|-----|-----|
-  |problemId *|Integer|문제 ID|
-  |contestId|Integer|문제가 속한 대회 ID|
-  |workbookId|Integer|문제가 속한 문제집 ID|
-
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Query Parameters
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number |   ✅   | id of problem |
+  | `contestId` | number |        | id of contest |
+  | `assignmentId` | number |        | id of assignment |
+  | `workbookId` | number |        | id of workbook |
+  
+  
+  
+  ---
+  
+  ### 📝 Request Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {
+    "code": [
+      {
+        "id": 1,
+        "text": "#include <stdio.h>\nint main() { int a, b; scanf(\"%d%d\", &a, &b); printf(\"%d\\n\", a + b);}",
+        "locked": false
+      }
+    ],
+    "language": "C"
+  }
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | int | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `language` | string | ✅       |  제출 코드의 언어 |
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  {  
+  "code": [
+      {
+        "id": 1,
+        "text": "#include <iostream>\nint main() { return 0; }",
+        "locked": false
+      }
+    ],
+    "result": "Judging",
+    "userId": 77,
+    "userIp": "203.0.113.10",
+    "problemId": 1,
+    "codeSize": 43,
+    "language": "cpp",
+    "contestId": 1
+  }
+  
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `code` | array | ✅       | 제출 코드의 정보 |
+  | `id` | number | ✅       | 코드의 id |
+  | `text` | string | ✅       | 소스 코드의 내용 |
+  | `locked` | boolean | ✅       | 코드의 잠금상태 여부 |
+  | `result` | array | ✅       | 제출 코드의 결과 |
+  | `userId` | number | ✅       | user의 Id |
+  | `userIp` | string | ✅       | user의 Ip |
+  | `problemId` | number | ✅       | 문제의 Id |
+  | `language` | string | ✅       |  제출 코드의 언어 |
+  | `contestId` | number | ✅       | contest의 Id |
+  
   ### Error Case
-
+  
   #### [404] No Contest found
-
+  
   현재 진행 중이지 않는 `Contest`에 `Submission`을 Create하려는 경우
-
+  
 }
