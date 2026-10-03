@@ -13,7 +13,7 @@ diagnostics:
 
 image:
   repository: n8nio/n8n
-  tag: 1.120.4
+  tag: 1.123.83
   pullPolicy: IfNotPresent
 
 versionNotifications:
@@ -67,7 +67,7 @@ main:
     n8n_git_node_disable_bare_repos: 'true'
   initContainers:
     - name: import-managed-workflows
-      image: n8nio/n8n:1.120.4
+      image: n8nio/n8n:1.123.83
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']
       args:

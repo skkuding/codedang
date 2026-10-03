@@ -91,7 +91,7 @@ services:
   tempo:
     profiles: ['observability']
     container_name: codedang-tempo
-    image: grafana/tempo:2.8.2
+    image: grafana/tempo:2.10.8
     command: ['-config.file=/etc/tempo/tempo.yaml']
     ports:
       - 3200:3200 # Tempo HTTP API
@@ -102,7 +102,7 @@ services:
   loki:
     profiles: ['observability']
     container_name: codedang-loki
-    image: grafana/loki:3.5.7
+    image: grafana/loki:3.7.8
     command: ['-config.file=/etc/loki/loki.yaml']
     ports:
       - 3100:3100 # Loki HTTP API
@@ -113,7 +113,7 @@ services:
   prometheus:
     profiles: ['observability']
     container_name: codedang-prometheus
-    image: prom/prometheus:v3.7.3
+    image: prom/prometheus:v3.15.0
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
       - '--storage.tsdb.path=/prometheus'
@@ -130,7 +130,7 @@ services:
   grafana-dashboards:
     profiles: ['observability']
     container_name: codedang-grafana-dashboards
-    image: curlimages/curl:8.16.0
+    image: curlimages/curl:8.22.0
     user: '0' # 새로 만든 볼륨에 쓰기 위해
     entrypoint: ['sh', '/download-dashboards.sh']
     volumes:
@@ -140,7 +140,7 @@ services:
   grafana:
     profiles: ['observability']
     container_name: codedang-grafana
-    image: grafana/grafana:12.3.0
+    image: grafana/grafana:12.4.12
     ports:
       - 3030:3000
     environment:
