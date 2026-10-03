@@ -41,7 +41,9 @@ flowchart LR
   prom --> grafana
 ```
 
-- 애플리케이션은 OTLP gRPC(`:4317`)로 수집기에 텔레메트리를 보냅니다. iris·plag는 로컬 기본 설정으로는 보내지 않으니, 실행할 때 `DISABLE_INSTRUMENTATION=false OTEL_EXPORTER_OTLP_ENDPOINT_URL=localhost:4317`을 셸 변수로 지정하세요.
+- 애플리케이션은 OTLP gRPC(`:4317`)로 수집기에 텔레메트리를 보냅니다. 네 서비스 모두 로컬 기본값은 끄기(`OTEL_SDK_DISABLED=true`)이므로, 실행할 때 아래처럼 켜세요.
+  - client·admin: `OTEL_SDK_DISABLED=false OTEL_SERVICE_NAME=client-api pnpm start:dev client` (`.env`를 client와 admin이 함께 써서 서비스 이름은 셸에서 지정)
+  - iris·plag: 각 `.env`에서 `OTEL_SDK_DISABLED`를 `false`로 바꿉니다. 주소(`OTEL_EXPORTER_OTLP_ENDPOINT`)와 서비스 이름은 `.env.example`에 들어 있습니다.
 - 수집기는 트레이스를 Tempo로, 로그를 Loki로 보내고, 메트릭은 `:8889`에 노출해 Prometheus가 가져가게 합니다.
 - Prometheus는 수집기 자체 메트릭(`:8888`)과 RabbitMQ(`:15692`)도 직접 가져갑니다.
 - Tempo는 트레이스로부터 span 메트릭과 서비스 그래프를 만들어 Prometheus로 보냅니다(remote write).
