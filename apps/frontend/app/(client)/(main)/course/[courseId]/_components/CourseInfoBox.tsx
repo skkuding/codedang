@@ -50,7 +50,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
       </p>
       <div className="mt-2 flex flex-col gap-2">
         <div className="flex gap-[14px]">
-          <CalendarIcon width={16} height={16} />
+          <CalendarIcon className="text-primary size-4" />
           <p className="text-sm font-medium tracking-[-0.42px] text-[#8A8A8A]">
             {course ? course.courseInfo.semester : ''}
           </p>

@@ -86,7 +86,11 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
                   onClick={(e) => e.stopPropagation()}
                   className="h-6 w-6"
                 >
-                  {row.original.isVisible ? <VisibleIcon /> : <InvisibleIcon />}
+                  {row.original.isVisible ? (
+                    <VisibleIcon className="text-color-blue-60 size-6" />
+                  ) : (
+                    <InvisibleIcon />
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent

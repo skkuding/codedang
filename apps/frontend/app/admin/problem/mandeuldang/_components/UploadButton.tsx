@@ -11,7 +11,7 @@ import {
 } from '@/components/shadcn/dialog'
 import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import FileGrayIcon from '@/public/icons/file_gray.svg'
+import FileGrayIcon from '@/public/icons/file-fill.svg'
 import UploadIcon from '@/public/icons/upload.svg'
 import XIcon from '@/public/icons/x.svg'
 
@@ -69,7 +69,7 @@ export function UploadButton({
             </div>
             <DialogClose asChild>
               <Button type="button" variant={'ghost'} className="h-fit p-1">
-                <XIcon width={32} />
+                <XIcon className="text-color-neutral-30 size-8" />
               </Button>
             </DialogClose>
           </div>
@@ -81,7 +81,7 @@ export function UploadButton({
             <div className="flex max-h-full flex-col gap-2 overflow-auto py-4">
               {upload_target_texts.map((v, idx) => (
                 <div className="flex items-center gap-2" key={idx}>
-                  <FileGrayIcon height={20} width={20} />
+                  <FileGrayIcon className="text-color-cool-neutral-60 size-5" />
                   <p className="text-color-neutral-30 text-body3_r_16">{v}</p>
                 </div>
               ))}

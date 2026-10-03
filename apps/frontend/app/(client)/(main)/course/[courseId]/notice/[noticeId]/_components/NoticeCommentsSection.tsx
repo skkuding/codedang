@@ -1,6 +1,6 @@
 'use client'
 
-import ExclamationMarkIcon from '@/public/icons/exclamation_mark.svg'
+import ExclamationMarkIcon from '@/public/icons/warning.svg'
 import type {
   CourseNoticeCommentGroup,
   CourseNoticeCommentItem

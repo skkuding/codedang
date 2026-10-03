@@ -12,7 +12,7 @@ import {
 import { cn } from '@/libs/utils'
 import PlusCircleWhiteIcon from '@/public/icons/plus-circle-white.svg'
 import SearchIcon from '@/public/icons/search.svg'
-import TrashcanIcon from '@/public/icons/trashcan.svg'
+import TrashcanIcon from '@/public/icons/trashcan-fill.svg'
 import type { ZipUploadedTestcase } from '@/types/type'
 import type { Testcase } from '@generated/graphql'
 import {
@@ -605,7 +605,11 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <TrashcanIcon width={18} height={18} />
+                        <TrashcanIcon
+                          width={18}
+                          height={18}
+                          className="text-white"
+                        />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
