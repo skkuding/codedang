@@ -30,9 +30,6 @@ tempo:
         forcepathstyle: true
       wal:
         path: /var/tempo/wal
-  queryFrontend:
-    mcp_server:
-      enabled: true
   overrides:
     defaults:
       metrics_generator:
