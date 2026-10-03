@@ -41,14 +41,15 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   const submissionProgress = useTestPollingStore(
     (state) => state.submissionProgress
   )
+  const submissionStage = submissionProgress?.stage
 
   // A submission must open its progress view even when a testcase detail is open.
   useEffect(() => {
-    if (submissionProgress && submissionProgress.stage !== 'finished') {
+    if (submissionStage === 'waiting') {
       setActiveTab(TESTCASE_RESULT_TAB)
       setDetailTabId(null)
     }
-  }, [submissionProgress, setActiveTab])
+  }, [submissionStage, setActiveTab])
 
   const moveToDetailTab = (result: TabbedTestResult) => {
     setTestcaseTabList((state) =>
