@@ -46,46 +46,48 @@ enum ProblemField {
 }
 
 model User {
-  id                        Int                       @id @default(autoincrement())
-  username                  String                    @unique
+  id                       Int                @id @default(autoincrement())
+  username                 String             @unique
   /// @HideField()
-  password                  String
-  role                      Role                      @default(User)
-  email                     String                    @unique
-  studentId                 String                    @default("0000000000") @map("student_id")
-  college                   String?                   @default("none")
-  major                     String?                   @default("none")
-  lastLogin                 DateTime?                 @map("last_login")
-  createTime                DateTime                  @default(now()) @map("create_time")
-  updateTime                DateTime                  @updatedAt @map("update_time")
-  canCreateCourse           Boolean                   @default(false) @map("can_create_course")
-  canCreateContest          Boolean                   @default(false) @map("can_create_contest")
-  createdCourseQnAs         CourseQnA[]               @relation("CreatedByUserCourseQnA")
-  createdCourseQnAComments  CourseQnAComment[]        @relation("CreatedByUserCourseQnAComment")
-  userProfile               UserProfile?
-  userGroup                 UserGroup[]
-  notice                    Notice[]
-  problem                   Problem[]
-  assignment                Assignment[]
-  assignmentRecord          AssignmentRecord[]
-  contest                   Contest[]
-  userContest               UserContest[]
-  contestRecord             ContestRecord[]
-  workbook                  Workbook[]
-  submission                Submission[]
-  useroauth                 UserOAuth[]
-  file                      File[]
-  testSubmission            TestSubmission[]
-  UpdateHistory             UpdateHistory[]
-  createdQnAs               ContestQnA[]              @relation("CreatedByUser")
-  createdQnAComments        ContestQnAComment[]       @relation("CreatedByUser")
-  NotificationRecord        NotificationRecord[]
-  PushSubscription          PushSubscription[]
-  CourseNotice              CourseNotice[]
-  CourseNoticeComment       CourseNoticeComment[]
-  CheckRequest              CheckRequest[]
-  mandeuldangCollaborations MandeuldangCollaborator[] @relation("MandeuldangCollaborator")
-  mandeuldangRunRequests    MandeuldangRunRequest[]   @relation("MandeuldangRunRequester")
+  password                 String
+  role                     Role               @default(User)
+  email                    String             @unique
+  studentId                String             @default("0000000000") @map("student_id")
+  college                  String?            @default("none")
+  major                    String?            @default("none")
+  lastLogin                DateTime?          @map("last_login")
+  createTime               DateTime           @default(now()) @map("create_time")
+  updateTime               DateTime           @updatedAt @map("update_time")
+  canCreateCourse          Boolean            @default(false) @map("can_create_course")
+  canCreateContest         Boolean            @default(false) @map("can_create_contest")
+  createdCourseQnAs        CourseQnA[]        @relation("CreatedByUserCourseQnA")
+  createdCourseQnAComments CourseQnAComment[] @relation("CreatedByUserCourseQnAComment")
+
+  userProfile                UserProfile?
+  userGroup                  UserGroup[]
+  notice                     Notice[]
+  problem                    Problem[]
+  assignment                 Assignment[]
+  assignmentRecord           AssignmentRecord[]
+  contest                    Contest[]
+  userContest                UserContest[]
+  contestRecord              ContestRecord[]
+  workbook                   Workbook[]
+  submission                 Submission[]
+  useroauth                  UserOAuth[]
+  file                       File[]
+  testSubmission             TestSubmission[]
+  UpdateHistory              UpdateHistory[]
+  createdQnAs                ContestQnA[]              @relation("CreatedByUser")
+  createdQnAComments         ContestQnAComment[]       @relation("CreatedByUser")
+  NotificationRecord         NotificationRecord[]
+  PushSubscription           PushSubscription[]
+  CourseNotice               CourseNotice[]
+  CourseNoticeComment        CourseNoticeComment[]
+  CheckRequest               CheckRequest[]
+  mandeuldangCollaborations  MandeuldangCollaborator[] @relation("MandeuldangCollaborator")
+  mandeuldangInvitationsSent MandeuldangCollaborator[] @relation("MandeuldangCollaboratorInviter")
+  mandeuldangRunRequests     MandeuldangRunRequest[]   @relation("MandeuldangRunRequester")
 
   @@map("user")
 }
@@ -1076,6 +1078,7 @@ enum CollaboratorRole {
 enum CollaboratorStatus {
   Pending
   Approved
+  Rejected
 }
 
 enum ToolType {
@@ -1147,10 +1150,15 @@ model MandeuldangCollaborator {
   user   User @relation("MandeuldangCollaborator", fields: [userId], references: [id])
   userId Int  @map("user_id")
 
-  role   CollaboratorRole // Owner | Editor | Reviewer
-  status CollaboratorStatus @default(Pending) // Pending | Approved
+  invitedBy   User? @relation("MandeuldangCollaboratorInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedById Int?  @map("invited_by_id")
 
-  createTime DateTime @default(now()) @map("create_time")
+  role   CollaboratorRole // Owner | Editor | Reviewer
+  status CollaboratorStatus @default(Pending) // Pending | Approved | Rejected
+
+  createTime DateTime  @default(now()) @map("create_time")
+  invitedAt  DateTime? @map("invited_at")
+  approvedAt DateTime? @map("approved_at")
 
   @@unique([problemId, userId])
   @@map("mandeuldang_collaborator")
