@@ -43,7 +43,7 @@ loki:
     otlp_config:
       default_resource_attributes_as_index_labels:
         # these keys will be indexed
-        # deployment.environment는 표준 키로 전환하는 동안만 함께 둔다 (TAS-3016에서 삭제)
+        # TODO: deployment.environment는 표준 키 전환 완료 후 삭제 예정
         [
           'service.name',
           'service.version',
