@@ -73,6 +73,8 @@ spec:
                   name: redis-credentials
                   key: password
 
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: 'deployment.environment.name=$(APP_ENV)'
           volumeMounts:
             - name: rabbitmq-ca
               mountPath: /etc/codedang/certs
