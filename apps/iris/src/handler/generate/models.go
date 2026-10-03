@@ -65,6 +65,7 @@ type GenerateToolResult struct {
 	GeneratedCount int                     `json:"generatedCount"`
 	RequestedCount int                     `json:"requestedCount"`
 	Errors         []GenerateTestcaseError `json:"errors,omitempty"` // only failed indices
+	TestcaseIds    []int                   `json:"testcaseIds,omitempty"`
 }
 
 type GenerateTestcaseError struct {

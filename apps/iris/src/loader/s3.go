@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -174,4 +175,49 @@ func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 	}
 
 	return results, nil
+}
+
+// Put uploads a single testcase's .in/.out pair under <problemId>/<id>.in and
+// <problemId>/<id>.out, tagging both objects with hidden=<true|false>. Get reads
+// this same tag to determine ElementOut.Hidden, so the tag must always be set —
+// the admin backend's testcase.service.ts::createTestcases follows the same convention.
+func (s *S3reader) Put(ctx context.Context, problemId int, id int, element ElementIn) error {
+	tagging := "hidden=false"
+	if element.Hidden {
+		tagging = "hidden=true"
+	}
+
+	type upload struct {
+		key  string
+		body string
+	}
+	uploads := []upload{
+		{key: fmt.Sprintf("%d/%d.in", problemId, id), body: element.In},
+		{key: fmt.Sprintf("%d/%d.out", problemId, id), body: element.Out},
+	}
+
+	// Same goroutine + buffered channel pattern as Get above.
+	errChan := make(chan error, len(uploads))
+	for _, u := range uploads {
+		go func(u upload) {
+			_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+				Bucket:  aws.String(s.bucket),
+				Key:     aws.String(u.key),
+				Body:    strings.NewReader(u.body),
+				Tagging: aws.String(tagging),
+			})
+			errChan <- err
+		}(u)
+	}
+
+	var errs []error
+	for range uploads {
+		if err := <-errChan; err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("failed to upload testcase %d/%d: %v", problemId, id, errs)
+	}
+	return nil
 }

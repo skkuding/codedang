@@ -8,7 +8,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.86.0
-	github.com/lib/pq v1.10.9
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/skkuding/codedang/iris v0.0.0-20240305172235-94f43878c03d
@@ -30,7 +29,6 @@ require (
 require (
 	github.com/joho/godotenv v1.5.1
 	go.opentelemetry.io/otel/log v0.13.0
-	golang.org/x/sync v0.20.0
 )
 
 require (
