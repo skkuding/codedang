@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "grafana-prod": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "GRAFANA_URL",
+        "-e",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+        "grafana/mcp-grafana:2.0.0",
+        "-t",
+        "stdio",
+        "--disable-write",
+        "--usage-stats=disabled",
+        "--enabled-tools=datasource,prometheus,loki,tempo,pyroscope,cloudwatch,alerting,dashboard,search,folder,user"
+      ],
+      "env": {
+        "GRAFANA_URL": "https://grafana.codedang.com",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_PROD_TOKEN}"
+      }
+    },
+    "grafana-stage": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "GRAFANA_URL",
+        "-e",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+        "grafana/mcp-grafana:2.0.0",
+        "-t",
+        "stdio",
+        "--disable-write",
+        "--usage-stats=disabled",
+        "--enabled-tools=datasource,prometheus,loki,tempo,pyroscope,cloudwatch,alerting,dashboard,search,folder,user"
+      ],
+      "env": {
+        "GRAFANA_URL": "https://grafana.stage.codedang.com",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_STAGE_TOKEN}"
+      }
+    }
+  }
+}

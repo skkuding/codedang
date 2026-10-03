@@ -150,3 +150,27 @@ Grafana 왼쪽 메뉴의 **드릴다운**에서 원하는 데이터를 선택합
 | 트레이스 | <http://localhost:3030/a/grafana-exploretraces-app/>             |
 | 로그     | <http://localhost:3030/a/grafana-lokiexplore-app/explore>        |
 | 메트릭   | <http://localhost:3030/a/grafana-metricsdrilldown-app/drilldown> |
+
+### AI 도구로 관측 데이터 조회 (Grafana MCP)
+
+장애를 살펴볼 때 Grafana 화면에서 값을 찾아 AI에게 복사해 붙이는 대신, AI가 직접 질의하도록 연결합니다.
+`.mcp.json`에 운영(`grafana-prod`)과 스테이지(`grafana-stage`) 두 개가 등록돼 있습니다. 둘 다 읽기 전용이라 Grafana의 설정을 바꾸지 못합니다.
+
+사용하려면 아래 세 단계가 필요합니다.
+
+1. Grafana에 로그인해 **Administration > Users and access > Service accounts**에서 **Viewer** 역할로 서비스 계정을 만들고 토큰을 발급합니다. 운영과 스테이지 각각 하나씩 필요합니다.
+2. `.envrc.local.example`을 `.envrc.local`로 복사한 뒤 발급받은 토큰을 채웁니다. 이 파일은 커밋되지 않습니다.
+3. `direnv allow`를 실행합니다.
+
+토큰을 넣지 않으면 두 서버는 연결 실패 상태로 남습니다. 평소 개발에는 영향이 없습니다.
+
+| 조회 대상               | 도구 예시                             |
+| ----------------------- | ------------------------------------- |
+| 로그 (Loki)             | `query_loki_logs`                     |
+| 메트릭 (Prometheus)     | `query_prometheus`                    |
+| 트레이스 (Tempo)        | `search_tempo_traces`, `get_tempo_trace` |
+| 프로파일 (Pyroscope)    | `query_pyroscope`                     |
+| AWS 메트릭 (CloudWatch) | `query_cloudwatch`                    |
+| 알림 규칙               | `alerting_rules_read`                 |
+
+> **운영 데이터는 AI 제공자에게 전달됩니다.** 운영 로그와 트레이스에는 사용자 이메일·학번, 서버 경로 같은 값이 들어 있습니다. AI로 조회한 내용은 그대로 AI 서비스로 나갑니다. 가능하면 스테이지를 먼저 쓰고, 운영은 필요한 범위만 좁혀서 조회하세요.
