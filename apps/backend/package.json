@@ -71,6 +71,7 @@
     "cookie-parser": "^1.4.7",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.6.1",
     "es-toolkit": "^1.39.9",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
