@@ -70,6 +70,7 @@ export const pinoLoggerModuleOption: Params = {
       'res.headers["email-auth"]',
       'req.headers.cookie',
       'res.headers["set-cookie"]',
+      'password',
       'req.body.password',
       'req.body.passwordAgain'
     ]

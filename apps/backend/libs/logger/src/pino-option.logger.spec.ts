@@ -23,7 +23,8 @@ describe('pinoLoggerModuleOption', () => {
         headers: reqHeaders,
         body: { password: 'pw', passwordAgain: 'pw' }
       },
-      res: { headers: resHeaders }
+      res: { headers: resHeaders },
+      password: 'hash'
     })
 
     const log = JSON.parse(lines[0])
@@ -33,6 +34,7 @@ describe('pinoLoggerModuleOption', () => {
     expect(log.res.headers['email-auth']).to.equal('[Redacted]')
     expect(log.req.headers.cookie).to.equal('[Redacted]')
     expect(log.res.headers['set-cookie']).to.equal('[Redacted]')
+    expect(log.password).to.equal('[Redacted]')
     expect(log.req.body.password).to.equal('[Redacted]')
     expect(log.req.body.passwordAgain).to.equal('[Redacted]')
   })
