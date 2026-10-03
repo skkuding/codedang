@@ -6,6 +6,9 @@ resources:
   - ../../base
   - aws-credentials.yaml
   - database-credentials.yaml
+  - pprof-basicauth.yaml
+  - pprof-basicauth-credential.yaml
+  - pprof-client.yaml
 
 replicas:
   - name: iris
@@ -20,3 +23,15 @@ patches:
     target:
       kind: Deployment
       name: iris
+  - path: httproute.yaml
+    target:
+      kind: HTTPRoute
+      name: iris-pprof-httproute
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris-test
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: iris-rejudge

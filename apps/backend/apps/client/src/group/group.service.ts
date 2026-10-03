@@ -2011,6 +2011,7 @@ export class CourseService {
   /**
    * @description Course Q&A의 댓글을 삭제합니다.
    * @param userId 현재 요청을 보낸 사용자 ID
+   * @param userRole 현재 요청을 보낸 사용자의 사이트 권한
    * @param courseId Course의 group ID
    * @param qnaOrder 댓글이 속한 Q&A의 order 번호
    * @param commentOrder 삭제할 댓글의 order 번호
@@ -2020,10 +2021,13 @@ export class CourseService {
    */
   async deleteCourseQnAComment(
     userId: number,
+    userRole: Role,
     courseId: number,
     qnaOrder: number,
     commentOrder: number
   ) {
+    const isSiteAdmin = userRole === Role.Admin || userRole === Role.SuperAdmin
+
     const groupId = courseId
     const group = await this.prisma.group.findUnique({
       where: { id: groupId, courseInfo: { isNot: null } }
@@ -2053,6 +2057,7 @@ export class CourseService {
     }
 
     const isCourseStaff =
+      isSiteAdmin ||
       (await this.prisma.userGroup.findFirst({
         where: { userId, groupId, isGroupLeader: true }
       })) !== null

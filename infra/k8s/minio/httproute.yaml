@@ -1,0 +1,65 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minio-httproute
+  namespace: minio
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-stage-wildcard
+  hostnames:
+    - minio.stage.codedang.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: silo-shadow
+          port: 80
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minio-console-httproute
+  namespace: minio
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-stage-wildcard
+  hostnames:
+    - minio-console.stage.codedang.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: silo-shadow
+          port: 9090
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: silo-console-ingress
+  namespace: minio
+spec:
+  parentRefs:
+    - name: main-gateway
+      namespace: kube-system
+      sectionName: https-stage-wildcard
+  hostnames:
+    - silo-console.stage.codedang.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: silo-shadow
+          port: 9090
+

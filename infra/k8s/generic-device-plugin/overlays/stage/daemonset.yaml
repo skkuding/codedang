@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: generic-device-plugin
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: generic-device-plugin
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: generic-device-plugin
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: generic-device-plugin
+
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: system-node-critical
+
+      nodeSelector:
+        kubernetes.io/hostname: skkuding-1
+
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+
+        - operator: Exists
+          effect: NoExecute
+
+      containers:
+        - name: generic-device-plugin
+          image: ghcr.io/squat/generic-device-plugin:2cc50b0@sha256:dc192e164c69b03f156765793a1be62ca437709ae477b27ca7d8f3dcf5021576
+          imagePullPolicy: IfNotPresent
+
+          args:
+            - --device
+            - |
+              name: video
+              groups:
+                - paths:
+                    - path: /dev/video0
+
+          securityContext:
+            privileged: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: true
+
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+            limits:
+              cpu: 50m
+              memory: 20Mi
+
+          ports:
+            - name: health
+              containerPort: 8080
+              protocol: TCP
+
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+
+            - name: devices
+              mountPath: /dev
+
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+            type: Directory
+
+        - name: devices
+          hostPath:
+            path: /dev
+            type: Directory
+
+  updateStrategy:
+    type: RollingUpdate

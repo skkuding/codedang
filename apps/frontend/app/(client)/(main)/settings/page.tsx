@@ -282,7 +282,7 @@ export default function Page() {
           {/* Name */}
           <NameSection realName={realName} />
           {/* Student ID */}
-          <StudentIdSection studentId={studentId} />
+          <StudentIdSection />
           {/* Major */}
           <MajorSection />
           {/* Push Notifications */}

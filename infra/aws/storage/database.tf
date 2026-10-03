@@ -11,17 +11,49 @@ resource "random_password" "postgres_password" {
 
 }
 
+resource "aws_db_parameter_group" "postgres18" {
+  name        = "codedang-postgres18"
+  family      = "postgres18"
+  description = "PostgreSQL 18 target parameters for the blue-green migration"
+
+  parameter {
+    name         = "rds.force_ssl"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_replication_slots"
+    value        = "20"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_logical_replication_workers"
+    value        = "4"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "max_worker_processes"
+    value        = "16"
+    apply_method = "pending-reboot"
+  }
+}
+
 resource "aws_db_instance" "postgres" {
   identifier = "terraform-20250506182211604800000001"
 
   db_name = "codedang_db"
   engine  = "postgres"
   # Pinned version — check for updates quarterly: https://docs.aws.amazon.com/AmazonRDS/latest/PostgreSQLReleaseNotes/
-  engine_version             = "14.22"
+  engine_version             = "18.4"
   auto_minor_version_upgrade = false
-  allocated_storage          = 10
-  max_allocated_storage      = 25
+  allocated_storage          = 30
+  max_allocated_storage      = 100
+  storage_type               = "gp3"
   instance_class             = "db.t4g.small"
+  parameter_group_name       = aws_db_parameter_group.postgres18.name
 
   username = var.postgres_username
   password = random_password.postgres_password.result

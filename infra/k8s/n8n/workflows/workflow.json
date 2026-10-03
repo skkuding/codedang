@@ -3,35 +3,15 @@
   "nodes": [
     {
       "parameters": {
-        "authentication": "oAuth2",
-        "owner": {
-          "__rl": true,
-          "value": "skkuding",
-          "mode": "list",
-          "cachedResultName": "skkuding",
-          "cachedResultUrl": "https://github.com/skkuding"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "codedang",
-          "mode": "list",
-          "cachedResultName": "codedang",
-          "cachedResultUrl": "https://github.com/skkuding/codedang"
-        },
-        "events": ["pull_request"],
+        "httpMethod": "POST",
+        "path": "github-pr-6230aed0d4387abe0f39a58ae4e073efa7e78ed6f34af233",
         "options": {}
       },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
       "position": [40, 280],
       "id": "4512f71b-3f48-41ed-b5d0-fa8d0812c805",
-      "name": "When PR Update",
-      "webhookId": "1572f509-116e-4eed-994b-4f5906903be3",
-      "credentials": {
-        "githubOAuth2Api": {
-          "name": "SKKUDING GitHub"
-        }
-      }
+      "name": "When PR Update"
     },
     {
       "parameters": {
@@ -76,7 +56,7 @@
         "limit": 10,
         "simple": false,
         "filterType": "json",
-        "filterJson": "={   \"property\": \"TAS-\",   \"number\": {     \"equals\": {{$json.taskId}}   } }",
+        "filterJson": "={   \"property\": \"TAS\",   \"unique_id\": {     \"equals\": {{$json.taskId}}   } }",
         "options": {}
       },
       "id": "b7c51d3f-eca6-41c0-980d-0d8cfa38a504",
@@ -86,40 +66,10 @@
       "position": [1000, 300],
       "credentials": {
         "notionApi": {
+          "id": "codedangNotionApiV1",
           "name": "SKKUDING Notion"
         }
       }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "a84476f8-0ac0-4d5e-a0b9-ed5d64eac4b0",
-              "leftValue": "={{ $json.botCommentExists }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [2480, 260],
-      "id": "382d71be-d257-4d6e-995e-37818fd36509",
-      "name": "If Comment Already Exists"
     },
     {
       "parameters": {
@@ -170,6 +120,7 @@
       "position": [780, 520],
       "credentials": {
         "notionApi": {
+          "id": "codedangNotionApiV1",
           "name": "SKKUDING Notion"
         }
       }
@@ -202,6 +153,7 @@
       "position": [1240, 500],
       "credentials": {
         "notionApi": {
+          "id": "codedangNotionApiV1",
           "name": "SKKUDING Notion"
         }
       }
@@ -235,162 +187,6 @@
       "position": [1020, 520],
       "id": "bb986d07-d702-4dda-a03c-b2ffb1f71879",
       "name": "If Finished"
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "={{ $('Filter PR Comments').first().json.botCommentUrl }}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $('GET Installation Token').first().json.token }}"
-            },
-            {
-              "name": "Accept",
-              "value": "application/vnd.github+json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\"body\":\"{{ $('Loop Over Items').all().map(item => `[${item.json.name}](${item.json.url})`).join(', ') }}\"}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [2680, 180],
-      "id": "54a16b45-a8b3-48ce-b18f-19bd2fdb00de",
-      "name": "Edit Comment"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://api.github.com/repos/skkuding/codedang/issues/{{ $('When PR Update').first().json.body.number }}/comments",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $('GET Installation Token').first().json.token }}"
-            },
-            {
-              "name": "Accept",
-              "value": "application/vnd.github+json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\"body\":\"{{ $('Loop Over Items').all().map(item => `[${item.json.name}](${item.json.url})`).join(', ') }}\"}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [2680, 340],
-      "id": "a4666ae5-77b9-4a2c-896f-6aa056eec89a",
-      "name": "Create Comment"
-    },
-    {
-      "parameters": {
-        "url": "=https://api.github.com/repos/skkuding/codedang/issues/{{ $('When PR Update').item.json.body.number }}/comments",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Accept",
-              "value": "application/vnd.github+json"
-            },
-            {
-              "name": "Authorization",
-              "value": "=Bearer  {{ $json.token }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [2040, 260],
-      "id": "08908352-1ad7-477b-b920-168c9a3ad388",
-      "name": "Check PR Comments"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://api.github.com/app/installations/{{ $json.id }}/access_tokens",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $('JWT').item.json.token }}"
-            },
-            {
-              "name": "Accept",
-              "value": "application/vnd.github+json"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1820, 260],
-      "id": "b8ca250d-3745-487e-930f-b7dcb5803d31",
-      "name": "GET Installation Token"
-    },
-    {
-      "parameters": {
-        "url": "https://api.github.com/repos/skkuding/codedang/installation",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $json.token }}"
-            },
-            {
-              "name": "Accept",
-              "value": "application/vnd.github+json"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1620, 260],
-      "id": "17e4e691-c3b3-4d88-b739-e356da896c19",
-      "name": "GET Installation ID"
-    },
-    {
-      "parameters": {
-        "useJson": true,
-        "claimsJson": "={\n  \"iat\": {{ Math.floor(Date.now() / 1000) - 60 }},\n  \"exp\": {{ Math.floor(Date.now() / 1000) + (5 * 60) }},\n  \"iss\": \"Iv23libimfFvStBj5a1s\",\n  \"alg\": \"RS256\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.jwt",
-      "typeVersion": 1,
-      "position": [1420, 260],
-      "id": "9f02b431-cc82-4d3b-a1d5-5c8b8f2ac8e9",
-      "name": "JWT",
-      "credentials": {
-        "jwtAuth": {
-          "name": "JWT Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const comments = $input.all();\n\nconst botComment = comments.find(item =>\n  item.json.performed_via_github_app &&\n  item.json.performed_via_github_app.slug === 'notion-task-integration'\n);\n\nreturn [{\n  json: {\n    botCommentExists: !!botComment, \n    botCommentUrl: botComment ? botComment.json.url : null\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [2260, 260],
-      "id": "36fa02cf-5bac-40f9-bd64-3afd9111f6e2",
-      "name": "Filter PR Comments"
     }
   ],
   "pinData": {},
@@ -447,15 +243,7 @@
       ]
     },
     "No Operation, do nothing": {
-      "main": [
-        [
-          {
-            "node": "JWT",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": []
     },
     "Update State": {
       "main": [
@@ -491,79 +279,6 @@
         [
           {
             "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If Comment Already Exists": {
-      "main": [
-        [
-          {
-            "node": "Edit Comment",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Create Comment",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check PR Comments": {
-      "main": [
-        [
-          {
-            "node": "Filter PR Comments",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "GET Installation Token": {
-      "main": [
-        [
-          {
-            "node": "Check PR Comments",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "GET Installation ID": {
-      "main": [
-        [
-          {
-            "node": "GET Installation Token",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "JWT": {
-      "main": [
-        [
-          {
-            "node": "GET Installation ID",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Filter PR Comments": {
-      "main": [
-        [
-          {
-            "node": "If Comment Already Exists",
             "type": "main",
             "index": 0
           }
