@@ -310,9 +310,6 @@ importers:
       passport-kakao:
         specifier: ^1.0.1
         version: 1.0.1
-      pino:
-        specifier: ^9.7.0
-        version: 9.7.0
       pino-http:
         specifier: ^10.5.0
         version: 10.5.0
@@ -419,6 +416,9 @@ importers:
       nyc:
         specifier: ^17.1.0
         version: 17.1.0
+      pino:
+        specifier: ^9.7.0
+        version: 9.7.0
       prisma:
         specifier: ^6.13.0
         version: 6.13.0(typescript@5.9.2)
