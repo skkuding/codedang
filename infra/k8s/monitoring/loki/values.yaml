@@ -57,6 +57,11 @@ singleBinary:
         secretKeyRef:
           name: monitoring-user
           key: CONSOLE_SECRET_KEY
+  persistence:
+    whenDeleted: Retain
+    whenScaled: Retain
+  nodeSelector:
+    kubernetes.io/hostname: skkuding-4f-1
 
 gateway:
   enabled: false

@@ -9,4 +9,5 @@ resources:
   - rabbitmq-credentials.yaml
   - redis-credentials.yaml
   - service.yaml
-  - HTTPRoutes.yaml
+  - httproute.yaml
+  - service-monitor.yaml

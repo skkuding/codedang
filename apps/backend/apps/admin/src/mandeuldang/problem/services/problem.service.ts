@@ -186,23 +186,59 @@ export class MandeuldangProblemService {
    * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
    */
   async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
-    const { id, ...data } = input
+    const { id, title, languages, ...rest } = input
 
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id, creationMode: ProblemCreationMode.Mandeuldang }
+    const problem = await this.prisma.problem.findUnique({
+      where: { id }
     })
 
+    if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
+      throw new EntityNotExistException('MandeuldangProblem')
+    }
+
     // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
+    const isOwner = problem.createdById === userId
     const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_userId: { problemId: id, userId } }
     })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role === CollaboratorRole.Reviewer
-    ) {
+    const isApprovedEditor =
+      collaborator?.status === CollaboratorStatus.Approved &&
+      (collaborator.role === CollaboratorRole.Editor ||
+        collaborator.role === CollaboratorRole.Owner)
+    if (!isOwner && !isApprovedEditor) {
       throw new ForbiddenAccessException('Only Owner or Editor can edit')
+    }
+
+    // 제목은 빈 문자열일 수 없다.
+    let normalizedTitle: string | undefined
+    if (title !== undefined) {
+      if (title === null) {
+        throw new UnprocessableDataException('Title cannot be empty')
+      }
+      normalizedTitle = title.trim()
+      if (!normalizedTitle) {
+        throw new UnprocessableDataException('Title cannot be empty')
+      }
+    }
+
+    // 시간 제한과 메모리 제한은 양수여야 한다.
+    if (input.timeLimit != null && input.timeLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Time limit must be greater than zero'
+      )
+    }
+
+    if (input.memoryLimit != null && input.memoryLimit <= 0) {
+      throw new UnprocessableDataException(
+        'Memory limit must be greater than zero'
+      )
+    }
+
+    const data = {
+      ...rest,
+      ...(languages != null && { languages }),
+      ...(normalizedTitle !== undefined && { title: normalizedTitle })
     }
 
     return await this.prisma.$transaction(async (tx) => {
@@ -217,7 +253,7 @@ export class MandeuldangProblemService {
       )
 
       // publish 상태인 문제인 경우 조건 만족시에만 저장 가능
-      if (problem.status === ProblemStatus.Published) {
+      if (updated.status === ProblemStatus.Published) {
         if (!canPublish) {
           throw new UnprocessableDataException(
             'Edits that break publishing requirements cannot be saved.'
@@ -229,8 +265,8 @@ export class MandeuldangProblemService {
       // draft 상태인 문제인 경우 조건 만족시 draft->ready로 자동 승격
       // ready 상태인 문제인 경우 조건 불만족시 ready->draft로 자동 승격
       const nextStatus = canPublish ? ProblemStatus.Ready : ProblemStatus.Draft
-      if (nextStatus !== problem.status) {
-        await tx.problem.update({
+      if (nextStatus !== updated.status) {
+        return await tx.problem.update({
           where: { id: problem.id },
           data: { status: nextStatus }
         })
@@ -246,27 +282,25 @@ export class MandeuldangProblemService {
    * 접근 권한: Owner만 발행할 수 있다.
    */
   async publishProblem(problemId: number, userId: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
-      where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang }
+    const problem = await this.prisma.problem.findUnique({
+      where: { id: problemId }
     })
 
+    if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
+      throw new EntityNotExistException('MandeuldangProblem')
+    }
+
     // 발행 권한이 있는지 확인 (Owner만 가능)
+    const isOwner = problem.createdById === userId
     const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_userId: { problemId, userId } }
     })
-    if (
-      !collaborator ||
-      collaborator.status !== CollaboratorStatus.Approved ||
-      collaborator.role !== CollaboratorRole.Owner
-    ) {
+    const isApprovedOwner =
+      collaborator?.status === CollaboratorStatus.Approved &&
+      collaborator.role === CollaboratorRole.Owner
+    if (!isOwner && !isApprovedOwner) {
       throw new ForbiddenAccessException('Only Owner can publish a problem')
-    }
-
-    if (problem.status !== ProblemStatus.Ready) {
-      throw new UnprocessableDataException(
-        'Only a Ready problem can be published'
-      )
     }
 
     return await this.prisma.$transaction(async (tx) => {
@@ -280,13 +314,23 @@ export class MandeuldangProblemService {
         )
       }
 
-      return await tx.problem.update({
-        where: { id: problem.id },
+      const result = await tx.problem.updateMany({
+        where: { id: problem.id, status: ProblemStatus.Ready },
         data: { status: ProblemStatus.Published }
       })
+      if (result.count === 0) {
+        throw new UnprocessableDataException(
+          'Only a Ready problem can be published'
+        )
+      }
+      return await tx.problem.findUniqueOrThrow({ where: { id: problem.id } })
     })
   }
 
+  /**
+   * 만들당 문제를 새로 생성한다.
+   * 생성된 문제는 Draft 상태이며, 생성자는 Approved 상태의 Owner Collaborator로 등록된다.
+   */
   async createProblem(
     input: CreateMandeuldangProblemInput,
     userId: number
@@ -341,6 +385,11 @@ export class MandeuldangProblemService {
     }
   }
 
+  /**
+   * 만들당 문제를 삭제한다.
+   * Mandeuldang 모드의 문제만 삭제할 수 있으며,
+   * 해당 문제의 Owner만 삭제할 수 있다.
+   */
   async deleteProblem(id: number, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
@@ -362,6 +411,8 @@ export class MandeuldangProblemService {
       throw new ForbiddenException('Only the owner can delete this problem')
     }
 
+    // Disable attachment deletion until the file deletion policy is defined.
+    /*
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
 
@@ -380,6 +431,7 @@ export class MandeuldangProblemService {
 
       await Promise.all(deleteFromS3Results)
     }
+    */
 
     return await this.prisma.problem.delete({
       where: { id }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -63,6 +65,21 @@ func main() {
 				logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to start health checker: %v", err))
 			}
 		}()
+	}
+
+	if blockRate := utils.Getenv("PPROF_BLOCK_RATE", "0"); blockRate != "0" {
+		if n, err := strconv.Atoi(blockRate); err == nil {
+			runtime.SetBlockProfileRate(n)
+		} else {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Invalid PPROF_BLOCK_RATE: %v", err))
+		}
+	}
+	if mutexFraction := utils.Getenv("PPROF_MUTEX_FRACTION", "0"); mutexFraction != "0" {
+		if n, err := strconv.Atoi(mutexFraction); err == nil {
+			runtime.SetMutexProfileFraction(n)
+		} else {
+			logProvider.Log(logger.ERROR, fmt.Sprintf("Invalid PPROF_MUTEX_FRACTION: %v", err))
+		}
 	}
 
 	go func() {
@@ -160,6 +177,23 @@ func main() {
 			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
 			MandeuldangKey: utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_KEY", logProvider),
+		},
+	).Connect(context.Background())
+
+	go connector.Factory(
+		connector.RABBIT_MQ,
+		connector.Providers{Router: routeProvider, Logger: logProvider},
+		rabbitmq.ConsumerConfig{
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("MANDEULDANG_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("MANDEULDANG_REQUEST_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("MANDEULDANG_REQUEST_CONSUMER_TAG", logProvider),
+		},
+		rabbitmq.ProducerConfig{
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("MANDEULDANG_EXCHANGE_NAME", logProvider),
+			RoutingKey:     utils.MustGetenvOrElseThrow("MANDEULDANG_RESULT_ROUTING_KEY", logProvider),
 		},
 	).Connect(context.Background())
 

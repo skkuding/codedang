@@ -9,7 +9,6 @@ const REQUIRED_STATEMENT_FIELDS = [
   'description',
   'inputDescription',
   'outputDescription',
-  'hint',
   'timeLimit',
   'memoryLimit',
   'difficulty'
@@ -24,7 +23,7 @@ export class PublishCheckService {
       where: { id: problemId },
       include: {
         mandeuldangSolution: true,
-        problemTestcase: { select: { id: true } }
+        mandeuldangTestFiles: { select: { id: true } }
       }
     })
 
@@ -33,12 +32,15 @@ export class PublishCheckService {
     const statementComplete =
       REQUIRED_STATEMENT_FIELDS.every(
         (field) => problem[field] !== null && problem[field] !== ''
-      ) && problem.languages.length > 0
+      ) &&
+      problem.languages.length > 0 &&
+      (problem.timeLimit ?? 0) > 0 &&
+      (problem.memoryLimit ?? 0) > 0
     if (!statementComplete) missing.push('STATEMENT')
 
     if (!problem.mandeuldangSolution) missing.push('SOLUTION')
 
-    if (problem.problemTestcase.length === 0) missing.push('TEST_FILES')
+    if (problem.mandeuldangTestFiles.length === 0) missing.push('TEST_FILES')
 
     return { canPublish: missing.length === 0, missing }
   }

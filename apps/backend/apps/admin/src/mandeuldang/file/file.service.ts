@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common'
-import { Prisma, ToolType } from '@prisma/client'
+import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+  CollaboratorRole,
+  CollaboratorStatus,
+  Role,
+  ToolType
+} from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { extname } from 'path'
-import {
-  EntityNotExistException,
-  UnprocessableDataException
-} from '@libs/exception'
+import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 
@@ -19,11 +21,57 @@ export class FileService {
     private readonly storageService: StorageService
   ) {}
 
+  private async verifyToolAccess(
+    problemId: number,
+    userId: number,
+    userRole: Role
+  ): Promise<void> {
+    if (userRole !== Role.User) {
+      return
+    }
+
+    const problem = await this.prisma.problem.findUniqueOrThrow({
+      where: {
+        id: problemId
+      },
+      select: {
+        createdById: true,
+        mandeuldangCollaborators: {
+          where: {
+            userId,
+            status: CollaboratorStatus.Approved
+          },
+          select: {
+            role: true
+          }
+        }
+      }
+    })
+
+    const isCreator = problem.createdById === userId
+
+    const hasEditPermission = problem.mandeuldangCollaborators.some(
+      (collaborator) =>
+        collaborator.role === CollaboratorRole.Owner ||
+        collaborator.role === CollaboratorRole.Editor
+    )
+
+    if (!isCreator && !hasEditPermission) {
+      throw new ForbiddenException(
+        'You do not have permission to manage tools for this problem'
+      )
+    }
+  }
+
   async uploadMandeuldangToolFile(
     problemId: number,
     toolType: ToolType,
-    file: FileUpload
+    file: FileUpload,
+    userId: number,
+    userRole: Role
   ) {
+    await this.verifyToolAccess(problemId, userId, userRole)
+
     const { filename, createReadStream } = file
 
     if (!ALLOWED_TOOL_EXTENSIONS.some((ext) => filename.endsWith(ext))) {
@@ -66,40 +114,36 @@ export class FileService {
     return tool
   }
 
-  async deleteMandeuldangToolFile(problemId: number, toolType: ToolType) {
-    try {
-      const tool = await this.prisma.mandeuldangTool.delete({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { problemId_toolType: { problemId, toolType } }
-      })
-      // DB row 삭제 후 S3 파일도 삭제
-      await this.storageService.deleteObject(tool.filePath, 'mandeuldang')
+  async deleteMandeuldangToolFile(
+    problemId: number,
+    toolType: ToolType,
+    userId: number,
+    userRole: Role
+  ) {
+    await this.verifyToolAccess(problemId, userId, userRole)
 
-      if (toolType == ToolType.Generator) {
-        const testcasePrefix = `mandeuldang/${problemId}/testcases/`
-        const testcaseFiles = await this.storageService.listObjects(
-          testcasePrefix,
-          'testcase'
-        )
+    const tool = await this.prisma.mandeuldangTool.delete({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      where: { problemId_toolType: { problemId, toolType } }
+    })
 
-        await Promise.all(
-          testcaseFiles.map(async (file) => {
-            if (file.Key) {
-              await this.storageService.deleteObject(file.Key, 'testcase')
-            }
-          })
-        )
-      }
+    await this.storageService.deleteObject(tool.filePath, 'mandeuldang')
 
-      return tool
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new EntityNotExistException('MandeuldangTool')
-      }
-      throw error
+    if (toolType == ToolType.Generator) {
+      const testcasePrefix = `mandeuldang/${problemId}/testcases/`
+      const testcaseFiles = await this.storageService.listObjects(
+        testcasePrefix,
+        'testcase'
+      )
+
+      await Promise.all(
+        testcaseFiles.map(async (file) => {
+          if (file.Key) {
+            await this.storageService.deleteObject(file.Key, 'testcase')
+          }
+        })
+      )
     }
+    return tool
   }
 }

@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common'
+import { ToolType, type Role } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { PrismaService } from '@libs/prisma'
-import { ToolType } from '@admin/@generated'
 import { FileService } from './file/file.service'
 import { MandeuldangPublicationService } from './mandeuldang-pub.service'
 
 @Injectable()
 export class MandeuldangService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly fileService: FileService,
     private readonly publicationService: MandeuldangPublicationService
   ) {}
@@ -16,17 +14,31 @@ export class MandeuldangService {
   async uploadMandeuldangTool(
     problemId: number,
     toolType: ToolType,
-    file: FileUpload
+    file: FileUpload,
+    userId: number,
+    userRole: Role
   ) {
     return await this.fileService.uploadMandeuldangToolFile(
       problemId,
       toolType,
-      file
+      file,
+      userId,
+      userRole
     )
   }
 
-  async deleteMandeuldangTool(problemId: number, toolType: ToolType) {
-    return this.fileService.deleteMandeuldangToolFile(problemId, toolType)
+  async deleteMandeuldangTool(
+    problemId: number,
+    toolType: ToolType,
+    userId: number,
+    userRole: Role
+  ) {
+    return this.fileService.deleteMandeuldangToolFile(
+      problemId,
+      toolType,
+      userId,
+      userRole
+    )
   }
 
   //파일 실행

@@ -1,0 +1,16 @@
+# Same-namespace alias for the kube-apiserver Service so the TraefikService and
+# ServersTransport in the iris namespace can reach it without enabling
+# cross-namespace references. Requires providers.kubernetesCRD.allowExternalNameServices.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-apiserver
+  namespace: iris
+spec:
+  type: ExternalName
+  externalName: kubernetes.default.svc
+  ports:
+    - name: https
+      port: 443
+      targetPort: 443
+      protocol: TCP

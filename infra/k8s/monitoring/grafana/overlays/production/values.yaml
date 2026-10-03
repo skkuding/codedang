@@ -52,7 +52,11 @@ requests:
 persistence:
   type: pvc
   enabled: true
+  existingClaim: grafana-data
   size: 10Gi
+
+nodeSelector:
+  kubernetes.io/hostname: skkuding-4f-1
 
 admin:
   existingSecret: grafana-admin-user
