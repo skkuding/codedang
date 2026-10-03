@@ -65,6 +65,9 @@ export const pinoLoggerModuleOption: Params = {
     },
     redact: [
       'req.headers.authorization',
+      'res.headers.authorization',
+      'req.headers["email-auth"]',
+      'res.headers["email-auth"]',
       'req.headers.cookie',
       'res.headers["set-cookie"]',
       'req.body.password',

@@ -8,15 +8,19 @@ describe('pinoLoggerModuleOption', () => {
     const { redact } = pinoLoggerModuleOption.pinoHttp as pino.LoggerOptions
     const logger = pino({ redact }, { write: (line) => lines.push(line) })
 
-    const resHeaders: Record<string, string[]> = {}
+    const reqHeaders: Record<string, string> = { authorization: 'Bearer token' }
+    reqHeaders['email-auth'] = 'token'
+    reqHeaders.cookie = 'refresh_token=token'
+
+    const resHeaders: Record<string, string | string[]> = {
+      authorization: 'Bearer token'
+    }
+    resHeaders['email-auth'] = 'token'
     resHeaders['set-cookie'] = ['refresh_token=token']
 
     logger.info({
       req: {
-        headers: {
-          authorization: 'Bearer token',
-          cookie: 'refresh_token=token'
-        },
+        headers: reqHeaders,
         body: { password: 'pw', passwordAgain: 'pw' }
       },
       res: { headers: resHeaders }
@@ -24,6 +28,9 @@ describe('pinoLoggerModuleOption', () => {
 
     const log = JSON.parse(lines[0])
     expect(log.req.headers.authorization).to.equal('[Redacted]')
+    expect(log.res.headers.authorization).to.equal('[Redacted]')
+    expect(log.req.headers['email-auth']).to.equal('[Redacted]')
+    expect(log.res.headers['email-auth']).to.equal('[Redacted]')
     expect(log.req.headers.cookie).to.equal('[Redacted]')
     expect(log.res.headers['set-cookie']).to.equal('[Redacted]')
     expect(log.req.body.password).to.equal('[Redacted]')
