@@ -1,9 +1,9 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { ProblemStatus as PrismaProblemStatus } from '@prisma/client'
+import { ProblemStatus } from '@generated'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
-import { ProblemStatus as GraphQLProblemStatus } from '@admin/@generated'
 import { CreateMandeuldangProblemInput } from '../model/problem.input'
+import { UpdateMandeuldangProblemInput } from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
 import { MandeuldangProblemService } from '../services/problem.service'
 
@@ -20,8 +20,8 @@ export class MandeuldangProblemResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
-    @Args('status', { nullable: true, type: () => GraphQLProblemStatus })
-    status?: PrismaProblemStatus
+    @Args('status', { nullable: true, type: () => ProblemStatus })
+    status?: ProblemStatus
   ) {
     return await this.mandeuldangProblemService.getMyProblems(
       req.user.id,
@@ -37,8 +37,8 @@ export class MandeuldangProblemResolver {
     @Args('cursor', { nullable: true, type: () => Int }, CursorValidationPipe)
     cursor: number | null,
     @Args('take', { defaultValue: 10, type: () => Int }) take: number,
-    @Args('status', { nullable: true, type: () => GraphQLProblemStatus })
-    status?: PrismaProblemStatus
+    @Args('status', { nullable: true, type: () => ProblemStatus })
+    status?: ProblemStatus
   ) {
     return await this.mandeuldangProblemService.getInProgressProblems(
       req.user.id,
@@ -77,5 +77,24 @@ export class MandeuldangProblemResolver {
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
     return await this.mandeuldangProblemService.deleteProblem(id, req.user.id)
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async updateMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('input') input: UpdateMandeuldangProblemInput
+  ) {
+    return await this.mandeuldangProblemService.updateProblem(
+      input,
+      req.user.id
+    )
+  }
+
+  @Mutation(() => MandeuldangProblemOutput)
+  async publishMandeuldangProblem(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('id', { type: () => Int }) id: number
+  ) {
+    return await this.mandeuldangProblemService.publishProblem(id, req.user.id)
   }
 }

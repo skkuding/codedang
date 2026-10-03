@@ -1,0 +1,41 @@
+meta {
+  name: [ERR] Not Found
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation PublishMandeuldangProblem($id: Int!) {
+    publishMandeuldangProblem(id: $id) {
+      id
+      status
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 9999
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Not Found
+
+  **POST** `/graphql (mutation: publishMandeuldangProblem)`
+
+  존재하지 않거나 Mandeuldang 문제가 아닌 `id`로 발행을 시도하면,
+
+  `EntityNotExistException`("MandeuldangProblem does not exist")가 발생합니다.
+}
