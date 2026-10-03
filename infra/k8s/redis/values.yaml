@@ -6,7 +6,7 @@
 redisStandalone:
   enabled: true
   image: quay.io/opstree/redis
-  tag: v7.0.15
+  tag: v7.4.11
   imagePullPolicy: IfNotPresent
   redisSecret:
     secretName: redis-credentials

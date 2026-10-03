@@ -30,7 +30,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.2
+          terraform_version: v1.16.5
 
       - name: Terraform Init Storage
         working-directory: ./apps/infra/rc/storage
@@ -75,7 +75,7 @@ jobs:
           echo "db_name=$DB_NAME" >> $GITHUB_OUTPUT
 
       - name: Setup SSH agent for Bastion host access
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.BASTION_SSH_KEY_RC }}
 

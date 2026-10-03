@@ -27,7 +27,7 @@ pyroscope:
   # MinIO no longer publishes minio/mc images, so use the AWS CLI instead.
   initContainers:
     - name: create-profile-bucket
-      image: public.ecr.aws/aws-cli/aws-cli:2.37.7
+      image: public.ecr.aws/aws-cli/aws-cli:2.37.9
       command: ['/bin/sh', '-ec']
       args:
         - |

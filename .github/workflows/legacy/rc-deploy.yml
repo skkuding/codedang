@@ -30,7 +30,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.2
+          terraform_version: v1.16.5
 
       - name: Create Terraform variable file
         working-directory: ./apps/infra/rc/network
@@ -123,7 +123,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.2
+          terraform_version: v1.16.5
 
       - name: Create Terraform variable file
         working-directory: ./apps/infra/rc/storage
@@ -174,7 +174,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.2
+          terraform_version: v1.16.5
 
       - name: Create Terraform variable file
         working-directory: ./apps/infra/rc/codedang
