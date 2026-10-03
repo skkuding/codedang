@@ -22,7 +22,7 @@ const schema = v.object({
   username: v.pipe(
     v.string(),
     v.minLength(3, 'Username must be at least 3 characters'),
-    v.maxLength(10, 'Username must be at most 10 characters'),
+    v.maxLength(50, 'Username must be at most 50 characters'),
     v.regex(
       /^[a-z0-9]+$/,
       'Username must contain only lowercase letters and numbers'
@@ -152,7 +152,7 @@ function SignUpRegisterAccountContent() {
                   }
                   return (
                     <AuthMessage
-                      message={'3-10 characters of small letters, numbers'}
+                      message={'3-50 characters of small letters, numbers'}
                       type={'info'}
                     />
                   )

@@ -5,6 +5,7 @@ metadata:
   namespace: plag
 data:
   APP_ENV: 'stage' # Running in 'stage' to match consistency with iris
+  DATABASE_CONNECTION_LIMIT: '225'
   CHECK_RESULT_BUCKET_NAME: 'codedang-plag-checks'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
   RABBITMQ_PORT: '5671'

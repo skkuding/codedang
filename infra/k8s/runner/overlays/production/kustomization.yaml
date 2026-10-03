@@ -4,7 +4,6 @@ namespace: runner
 
 resources:
   - ../../base
-  - ingress.yaml
   - redis-secret.yaml
 
 patches:

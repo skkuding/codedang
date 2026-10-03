@@ -23,6 +23,10 @@ spec:
       containers:
         - name: iris
           image: ghcr.io/skkuding/codedang-iris
+          ports:
+            - name: pprof
+              containerPort: 6060
+              protocol: TCP
           resources:
             limits:
               cpu: 1
@@ -34,6 +38,9 @@ spec:
             - name: cgroup
               mountPath: /sys/fs/cgroup
               readOnly: false
+            - name: rabbitmq-ca
+              mountPath: /etc/codedang/certs
+              readOnly: true
           securityContext:
             privileged: true
           envFrom:
@@ -59,3 +66,9 @@ spec:
           hostPath:
             path: /sys/fs/cgroup
             type: Directory
+        - name: rabbitmq-ca
+          configMap:
+            name: rabbitmq-ca-cert
+            items:
+              - key: ca.crt
+                path: ca.crt

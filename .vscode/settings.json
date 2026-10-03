@@ -5,6 +5,9 @@
   "typescript.preferences.importModuleSpecifier": "shortest",
   "typescript.preferences.preferTypeOnlyAutoImports": true,
   "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.preferences.importModuleSpecifier": "shortest",
+  "js/ts.preferences.preferTypeOnlyAutoImports": true,
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },

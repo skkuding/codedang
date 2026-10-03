@@ -119,7 +119,6 @@ interface ManagementSidebarProps {
 export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
-  const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [userPermissions, setUserPermissions] = useState({
     canCreateCourse: false,
@@ -200,8 +199,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
     const hasCourse = Boolean(id)
 
     setSelectedCourseId(id)
-    setIsCourseSidebarOpened(hasCourse)
-
     if (hasCourse) {
       setIsMainSidebarExpanded(false)
     }
@@ -262,26 +259,9 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                     : pathname.startsWith(item.path)
                 }
                 isExpanded={isMainSidebarExpanded}
-                onClick={(e) => {
-                  const isCourseItem = item.path === '/admin/course'
-                  const isOnCourseDetail =
-                    pathname.startsWith('/admin/course/') &&
-                    isCourseSidebarOpened
-
-                  if (isCourseItem && isOnCourseDetail) {
-                    if (!isMainSidebarExpanded) {
-                      setIsMainSidebarExpanded(true)
-                    }
-                    e.preventDefault()
-                    return
-                  }
-
+                onClick={() => {
                   if (!isMainSidebarExpanded) {
                     setIsMainSidebarExpanded(true)
-                  }
-
-                  if (!isCourseItem) {
-                    setIsCourseSidebarOpened(false)
                   }
                 }}
               />
@@ -299,7 +279,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                       <Link
                         key={course.id}
                         href={`/admin/course/${course.id}`}
-                        onClick={() => setIsCourseSidebarOpened(true)}
                         className={cn(
                           'overflow-hidden text-ellipsis text-xs transition-colors',
                           params.courseId === course.id.toString()

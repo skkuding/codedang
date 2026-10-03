@@ -76,8 +76,8 @@ func (bu *BuildUnit) Setup(
 		Dir:      bu.Dir,
 		Language: bu.ParsedLang,
 	})
-	// compileErr: sandbox service itself failed (e.g., timeout, internal error)
-	// compileResult.ExecResult.ErrorCode != 0: sandbox ran but user code has errors
+	// compileErr: compiler could not be started or the sandbox service failed
+	// compileResult.ExecResult.StatusCode != RUN_SUCCESS: compiler exited unsuccessfully or timed out
 	if compileErr != nil {
 		return &BuildUnitError{
 			Unit:    bu.Name,

@@ -1,0 +1,35 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: pprof-kube-api-transport
+  namespace: iris
+spec:
+  # Validate the kube-apiserver serving certificate against the cluster CA.
+  # Every namespace receives a kube-root-ca.crt ConfigMap (key ca.crt).
+  serverName: kubernetes.default.svc
+  rootCAs:
+    - configMap: kube-root-ca.crt
+  # Dedicated client certificate for Traefik -> kube-apiserver authentication.
+  # The Secret must be a kubernetes.io/tls Secret named iris-pprof-client.
+  certificatesSecrets:
+    - iris-pprof-client
+  forwardingTimeouts:
+    dialTimeout: 30s
+    # CPU profiles and traces can take up to 60s before response headers.
+    responseHeaderTimeout: 90s
+    idleConnTimeout: 200s
+    readIdleTimeout: 200s
+---
+apiVersion: traefik.io/v1alpha1
+kind: TraefikService
+metadata:
+  name: pprof-kube-api
+  namespace: iris
+spec:
+  weighted:
+    services:
+      - name: kubernetes-apiserver
+        kind: Service
+        port: 443
+        scheme: https
+        serversTransport: pprof-kube-api-transport

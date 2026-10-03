@@ -1,9 +1,8 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
-import { Button } from '@/components/shadcn/button'
 import { ErrorBoundary } from '@suspensive/react'
-import Link from 'next/link'
 import { Suspense } from 'react'
-import { HiMiniPlusCircle } from 'react-icons/hi2'
+import { CreateProblemEntry } from './_components/CreateProblemEntry'
+import { ProblemModeToggle } from './_components/ProblemModeToggle'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
 import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
@@ -18,14 +17,10 @@ export default function Page() {
             Here&apos;s a problem list you made
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <ProblemModeToggle />
           <ProblemsUploadButton />
-          <Button variant="default" className="w-[120px]" asChild>
-            <Link href="/admin/problem/create">
-              <HiMiniPlusCircle className="mr-2 h-5 w-5" />
-              <span className="text-lg">Create</span>
-            </Link>
-          </Button>
+          <CreateProblemEntry />
         </div>
       </div>
       <ProblemTabs />

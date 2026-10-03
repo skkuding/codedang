@@ -3,6 +3,8 @@ kind: ServiceMonitor
 metadata:
   name: rabbitmq-monitor
   namespace: rabbitmq
+  annotations:
+    argocd.argoproj.io/sync-wave: '4'
   labels:
     release: prometheus # release name of kube-prometheus-stack
 spec:

@@ -81,7 +81,9 @@ export class StorageService {
         Key: filename,
         Body: content,
         ContentType: type,
-        ContentLength: fileSize
+        ContentLength: fileSize,
+        // Keys are random UUIDs, so an object is never overwritten.
+        CacheControl: 'public, max-age=31536000, immutable'
       })
     )
   }
