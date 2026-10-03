@@ -6,10 +6,12 @@
         "run",
         "--rm",
         "-i",
+        "-v",
+        "${HOME}/.config/codedang/grafana-prod.token:/run/secrets/grafana.token:ro",
         "-e",
         "GRAFANA_URL",
         "-e",
-        "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN_FILE",
         "grafana/mcp-grafana:2.0.0",
         "-t",
         "stdio",
@@ -19,7 +21,7 @@
       ],
       "env": {
         "GRAFANA_URL": "https://grafana.codedang.com",
-        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_PROD_TOKEN}"
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN_FILE": "/run/secrets/grafana.token"
       }
     },
     "grafana-stage": {
@@ -28,10 +30,12 @@
         "run",
         "--rm",
         "-i",
+        "-v",
+        "${HOME}/.config/codedang/grafana-stage.token:/run/secrets/grafana.token:ro",
         "-e",
         "GRAFANA_URL",
         "-e",
-        "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN_FILE",
         "grafana/mcp-grafana:2.0.0",
         "-t",
         "stdio",
@@ -41,7 +45,7 @@
       ],
       "env": {
         "GRAFANA_URL": "https://grafana.stage.codedang.com",
-        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_STAGE_TOKEN}"
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN_FILE": "/run/secrets/grafana.token"
       }
     }
   }

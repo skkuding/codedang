@@ -1,7 +1,0 @@
-# 커밋하지 않는 개인 값을 두는 곳입니다. .envrc.local로 복사한 뒤 값을 채우세요.
-
-### Grafana 서비스 계정 토큰 ###
-# Grafana > Administration > Users and access > Service accounts 에서
-# Viewer 역할로 만든 토큰을 넣습니다. .mcp.json의 grafana-prod / grafana-stage가 사용합니다.
-export GRAFANA_PROD_TOKEN=""
-export GRAFANA_STAGE_TOKEN=""

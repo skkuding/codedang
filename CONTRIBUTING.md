@@ -156,13 +156,19 @@ Grafana 왼쪽 메뉴의 **드릴다운**에서 원하는 데이터를 선택합
 장애를 살펴볼 때 Grafana 화면에서 값을 찾아 AI에게 복사해 붙이는 대신, AI가 직접 질의하도록 연결합니다.
 `.mcp.json`에 운영(`grafana-prod`)과 스테이지(`grafana-stage`) 두 개가 등록돼 있습니다. 둘 다 읽기 전용이라 Grafana의 설정을 바꾸지 못합니다.
 
-사용하려면 아래 세 단계가 필요합니다.
+사용하려면 Grafana 토큰이 필요합니다.
 
 1. Grafana에 로그인해 **Administration > Users and access > Service accounts**에서 **Viewer** 역할로 서비스 계정을 만들고 토큰을 발급합니다. 운영과 스테이지 각각 하나씩 필요합니다.
-2. `.envrc.local.example`을 `.envrc.local`로 복사한 뒤 발급받은 토큰을 채웁니다. 이 파일은 커밋되지 않습니다.
-3. `direnv allow`를 실행합니다.
+2. 발급받은 토큰을 아래 두 파일에 저장합니다. 레포 바깥이라 실수로 커밋될 일이 없습니다.
 
-토큰을 넣지 않으면 두 서버는 연결 실패 상태로 남습니다. 평소 개발에는 영향이 없습니다.
+```bash
+mkdir -p ~/.config/codedang
+printf '%s' '<운영 토큰>' > ~/.config/codedang/grafana-prod.token
+printf '%s' '<스테이지 토큰>' > ~/.config/codedang/grafana-stage.token
+chmod 600 ~/.config/codedang/*.token
+```
+
+파일을 만들지 않으면 두 서버는 연결 실패 상태로 남습니다. 평소 개발에는 영향이 없습니다.
 
 | 조회 대상               | 도구 예시                             |
 | ----------------------- | ------------------------------------- |
