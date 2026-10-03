@@ -67,6 +67,7 @@ export function DropdownForm({
     <div className={cn('flex flex-col', labelGap[size])}>
       {label && (
         <label
+          htmlFor={name}
           className={cn(
             'text-color-neutral-15 text-sub3_sb_16 flex gap-1',
             size === 'small' && 'text-sub4_sb_14'
@@ -99,6 +100,7 @@ export function DropdownForm({
         disabled={disabled}
       >
         <SelectTrigger
+          id={name}
           className={cn(
             'focus:ring-primary text-body1_m_16 data-[placeholder]:text-color-neutral-90 w-full rounded-full p-4 focus:ring-offset-0 disabled:opacity-100',
             size === 'small' && 'text-body2_m_14',
