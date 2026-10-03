@@ -43,7 +43,13 @@ loki:
     otlp_config:
       default_resource_attributes_as_index_labels:
         # these keys will be indexed
-        ['service.name', 'service.version', 'service.environment']
+        # TODO: deployment.environment는 표준 키 전환 완료 후 삭제 예정
+        [
+          'service.name',
+          'service.version',
+          'deployment.environment.name',
+          'deployment.environment'
+        ]
   storage_config:
     tsdb_shipper:
       query_ready_num_days: 90
