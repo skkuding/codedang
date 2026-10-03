@@ -97,7 +97,7 @@
     "diff-match-patch-typescript": "^1.1.0",
     "dotenv": "^16.6.1",
     "embla-carousel-react": "8.6.0",
-    "framer-motion": "^11.18.2",
+    "motion": "^11.18.2",
     "fullcalendar": "^6.1.19",
     "graphql": "^16.11.0",
     "highlight.js": "^11.11.1",
