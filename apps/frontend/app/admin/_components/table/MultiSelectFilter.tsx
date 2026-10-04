@@ -14,7 +14,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
-import { useCallback, type ReactNode } from 'react'
+import { useCallback, useMemo, type ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
 interface MultiSelectFilterProps {
@@ -46,22 +46,20 @@ export function MultiSelectFilter({
   defaultValue = [],
   onUpdate
 }: MultiSelectFilterProps) {
-  const selectedValues = getSelectedValues(defaultValue)
+  const selectedValues = useMemo(() => getSelectedValues(defaultValue), [])
 
-  const onSelectItem = useCallback(
-    (value: string) => {
-      if (selectedValues.has(value)) {
-        selectedValues.delete(value)
-      } else {
-        selectedValues.add(value)
-      }
-      const filterValues = Array.from(selectedValues)
-      if (onUpdate) {
-        onUpdate(filterValues)
-      }
-    },
-    [onUpdate]
-  )
+  const onSelectItem = (value: string) => {
+    if (selectedValues.has(value)) {
+      selectedValues.delete(value)
+    } else {
+      selectedValues.add(value)
+    }
+    console.log(selectedValues)
+    const filterValues = Array.from(selectedValues)
+    if (onUpdate) {
+      onUpdate(filterValues)
+    }
+  }
 
   return (
     <Popover>
