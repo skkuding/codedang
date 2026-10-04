@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CreateProblemEntry } from './_components/CreateProblemEntry'
 import { ProblemModeToggle } from './_components/ProblemModeToggle'
+import { ProblemSearchBar } from './_components/ProblemSearchBar'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
 import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
@@ -26,6 +27,7 @@ export default function Page() {
       </div>
       <ProblemTabs />
       <SearchProvider>
+        <ProblemSearchBar />
         <ErrorBoundary fallback={FetchErrorFallback}>
           <Suspense fallback={<ProblemTableFallback />}>
             <ProblemTable />
