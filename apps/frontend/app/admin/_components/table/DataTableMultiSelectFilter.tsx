@@ -1,22 +1,5 @@
-import { Badge } from '@/components/shadcn/badge'
-import { Button } from '@/components/shadcn/button'
-import { Checkbox } from '@/components/shadcn/checkbox'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList
-} from '@/components/shadcn/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/shadcn/popover'
-import { Separator } from '@/components/shadcn/separator'
 import type { Column } from '@tanstack/react-table'
-import { useCallback, useMemo, useRef, type ReactNode } from 'react'
-import { IoFilter } from 'react-icons/io5'
+import { useRef, type ReactNode } from 'react'
 import { MultiSelectFilter } from './MultiSelectFilter'
 import { useDataTable } from './context'
 
