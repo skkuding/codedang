@@ -1,6 +1,6 @@
 'use client'
 
-import { languages, levels } from '@/libs/constants'
+import type { languages, levels } from '@/libs/constants'
 import { createContext, useMemo, useState, type ReactNode } from 'react'
 
 type GetterSetterTuple<T> = readonly [T, (currentValue: T) => void]
