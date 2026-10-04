@@ -4,8 +4,9 @@ import { languages, levels } from '@/libs/constants'
 import { createContext, useMemo, useState, type ReactNode } from 'react'
 
 type GetterSetterTuple<T> = readonly [T, (currentValue: T) => void]
-type Languages = (typeof languages)[number][]
-type Levels = (typeof levels)[number][]
+
+export type Languages = (typeof languages)[number][]
+export type Levels = (typeof levels)[number][]
 
 interface FilterContextType {
   language: GetterSetterTuple<Languages>
