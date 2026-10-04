@@ -15,7 +15,7 @@ export function ProblemSearchBar() {
   )
 
   return (
-    <>
+    <div className="min-h-10 flex-none self-start">
       <SearchInput
         placeholder="Search"
         sizeVariant="sm"
@@ -25,6 +25,6 @@ export function ProblemSearchBar() {
       />
       {/* <DataTableLangFilter />
       <DataTableLevelFilter /> */}
-    </>
+    </div>
   )
 }
