@@ -27,12 +27,14 @@ export default function Page() {
       </div>
       <ProblemTabs />
       <SearchProvider>
-        <ProblemSearchBar />
-        <ErrorBoundary fallback={FetchErrorFallback}>
-          <Suspense fallback={<ProblemTableFallback />}>
-            <ProblemTable />
-          </Suspense>
-        </ErrorBoundary>
+        <div className="flex flex-wrap gap-4">
+          <ProblemSearchBar />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<ProblemTableFallback />}>
+              <ProblemTable />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </SearchProvider>
     </div>
   )

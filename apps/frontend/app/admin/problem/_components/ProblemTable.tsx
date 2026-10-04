@@ -61,11 +61,12 @@ export function ProblemTable() {
     <DataTableRoot
       data={problems}
       columns={createColumns()}
+      className="contents space-y-0"
 
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <SearchInputSync />
-      <div className="flex flex-wrap gap-4">
+      <div className="contents">
         {/* <DataTableSearchBar columndId="title" sizeVariant="sm" /> */}
         <DataTableLangFilter />
         <DataTableLevelFilter />
@@ -74,15 +75,21 @@ export function ProblemTable() {
           <ProblemsDownload />
         </div>
       </div>
-      <DataTable
-        getHref={(data) => `/admin/problem/${data.id}`}
-        bodyStyle={bodyStyle}
-      />
-      <DataTablePagination showSelection />
+      <div className="w-full space-y-4">
+        <DataTable
+          getHref={(data) => `/admin/problem/${data.id}`}
+          bodyStyle={bodyStyle}
+        />
+        <DataTablePagination showSelection />
+      </div>
     </DataTableRoot>
   )
 }
 
 export function ProblemTableFallback() {
-  return <DataTableFallback columns={createColumns()} withSearchBar={false} />
+  return (
+    <div className="w-full">
+      <DataTableFallback columns={createColumns()} withSearchBar={false} />
+    </div>
+  )
 }

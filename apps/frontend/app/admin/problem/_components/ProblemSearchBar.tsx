@@ -15,15 +15,16 @@ export function ProblemSearchBar() {
   )
 
   return (
-    <div className="flex flex-wrap gap-4">
+    <>
       <SearchInput
         placeholder="Search"
         sizeVariant="sm"
+        containerClassName="shrink-0 self-start"
         value={search}
         onChange={onSearchInputChange}
       />
       {/* <DataTableLangFilter />
       <DataTableLevelFilter /> */}
-    </div>
+    </>
   )
 }
