@@ -7,8 +7,7 @@ import {
   DataTableLangFilter,
   DataTableLevelFilter,
   DataTablePagination,
-  DataTableRoot,
-  DataTableSearchBar
+  DataTableRoot
 } from '../../../_components/table'
 import { ProblemsDownload } from '../../_components/ProblemsDownload'
 import { SearchInputSync } from '../../_components/SearchInputSync'
