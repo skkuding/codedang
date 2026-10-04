@@ -6,6 +6,7 @@ import { ProblemModeToggle } from './_components/ProblemModeToggle'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
 import { ProblemTabs } from './_components/ProblemTabs'
 import { ProblemsUploadButton } from './_components/ProblemsUploadButton'
+import { SearchProvider } from './_components/SearchProvider'
 
 export default function Page() {
   return (
@@ -24,11 +25,13 @@ export default function Page() {
         </div>
       </div>
       <ProblemTabs />
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<ProblemTableFallback />}>
-          <ProblemTable />
-        </Suspense>
-      </ErrorBoundary>
+      <SearchProvider>
+        <ErrorBoundary fallback={FetchErrorFallback}>
+          <Suspense fallback={<ProblemTableFallback />}>
+            <ProblemTable />
+          </Suspense>
+        </ErrorBoundary>
+      </SearchProvider>
     </div>
   )
 }
