@@ -19,7 +19,6 @@ export function ProblemSearchBar() {
       <SearchInput
         placeholder="Search"
         sizeVariant="sm"
-        containerClassName="shrink-0 self-start"
         value={search}
         onChange={onSearchInputChange}
       />

@@ -66,13 +66,11 @@ export function ProblemTable() {
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <SearchInputSync />
-      <div className="contents">
-        <DataTableLangFilter />
-        <DataTableLevelFilter />
-        <div className="ml-auto flex gap-2">
-          <ProblemsDeleteButton />
-          <ProblemsDownload />
-        </div>
+      <DataTableLangFilter />
+      <DataTableLevelFilter />
+      <div className="ml-auto flex gap-2">
+        <ProblemsDeleteButton />
+        <ProblemsDownload />
       </div>
       <div className="w-full space-y-4">
         <DataTable
