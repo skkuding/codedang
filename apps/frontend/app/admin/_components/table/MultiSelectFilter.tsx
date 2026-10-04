@@ -14,7 +14,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
-import { useCallback, useMemo, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
 
 interface MultiSelectFilterProps {
@@ -28,17 +28,6 @@ interface MultiSelectFilterProps {
   defaultValue?: string[]
 }
 
-/**
- * 어드민 테이블의 다중 선택 필터 컴포넌트
- * @param column
- * 컬럼 정보가 담긴 객체
- * @param title
- * 드롭다운 트리거 버튼에 표시될 텍스트
- * @param options
- * 값과 라벨을 포함한 옵션 목록
- * @param emptyMessage
- * 옵션이 없을 경우 보여줄 텍스트
- */
 export function MultiSelectFilter({
   title,
   options,
@@ -46,19 +35,21 @@ export function MultiSelectFilter({
   defaultValue = [],
   onUpdate
 }: MultiSelectFilterProps) {
-  const selectedValues = useMemo(() => getSelectedValues(defaultValue), [])
+  const [selectedValues, setSelectedValues] = useState<Set<string>>(() =>
+    getSelectedValues(defaultValue)
+  )
 
   const onSelectItem = (value: string) => {
-    if (selectedValues.has(value)) {
-      selectedValues.delete(value)
+    const next = new Set(selectedValues)
+
+    if (next.has(value)) {
+      next.delete(value)
     } else {
-      selectedValues.add(value)
+      next.add(value)
     }
-    console.log(selectedValues)
-    const filterValues = Array.from(selectedValues)
-    if (onUpdate) {
-      onUpdate(filterValues)
-    }
+
+    setSelectedValues(next)
+    onUpdate?.([...next])
   }
 
   return (
