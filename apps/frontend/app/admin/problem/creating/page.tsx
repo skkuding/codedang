@@ -5,8 +5,10 @@ import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CreateProblemEntry } from '../_components/CreateProblemEntry'
 import { ProblemModeToggle } from '../_components/ProblemModeToggle'
+import { ProblemSearchBar } from '../_components/ProblemSearchBar'
 import { ProblemTabs } from '../_components/ProblemTabs'
 import { ProblemsUploadButton } from '../_components/ProblemsUploadButton'
+import { SearchProvider } from '../_components/SearchProvider'
 import {
   SharedProblemTable,
   SharedProblemTableFallback
@@ -30,12 +32,16 @@ export default function Page() {
       </div>
 
       <ProblemTabs />
-
-      <ErrorBoundary fallback={FetchErrorFallback}>
-        <Suspense fallback={<SharedProblemTableFallback />}>
-          <SharedProblemTable />
-        </Suspense>
-      </ErrorBoundary>
+      <SearchProvider>
+        <div className="flex flex-wrap gap-4">
+          <ProblemSearchBar />
+          <ErrorBoundary fallback={FetchErrorFallback}>
+            <Suspense fallback={<SharedProblemTableFallback />}>
+              <SharedProblemTable />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+      </SearchProvider>
     </div>
   )
 }
