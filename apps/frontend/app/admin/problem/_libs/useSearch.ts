@@ -8,5 +8,5 @@ export function useSearch() {
     throw new Error('useSearch must be used within SearchContext')
   }
 
-  return context
+  return [context.search, context.setSearch] as const
 }
