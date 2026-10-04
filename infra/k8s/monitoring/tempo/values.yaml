@@ -30,6 +30,10 @@ tempo:
         forcepathstyle: true
       wal:
         path: /var/tempo/wal
+  queryFrontend:
+    metrics:
+      # Tempo defaults TraceQL metrics queries to 3h, unlike the 168h allowed for trace search
+      max_duration: 168h
   structuredConfig:
     ingester:
       max_block_bytes: 104857600
