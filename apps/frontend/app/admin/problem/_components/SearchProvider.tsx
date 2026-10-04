@@ -11,7 +11,7 @@ interface SearchProviderProps {
   children: ReactNode
 }
 
-const SearchContext = createContext<SearchContextType | null>(null)
+export const SearchContext = createContext<SearchContextType | null>(null)
 
 export function SearchProvider({ children }: SearchProviderProps) {
   const [search, setSearch] = useState('')
