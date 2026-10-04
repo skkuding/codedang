@@ -4,11 +4,10 @@ import { Language, Level } from '@generated/graphql'
 import {
   DataTable,
   DataTableFallback,
-  DataTableLangFilter,
-  DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot
 } from '../../../_components/table'
+import { ProblemFilterSync } from '../../_components/ProblemFilterSync'
 import { ProblemsDownload } from '../../_components/ProblemsDownload'
 import { SearchInputSync } from '../../_components/SearchInputSync'
 import { columns } from './CreatingProblemTableColumns'
@@ -53,8 +52,7 @@ export function SharedProblemTable() {
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <SearchInputSync />
-      <DataTableLangFilter />
-      <DataTableLevelFilter />
+      <ProblemFilterSync />
       <div className="ml-auto flex gap-2">
         <ProblemsDownload />
       </div>
