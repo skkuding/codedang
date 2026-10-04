@@ -20,7 +20,10 @@ export function ProblemFilter() {
       />
       <MultiSelectFilter
         title="Level"
-        options={levels.map((item) => ({ value: item, label: item }))}
+        options={levels.map((item) => ({
+          value: item,
+          label: `Level ${item.slice(-1)}`
+        }))}
         onUpdate={(value) => {
           setLevel(value as Levels)
         }}
