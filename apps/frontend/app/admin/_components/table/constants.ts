@@ -1,3 +1,4 @@
+export const TITLE_COLUMN_ID = 'title'
 export const LANG_COLUMN_ID = 'languages'
 export const SEMESTER_COLUMN_ID = 'semester'
 export const LEVEL_COLUMN_ID = 'difficulty'
