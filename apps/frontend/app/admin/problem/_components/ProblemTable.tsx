@@ -15,6 +15,7 @@ import {
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 import { ProblemsDownload } from './ProblemsDownload'
+import { SearchInputSync } from './SearchInputSync'
 
 export function ProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
@@ -64,8 +65,9 @@ export function ProblemTable() {
 
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
+      <SearchInputSync />
       <div className="flex flex-wrap gap-4">
-        <DataTableSearchBar columndId="title" sizeVariant="sm" />
+        {/* <DataTableSearchBar columndId="title" sizeVariant="sm" /> */}
         <DataTableLangFilter />
         <DataTableLevelFilter />
         <div className="ml-auto flex gap-2">
