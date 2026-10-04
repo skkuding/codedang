@@ -84,5 +84,5 @@ export function ProblemTable() {
 }
 
 export function ProblemTableFallback() {
-  return <DataTableFallback columns={createColumns()} />
+  return <DataTableFallback columns={createColumns()} withSearchBar={false} />
 }
