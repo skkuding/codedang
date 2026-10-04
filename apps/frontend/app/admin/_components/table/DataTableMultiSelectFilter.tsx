@@ -15,8 +15,9 @@ import {
 } from '@/components/shadcn/popover'
 import { Separator } from '@/components/shadcn/separator'
 import type { Column } from '@tanstack/react-table'
-import type { ReactNode } from 'react'
+import { useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { IoFilter } from 'react-icons/io5'
+import { MultiSelectFilter } from './MultiSelectFilter'
 import { useDataTable } from './context'
 
 interface DataTableMultiSelectFilterProps<TData, TValue> {
@@ -47,87 +48,31 @@ export function DataTableMultiSelectFilter<TData, TValue>({
   emptyMessage
 }: DataTableMultiSelectFilterProps<TData, TValue>) {
   const { table } = useDataTable()
-  const selectedValues = getSelectedValues(column?.getFilterValue())
+
+  const defaultFilterToArray = (): string[] => {
+    const data = column?.getFilterValue()
+    if (!Array.isArray(data)) {
+      return []
+    }
+    if (data.every((item) => typeof item === 'string')) {
+      return Array.from(data)
+    }
+    return []
+  }
+  const defaultFilterValue = useRef<string[]>(defaultFilterToArray())
+
+  const onUpdate = (filteredValues: string[]) => {
+    column?.setFilterValue(filteredValues.length ? filteredValues : undefined)
+    table.resetPageIndex()
+  }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className="h-[36px]">
-          <IoFilter className="mr-2" />
-          <p className="text-xs font-normal">{title}</p>
-          {selectedValues.size > 0 && (
-            <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <div className="space-x-1">
-                {selectedValues.size === options.length ? (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-xs px-1 font-normal"
-                  >
-                    All
-                  </Badge>
-                ) : (
-                  <div className="flex space-x-1">
-                    {options
-                      .filter((option) => selectedValues.has(option.value))
-                      .map((option) => (
-                        <Badge
-                          key={option.value}
-                          variant="secondary"
-                          className="rounded-xs px-1 font-normal"
-                        >
-                          {option.label}
-                        </Badge>
-                      ))}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent className="w-[160px] p-0" align="start">
-        <Command>
-          <CommandList>
-            {emptyMessage && <CommandEmpty>{emptyMessage}</CommandEmpty>}
-            <CommandGroup>
-              {options.map(({ value, label }) => (
-                <CommandItem
-                  key={value}
-                  value={value}
-                  className="gap-x-2"
-                  onSelect={() => {
-                    if (selectedValues.has(value)) {
-                      selectedValues.delete(value)
-                    } else {
-                      selectedValues.add(value)
-                    }
-                    const filterValues = Array.from(selectedValues)
-                    column?.setFilterValue(
-                      filterValues.length ? filterValues : undefined
-                    )
-                    table.resetPageIndex()
-                  }}
-                >
-                  <Checkbox checked={selectedValues.has(value)} />
-                  {label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <MultiSelectFilter
+      title={title}
+      options={options}
+      emptyMessage={emptyMessage}
+      defaultValue={defaultFilterValue.current}
+      onUpdate={onUpdate}
+    />
   )
-}
-
-const getSelectedValues = (data: unknown): Set<string> => {
-  if (!Array.isArray(data)) {
-    return new Set()
-  }
-  if (data.every((item) => typeof item === 'string')) {
-    return new Set(data)
-  }
-  return new Set()
 }
