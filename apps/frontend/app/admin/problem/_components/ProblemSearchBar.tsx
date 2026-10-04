@@ -23,8 +23,6 @@ export function ProblemSearchBar() {
         value={search}
         onChange={onSearchInputChange}
       />
-      {/* <DataTableLangFilter />
-      <DataTableLevelFilter /> */}
     </div>
   )
 }

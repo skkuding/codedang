@@ -67,7 +67,6 @@ export function ProblemTable() {
     >
       <SearchInputSync />
       <div className="contents">
-        {/* <DataTableSearchBar columndId="title" sizeVariant="sm" /> */}
         <DataTableLangFilter />
         <DataTableLevelFilter />
         <div className="ml-auto flex gap-2">
