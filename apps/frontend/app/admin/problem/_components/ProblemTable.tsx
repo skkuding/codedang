@@ -9,8 +9,7 @@ import {
   DataTableLangFilter,
   DataTableLevelFilter,
   DataTablePagination,
-  DataTableRoot,
-  DataTableSearchBar
+  DataTableRoot
 } from '../../_components/table'
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
