@@ -69,7 +69,14 @@ function TableFallback<TData>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className={headerStyle[header.id]}>
+                <TableHead
+                  key={header.id}
+                  className={
+                    header.id === 'select'
+                      ? 'w-14 min-w-14 max-w-14'
+                      : headerStyle[header.id]
+                  }
+                >
                   <div className="h-[39px]! flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 text-sm font-normal [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent">
                     {header.isPlaceholder
                       ? null
@@ -91,7 +98,14 @@ function TableFallback<TData>({
                 {table.getAllColumns().map(
                   (column) =>
                     column.getIsVisible() && (
-                      <TableCell key={column.id} className="md:p-4">
+                      <TableCell
+                        key={column.id}
+                        className={
+                          column.id === 'select'
+                            ? 'w-14 min-w-14 max-w-14'
+                            : 'md:p-4'
+                        }
+                      >
                         <Skeleton className="mx-auto h-[20px] w-full" />
                       </TableCell>
                     )
