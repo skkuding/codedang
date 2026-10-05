@@ -151,7 +151,8 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                     key={header.id}
                     className={cn(
                       isHeaderGrouped && 'p-0',
-                      headerStyle[header.column.id]
+                      headerStyle[header.column.id],
+                      header.id === 'select' && 'w-[1%] whitespace-nowrap p-0'
                     )}
                   >
                     <div

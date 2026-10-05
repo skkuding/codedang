@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell
 } from '@/components/shadcn/table'
+import { cn } from '@/libs/utils'
 import {
   flexRender,
   getCoreRowModel,
@@ -71,13 +72,17 @@ function TableFallback<TData>({
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className={
-                    header.id === 'select'
-                      ? 'w-14 min-w-14 max-w-14'
-                      : headerStyle[header.id]
-                  }
+                  className={cn(
+                    headerStyle[header.id],
+                    header.id === 'select' && 'w-[1%] whitespace-nowrap p-0'
+                  )}
                 >
-                  <div className="h-[39px]! flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 text-sm font-normal [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent">
+                  <div
+                    className={cn(
+                      'h-[39px]! flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 text-sm font-normal',
+                      header.id === 'select' && 'w-14 bg-transparent'
+                    )}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -102,11 +107,18 @@ function TableFallback<TData>({
                         key={column.id}
                         className={
                           column.id === 'select'
-                            ? 'w-14 min-w-14 max-w-14'
+                            ? 'w-[1%] whitespace-nowrap p-0'
                             : 'md:p-4'
                         }
                       >
-                        <Skeleton className="mx-auto h-[20px] w-full" />
+                        <div
+                          className={cn(
+                            'flex justify-center whitespace-nowrap',
+                            column.id === 'select' && 'w-14'
+                          )}
+                        >
+                          <Skeleton className="mx-auto h-[20px] w-full" />
+                        </div>
                       </TableCell>
                     )
                 )}
