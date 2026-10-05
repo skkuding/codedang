@@ -9,12 +9,12 @@ import {
   DataTableLangFilter,
   DataTableLevelFilter,
   DataTablePagination,
-  DataTableRoot,
-  DataTableSearchBar
+  DataTableRoot
 } from '../../_components/table'
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 import { ProblemsDownload } from './ProblemsDownload'
+import { SearchInputSync } from './SearchInputSync'
 
 export function ProblemTable() {
   const { data } = useSuspenseQuery(GET_PROBLEMS, {
@@ -61,27 +61,32 @@ export function ProblemTable() {
     <DataTableRoot
       data={problems}
       columns={createColumns()}
+      className="contents space-y-0"
 
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
-      <div className="flex flex-wrap gap-4">
-        <DataTableSearchBar columndId="title" sizeVariant="sm" />
-        <DataTableLangFilter />
-        <DataTableLevelFilter />
-        <div className="ml-auto flex gap-2">
-          <ProblemsDeleteButton />
-          <ProblemsDownload />
-        </div>
+      <SearchInputSync />
+      <DataTableLangFilter />
+      <DataTableLevelFilter />
+      <div className="ml-auto flex gap-2">
+        <ProblemsDeleteButton />
+        <ProblemsDownload />
       </div>
-      <DataTable
-        getHref={(data) => `/admin/problem/${data.id}`}
-        bodyStyle={bodyStyle}
-      />
-      <DataTablePagination showSelection />
+      <div className="w-full space-y-4">
+        <DataTable
+          getHref={(data) => `/admin/problem/${data.id}`}
+          bodyStyle={bodyStyle}
+        />
+        <DataTablePagination showSelection />
+      </div>
     </DataTableRoot>
   )
 }
 
 export function ProblemTableFallback() {
-  return <DataTableFallback columns={createColumns()} />
+  return (
+    <div className="w-full">
+      <DataTableFallback columns={createColumns()} withSearchBar={false} />
+    </div>
+  )
 }
