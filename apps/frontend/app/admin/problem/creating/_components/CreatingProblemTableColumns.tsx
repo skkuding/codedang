@@ -24,9 +24,11 @@ export const columns: ColumnDef<SharedDataTableProblem>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value) =>
+          table.toggleAllPageRowsSelected(Boolean(value))
+        }
         aria-label="Select all"
         className="translate-y-[2px]"
-        disabled={true}
       />
     ),
     cell: ({ row }) => (
