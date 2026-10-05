@@ -9,6 +9,7 @@ import {
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import { MandeuldangProblemService } from './problem.service'
 
 const ownerId = 1
@@ -49,7 +50,13 @@ describe('MandeuldangProblemService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MandeuldangProblemService,
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        {
+          provide: StorageService,
+          useValue: {
+            deleteFile: stub().resolves()
+          }
+        }
       ]
     }).compile()
 
