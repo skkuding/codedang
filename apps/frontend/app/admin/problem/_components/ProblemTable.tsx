@@ -6,11 +6,10 @@ import { Language, Level } from '@generated/graphql'
 import {
   DataTable,
   DataTableFallback,
-  DataTableLangFilter,
-  DataTableLevelFilter,
   DataTablePagination,
   DataTableRoot
 } from '../../_components/table'
+import { ProblemFilterSync } from './ProblemFilterSync'
 import { createColumns } from './ProblemTableColumns'
 import { ProblemsDeleteButton } from './ProblemsDeleteButton'
 import { ProblemsDownload } from './ProblemsDownload'
@@ -66,8 +65,7 @@ export function ProblemTable() {
       // defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
       <SearchInputSync />
-      <DataTableLangFilter />
-      <DataTableLevelFilter />
+      <ProblemFilterSync />
       <div className="ml-auto flex gap-2">
         <ProblemsDeleteButton />
         <ProblemsDownload />

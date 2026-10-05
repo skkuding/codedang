@@ -2,6 +2,8 @@ import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense } from 'react'
 import { CreateProblemEntry } from './_components/CreateProblemEntry'
+import { FilterProvider } from './_components/FilterProvider'
+import { ProblemFilter } from './_components/ProblemFilter'
 import { ProblemModeToggle } from './_components/ProblemModeToggle'
 import { ProblemSearchBar } from './_components/ProblemSearchBar'
 import { ProblemTable, ProblemTableFallback } from './_components/ProblemTable'
@@ -27,14 +29,17 @@ export default function Page() {
       </div>
       <ProblemTabs />
       <SearchProvider>
-        <div className="flex flex-wrap gap-4">
-          <ProblemSearchBar />
-          <ErrorBoundary fallback={FetchErrorFallback}>
-            <Suspense fallback={<ProblemTableFallback />}>
-              <ProblemTable />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
+        <FilterProvider>
+          <div className="flex flex-wrap gap-4">
+            <ProblemSearchBar />
+            <ProblemFilter />
+            <ErrorBoundary fallback={FetchErrorFallback}>
+              <Suspense fallback={<ProblemTableFallback />}>
+                <ProblemTable />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </FilterProvider>
       </SearchProvider>
     </div>
   )
