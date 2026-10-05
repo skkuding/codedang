@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
-  ListObjectsV2Command,
+  paginateListObjectsV2,
   GetObjectCommand,
   PutObjectCommand,
-  S3Client
+  S3Client,
+  type _Object
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import type { ReadStream } from 'fs'
@@ -122,17 +123,25 @@ export class StorageService {
    * @param prefix Directory name to list files from
    * @param bucket Bucket type to list files from ('testcase' or 'media')
    */
-  async listObjects(prefix: string, bucket: 'testcase' | 'media') {
+  async listObjects(
+    prefix: string,
+    bucket: 'testcase' | 'media' | 'checkResult' | 'mandeuldang'
+  ) {
     const bucketName = this.getBucketName(bucket)
-    const objects = await this.client.send(
-      new ListObjectsV2Command({
-        Bucket: bucketName,
-        Prefix: prefix
-      })
-    )
-    return objects.Contents ?? []
-  }
 
+    const paginator = paginateListObjectsV2(
+      { client: this.client },
+      { Bucket: bucketName, Prefix: prefix }
+    )
+
+    const objects: _Object[] = []
+    for await (const page of paginator) {
+      if (page.Contents) {
+        objects.push(...page.Contents)
+      }
+    }
+    return objects
+  }
   /**
    * Remove the object from S3 Bucket.
    *
