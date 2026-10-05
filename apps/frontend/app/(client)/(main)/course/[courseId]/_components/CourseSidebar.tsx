@@ -1,13 +1,9 @@
 'use client'
 
 import { SideBar } from '@/components/SideBar'
-import { Separator } from '@/components/shadcn/separator'
 import { cn } from '@/libs/utils'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-import { FaAnglesLeft, FaAnglesRight } from 'react-icons/fa6'
 import {
   NoticeIcon,
   AssignmentIcon,
@@ -21,7 +17,6 @@ interface CourseSidebarProps {
 }
 
 export function CourseSidebar({ courseId }: CourseSidebarProps) {
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true)
   const pathname = usePathname()
 
   const navItems = [
@@ -59,6 +54,7 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
                 <Link
                   key={item.name}
                   href={item.path}
+                  aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     'relative flex-1 px-4 py-2 text-center text-sm font-medium transition-colors',
                     isActive
@@ -81,38 +77,16 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex">
-        <div className="flex flex-col">
-          <motion.div
-            initial={{ width: 240 }}
-            animate={{ width: isSidebarExpanded ? 240 : 48 }}
-            className="relative flex flex-col"
-          >
-            <button
-              onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-              className="absolute right-4 top-12 text-gray-500 hover:text-gray-700"
-            >
-              {isSidebarExpanded ? (
-                <FaAnglesLeft className="text-[#9B9B9B]" />
-              ) : (
-                <FaAnglesRight className="text-[#9B9B9B]" />
-              )}
-            </button>
-            {isSidebarExpanded && <CourseInfoBox courseId={courseId} />}
-            <Separator className={cn(isSidebarExpanded ? 'my-6' : 'hidden')} />
-            <nav
-              className={cn(
-                'flex flex-col gap-2',
-                !isSidebarExpanded && 'mt-36'
-              )}
-            >
-              <SideBar
-                navItems={navItems}
-                isSidebarExpanded={isSidebarExpanded}
-              />
-            </nav>
-          </motion.div>
-        </div>
+      <div className="ml-[116px] mt-20 hidden shrink-0 lg:flex">
+        <aside
+          data-testid="course-sidebar"
+          className="flex h-[468px] w-[280px] flex-col gap-5 rounded-xl bg-white px-5 py-10 shadow-[0_4px_20px_rgba(53,78,116,0.10)]"
+        >
+          <CourseInfoBox courseId={courseId} />
+          <nav aria-label="강의 메뉴">
+            <SideBar navItems={navItems} isSidebarExpanded />
+          </nav>
+        </aside>
       </div>
     </>
   )
