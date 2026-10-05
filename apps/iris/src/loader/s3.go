@@ -50,6 +50,22 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	return &S3reader{client: client, bucket: bucket}, nil
 }
 
+// OpenObject reads one exact key without a prefix lookup or database fallback.
+// The caller must close the returned body.
+func (s *S3reader) OpenObject(ctx context.Context, objectKey string) (io.ReadCloser, error) {
+	if objectKey == "" {
+		return nil, fmt.Errorf("S3 object key must not be empty")
+	}
+	object, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(objectKey),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get S3 object %q: %w", objectKey, err)
+	}
+	return object.Body, nil
+}
+
 func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 	output, err := s.client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(s.bucket),
