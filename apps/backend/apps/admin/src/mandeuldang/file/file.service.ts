@@ -120,7 +120,7 @@ export class FileService {
   ) {
     await this.verifyToolAccess(problemId, userId, userRole)
 
-    const tool = await this.prisma.mandeuldangTool.delete({
+    const tool = await this.prisma.mandeuldangTool.findUniqueOrThrow({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_toolType: { problemId, toolType } }
     })
@@ -142,6 +142,8 @@ export class FileService {
         })
       )
     }
-    return tool
+    return await this.prisma.mandeuldangTool.delete({
+      where: { id: tool.id }
+    })
   }
 }
