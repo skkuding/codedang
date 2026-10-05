@@ -2760,6 +2760,7 @@ type Mutation {
   importProblemsToContest(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
   inviteUser(groupId: Int!, isGroupLeader: Boolean!, userId: Int!): UserGroup!
   issueInvitation(groupId: Int!): String!
+  publishMandeuldangProblem(id: Int!): MandeuldangProblemOutput!
   rejudgeAssignmentProblem(groupId: Int!, input: RejudgeInput!): RejudgeResult!
   removeAnnouncement(contestId: Int!, id: Int!): Announcement!
   removeProblemsFromAssignment(assignmentId: Int!, groupId: Int!, problemIds: [Int!]!): [AssignmentProblem!]!
@@ -2783,6 +2784,7 @@ type Mutation {
   updateCourseQnAComment(commentOrder: Int!, content: String!, groupId: Int!, qnaOrder: Int!): CourseQnAComment!
   updateCreationPermissions(input: UpdateCreationPermissionsInput!): UpdateCreationPermissionResult!
   updateGroupMember(groupId: Int!, toGroupLeader: Boolean!, userId: Int!): UserGroup!
+  updateMandeuldangProblem(input: UpdateMandeuldangProblemInput!): MandeuldangProblemOutput!
   updateNotice(input: UpdateNoticeInput!, noticeId: Int!): Notice!
   updateProblem(input: UpdateProblemInput!): ProblemWithIsVisible!
   updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
@@ -4328,6 +4330,18 @@ type UpdateHistorySumAggregate {
   id: Int
   problemId: Int
   updatedByid: Int
+}
+
+input UpdateMandeuldangProblemInput {
+  description: String
+  difficulty: Level
+  id: Int!
+  inputDescription: String
+  languages: [Language!]
+  memoryLimit: Int
+  outputDescription: String
+  timeLimit: Int
+  title: String
 }
 
 input UpdateNoticeInput {
