@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Prisma, ResultStatus as PrismaResultStatus } from '@prisma/client'
+import {
+  Prisma,
+  ProblemStatus,
+  ResultStatus as PrismaResultStatus
+} from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
@@ -19,6 +23,7 @@ import type { AuthenticatedUser } from '@libs/auth'
 import {
   EntityNotExistException,
   ForbiddenAccessException,
+  UnprocessableDataException,
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -934,7 +939,13 @@ export class SubmissionService {
       }),
       this.prisma.problem.findUnique({
         where: { id: problemId },
-        select: { id: true, title: true, timeLimit: true, memoryLimit: true }
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          timeLimit: true,
+          memoryLimit: true
+        }
       })
     ])
 
@@ -958,7 +969,25 @@ export class SubmissionService {
       }
     }
 
-    return { assignment, problem }
+    // 만들당 Draft/Ready 문제는 아직 공개되지 않았으므로 재채점 대상이 될 수 없다 —
+    // limit이 채워져 있어도 발행 전이면 막는다.
+    if (problem.status !== ProblemStatus.Published) {
+      throw new UnprocessableDataException(
+        'Only published problems can be rejudged'
+      )
+    }
+
+    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable).
+    // 재채점은 이 값을 Iris로 그대로 보내야 하므로, 없으면 여기서 명확히 막는다 —
+    // 원래는 발행 검증(publish validation)에서 걸러졌어야 할 상태다.
+    const { timeLimit, memoryLimit } = problem
+    if (timeLimit == null || memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be rejudged'
+      )
+    }
+
+    return { assignment, problem: { ...problem, timeLimit, memoryLimit } }
   }
 
   /**

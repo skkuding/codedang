@@ -74,7 +74,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       latestRuns.length > 0 &&
       latestRuns.every((run) => run?.status === MandeuldangRunStatus.Success)
 
-    await this.prisma.mandeuldangProblem.update({
+    await this.prisma.problem.update({
       where: { id: problemId },
       data: { lastRunPass: allPassed }
     })
