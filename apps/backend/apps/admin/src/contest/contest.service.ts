@@ -85,7 +85,13 @@ export class ContestService {
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
-          select: { contestRecord: true }
+          select: {
+            userContest: {
+              where: {
+                role: ContestRole.Participant
+              }
+            }
+          }
         }
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }, { createTime: 'asc' }]
@@ -118,7 +124,7 @@ export class ContestService {
       const { _count, ...data } = contest
       return {
         ...data,
-        participants: _count.contestRecord
+        participants: _count.userContest
       }
     })
   }
@@ -137,7 +143,13 @@ export class ContestService {
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
-          select: { contestRecord: true }
+          select: {
+            userContest: {
+              where: {
+                role: ContestRole.Participant
+              }
+            }
+          }
         },
         userContest: {
           where: {
@@ -183,7 +195,7 @@ export class ContestService {
 
     return {
       ...data,
-      participants: _count.contestRecord
+      participants: _count.userContest
     }
   }
 
