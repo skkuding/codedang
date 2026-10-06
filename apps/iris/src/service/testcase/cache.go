@@ -12,6 +12,22 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 )
 
+// GetVersionedTestcase resolves the requested manifest, then reads cached TC
+// bundles. Only bundles are cached: each call still fetches the manifest.
+func GetVersionedTestcase(ctx context.Context, cacheRoot string, source loader.BundleSource, testcaseSetID, manifestKey string, filter TestcaseFilterCode) (Testcase, error) {
+	if strings.TrimSpace(cacheRoot) == "" {
+		return Testcase{}, fmt.Errorf("testcase cache root must not be empty")
+	}
+	if filter != ALL && filter != PUBLIC_ONLY && filter != HIDDEN_ONLY {
+		return Testcase{}, fmt.Errorf("unknown testcase filter %d", filter)
+	}
+	manifest, err := loader.LoadManifest(ctx, source, manifestKey, testcaseSetID)
+	if err != nil {
+		return Testcase{}, err
+	}
+	return GetCachedTestcase(ctx, cacheRoot, source, *manifest, filter)
+}
+
 // GetCachedTestcase reads an already resolved manifest using the existing TC
 // filters. Calls must be sequential: this PoC has no locking, GC or repair.
 // A hit trusts the previously verified installation; it does not rehash files.

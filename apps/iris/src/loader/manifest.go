@@ -1,9 +1,12 @@
 package loader
 
 import (
+	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"strings"
 )
@@ -27,6 +30,33 @@ type ManifestTestcase struct {
 	Output      string  `json:"output"`
 	Hidden      bool    `json:"hidden"`
 	ScoreWeight float64 `json:"scoreWeight"`
+}
+
+// LoadManifest reads the exact immutable object referenced by a request.
+// Version mismatches fail without looking up the current problem's testcases.
+func LoadManifest(ctx context.Context, source BundleSource, manifestKey, testcaseSetID string) (*Manifest, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if source == nil || strings.TrimSpace(manifestKey) == "" || strings.TrimSpace(testcaseSetID) == "" {
+		return nil, fmt.Errorf("manifest source, key and testcaseSetId are required")
+	}
+	body, err := source.OpenObject(ctx, manifestKey)
+	if err != nil {
+		return nil, fmt.Errorf("load manifest %q: %w", manifestKey, err)
+	}
+	data, readErr := io.ReadAll(bundleContextReader{ctx, body})
+	if err := errors.Join(readErr, body.Close(), ctx.Err()); err != nil {
+		return nil, fmt.Errorf("read manifest %q: %w", manifestKey, err)
+	}
+	manifest, err := ParseManifest(data)
+	if err != nil {
+		return nil, fmt.Errorf("manifest %q: %w", manifestKey, err)
+	}
+	if manifest.TestcaseSetID != testcaseSetID {
+		return nil, fmt.Errorf("manifest version mismatch: requested %q, got %q", testcaseSetID, manifest.TestcaseSetID)
+	}
+	return manifest, nil
 }
 
 // ParseManifest validates metadata only. Downloaded bytes and archive entries

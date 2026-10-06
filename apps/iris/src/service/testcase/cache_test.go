@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -21,6 +22,36 @@ import (
 type cacheSource struct {
 	objects map[string][]byte
 	calls   []string
+}
+
+func TestGetVersionedTestcase(t *testing.T) {
+	manifest, source := cacheFixture(t, "public input")
+	key := "testcases/tcset-42/manifest.json"
+	data, err := json.Marshal(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source.objects[key] = data
+	root := t.TempDir()
+	first, err := GetVersionedTestcase(context.Background(), root, source, "tcset-42", key, PUBLIC_ONLY)
+	if err != nil || len(first.Elements) != 1 || first.Elements[0].In != "public input" {
+		t.Fatalf("first request: %+v %v", first, err)
+	}
+	second, err := GetVersionedTestcase(context.Background(), root, source, "tcset-42", key, PUBLIC_ONLY)
+	wantCalls := []string{key, manifest.Bundles[0].ObjectKey, key}
+	if err != nil || !reflect.DeepEqual(first, second) || !reflect.DeepEqual(source.calls, wantCalls) {
+		t.Fatalf("repeat request: %+v %v downloads=%v", second, err, source.calls)
+	}
+	// Even a warm cache cannot bypass manifest version checks.
+	source.calls = nil
+	got, err := GetVersionedTestcase(context.Background(), root, source, "tcset-43", key, PUBLIC_ONLY)
+	if err == nil || len(got.Elements) != 0 || !reflect.DeepEqual(source.calls, []string{key}) {
+		t.Fatalf("version mismatch: %+v %v downloads=%v", got, err, source.calls)
+	}
+	delete(source.objects, key)
+	if _, err := GetVersionedTestcase(context.Background(), root, source, "tcset-42", key, PUBLIC_ONLY); err == nil {
+		t.Fatal("missing manifest must fail even with cached bundles")
+	}
 }
 
 func (s *cacheSource) OpenObject(_ context.Context, key string) (io.ReadCloser, error) {

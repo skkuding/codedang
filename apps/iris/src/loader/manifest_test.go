@@ -1,11 +1,87 @@
 package loader
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
+	"io"
 	"reflect"
 	"strings"
 	"testing"
 )
+
+func TestLoadManifest(t *testing.T) {
+	want := sampleManifest()
+	data, err := json.Marshal(want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := "testcases/tcset-42/manifest.json"
+	for _, tt := range []struct {
+		name, version string
+		data          []byte
+		valid         bool
+	}{
+		{"matching version", "tcset-42", data, true},
+		{"wrong version", "tcset-43", data, false},
+		{"invalid JSON", "tcset-42", []byte("{"), false},
+		{"invalid metadata", "tcset-42", []byte(`{"testcaseSetId":"tcset-42"}`), false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			body := &trackedBundleBody{Reader: bytes.NewReader(tt.data)}
+			calls := 0
+			source := bundleSourceFunc(func(_ context.Context, objectKey string) (io.ReadCloser, error) {
+				calls++
+				if objectKey != key {
+					t.Fatalf("unexpected object key %q", objectKey)
+				}
+				return body, nil
+			})
+			got, err := LoadManifest(context.Background(), source, key, tt.version)
+			if (err == nil) != tt.valid || !body.closed || calls != 1 {
+				t.Fatalf("valid=%t error=%v closed=%t calls=%d", tt.valid, err, body.closed, calls)
+			}
+			if tt.valid && !reflect.DeepEqual(got, &want) {
+				t.Fatalf("manifest changed: %+v", got)
+			}
+			if !tt.valid && got != nil {
+				t.Fatal("returned an invalid manifest")
+			}
+		})
+	}
+}
+
+func TestLoadManifestReadFailure(t *testing.T) {
+	failure := errors.New("remote read failed")
+	body := &trackedBundleBody{Reader: failedBundleReader{failure}}
+	source := bundleSourceFunc(func(context.Context, string) (io.ReadCloser, error) { return body, nil })
+	got, err := LoadManifest(context.Background(), source, "manifest.json", "tcset-42")
+	if !errors.Is(err, failure) || !body.closed || got != nil {
+		t.Fatalf("read failure: got=%v err=%v closed=%t", got, err, body.closed)
+	}
+	missing := bundleSourceFunc(func(context.Context, string) (io.ReadCloser, error) { return nil, failure })
+	if _, err := LoadManifest(context.Background(), missing, "manifest.json", "tcset-42"); !errors.Is(err, failure) {
+		t.Fatalf("download failure was lost: %v", err)
+	}
+}
+
+func TestLoadManifestInvalidRequest(t *testing.T) {
+	source := bundleSourceFunc(func(context.Context, string) (io.ReadCloser, error) {
+		t.Fatal("invalid request must not access source")
+		return nil, nil
+	})
+	for _, ref := range [][2]string{{"", "tcset-42"}, {"manifest.json", " "}} {
+		if _, err := LoadManifest(context.Background(), source, ref[0], ref[1]); err == nil {
+			t.Fatal("empty reference accepted")
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := LoadManifest(ctx, source, "manifest.json", "tcset-42"); !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected cancellation: %v", err)
+	}
+}
 
 func sampleManifest() Manifest {
 	return Manifest{
