@@ -115,7 +115,8 @@ func main() {
 		logProvider.Log(logger.ERROR, fmt.Sprintf("Failed to create Postgres data source: %v", err))
 		return
 	}
-	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider)
+	cacheRoot := utils.Getenv("TESTCASE_CACHE_PATH", "/cache/testcases")
+	testcaseManager := testcase.NewTestcaseManager(s3reader, database, logProvider, cacheRoot)
 
 	fileManager := file.NewFileManager(constants.RESULT_PATH)
 

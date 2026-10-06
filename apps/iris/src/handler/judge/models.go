@@ -5,12 +5,15 @@ import (
 
 	"github.com/skkuding/codedang/apps/iris/src/loader"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
+	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 )
 
 type JudgeRequest struct {
 	Code                     string               `json:"code"`
 	Language                 string               `json:"language"`
 	ProblemId                int                  `json:"problemId"`
+	TestcaseSetID            string               `json:"testcaseSetId,omitempty"`
+	ManifestKey              string               `json:"manifestKey,omitempty"`
 	TimeLimit                int                  `json:"timeLimit"`
 	MemoryLimit              int                  `json:"memoryLimit"`
 	UserTestcases            *[]loader.ElementOut `json:"userTestcases,omitempty"`
@@ -38,6 +41,9 @@ func (r JudgeRequest) Validate() (*JudgeRequest, error) {
 	}
 	if r.MemoryLimit <= 0 {
 		return nil, fmt.Errorf("memoryLimit must not be empty or less than 0")
+	}
+	if err := testcase.ValidateReference(r.TestcaseSetID, r.ManifestKey); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

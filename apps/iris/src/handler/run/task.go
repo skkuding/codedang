@@ -67,7 +67,7 @@ func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage hand
 	if validReq.UserTestcases != nil {
 		tc = testcase.Testcase{Elements: *validReq.UserTestcases}
 	} else {
-		res, err := t.tcManager.GetTestcase(ctx, strconv.Itoa(validReq.ProblemId), t.tcFilter)
+		res, err := testcase.ReadRequestedTestcase(ctx, t.tcManager, strconv.Itoa(validReq.ProblemId), validReq.TestcaseSetID, validReq.ManifestKey, t.tcFilter)
 		if err != nil {
 			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("run", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 			return
