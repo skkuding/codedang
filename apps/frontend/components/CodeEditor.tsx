@@ -1,5 +1,6 @@
 'use client'
 
+import { editorSearch } from '@/libs/editorSearch'
 import type { Language } from '@/types/type'
 import { cpp } from '@codemirror/lang-cpp'
 import { java } from '@codemirror/lang-java'
@@ -274,6 +275,7 @@ export function CodeEditor({
           theme={editorTheme}
           extensions={[
             languageParser[language](),
+            editorSearch,
             enableCopyPaste ? [] : copyPasteHandler(),
             editorPadding,
             gutterStyle,
@@ -281,7 +283,7 @@ export function CodeEditor({
             fontSizeTheme,
             ...(highlightExtension ? [highlightExtension] : [])
           ]}
-          className="h-full"
+          className="[&_.cm-panels.cm-panels-top]:border-editor-line-2 h-full [&_.cm-panels.cm-panels-top]:border-b"
           value={value}
           onChange={onChange}
           readOnly={readOnly}
