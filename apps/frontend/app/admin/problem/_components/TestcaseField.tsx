@@ -10,7 +10,7 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
-import PlusCircleWhiteIcon from '@/public/icons/plus-circle-white.svg'
+import PlusCircleIcon from '@/public/icons/plus-circle.svg'
 import SearchIcon from '@/public/icons/search.svg'
 import TrashcanIcon from '@/public/icons/trashcan-fill.svg'
 import type { ZipUploadedTestcase } from '@/types/type'
@@ -653,7 +653,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           )}
                           disabled={hasZipUploaded.sample}
                         >
-                          <PlusCircleWhiteIcon width={18} height={18} />
+                          <PlusCircleIcon className="size-[18px] text-white" />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Add
                           </span>
@@ -778,7 +778,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           )}
                           disabled={hasZipUploaded.hidden}
                         >
-                          <PlusCircleWhiteIcon width={18} height={18} />
+                          <PlusCircleIcon className="size-[18px] text-white" />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Add
                           </span>

@@ -6,10 +6,10 @@ import { Skeleton } from '@/components/shadcn/skeleton'
 import { GET_BELONGED_ASSIGNMENTS } from '@/graphql/assignment/queries'
 import { GET_BELONGED_CONTESTS } from '@/graphql/contest/queries'
 import ArrowRightIcon from '@/public/icons/arrow-right.svg'
+import FileCheckIcon from '@/public/icons/file-with-check.svg'
 import FileInfoIcon from '@/public/icons/file-with-info.svg'
 import FilePenIcon from '@/public/icons/file-with-pen.svg'
 import PrizeIcon from '@/public/icons/prize.svg'
-import TaskCompleteIcon from '@/public/icons/task-complete.svg'
 import WarningIcon from '@/public/icons/warning.svg'
 import { useQuery } from '@apollo/client'
 import Link from 'next/link'
@@ -129,7 +129,7 @@ function ExerciseProblemSection({ contents }: ProblemSectionProps) {
             >
               <div className="bg-color-neutral-99 flex items-center self-stretch rounded-[10px] px-5 py-[18px]">
                 <div className="flex items-start gap-[10px]">
-                  <TaskCompleteIcon className="h-6 w-6" />
+                  <FileCheckIcon className="text-color-neutral-70 size-6" />
 
                   <div className="flex flex-col">
                     <div className="flex items-center gap-[2px]">

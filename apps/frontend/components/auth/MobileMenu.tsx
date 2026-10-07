@@ -111,7 +111,10 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   className="block rounded-full px-4 py-3 text-[18px] hover:bg-gray-100"
                 >
                   <span className="flex items-center gap-[10px]">
-                    <SettingsIcon width={15} height={15} aria-hidden />
+                    <SettingsIcon
+                      className="text-color-neutral-80 size-4"
+                      aria-hidden
+                    />
                     <span>Setting</span>
                   </span>
                 </Link>

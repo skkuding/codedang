@@ -242,7 +242,7 @@ export function EditorMainResizablePanel({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <SyncIcon
-                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto`}
+                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto size-6 text-white`}
                           onClick={() => {
                             if (!isFrozen) {
                               triggerRefresh()
