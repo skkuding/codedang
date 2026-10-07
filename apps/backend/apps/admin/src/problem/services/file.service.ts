@@ -59,15 +59,7 @@ export class FileService {
       )
     }
 
-    // MINIO_ENDPOINT_URL is required only when accessing MINIO (stage, local)
-    // In production, use the default S3 endpoint
-    const endpoint = this.config.get<string>('MINIO_ENDPOINT_URL')
-    const bucket = this.config.get<string>('MEDIA_BUCKET_NAME')
-    const src = endpoint
-      ? `${endpoint}/${bucket}/${newFilename}`
-      : `https://${bucket}.s3.ap-northeast-2.amazonaws.com/${newFilename}`
-
-    return { src }
+    return { src: this.getFileUrl(newFilename) }
   }
 
   async deleteFile(filename: string, userId: number) {
@@ -144,5 +136,25 @@ export class FileService {
         if (!settled) onError(new Error('ERR_STREAM_PREMATURE_CLOSE'))
       })
     })
+  }
+
+  /**
+   * Returns the public URL of a media object.
+   *
+   * MEDIA_CDN_URL (e.g. https://media.codedang.com) takes precedence when set.
+   * MINIO_ENDPOINT_URL is required only when accessing MINIO (stage, local).
+   * Otherwise the default S3 endpoint is used.
+   */
+  private getFileUrl(filename: string) {
+    const cdnUrl = this.config.get<string>('MEDIA_CDN_URL')
+    if (cdnUrl) {
+      return `${cdnUrl.replace(/\/+$/, '')}/${filename}`
+    }
+
+    const endpoint = this.config.get<string>('MINIO_ENDPOINT_URL')
+    const bucket = this.config.get<string>('MEDIA_BUCKET_NAME')
+    return endpoint
+      ? `${endpoint}/${bucket}/${filename}`
+      : `https://${bucket}.s3.ap-northeast-2.amazonaws.com/${filename}`
   }
 }
