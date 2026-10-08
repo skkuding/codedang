@@ -1,6 +1,6 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { dateFormatter } from '@/libs/utils'
-import LockGrayIcon from '@/public/icons/lock-gray.svg'
+import LockIcon from '@/public/icons/lock.svg'
 import type { CourseQnaListItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -52,7 +52,9 @@ export const courseQnAColumns: ColumnDef<
 
       return (
         <div className="flex items-center gap-2">
-          {isPrivate && <LockGrayIcon className="h-4 w-4 shrink-0" />}
+          {isPrivate && (
+            <LockIcon className="text-color-neutral-60 h-4 w-4 shrink-0" />
+          )}
           <span className="max-w-[400px] truncate" title={title}>
             {title}
           </span>

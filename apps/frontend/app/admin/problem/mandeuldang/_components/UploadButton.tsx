@@ -69,7 +69,7 @@ export function UploadButton({
             </div>
             <DialogClose asChild>
               <Button type="button" variant={'ghost'} className="h-fit p-1">
-                <XIcon className="text-color-neutral-30 size-8" />
+                <XIcon className="text-color-cool-neutral-30 size-8" />
               </Button>
             </DialogClose>
           </div>

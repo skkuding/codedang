@@ -16,7 +16,7 @@ import { useSession } from '@/libs/hooks/useSession'
 import { dateFormatter } from '@/libs/utils'
 import CheckIcon from '@/public/icons/check-circle.svg'
 import ClockIcon from '@/public/icons/clock.svg'
-import LockGrayIcon from '@/public/icons/lock-gray.svg'
+import LockIcon from '@/public/icons/lock.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
 import WarningIcon from '@/public/icons/warning.svg'
@@ -159,7 +159,7 @@ function QnaDetailContent({
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2">
             {qna.isPrivate && (
-              <LockGrayIcon className="text-color-neutral-60 h-6 w-6" />
+              <LockIcon className="text-color-neutral-60 h-6 w-6" />
             )}
             <h2 className="text-head5_sb_24">{qna.title}</h2>
           </div>

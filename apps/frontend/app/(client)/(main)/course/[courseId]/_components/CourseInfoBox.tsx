@@ -37,8 +37,7 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
   return (
     <div className="flex flex-col gap-3 px-2 pt-24">
       <div className="flex gap-1">
-        <OngoingIcon width={20} height={20} />
-        {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
+        <OngoingIcon className="text-primary size-5" />
         <p className="text-primary text-sm font-semibold">
           {course && 'ONGOING'}
         </p>

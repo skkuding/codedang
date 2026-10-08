@@ -579,7 +579,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
-                <SearchIcon width={16} height={16} />
+                <SearchIcon className="text-color-neutral-90 size-4" />
                 <input
                   type="text"
                   placeholder="Search"

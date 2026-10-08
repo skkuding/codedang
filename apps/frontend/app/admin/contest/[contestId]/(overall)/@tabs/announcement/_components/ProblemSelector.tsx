@@ -37,7 +37,7 @@ export function ProblemSelector({
       <span className="text-color-neutral-40 text-body1_m_16 leading-[22.4px] tracking-[-0.48px]">
         {selectedProblem ? `${selectedProblem.label}` : 'General'}
       </span>
-      <ArrowBottomIcon width={18} />
+      <ArrowBottomIcon className="text-color-neutral-90 size-[18px]" />
     </button>
   )
 }

@@ -52,7 +52,7 @@ export function CurrentPwSection({
             {passwordShow ? (
               <VisibleIcon className="text-color-blue-60 size-6" />
             ) : (
-              <InvisibleIcon />
+              <InvisibleIcon className="size-6 text-[#333333]" />
             )}
           </span>
         </div>

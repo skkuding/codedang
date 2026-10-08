@@ -1,5 +1,5 @@
 import FileIcon from '@/public/icons/file-fill.svg'
-import GraduationIcon from '@/public/icons/graduation_blue.svg'
+import GraduationIcon from '@/public/icons/graduation.svg'
 import NotiIcon from '@/public/icons/notification.svg'
 import PrizeIcon from '@/public/icons/prize.svg'
 import Link from 'next/link'

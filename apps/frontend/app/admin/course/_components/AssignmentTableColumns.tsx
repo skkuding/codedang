@@ -89,7 +89,7 @@ function VisibleCell({ row }: { row: Row<DataTableAssignment> }) {
                   {row.original.isVisible ? (
                     <VisibleIcon className="text-color-blue-60 size-6" />
                   ) : (
-                    <InvisibleIcon />
+                    <InvisibleIcon className="size-6 text-[#333333]" />
                   )}
                 </button>
               </TooltipTrigger>

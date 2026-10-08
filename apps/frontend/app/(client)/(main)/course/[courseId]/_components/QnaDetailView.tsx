@@ -8,7 +8,7 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import ArrowLeftIcon from '@/public/icons/arrow-left.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import LockGrayIcon from '@/public/icons/lock-gray.svg'
+import LockIcon from '@/public/icons/lock.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
 import WarningIcon from '@/public/icons/warning.svg'
@@ -137,7 +137,9 @@ export function QnaDetailView() {
 
       <div className="flex flex-col gap-4 pb-8">
         <h1 className="flex items-center gap-2 text-2xl font-semibold">
-          {qna.isPrivate && <LockGrayIcon className="h-6 w-6" />}
+          {qna.isPrivate && (
+            <LockIcon className="text-color-neutral-60 h-6 w-6" />
+          )}
           {qna.title}
         </h1>
         <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">

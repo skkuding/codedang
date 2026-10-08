@@ -228,7 +228,7 @@ export function InviteManually({ courseId }: InviteManuallyProps) {
                 >
                   <SelectTrigger className="flex gap-[6px] border-none bg-transparent px-[14px] text-base focus-visible:ring-0 focus-visible:ring-offset-0">
                     <div className="flex flex-1 items-center gap-[6px]">
-                      <EmailSymbolIcon />
+                      <EmailSymbolIcon className="text-color-neutral-30 size-5" />
 
                       {selectDomain !== 'Enter directly' ? (
                         <SelectValue placeholder={ALLOWED_DOMAINS[0]} />

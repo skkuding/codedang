@@ -191,10 +191,8 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     {currentMember?.realName}({currentMember?.studentId})
                   </p>
                   <ArrowBottomIcon
-                    width={16}
-                    height={16}
                     className={cn(
-                      'transition-transform duration-200',
+                      'text-color-neutral-90 size-4 transition-transform duration-200',
                       isDropdownOpen && 'rotate-180'
                     )}
                   />
@@ -241,7 +239,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <ArrowLeftFullIcon width={16} height={16} />
+                <ArrowLeftFullIcon className="size-4 text-white" />
               </Link>
 
               <Link
@@ -254,7 +252,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <ArrowRightFullIcon width={16} height={16} />
+                <ArrowRightFullIcon className="size-4 text-white" />
               </Link>
             </div>
           </div>

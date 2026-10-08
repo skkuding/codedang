@@ -26,7 +26,7 @@ export function NotificationOptionsMenu({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger disabled={isLoading}>
-        <MoreIcon width={24} height={24} />
+        <MoreIcon className="text-color-neutral-80 size-6" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
