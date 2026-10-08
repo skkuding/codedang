@@ -147,7 +147,6 @@ export function EditorHeader({
     confettiRef.current = new JSConfetti()
     return () => {
       confettiRef.current?.destroyCanvas()
-      // Invalidate requests that outlive this editor.
       generationRef.current++
     }
   }, [])
@@ -168,9 +167,6 @@ export function EditorHeader({
         // TODO: Implement assignment submission
         const res = await fetcherWithAuth(`submission/${submissionId}`, {
           cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache'
-          },
           searchParams: {
             problemId: problem.id,
             pollingTime: Date.now(),

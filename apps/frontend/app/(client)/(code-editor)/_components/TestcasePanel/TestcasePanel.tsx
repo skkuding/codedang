@@ -43,7 +43,6 @@ export function TestcasePanel({ isContest }: TestcasePanelProps) {
   )
   const submissionStage = submissionProgress?.stage
 
-  // A submission must open its progress view even when a testcase detail is open.
   useEffect(() => {
     if (submissionStage === 'waiting') {
       setActiveTab(TESTCASE_RESULT_TAB)

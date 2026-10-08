@@ -29,7 +29,6 @@ export function getProgressValue(completed: number, total: number) {
 export function getSubmissionProgress(
   submission: ProgressResponse
 ): SubmissionProgress {
-  // The API sorts by testcase ID. Keep the same order for the failed case number.
   const testcases = [...submission.testcaseResult].sort(
     (a, b) => a.problemTestcaseId - b.problemTestcaseId
   )
@@ -42,8 +41,6 @@ export function getSubmissionProgress(
   ).length
 
   if (submission.result === 'Judging') {
-    // Judging covers both queueing and compilation. Do not guess a compile stage
-    // or advance the bar until the server reports completed testcases.
     return { stage: completed > 0 ? 'grading' : 'waiting', completed, total }
   }
 
