@@ -10,9 +10,9 @@ import {
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
 import { cn } from '@/libs/utils'
-import PlusCircleWhiteIcon from '@/public/icons/plus-circle-white.svg'
+import PlusCircleIcon from '@/public/icons/plus-circle.svg'
 import SearchIcon from '@/public/icons/search.svg'
-import TrashcanIcon from '@/public/icons/trashcan.svg'
+import TrashcanIcon from '@/public/icons/trashcan-fill.svg'
 import type { ZipUploadedTestcase } from '@/types/type'
 import type { Testcase } from '@generated/graphql'
 import {
@@ -579,7 +579,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
             </Label>
             <div className="flex w-full items-center justify-between">
               <div className="pr-25 flex w-[400px] items-center justify-start gap-2 rounded-[1000px] border border-[#D8D8D8] bg-white py-2 pl-3">
-                <SearchIcon width={16} height={16} />
+                <SearchIcon className="text-color-neutral-90 size-4" />
                 <input
                   type="text"
                   placeholder="Search"
@@ -605,7 +605,11 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <TrashcanIcon width={18} height={18} />
+                        <TrashcanIcon
+                          width={18}
+                          height={18}
+                          className="text-white"
+                        />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
@@ -649,7 +653,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           )}
                           disabled={hasZipUploaded.sample}
                         >
-                          <PlusCircleWhiteIcon width={18} height={18} />
+                          <PlusCircleIcon className="size-[18px] text-white" />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Add
                           </span>
@@ -774,7 +778,7 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                           )}
                           disabled={hasZipUploaded.hidden}
                         >
-                          <PlusCircleWhiteIcon width={18} height={18} />
+                          <PlusCircleIcon className="size-[18px] text-white" />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Add
                           </span>

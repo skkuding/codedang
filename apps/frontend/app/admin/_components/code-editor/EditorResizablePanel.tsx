@@ -25,7 +25,7 @@ import ArrowRightFullIcon from '@/public/icons/arrow-right-full.svg'
 import CheckboxIcon from '@/public/icons/check-box.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
-import TrashcanIcon from '@/public/icons/trashcan2-red.svg'
+import TrashcanIcon from '@/public/icons/trashcan.svg'
 import { useTestcaseStore } from '@/stores/testcaseStore'
 import type { Language } from '@/types/type'
 import { useQuery, useSuspenseQuery } from '@apollo/client'
@@ -191,10 +191,8 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     {currentMember?.realName}({currentMember?.studentId})
                   </p>
                   <ArrowBottomIcon
-                    width={16}
-                    height={16}
                     className={cn(
-                      'transition-transform duration-200',
+                      'text-color-neutral-90 size-4 transition-transform duration-200',
                       isDropdownOpen && 'rotate-180'
                     )}
                   />
@@ -241,7 +239,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <ArrowLeftFullIcon width={16} height={16} />
+                <ArrowLeftFullIcon className="size-4 text-white" />
               </Link>
 
               <Link
@@ -254,7 +252,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
                     'pointer-events-none opacity-40'
                 )}
               >
-                <ArrowRightFullIcon width={16} height={16} />
+                <ArrowRightFullIcon className="size-4 text-white" />
               </Link>
             </div>
           </div>
@@ -277,7 +275,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
               className="text-md bg-editor-fill-1 border-flowkit-red flex h-9 w-[86px] items-center gap-1 rounded-[4px] border py-[7px] pl-3 pr-[14px] font-normal hover:bg-[#232838]"
             >
               <span className="flex h-4 w-4 items-center justify-center">
-                <TrashcanIcon width={16} height={16} />
+                <TrashcanIcon className="text-flowkit-red size-4" />
               </span>
               <span className="text-flowkit-red translate-y-[0.5px] leading-none">
                 Reset

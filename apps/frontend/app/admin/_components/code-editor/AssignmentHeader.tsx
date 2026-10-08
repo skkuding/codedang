@@ -83,10 +83,8 @@ export function AssignmentHeader() {
           <DropdownMenuTrigger className="outline-hidden flex gap-2 text-lg text-white">
             <h1>{`${convertToLetter(currentProblem?.order ?? 0)}. ${currentProblem?.problem.title}`}</h1>
             <ArrowBottomIcon
-              width={16}
-              height={16}
               className={cn(
-                'transition-transform duration-200',
+                'text-color-neutral-90 size-4 transition-transform duration-200',
                 isDropdownOpen && 'rotate-180'
               )}
             />
