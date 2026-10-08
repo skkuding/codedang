@@ -30,11 +30,6 @@ tempo:
         forcepathstyle: true
       wal:
         path: /var/tempo/wal
-  structuredConfig:
-    ingester:
-      max_block_bytes: 104857600
-      max_block_duration: 10m
-      complete_block_timeout: 15m
   overrides:
     defaults:
       metrics_generator:
