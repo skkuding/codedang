@@ -2,7 +2,7 @@
 
 import { cn, dateFormatter } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
-import LockBlueIcon from '@/public/icons/lock_blue.svg'
+import LockIcon from '@/public/icons/lock.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import TrashcanIcon from '@/public/icons/trashcan.svg'
 import ExclamationMarkIcon from '@/public/icons/warning.svg'
@@ -178,7 +178,7 @@ export function NoticeCommentCard({
 
           {showHiddenBadge && (
             <span className="bg-color-blue-90 text-primary text-caption3_r_13 flex items-center gap-1 rounded-[4px] px-2 py-1">
-              <LockBlueIcon className="text-primary size-4" />
+              <LockIcon className="text-primary size-4" />
               Hidden
             </span>
           )}
@@ -279,7 +279,7 @@ export function NoticeCommentCard({
 
         {showHiddenBadge && (
           <span className="bg-color-blue-90 text-primary text-caption3_r_13 flex items-center gap-1 rounded-[4px] px-2 py-1">
-            <LockBlueIcon className="text-primary size-4" />
+            <LockIcon className="text-primary size-4" />
             Hidden
           </span>
         )}
