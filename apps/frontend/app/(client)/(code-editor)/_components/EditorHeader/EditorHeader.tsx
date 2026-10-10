@@ -1,6 +1,5 @@
 'use client'
 
-import { useSubmissionPolling } from '@/app/(client)/(code-editor)/_libs/hooks/useSubmissionPolling'
 import { assignmentProblemQueries } from '@/app/(client)/_libs/queries/assignmentProblem'
 import { assignmentSubmissionQueries } from '@/app/(client)/_libs/queries/assignmentSubmission'
 import { contestProblemQueries } from '@/app/(client)/_libs/queries/contestProblem'
@@ -35,27 +34,29 @@ import {
 import {
   RUN_CODE_TAB,
   useSidePanelTabStore,
-  useTestcaseTabStore
+  useTestcaseTabStore,
+  TESTCASE_RESULT_TAB
 } from '@/stores/editorTabs'
 import type {
   Language,
   ProblemDetail,
   Submission,
+  SubmissionDetail,
   Template
 } from '@/types/type'
 import { useQueryClient } from '@tanstack/react-query'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
-import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval, useKey } from 'react-use'
 import { toast } from 'sonner'
+import { getSubmissionProgress } from '../../_libs/submissionProgress'
 import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
-import { BackCautionDialog } from './BackCautionDialog'
 import { RunTestButton } from './RunTestButton'
 
 interface ProblemEditorProps {
@@ -65,6 +66,7 @@ interface ProblemEditorProps {
   exerciseId?: number
   courseId?: number
   templateString: string
+  onSubmissionStart?: () => void
 }
 
 export function EditorHeader({
@@ -73,7 +75,8 @@ export function EditorHeader({
   assignmentId,
   exerciseId,
   courseId,
-  templateString
+  templateString,
+  onSubmissionStart
 }: ProblemEditorProps) {
   const { language, setLanguage } = useLanguageStore(
     problem.id,
@@ -86,17 +89,24 @@ export function EditorHeader({
   const getCode = useCodeStore((state) => state.getCode)
 
   const isTesting = useTestPollingStore((state) => state.isTesting)
+  const setSubmissionProgress = useTestPollingStore(
+    (state) => state.setSubmissionProgress
+  )
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(language)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const loading = isTesting || isSubmitting
 
   const [submissionId, setSubmissionId] = useState<number | null>(null)
+  const pollingRequestRef = useRef(false)
+  const pollingGenerationRef = useRef(0)
+  const finishedSubmissionRef = useRef<number | null>(null)
+  const pollingFailuresRef = useRef(0)
+  const nextPollAtRef = useRef(0)
   const [templateCode, setTemplateCode] = useState<string>('')
   const [userName, setUserName] = useState('')
   const router = useRouter()
-  const pathname = usePathname()
-  const confetti = typeof window !== 'undefined' ? new JSConfetti() : null
+  const confettiRef = useRef<JSConfetti | null>(null)
   const storageKey = useRef(
     getStorageKey(
       language,
@@ -110,10 +120,6 @@ export function EditorHeader({
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
-  const [showModal, setShowModal] = useState<boolean>(false)
-  //const pushed = useRef(false)
-  const whereToPush = useRef('')
-  const isModalConfrimed = useRef(false)
 
   const queryClient = useQueryClient()
   const { startRunner } = useRunner()
@@ -123,51 +129,126 @@ export function EditorHeader({
   const { isSidePanelHidden, toggleSidePanelVisibility } =
     useSidePanelTabStore()
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  useSubmissionPolling({
-    contestId,
+  const submissionSearchParams = {
     problemId: problem.id,
-    enabled: isSubmitted
-  })
+    ...(contestId && { contestId }),
+    ...((assignmentId || exerciseId) && {
+      assignmentId: assignmentId || exerciseId
+    })
+  }
+
+  const invalidateSubmissionQueries = () => {
+    const targetAssignmentId = assignmentId || exerciseId
+    if (contestId) {
+      queryClient.invalidateQueries({
+        queryKey: contestProblemQueries.lists(contestId)
+      })
+      queryClient.invalidateQueries({
+        queryKey: contestSubmissionQueries.lists({
+          contestId,
+          problemId: problem.id
+        })
+      })
+    } else if (targetAssignmentId) {
+      queryClient.invalidateQueries({
+        queryKey: assignmentProblemQueries.lists(targetAssignmentId)
+      })
+      queryClient.invalidateQueries({
+        queryKey: assignmentSubmissionQueries.lists({
+          assignmentId: targetAssignmentId,
+          problemId: problem.id
+        })
+      })
+    } else {
+      queryClient.invalidateQueries({
+        queryKey: problemSubmissionQueries.lists(problem.id)
+      })
+    }
+  }
+
+  useEffect(() => {
+    const generationRef = pollingGenerationRef
+    confettiRef.current = new JSConfetti()
+    return () => {
+      confettiRef.current?.destroyCanvas()
+      generationRef.current++
+    }
+  }, [])
   useInterval(
     async () => {
-      // TODO: Implement assignment submission
-      const res = await fetcherWithAuth(`submission/${submissionId}`, {
-        searchParams: {
-          problemId: problem.id,
-          ...(contestId && { contestId }),
-          ...(assignmentId && { assignmentId }),
-          ...(exerciseId && { assignmentId: exerciseId })
-        }
-      })
-      if (res.ok) {
-        const submission: Submission = await res.json()
-        if (submission.result !== 'Judging') {
-          setIsSubmitting(false)
+      if (
+        submissionId === null ||
+        pollingRequestRef.current ||
+        finishedSubmissionRef.current === submissionId ||
+        Date.now() < nextPollAtRef.current
+      ) {
+        return
+      }
 
-          let href = ''
-          if (contestId) {
-            href = `/contest/${contestId}/problem/${problem.id}/submission/${submissionId}?cellProblemId=${problem.id}`
-          } else if (assignmentId) {
-            href = `/course/${courseId}/assignment/${assignmentId}/problem/${problem.id}/submission/${submissionId}`
-          } else if (exerciseId) {
-            href = `/course/${courseId}/exercise/${exerciseId}/problem/${problem.id}/submission/${submissionId}`
-          } else {
-            href = `/problem/${problem.id}/submission/${submissionId}`
+      const generation = pollingGenerationRef.current
+      pollingRequestRef.current = true
+      try {
+        const res = await fetcherWithAuth(`submission/${submissionId}`, {
+          cache: 'no-store',
+          searchParams: {
+            ...submissionSearchParams,
+            pollingTime: Date.now()
           }
+        })
+        if (!res.ok) {
+          throw new Error(`Submission status request failed: ${res.status}`)
+        }
 
-          !contestId && router.replace(href as Route)
-          //window.history.pushState(null, '', window.location.href)
+        const submission: SubmissionDetail = await res.json()
+        if (generation !== pollingGenerationRef.current) {
+          return
+        }
+
+        pollingFailuresRef.current = 0
+        nextPollAtRef.current = 0
+        const progress = getSubmissionProgress(submission)
+        setSubmissionProgress(progress)
+
+        if (progress.stage === 'finished') {
+          finishedSubmissionRef.current = submissionId
+          setIsSubmitting(false)
+          invalidateSubmissionQueries()
           if (submission.result === 'Accepted') {
-            confetti?.addConfetti()
+            confettiRef.current?.addConfetti()
           }
           if (isSidePanelHidden) {
             toggleSidePanelVisibility()
           }
         }
-      } else {
-        setIsSubmitting(false)
-        toast.error('Please try again later.')
+      } catch {
+        if (generation !== pollingGenerationRef.current) {
+          return
+        }
+
+        pollingFailuresRef.current++
+        nextPollAtRef.current =
+          Date.now() +
+          Math.min(
+            1000 * 2 ** Math.min(pollingFailuresRef.current - 1, 4),
+            10000
+          )
+        if (pollingFailuresRef.current >= 5) {
+          setIsSubmitting(false)
+          setSubmissionProgress({
+            stage: 'error',
+            completed: 0,
+            total: 0,
+            message:
+              '채점 상태를 확인하지 못했습니다. 제출 내역에서 결과를 확인해 주세요.'
+          })
+        }
+        if (pollingFailuresRef.current === 1) {
+          toast.error('Unable to check submission status. Retrying...')
+        }
+      } finally {
+        if (generation === pollingGenerationRef.current) {
+          pollingRequestRef.current = false
+        }
       }
     },
     isSubmitting && submissionId ? 500 : null
@@ -195,7 +276,7 @@ export function EditorHeader({
       return
     }
     setTemplateCode(filteredTemplate[0].code[0].text)
-  }, [language])
+  }, [language, templateString])
 
   useEffect(() => {
     storageKey.current = getStorageKey(
@@ -217,7 +298,8 @@ export function EditorHeader({
     assignmentId,
     exerciseId,
     language,
-    templateCode
+    templateCode,
+    setCode
   ])
 
   const storeCodeToLocalStorage = (code: string) => {
@@ -242,6 +324,9 @@ export function EditorHeader({
   }
 
   const submit = async () => {
+    if (loading) {
+      return
+    }
     const code = getCode()
 
     if (session === null) {
@@ -255,81 +340,71 @@ export function EditorHeader({
       return
     }
 
+    const generation = ++pollingGenerationRef.current
+    pollingRequestRef.current = false
+    finishedSubmissionRef.current = null
+    pollingFailuresRef.current = 0
+    nextPollAtRef.current = 0
     setSubmissionId(null)
     setIsSubmitting(true)
-    const res = await fetcherWithAuth.post('submission', {
-      json: {
-        language,
-        code: [
-          {
-            id: 1,
-            text: code,
-            locked: false
-          }
-        ]
-      },
-      searchParams: {
-        problemId: problem.id,
-        ...(contestId && { contestId }),
-        ...(assignmentId && { assignmentId }),
-        ...(exerciseId && { assignmentId: exerciseId })
-      },
-      next: {
-        revalidate: 0
+    onSubmissionStart?.()
+    setActiveTestcaseTab(TESTCASE_RESULT_TAB)
+    setSubmissionProgress({ stage: 'waiting', completed: 0, total: 0 })
+    try {
+      const res = await fetcherWithAuth.post('submission', {
+        json: {
+          language,
+          code: [
+            {
+              id: 1,
+              text: code,
+              locked: false
+            }
+          ]
+        },
+        searchParams: submissionSearchParams,
+        next: {
+          revalidate: 0
+        }
+      })
+      if (generation !== pollingGenerationRef.current) {
+        return
       }
-    })
-    if (res.ok) {
-      toast.success('Successfully submitted the code')
-      storeCodeToLocalStorage(code)
-      const submission: Submission = await res.json()
+      if (res.ok) {
+        toast.success('Successfully submitted the code')
+        storeCodeToLocalStorage(code)
+        const submission: Submission = await res.json()
 
-      setSubmissionId(submission.id)
-      if (contestId) {
-        queryClient.invalidateQueries({
-          queryKey: contestProblemQueries.lists(contestId)
-        })
-        queryClient.invalidateQueries({
-          queryKey: contestSubmissionQueries.lists({
-            contestId,
-            problemId: problem.id
-          })
-        })
-        setIsSubmitted(true)
-      } else if (assignmentId) {
-        queryClient.invalidateQueries({
-          queryKey: assignmentProblemQueries.lists(assignmentId)
-        })
-        queryClient.invalidateQueries({
-          queryKey: assignmentSubmissionQueries.lists({
-            assignmentId,
-            problemId: problem.id
-          })
-        })
-      } else if (exerciseId) {
-        queryClient.invalidateQueries({
-          queryKey: assignmentProblemQueries.lists(exerciseId)
-        })
-        queryClient.invalidateQueries({
-          queryKey: assignmentSubmissionQueries.lists({
-            assignmentId: exerciseId,
-            problemId: problem.id
-          })
-        })
+        if (generation !== pollingGenerationRef.current) {
+          return
+        }
+        setSubmissionId(submission.id)
+        invalidateSubmissionQueries()
       } else {
-        queryClient.invalidateQueries({
-          queryKey: problemSubmissionQueries.lists(problem.id)
-        })
+        setIsSubmitting(false)
+        setSubmissionProgress(null)
+        if (res.status === 401) {
+          showSignIn()
+          toast.error('Log in first to submit your code')
+        } else if (res.status === 404) {
+          toast.error('Submission period has ended.')
+        } else {
+          toast.error('Please try again later.')
+        }
       }
-    } else {
+    } catch {
+      if (generation !== pollingGenerationRef.current) {
+        return
+      }
       setIsSubmitting(false)
-      if (res.status === 401) {
-        showSignIn()
-        toast.error('Log in first to submit your code')
-      } else if (res.status === 404) {
-        toast.error('Submission period has ended.')
-      } else {
-        toast.error('Please try again later.')
-      }
+      setSubmissionProgress({
+        stage: 'error',
+        completed: 0,
+        total: 0,
+        message:
+          '제출 요청에 실패했습니다. 제출 내역을 확인한 뒤 다시 시도해 주세요.'
+      })
+      toast.error('Please try again later.')
     }
   }
 
@@ -357,7 +432,7 @@ export function EditorHeader({
     }
   }
 
-  const checkSaved = () => {
+  const checkSaved = useCallback(() => {
     const code = getCode()
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
@@ -370,47 +445,19 @@ export function EditorHeader({
       }
     }
     return true
-  }
-
-  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-    if (!checkSaved()) {
-      e.preventDefault()
-      whereToPush.current = pathname
-    }
-  }
+  }, [getCode, templateCode])
 
   useEffect(() => {
-    storageKey.current = getStorageKey(
-      language,
-      problem.id,
-      userName,
-      contestId,
-      assignmentId,
-      exerciseId
-    )
-
-    // TODO: 배포 후 뒤로 가기 로직 재구현
-
-    // const handlePopState = () => {
-    //   if (!checkSaved()) {
-    //     whereToPush.current = contestId
-    //       ? `/contest/${contestId}/problem`
-    //       : '/problem'
-    //     setShowModal(true)
-    //   } else window.history.back()
-    // }
-    // if (!pushed.current) {
-    //   window.history.pushState(null, '', window.location.href)
-    //   pushed.current = true
-    // }
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!checkSaved()) {
+        event.preventDefault()
+      }
+    }
     window.addEventListener('beforeunload', handleBeforeUnload)
-    //window.addEventListener('popstate', handlePopState)
-
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
-      //window.removeEventListener('popstate', handlePopState)
     }
-  }, [])
+  }, [checkSaved])
 
   useEffect(() => {
     const originalPush = router.push
@@ -424,11 +471,10 @@ export function EditorHeader({
         return
       }
 
-      if (checkSaved() || isModalConfrimed.current) {
+      if (checkSaved()) {
         originalPush(href, ...args)
         return
       }
-      isModalConfrimed.current = false
       const isConfirmed = window.confirm(
         'Are you sure you want to leave this page? Changes you made may not be saved.'
       )
@@ -440,7 +486,7 @@ export function EditorHeader({
     return () => {
       router.push = originalPush
     }
-  }, [router])
+  }, [router, checkSaved])
 
   useKey(
     's',
@@ -488,12 +534,12 @@ export function EditorHeader({
     <div className="bg-editor-background-2 flex shrink-0 items-center justify-between border-b border-b-slate-700 px-6">
       <div>
         <Select onValueChange={handleLanguageChange} value={language}>
-          <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
+          <SelectTrigger className="h-8 max-w-fit min-w-[86px] shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0 focus:outline-hidden">
             <p className="px-1">
               <SelectValue />
             </p>
           </SelectTrigger>
-          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
+          <SelectContent className="mt-3 max-w-fit min-w-[100px] border-none bg-[#4C5565] p-0 font-mono">
             <SelectGroup className="text-white">
               {problem.languages.map((language) => (
                 <SelectItem
@@ -551,7 +597,7 @@ export function EditorHeader({
         <TooltipProvider>
           {contestId === undefined && (
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   size="editor"
                   variant="editor"
@@ -569,7 +615,7 @@ export function EditorHeader({
           )}
 
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 size="editor"
                 variant="editor"
@@ -594,7 +640,7 @@ export function EditorHeader({
           />
 
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button
                 size="editor"
                 variant="editor"
@@ -617,14 +663,6 @@ export function EditorHeader({
           </Tooltip>
         </TooltipProvider>
       </div>
-      <BackCautionDialog
-        confrim={isModalConfrimed}
-        isOpen={showModal}
-        title="Leave this page?"
-        description="Changes you made my not be saved."
-        onClose={() => setShowModal(false)}
-        onBack={() => router.push(whereToPush.current as Route)}
-      />
     </div>
   )
 }
