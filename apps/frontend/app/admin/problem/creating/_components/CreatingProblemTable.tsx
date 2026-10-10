@@ -4,13 +4,12 @@ import { Language, Level } from '@generated/graphql'
 import {
   DataTable,
   DataTableFallback,
-  DataTableLangFilter,
-  DataTableLevelFilter,
   DataTablePagination,
-  DataTableRoot,
-  DataTableSearchBar
+  DataTableRoot
 } from '../../../_components/table'
+import { ProblemFilterSync } from '../../_components/ProblemFilterSync'
 import { ProblemsDownload } from '../../_components/ProblemsDownload'
+import { SearchInputSync } from '../../_components/SearchInputSync'
 import { columns } from './CreatingProblemTableColumns'
 
 export function SharedProblemTable() {
@@ -49,25 +48,29 @@ export function SharedProblemTable() {
     <DataTableRoot
       data={problems}
       columns={columns}
+      className="contents space-y-0"
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
-      <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" sizeVariant="sm" />
-        <DataTableLangFilter />
-        <DataTableLevelFilter />
-        <div className="ml-auto flex gap-2">
-          <ProblemsDownload />
-        </div>
+      <SearchInputSync />
+      <ProblemFilterSync />
+      <div className="ml-auto flex gap-2">
+        <ProblemsDownload />
       </div>
-      <DataTable
-        getHref={(data) => `/admin/problem/${data.id}`}
-        bodyStyle={bodyStyle}
-      />
-      <DataTablePagination showSelection />
+      <div className="w-full space-y-4">
+        <DataTable
+          getHref={(data) => `/admin/problem/${data.id}`}
+          bodyStyle={bodyStyle}
+        />
+        <DataTablePagination showSelection />
+      </div>
     </DataTableRoot>
   )
 }
 
 export function SharedProblemTableFallback() {
-  return <DataTableFallback columns={columns} />
+  return (
+    <div className="w-full">
+      <DataTableFallback columns={columns} withSearchBar={false} />
+    </div>
+  )
 }
