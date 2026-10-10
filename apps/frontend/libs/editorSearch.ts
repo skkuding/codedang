@@ -82,5 +82,5 @@ function createSearchPanel(view: EditorView): Panel {
 }
 
 export const editorSearch = [
-  search({ top: true, literal: true, createPanel: createSearchPanel })
+  search({ literal: true, createPanel: createSearchPanel })
 ]

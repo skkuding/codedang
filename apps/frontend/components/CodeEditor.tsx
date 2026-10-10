@@ -283,7 +283,7 @@ export function CodeEditor({
             fontSizeTheme,
             ...(highlightExtension ? [highlightExtension] : [])
           ]}
-          className="[&_.cm-panels.cm-panels-top]:border-editor-line-2 h-full [&_.cm-panels.cm-panels-top]:border-b"
+          className="[&_.cm-panels.cm-panels-top]:border-editor-line-2 h-full"
           value={value}
           onChange={onChange}
           readOnly={readOnly}
