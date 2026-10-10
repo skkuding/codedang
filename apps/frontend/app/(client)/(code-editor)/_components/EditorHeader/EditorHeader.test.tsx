@@ -23,7 +23,8 @@ const mocks = vi.hoisted(() => ({
   router: { push: vi.fn() },
   confetti: vi.fn(),
   destroyCanvas: vi.fn(),
-  onSubmissionStart: vi.fn()
+  onSubmissionStart: vi.fn(),
+  startRunner: vi.fn()
 }))
 
 vi.mock('@/libs/utils', async (importOriginal) => ({
@@ -32,7 +33,8 @@ vi.mock('@/libs/utils', async (importOriginal) => ({
 }))
 vi.mock('@/libs/hooks/useSession', () => ({ useSession: () => mocks.session }))
 vi.mock('next/navigation', () => ({
-  useRouter: () => mocks.router
+  useRouter: () => mocks.router,
+  usePathname: () => '/problem/1'
 }))
 vi.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ invalidateQueries: mocks.invalidate })
@@ -51,10 +53,11 @@ vi.mock('@/stores/editor', () => ({
   getCodeFromLocalStorage: () => undefined
 }))
 vi.mock('../TestcasePanel/useRunner', () => ({
-  useRunner: () => ({ startRunner: vi.fn() })
+  useRunner: () => ({ startRunner: mocks.startRunner })
 }))
 vi.mock('@/components/AlertModal', () => ({ AlertModal: () => null }))
 vi.mock('./RunTestButton', () => ({ RunTestButton: () => null }))
+vi.mock('./BackCautionDialog', () => ({ BackCautionDialog: () => null }))
 vi.mock('@/public/icons/submit.svg', () => ({ default: () => <svg /> }))
 
 function ProgressView() {
@@ -111,6 +114,22 @@ afterEach(() => {
 })
 
 describe('submission workflow', () => {
+  it('clears the previous submission result when running code', async () => {
+    mocks.get.mockResolvedValue(response('Accepted'))
+    mount()
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Submit/ }))
+      await Promise.resolve()
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500)
+    })
+    expect(screen.getByText('맞았습니다!')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /^Run$/ }))
+    expect(screen.queryByText('맞았습니다!')).toBeNull()
+    expect(mocks.startRunner).toHaveBeenCalledWith('int main() {}', 'C')
+  })
+
   it.each([
     {
       props: {},

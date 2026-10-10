@@ -84,7 +84,7 @@ export function SubmissionProgressPanel({
 
   return (
     <div
-      className="flex min-h-[292px] flex-col items-center px-6 pt-14 pb-8"
+      className="flex min-h-[292px] flex-col items-center px-6 pb-8 pt-14"
       role="status"
     >
       {!hidden && (

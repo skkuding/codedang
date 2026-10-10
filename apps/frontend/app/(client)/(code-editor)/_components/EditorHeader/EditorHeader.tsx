@@ -48,8 +48,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import JSConfetti from 'js-confetti'
 import { Save } from 'lucide-react'
 import type { Route } from 'next'
-import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { BsTrash3 } from 'react-icons/bs'
 import { IoPlayCircleOutline } from 'react-icons/io5'
 import { useInterval, useKey } from 'react-use'
@@ -57,6 +57,7 @@ import { toast } from 'sonner'
 import { getSubmissionProgress } from '../../_libs/submissionProgress'
 import { useRunner } from '../TestcasePanel/useRunner'
 import { useTestPollingStore } from '../context/TestPollingStoreProvider'
+import { BackCautionDialog } from './BackCautionDialog'
 import { RunTestButton } from './RunTestButton'
 
 interface ProblemEditorProps {
@@ -106,6 +107,7 @@ export function EditorHeader({
   const [templateCode, setTemplateCode] = useState<string>('')
   const [userName, setUserName] = useState('')
   const router = useRouter()
+  const pathname = usePathname()
   const confettiRef = useRef<JSConfetti | null>(null)
   const storageKey = useRef(
     getStorageKey(
@@ -120,6 +122,9 @@ export function EditorHeader({
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const session = useSession()
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const whereToPush = useRef('')
+  const isModalConfrimed = useRef(false)
 
   const queryClient = useQueryClient()
   const { startRunner } = useRunner()
@@ -276,7 +281,7 @@ export function EditorHeader({
       return
     }
     setTemplateCode(filteredTemplate[0].code[0].text)
-  }, [language, templateString])
+  }, [language])
 
   useEffect(() => {
     storageKey.current = getStorageKey(
@@ -298,8 +303,7 @@ export function EditorHeader({
     assignmentId,
     exerciseId,
     language,
-    templateCode,
-    setCode
+    templateCode
   ])
 
   const storeCodeToLocalStorage = (code: string) => {
@@ -319,6 +323,7 @@ export function EditorHeader({
     }
 
     setActiveTestcaseTab(RUN_CODE_TAB)
+    setSubmissionProgress(null)
     storeCodeToLocalStorage(code)
     startRunner(code, language)
   }
@@ -432,7 +437,7 @@ export function EditorHeader({
     }
   }
 
-  const checkSaved = useCallback(() => {
+  const checkSaved = () => {
     const code = getCode()
     if (storageKey.current !== undefined) {
       const storedCode = getCodeFromLocalStorage(storageKey.current)
@@ -445,19 +450,32 @@ export function EditorHeader({
       }
     }
     return true
-  }, [getCode, templateCode])
+  }
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (!checkSaved()) {
+      e.preventDefault()
+      whereToPush.current = pathname
+    }
+  }
 
   useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!checkSaved()) {
-        event.preventDefault()
-      }
-    }
+    storageKey.current = getStorageKey(
+      language,
+      problem.id,
+      userName,
+      contestId,
+      assignmentId,
+      exerciseId
+    )
+
+    // TODO: 배포 후 뒤로 가기 로직 재구현
+
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [checkSaved])
+  }, [])
 
   useEffect(() => {
     const originalPush = router.push
@@ -471,10 +489,11 @@ export function EditorHeader({
         return
       }
 
-      if (checkSaved()) {
+      if (checkSaved() || isModalConfrimed.current) {
         originalPush(href, ...args)
         return
       }
+      isModalConfrimed.current = false
       const isConfirmed = window.confirm(
         'Are you sure you want to leave this page? Changes you made may not be saved.'
       )
@@ -486,7 +505,7 @@ export function EditorHeader({
     return () => {
       router.push = originalPush
     }
-  }, [router, checkSaved])
+  }, [router])
 
   useKey(
     's',
@@ -534,12 +553,12 @@ export function EditorHeader({
     <div className="bg-editor-background-2 flex shrink-0 items-center justify-between border-b border-b-slate-700 px-6">
       <div>
         <Select onValueChange={handleLanguageChange} value={language}>
-          <SelectTrigger className="h-8 max-w-fit min-w-[86px] shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0 focus:outline-hidden">
+          <SelectTrigger className="focus:outline-hidden h-8 min-w-[86px] max-w-fit shrink-0 rounded-[4px] border-none bg-slate-600 px-2 font-mono hover:bg-slate-700 focus:ring-0 focus:ring-offset-0">
             <p className="px-1">
               <SelectValue />
             </p>
           </SelectTrigger>
-          <SelectContent className="mt-3 max-w-fit min-w-[100px] border-none bg-[#4C5565] p-0 font-mono">
+          <SelectContent className="mt-3 min-w-[100px] max-w-fit border-none bg-[#4C5565] p-0 font-mono">
             <SelectGroup className="text-white">
               {problem.languages.map((language) => (
                 <SelectItem
@@ -663,6 +682,14 @@ export function EditorHeader({
           </Tooltip>
         </TooltipProvider>
       </div>
+      <BackCautionDialog
+        confrim={isModalConfrimed}
+        isOpen={showModal}
+        title="Leave this page?"
+        description="Changes you made my not be saved."
+        onClose={() => setShowModal(false)}
+        onBack={() => router.push(whereToPush.current as Route)}
+      />
     </div>
   )
 }
