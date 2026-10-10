@@ -1,6 +1,7 @@
 'use client'
 
 import { Progress } from '@/components/shadcn/progress'
+import Image from 'next/image'
 import {
   getProgressValue,
   getSubmissionResultLabel,
@@ -14,45 +15,21 @@ export function SubmissionProgressPanel({
 }: {
   progress: SubmissionProgress
 }) {
-  if (progress.stage === 'waiting' || progress.stage === 'compiling') {
-    const compiling = progress.stage === 'compiling'
+  if (progress.stage === 'waiting') {
     return (
       <div
         className="flex min-h-[292px] flex-col items-center pt-[102px]"
         role="status"
       >
-        {compiling ? (
-          <div
-            className="relative mt-[5px] size-9 -translate-x-1 motion-safe:animate-spin"
-            aria-hidden
-          >
-            <img
-              src={`${assetPath}/compiling.png`}
-              width={36}
-              height={36}
-              alt=""
-            />
-            <img
-              className="absolute bottom-0 left-[15px]"
-              src={`${assetPath}/compiling-dot.svg`}
-              width={6}
-              height={6}
-              alt=""
-            />
-          </div>
-        ) : (
-          <img
-            className="-translate-x-1 motion-safe:animate-pulse"
-            src={`${assetPath}/waiting.svg`}
-            width={64}
-            height={64}
-            alt=""
-          />
-        )}
-        <p
-          className={`text-body1_m_16 text-color-neutral-80 ${compiling ? 'mt-4' : '-mt-[9px]'}`}
-        >
-          {compiling ? '컴파일 중...' : '채점 대기 중...'}
+        <Image
+          className="-translate-x-1 motion-safe:animate-pulse"
+          src={`${assetPath}/waiting.svg`}
+          width={64}
+          height={64}
+          alt=""
+        />
+        <p className="text-body1_m_16 text-color-neutral-80 -mt-[9px]">
+          채점 대기 중...
         </p>
       </div>
     )
@@ -107,11 +84,11 @@ export function SubmissionProgressPanel({
 
   return (
     <div
-      className="flex min-h-[292px] flex-col items-center px-6 pb-8 pt-14"
+      className="flex min-h-[292px] flex-col items-center px-6 pt-14 pb-8"
       role="status"
     >
       {!hidden && (
-        <img
+        <Image
           src={`${assetPath}/${accepted ? 'accepted' : 'wrong-answer'}.svg`}
           width={48}
           height={48}
@@ -127,15 +104,7 @@ export function SubmissionProgressPanel({
             label={accepted ? '실행시간' : '실패 케이스'}
             value={accepted ? runtime : failedCase}
           />
-          <div className="relative h-20 w-0.5 shrink-0" aria-hidden>
-            <img
-              className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 rotate-90"
-              src={`${assetPath}/divider.svg`}
-              width={80}
-              height={2}
-              alt=""
-            />
-          </div>
+          <div className="h-20 w-0.5 shrink-0 bg-[#484C4D]" aria-hidden />
           <ResultMetric
             label={accepted ? '메모리' : '실행시간'}
             value={accepted ? memory : runtime}

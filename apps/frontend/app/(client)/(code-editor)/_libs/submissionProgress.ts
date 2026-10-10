@@ -1,7 +1,7 @@
 import type { SubmissionDetail } from '@/types/type'
 
 export interface SubmissionProgress {
-  stage: 'waiting' | 'compiling' | 'grading' | 'finished' | 'error'
+  stage: 'waiting' | 'grading' | 'finished' | 'error'
   completed: number
   total: number
   result?: string

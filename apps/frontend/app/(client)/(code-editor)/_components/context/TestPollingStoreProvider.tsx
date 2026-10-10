@@ -22,8 +22,7 @@ const createTestPollingStore = () =>
     nonUserPollingEnabled: false,
     userPollingEnabled: false,
     submissionProgress: null,
-    setSubmissionProgress: (submissionProgress) =>
-      set((state) => ({ ...state, submissionProgress })),
+    setSubmissionProgress: (submissionProgress) => set({ submissionProgress }),
     startPolling: () => {
       set((state) => ({
         ...state,

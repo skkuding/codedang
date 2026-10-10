@@ -5,20 +5,14 @@ import { SubmissionProgressPanel } from './SubmissionProgressPanel'
 afterEach(cleanup)
 
 describe('SubmissionProgressPanel', () => {
-  it('shows waiting and compilation without a determinate bar', () => {
-    const { rerender } = render(
+  it('shows waiting without a determinate bar', () => {
+    render(
       <SubmissionProgressPanel
         progress={{ stage: 'waiting', completed: 0, total: 200 }}
       />
     )
     expect(screen.getByText('채점 대기 중...')).toBeTruthy()
     expect(screen.queryByRole('progressbar')).toBeNull()
-    rerender(
-      <SubmissionProgressPanel
-        progress={{ stage: 'compiling', completed: 0, total: 200 }}
-      />
-    )
-    expect(screen.getByText('컴파일 중...')).toBeTruthy()
   })
 
   it('uses the same percentage for the text, fill and accessible value', () => {
