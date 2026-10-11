@@ -8,13 +8,13 @@ import {
 } from '@/components/Icons'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
+import { hasContestAdminRole } from '@/libs/contestRole'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import PenIcon from '@/public/icons/pen.svg'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
 import { useQuery } from '@apollo/client'
-import { ContestRole, type UserContest } from '@generated/graphql'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
@@ -146,17 +146,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
 
     async function fetchContestRoles() {
       try {
-        const response: UserContest[] = await safeFetcherWithAuth
-          .get('contest/role')
-          .json()
-
-        const hasPermission = response.some((userContest) => {
-          return (
-            userContest.role !== ContestRole.Participant &&
-            userContest.role !== ContestRole.Reviewer
-          )
-        })
-        setHasAnyPermissionOnContest(hasPermission)
+        setHasAnyPermissionOnContest(await hasContestAdminRole())
       } catch (error) {
         console.error('Error fetching contest roles:', error)
       }
