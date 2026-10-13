@@ -32,10 +32,10 @@ export function SubmissionPaginatedTable({
   contestId: number
 }) {
   const refreshTrigger = useSubmissionSync((state) => state.refreshTrigger)
+  const queryClient = useQueryClient()
   const [queryParams] = useState({
     take: getTakeQueryParam({ itemsPerPage })
   })
-  const queryClient = useQueryClient()
   const problemIdList = useSuspenseQuery({
     queryKey: ['Contest Problem', contestId],
     queryFn: async () => {
@@ -53,7 +53,6 @@ export function SubmissionPaginatedTable({
   })
 
   useEffect(() => {
-    console.log(contestId, refreshTrigger)
     queryClient.invalidateQueries({
       queryKey: ['Contest Problem', contestId]
     })
