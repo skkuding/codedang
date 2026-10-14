@@ -53,7 +53,7 @@ export function SubmissionPaginatedTable({
   })
 
   useEffect(() => {
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: ['Contest Problem', contestId]
     })
   }, [refreshTrigger, contestId, queryClient])
