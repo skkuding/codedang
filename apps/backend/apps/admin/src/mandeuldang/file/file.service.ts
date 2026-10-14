@@ -1,10 +1,5 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
-import {
-  CollaboratorRole,
-  CollaboratorStatus,
-  Role,
-  ToolType
-} from '@prisma/client'
+import { Injectable } from '@nestjs/common'
+import { ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import { extname } from 'path'
 import { UnprocessableDataException } from '@libs/exception'
@@ -21,57 +16,11 @@ export class FileService {
     private readonly storageService: StorageService
   ) {}
 
-  private async verifyToolAccess(
-    problemId: number,
-    userId: number,
-    userRole: Role
-  ): Promise<void> {
-    if (userRole !== Role.User) {
-      return
-    }
-
-    const problem = await this.prisma.problem.findUniqueOrThrow({
-      where: {
-        id: problemId
-      },
-      select: {
-        createdById: true,
-        mandeuldangCollaborators: {
-          where: {
-            userId,
-            status: CollaboratorStatus.Approved
-          },
-          select: {
-            role: true
-          }
-        }
-      }
-    })
-
-    const isCreator = problem.createdById === userId
-
-    const hasEditPermission = problem.mandeuldangCollaborators.some(
-      (collaborator) =>
-        collaborator.role === CollaboratorRole.Owner ||
-        collaborator.role === CollaboratorRole.Editor
-    )
-
-    if (!isCreator && !hasEditPermission) {
-      throw new ForbiddenException(
-        'You do not have permission to manage tools for this problem'
-      )
-    }
-  }
-
   async uploadMandeuldangToolFile(
     problemId: number,
     toolType: ToolType,
-    file: FileUpload,
-    userId: number,
-    userRole: Role
+    file: FileUpload
   ) {
-    await this.verifyToolAccess(problemId, userId, userRole)
-
     const { filename, createReadStream } = file
 
     if (!ALLOWED_TOOL_EXTENSIONS.some((ext) => filename.endsWith(ext))) {
@@ -114,14 +63,7 @@ export class FileService {
     return tool
   }
 
-  async deleteMandeuldangToolFile(
-    problemId: number,
-    toolType: ToolType,
-    userId: number,
-    userRole: Role
-  ) {
-    await this.verifyToolAccess(problemId, userId, userRole)
-
+  async deleteMandeuldangToolFile(problemId: number, toolType: ToolType) {
     const tool = await this.prisma.mandeuldangTool.delete({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_toolType: { problemId, toolType } }

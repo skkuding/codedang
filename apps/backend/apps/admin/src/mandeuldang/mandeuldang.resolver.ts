@@ -19,15 +19,12 @@ export class MandeuldangResolver {
     problemIdPath: 'input.problemId'
   })
   async uploadMandeuldangTool(
-    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UploadMandeuldangToolInput
   ) {
     return this.mandeuldangService.uploadMandeuldangTool(
       input.problemId,
       input.toolType,
-      await input.file,
-      req.user.id,
-      req.user.role
+      await input.file
     )
   }
 
@@ -37,16 +34,10 @@ export class MandeuldangResolver {
     problemIdPath: 'problemId'
   })
   async deleteMandeuldangTool(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('toolType', { type: () => GraphQLToolType }) toolType: ToolType
   ) {
-    return this.mandeuldangService.deleteMandeuldangTool(
-      problemId,
-      toolType,
-      req.user.id,
-      req.user.role
-    )
+    return this.mandeuldangService.deleteMandeuldangTool(problemId, toolType)
   }
 
   @Mutation(() => MandeuldangRunRequest)
