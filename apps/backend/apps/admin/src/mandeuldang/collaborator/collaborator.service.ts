@@ -7,7 +7,6 @@ import {
 } from '@prisma/client'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
   DuplicateFoundException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -68,24 +67,6 @@ export class CollaboratorService {
       throw new EntityNotExistException('MandeuldangProblem not found')
 
     const isOwner = problem.createdById === inviterId
-
-    if (!isOwner) {
-      const inviterInfo = await this.prisma.mandeuldangCollaborator.findFirst({
-        where: {
-          problemId,
-          userId: inviterId
-        },
-        select: { status: true, role: true }
-      })
-      const canInvite =
-        inviterInfo?.status === CollaboratorStatus.Approved &&
-        inviterInfo?.role === CollaboratorRole.Editor
-      if (!canInvite) {
-        throw new ForbiddenAccessException(
-          'No permission to invite collaborator'
-        )
-      }
-    }
 
     const existing = await this.prisma.mandeuldangCollaborator.findFirst({
       where: {
@@ -166,7 +147,6 @@ export class CollaboratorService {
    * 요청한 목록을 조회할 권한이 없는 경우
    */
   async getCollaboratorsByStatus(
-    userId: number,
     problemId: number,
     requestedStatus: CollaboratorStatus
   ) {
@@ -176,38 +156,6 @@ export class CollaboratorService {
     })
     if (!problem)
       throw new EntityNotExistException('MandeuldangProblem not found')
-
-    const isOwner = problem.createdById === userId
-
-    if (requestedStatus === CollaboratorStatus.Approved) {
-      // 승인된 참여자 목록: Owner 또는 승인된 Editor·Reviewer가 조회
-      if (!isOwner) {
-        const requester = await this.prisma.mandeuldangCollaborator.findFirst({
-          where: {
-            problemId,
-            userId,
-            status: CollaboratorStatus.Approved,
-            role: {
-              in: [CollaboratorRole.Editor, CollaboratorRole.Reviewer]
-            }
-          },
-          select: { id: true }
-        })
-
-        if (!requester) {
-          throw new ForbiddenAccessException(
-            'No permission to view collaborators'
-          )
-        }
-      }
-    } else {
-      // Pending·Rejected 목록: Owner만 조회
-      if (!isOwner) {
-        throw new ForbiddenAccessException(
-          'No permission to view collaborators'
-        )
-      }
-    }
 
     const collaborators = await this.prisma.mandeuldangCollaborator.findMany({
       where: {
@@ -264,11 +212,7 @@ export class CollaboratorService {
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -createdById가 해당 문제의 소유자가 아닌 경우
    */
-  async approveCollaborator(
-    createdById: number,
-    problemId: number,
-    userId: number
-  ) {
+  async approveCollaborator(problemId: number, userId: number) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
@@ -276,9 +220,6 @@ export class CollaboratorService {
     if (!problem)
       throw new EntityNotExistException('MandeuldangProblem not found')
 
-    if (problem.createdById !== createdById) {
-      throw new ForbiddenAccessException('No permission to approve/reject')
-    }
     const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
       where: { problemId, userId },
       select: { id: true, status: true }
@@ -331,21 +272,13 @@ export class CollaboratorService {
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -createdById가 해당 문제의 소유자가 아닌 경우
    */
-  async rejectCollaborator(
-    createdById: number,
-    problemId: number,
-    userId: number
-  ) {
+  async rejectCollaborator(problemId: number, userId: number) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
     })
     if (!problem)
       throw new EntityNotExistException('MandeuldangProblem not found')
-
-    if (problem.createdById !== createdById) {
-      throw new ForbiddenAccessException('No permission to approve/reject')
-    }
 
     const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({
       where: { problemId, userId },
@@ -402,7 +335,6 @@ export class CollaboratorService {
    * - 변경하려는 협업자가 승인하지 않는 경우
    */
   async updateCollaboratorRole(
-    inviterId: number,
     problemId: number,
     input: CollaboratorUpdateInput
   ) {
@@ -416,10 +348,6 @@ export class CollaboratorService {
     })
     if (!problem)
       throw new EntityNotExistException('MandeuldangProblem not found')
-
-    const isOwner = problem.createdById === inviterId
-    if (!isOwner)
-      throw new ForbiddenAccessException('No permission to update role')
 
     if (userId === problem.createdById) {
       throw new UnprocessableDataException('Cannot change the owner role')
@@ -462,11 +390,7 @@ export class CollaboratorService {
    * @throws {ForbiddenAccessException} 아래와 같은 경우 발생합니다.
    * -createdById가 해당 문제의 소유자가 아닌 경우
    */
-  async removeCollaborator(
-    createdById: number,
-    problemId: number,
-    userId: number
-  ) {
+  async removeCollaborator(problemId: number, userId: number) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: problemId, creationMode: ProblemCreationMode.Mandeuldang },
       select: { createdById: true }
@@ -476,10 +400,6 @@ export class CollaboratorService {
 
     if (userId === problem.createdById) {
       throw new UnprocessableDataException('Cannot remove the owner')
-    }
-
-    if (problem.createdById !== createdById) {
-      throw new ForbiddenAccessException('No permission to remove collaborator')
     }
 
     const collaborator = await this.prisma.mandeuldangCollaborator.findFirst({

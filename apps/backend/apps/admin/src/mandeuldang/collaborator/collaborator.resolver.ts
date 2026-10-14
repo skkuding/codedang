@@ -45,11 +45,9 @@ export class CollaboratorResolver {
     problemIdPath: 'problemId'
   })
   async getApprovedCollaborator(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
   ): Promise<CollaboratorOutput[]> {
     return await this.collaboratorService.getCollaboratorsByStatus(
-      req.user.id,
       problemId,
       CollaboratorStatus.Approved
     )
@@ -61,11 +59,9 @@ export class CollaboratorResolver {
     problemIdPath: 'problemId'
   })
   async getPendingCollaborator(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
   ): Promise<CollaboratorOutput[]> {
     return await this.collaboratorService.getCollaboratorsByStatus(
-      req.user.id,
       problemId,
       CollaboratorStatus.Pending
     )
@@ -77,15 +73,10 @@ export class CollaboratorResolver {
     problemIdPath: 'problemId'
   })
   async approveInvite(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ): Promise<CollaboratorMutationOutput> {
-    return await this.collaboratorService.approveCollaborator(
-      req.user.id,
-      problemId,
-      userId
-    )
+    return await this.collaboratorService.approveCollaborator(problemId, userId)
   }
 
   @Mutation(() => CollaboratorMutationOutput)
@@ -94,15 +85,10 @@ export class CollaboratorResolver {
     problemIdPath: 'problemId'
   })
   async rejectInvite(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ): Promise<CollaboratorMutationOutput> {
-    return await this.collaboratorService.rejectCollaborator(
-      req.user.id,
-      problemId,
-      userId
-    )
+    return await this.collaboratorService.rejectCollaborator(problemId, userId)
   }
 
   @Mutation(() => CollaboratorMutationOutput)
@@ -111,12 +97,10 @@ export class CollaboratorResolver {
     problemIdPath: 'problemId'
   })
   async updateCollaboratorRole(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('input') input: CollaboratorUpdateInput
   ): Promise<CollaboratorMutationOutput> {
     return await this.collaboratorService.updateCollaboratorRole(
-      req.user.id,
       problemId,
       input
     )
@@ -128,14 +112,9 @@ export class CollaboratorResolver {
     problemIdPath: 'problemId'
   })
   async removeCollaborator(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
     @Args('userId', { type: () => Int }, IDValidationPipe) userId: number
   ): Promise<CollaboratorMutationOutput> {
-    return await this.collaboratorService.removeCollaborator(
-      req.user.id,
-      problemId,
-      userId
-    )
+    return await this.collaboratorService.removeCollaborator(problemId, userId)
   }
 }
