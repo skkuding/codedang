@@ -1,7 +1,9 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ProblemStatus } from '@generated'
+import { CollaboratorRole } from '@prisma/client'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { UseMandeuldangRoles } from '../../auth/mandeuldang-roles.decorator'
 import { CreateMandeuldangProblemInput } from '../model/problem.input'
 import { UpdateMandeuldangProblemInput } from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
@@ -49,6 +51,14 @@ export class MandeuldangProblemResolver {
   }
 
   @Query(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [
+      CollaboratorRole.Owner,
+      CollaboratorRole.Editor,
+      CollaboratorRole.Reviewer
+    ],
+    problemIdPath: 'id'
+  })
   async getMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
@@ -72,6 +82,10 @@ export class MandeuldangProblemResolver {
   }
 
   @Mutation(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'id'
+  })
   async deleteMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
@@ -80,6 +94,10 @@ export class MandeuldangProblemResolver {
   }
 
   @Mutation(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'input.id'
+  })
   async updateMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UpdateMandeuldangProblemInput
@@ -91,6 +109,10 @@ export class MandeuldangProblemResolver {
   }
 
   @Mutation(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'id'
+  })
   async publishMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }) id: number

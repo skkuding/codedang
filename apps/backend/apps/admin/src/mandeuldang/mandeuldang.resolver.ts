@@ -1,8 +1,10 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { ToolType as GraphQLToolType } from '@generated'
 import type { ToolType } from '@prisma/client'
+import { CollaboratorRole } from '@prisma/client'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
+import { UseMandeuldangRoles } from './auth/mandeuldang-roles.decorator'
 import { MandeuldangService } from './mandeuldang.service'
 import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
@@ -12,6 +14,10 @@ export class MandeuldangResolver {
   constructor(private readonly mandeuldangService: MandeuldangService) {}
 
   @Mutation(() => MandeuldangTool)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'input.problemId'
+  })
   async uploadMandeuldangTool(
     @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UploadMandeuldangToolInput
@@ -26,6 +32,10 @@ export class MandeuldangResolver {
   }
 
   @Mutation(() => MandeuldangTool)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async deleteMandeuldangTool(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
@@ -40,6 +50,10 @@ export class MandeuldangResolver {
   }
 
   @Mutation(() => MandeuldangRunRequest)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async runGenerator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
@@ -55,6 +69,10 @@ export class MandeuldangResolver {
   }
 
   @Mutation(() => MandeuldangRunRequest)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async runValidator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number

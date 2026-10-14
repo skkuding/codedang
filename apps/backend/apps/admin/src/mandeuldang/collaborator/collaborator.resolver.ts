@@ -1,7 +1,8 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { CollaboratorStatus } from '@prisma/client'
+import { CollaboratorRole, CollaboratorStatus } from '@prisma/client'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { IDValidationPipe } from '@libs/pipe'
+import { UseMandeuldangRoles } from '../auth/mandeuldang-roles.decorator'
 import { CollaboratorService } from './collaborator.service'
 import {
   CollaboratorInput,
@@ -18,6 +19,10 @@ export class CollaboratorResolver {
   constructor(private readonly collaboratorService: CollaboratorService) {}
 
   @Mutation(() => CollaboratorMutationOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async inviteCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
@@ -31,6 +36,14 @@ export class CollaboratorResolver {
   }
 
   @Query(() => [CollaboratorOutput])
+  @UseMandeuldangRoles({
+    roles: [
+      CollaboratorRole.Owner,
+      CollaboratorRole.Editor,
+      CollaboratorRole.Reviewer
+    ],
+    problemIdPath: 'problemId'
+  })
   async getApprovedCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
@@ -43,6 +56,10 @@ export class CollaboratorResolver {
   }
 
   @Query(() => [CollaboratorOutput])
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'problemId'
+  })
   async getPendingCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number
@@ -55,6 +72,10 @@ export class CollaboratorResolver {
   }
 
   @Mutation(() => CollaboratorMutationOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'problemId'
+  })
   async approveInvite(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
@@ -68,6 +89,10 @@ export class CollaboratorResolver {
   }
 
   @Mutation(() => CollaboratorMutationOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'problemId'
+  })
   async rejectInvite(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
@@ -81,6 +106,10 @@ export class CollaboratorResolver {
   }
 
   @Mutation(() => CollaboratorMutationOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'problemId'
+  })
   async updateCollaboratorRole(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
@@ -94,6 +123,10 @@ export class CollaboratorResolver {
   }
 
   @Mutation(() => CollaboratorMutationOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'problemId'
+  })
   async removeCollaborator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }, IDValidationPipe) problemId: number,
