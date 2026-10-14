@@ -4,6 +4,7 @@ import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import type { AuthenticatedRequest } from '@libs/auth'
+import { MandeuldangRolesGuard } from '../../auth/mandeuldang-roles.guard'
 import { MandeuldangProblemService } from '../services/problem.service'
 import { MandeuldangProblemResolver } from './problem.resolver'
 
@@ -34,7 +35,10 @@ describe('MandeuldangProblemResolver', () => {
         MandeuldangProblemResolver,
         { provide: MandeuldangProblemService, useValue: problemService }
       ]
-    }).compile()
+    })
+      .overrideGuard(MandeuldangRolesGuard)
+      .useValue({ canActivate: () => true })
+      .compile()
 
     resolver = module.get<MandeuldangProblemResolver>(
       MandeuldangProblemResolver
@@ -85,30 +89,34 @@ describe('MandeuldangProblemResolver', () => {
     ).to.equal(true)
   })
 
-  it('getMandeuldangProblem delegates to the service with id, requester id, and role', async () => {
+  it('getMandeuldangProblem delegates to the service with id and requester id', async () => {
     problemService.getProblem.resolves({})
 
     await resolver.getMandeuldangProblem(req, 42)
 
-    expect(problemService.getProblem.calledOnceWith(42, 1, Role.User)).to.equal(
+    expect(problemService.getProblem.calledOnceWithExactly(42, 1)).to.equal(
       true
     )
   })
 
-  it('updateMandeuldangProblem delegates to the service with the input and requester id', async () => {
+  it('updateMandeuldangProblem delegates to the service with the input', async () => {
     problemService.updateProblem.resolves({})
     const input = { id: 42, title: 'new title' }
 
-    await resolver.updateMandeuldangProblem(req, input)
+    await resolver.updateMandeuldangProblem(input)
 
-    expect(problemService.updateProblem.calledOnceWith(input, 1)).to.equal(true)
+    expect(problemService.updateProblem.calledOnceWithExactly(input)).to.equal(
+      true
+    )
   })
 
-  it('publishMandeuldangProblem delegates to the service with the id and requester id', async () => {
+  it('publishMandeuldangProblem delegates to the service with the id', async () => {
     problemService.publishProblem.resolves({})
 
-    await resolver.publishMandeuldangProblem(req, 42)
+    await resolver.publishMandeuldangProblem(42)
 
-    expect(problemService.publishProblem.calledOnceWith(42, 1)).to.equal(true)
+    expect(problemService.publishProblem.calledOnceWithExactly(42)).to.equal(
+      true
+    )
   })
 })

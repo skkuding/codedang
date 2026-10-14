@@ -5,7 +5,6 @@ import { stub } from 'sinon'
 import {
   DuplicateFoundException,
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -89,18 +88,6 @@ describe('CollaboratorService', () => {
     expect(db.mandeuldangCollaborator.delete.called).to.equal(false)
   }
 
-  // Editor/Reviewer는 본인 권한 조회 후 초대 대상의 기존 레코드를 조회한다.
-  const setupInviter = (
-    role: CollaboratorRole,
-    status: CollaboratorStatus = CollaboratorStatus.Approved
-  ) => {
-    db.mandeuldangCollaborator.findFirst.onFirstCall().resolves({
-      id: 200,
-      role,
-      status
-    })
-  }
-
   const expectInvitationData = (
     data: Record<string, unknown>,
     inviterId: number,
@@ -135,30 +122,29 @@ describe('CollaboratorService', () => {
         name: '목록 조회',
         run: () =>
           service.getCollaboratorsByStatus(
-            ownerId,
             problemId,
             CollaboratorStatus.Approved
           )
       },
       {
         name: '승인',
-        run: () => service.approveCollaborator(ownerId, problemId, inviteeId)
+        run: () => service.approveCollaborator(problemId, inviteeId)
       },
       {
         name: '거절',
-        run: () => service.rejectCollaborator(ownerId, problemId, inviteeId)
+        run: () => service.rejectCollaborator(problemId, inviteeId)
       },
       {
         name: '역할 변경',
         run: () =>
-          service.updateCollaboratorRole(ownerId, problemId, {
+          service.updateCollaboratorRole(problemId, {
             userId: inviteeId,
             role: CollaboratorRole.Editor
           })
       },
       {
         name: '제거',
-        run: () => service.removeCollaborator(ownerId, problemId, inviteeId)
+        run: () => service.removeCollaborator(problemId, inviteeId)
       }
     ]
 
@@ -182,7 +168,7 @@ describe('CollaboratorService', () => {
     for (const role of [CollaboratorRole.Editor, CollaboratorRole.Reviewer]) {
       it(`Owner를 ${role}로 변경할 수 없다`, async () => {
         await expect(
-          service.updateCollaboratorRole(ownerId, problemId, {
+          service.updateCollaboratorRole(problemId, {
             userId: ownerId,
             role
           })
@@ -197,7 +183,7 @@ describe('CollaboratorService', () => {
 
     it('Owner를 제거할 수 없다', async () => {
       await expect(
-        service.removeCollaborator(ownerId, problemId, ownerId)
+        service.removeCollaborator(problemId, ownerId)
       ).to.be.rejectedWith(
         UnprocessableDataException,
         'Cannot remove the owner'
@@ -238,7 +224,6 @@ describe('CollaboratorService', () => {
     })
 
     it('Approved Editor 초대는 Pending으로 생성한다', async () => {
-      setupInviter(CollaboratorRole.Editor)
       db.mandeuldangCollaborator.create.resolves(collaborator)
       const startedAt = Date.now()
 
@@ -256,26 +241,6 @@ describe('CollaboratorService', () => {
         startedAt
       )
       expect(db.mandeuldangCollaborator.update.called).to.equal(false)
-    })
-
-    it('Reviewer는 초대할 수 없다', async () => {
-      setupInviter(CollaboratorRole.Reviewer)
-
-      await expect(
-        service.inviteCollaborator(reviewerId, problemId, inviteInput)
-      ).to.be.rejectedWith(ForbiddenAccessException)
-
-      expectNoWrites()
-    })
-
-    it('Pending Editor는 초대할 수 없다', async () => {
-      setupInviter(CollaboratorRole.Editor, CollaboratorStatus.Pending)
-
-      await expect(
-        service.inviteCollaborator(editorId, problemId, inviteInput)
-      ).to.be.rejectedWith(ForbiddenAccessException)
-
-      expectNoWrites()
     })
 
     it('Owner 역할로 초대할 수 없다', async () => {
@@ -330,12 +295,7 @@ describe('CollaboratorService', () => {
           approvedAt: new Date('2026-09-02T00:00:00Z')
         }
 
-        if (inviter.id === editorId) {
-          setupInviter(CollaboratorRole.Editor)
-          db.mandeuldangCollaborator.findFirst.onSecondCall().resolves(rejected)
-        } else {
-          db.mandeuldangCollaborator.findFirst.resolves(rejected)
-        }
+        db.mandeuldangCollaborator.findFirst.resolves(rejected)
 
         const saved = { ...rejected, status: inviter.status }
         db.mandeuldangCollaborator.update.resolves(saved)
@@ -404,22 +364,22 @@ describe('CollaboratorService', () => {
         ? CollaboratorStatus.Approved
         : CollaboratorStatus.Rejected
 
-      const callAction = (requesterId: number) =>
+      const callAction = () =>
         isApproval
-          ? service.approveCollaborator(requesterId, problemId, inviteeId)
-          : service.rejectCollaborator(requesterId, problemId, inviteeId)
+          ? service.approveCollaborator(problemId, inviteeId)
+          : service.rejectCollaborator(problemId, inviteeId)
 
       describe(action, () => {
         beforeEach(() => {
           db.mandeuldangCollaborator.findFirst.resolves(collaborator)
         })
 
-        it(`Owner가 Pending을 ${expectedStatus}로 변경한다`, async () => {
+        it(`Pending을 ${expectedStatus}로 변경한다`, async () => {
           const saved = { ...collaborator, status: expectedStatus }
           db.mandeuldangCollaborator.update.resolves(saved)
           const startedAt = Date.now()
 
-          const result = await callAction(ownerId)
+          const result = await callAction()
 
           expect(result).to.deep.equal(saved)
           expect(db.mandeuldangCollaborator.update.calledOnce).to.equal(true)
@@ -450,20 +410,10 @@ describe('CollaboratorService', () => {
           expect(data).not.to.have.property('createTime')
         })
 
-        it('Owner가 아닌 사용자는 처리할 수 없다', async () => {
-          await expect(callAction(editorId)).to.be.rejectedWith(
-            ForbiddenAccessException
-          )
-
-          expectNoWrites()
-        })
-
         it('문제가 없으면 실패한다', async () => {
           db.problem.findUnique.resolves(null)
 
-          await expect(callAction(ownerId)).to.be.rejectedWith(
-            EntityNotExistException
-          )
+          await expect(callAction()).to.be.rejectedWith(EntityNotExistException)
 
           expectNoWrites()
         })
@@ -471,9 +421,7 @@ describe('CollaboratorService', () => {
         it('협업자가 없으면 실패한다', async () => {
           db.mandeuldangCollaborator.findFirst.resolves(null)
 
-          await expect(callAction(ownerId)).to.be.rejectedWith(
-            EntityNotExistException
-          )
+          await expect(callAction()).to.be.rejectedWith(EntityNotExistException)
 
           expectNoWrites()
         })
@@ -488,7 +436,7 @@ describe('CollaboratorService', () => {
               status
             })
 
-            await expect(callAction(ownerId)).to.be.rejectedWith(
+            await expect(callAction()).to.be.rejectedWith(
               UnprocessableDataException
             )
 
@@ -499,7 +447,7 @@ describe('CollaboratorService', () => {
         it('갱신 중 상태가 바뀐 P2025를 변환한다', async () => {
           db.mandeuldangCollaborator.update.rejects(prismaError('P2025'))
 
-          await expect(callAction(ownerId)).to.be.rejectedWith(
+          await expect(callAction()).to.be.rejectedWith(
             UnprocessableDataException
           )
 
@@ -511,7 +459,7 @@ describe('CollaboratorService', () => {
             new Error('Unexpected database failure')
           )
 
-          await expect(callAction(ownerId)).to.be.rejectedWith(
+          await expect(callAction()).to.be.rejectedWith(
             Error,
             'Unexpected database failure'
           )
@@ -545,11 +493,7 @@ describe('CollaboratorService', () => {
         }
         db.mandeuldangCollaborator.findMany.resolves([{ user, ...metadata }])
 
-        const result = await service.getCollaboratorsByStatus(
-          ownerId,
-          problemId,
-          status
-        )
+        const result = await service.getCollaboratorsByStatus(problemId, status)
 
         expect(result).to.deep.equal([{ ...user, ...metadata }])
         expect(db.mandeuldangCollaborator.findMany.calledOnce).to.equal(true)
@@ -581,79 +525,10 @@ describe('CollaboratorService', () => {
       }
       db.mandeuldangCollaborator.findMany.resolves([{ user, ...metadata }])
       const result = await service.getCollaboratorsByStatus(
-        ownerId,
         problemId,
         CollaboratorStatus.Approved
       )
       expect(result).to.deep.equal([{ ...user, ...metadata }])
-      expectNoWrites()
-    })
-
-    for (const role of [CollaboratorRole.Editor, CollaboratorRole.Reviewer]) {
-      const requesterId =
-        role === CollaboratorRole.Editor ? editorId : reviewerId
-      it(`Approved ${role}는 활성 참여자 목록을 조회한다`, async () => {
-        // Prisma의 승인 상태·역할 필터를 만족하는 조회 결과를 모의한다.
-        db.mandeuldangCollaborator.findFirst.resolves({ id: 200 })
-        db.mandeuldangCollaborator.findMany.resolves([])
-        const result = await service.getCollaboratorsByStatus(
-          requesterId,
-          problemId,
-          CollaboratorStatus.Approved
-        )
-        expect(result).to.deep.equal([])
-        expect(db.mandeuldangCollaborator.findFirst.calledOnce).to.equal(true)
-        expect(
-          db.mandeuldangCollaborator.findFirst.firstCall.args[0].where
-        ).to.deep.equal({
-          problemId,
-          userId: requesterId,
-          status: CollaboratorStatus.Approved,
-          role: { in: [CollaboratorRole.Editor, CollaboratorRole.Reviewer] }
-        })
-        expect(db.mandeuldangCollaborator.findMany.calledOnce).to.equal(true)
-        expect(
-          db.mandeuldangCollaborator.findMany.firstCall.args[0].where
-        ).to.deep.equal({
-          problemId,
-          status: CollaboratorStatus.Approved
-        })
-        expectNoWrites()
-      })
-
-      for (const status of [
-        CollaboratorStatus.Pending,
-        CollaboratorStatus.Rejected
-      ]) {
-        it(`${role}는 ${status} 목록을 조회할 수 없다`, async () => {
-          db.mandeuldangCollaborator.findFirst.resolves({ id: 200 })
-          await expect(
-            service.getCollaboratorsByStatus(requesterId, problemId, status)
-          ).to.be.rejectedWith(ForbiddenAccessException)
-          expect(db.mandeuldangCollaborator.findMany.called).to.equal(false)
-          expectNoWrites()
-        })
-      }
-    }
-
-    it('승인된 참여자 조회 조건에 맞는 사용자가 없으면 차단한다', async () => {
-      db.mandeuldangCollaborator.findFirst.resolves(null)
-      await expect(
-        service.getCollaboratorsByStatus(
-          inviteeId,
-          problemId,
-          CollaboratorStatus.Approved
-        )
-      ).to.be.rejectedWith(ForbiddenAccessException)
-      expect(
-        db.mandeuldangCollaborator.findFirst.firstCall.args[0].where
-      ).to.deep.equal({
-        problemId,
-        userId: inviteeId,
-        status: CollaboratorStatus.Approved,
-        role: { in: [CollaboratorRole.Editor, CollaboratorRole.Reviewer] }
-      })
-      expect(db.mandeuldangCollaborator.findMany.called).to.equal(false)
       expectNoWrites()
     })
   })
@@ -683,14 +558,10 @@ describe('CollaboratorService', () => {
             ...data
           }))
 
-          const result = await service.updateCollaboratorRole(
-            ownerId,
-            problemId,
-            {
-              userId: inviteeId,
-              role
-            }
-          )
+          const result = await service.updateCollaboratorRole(problemId, {
+            userId: inviteeId,
+            role
+          })
 
           expect(result).to.deep.equal({ ...existing, role })
           expect(db.mandeuldangCollaborator.update.calledOnce).to.equal(true)
@@ -715,7 +586,7 @@ describe('CollaboratorService', () => {
         status: CollaboratorStatus.Rejected
       })
       await expect(
-        service.updateCollaboratorRole(ownerId, problemId, {
+        service.updateCollaboratorRole(problemId, {
           userId: inviteeId,
           role: CollaboratorRole.Editor
         })
@@ -726,21 +597,9 @@ describe('CollaboratorService', () => {
       expectNoWrites()
     })
 
-    for (const requesterId of [editorId, reviewerId]) {
-      it(`Owner가 아닌 사용자 ${requesterId}는 역할을 변경할 수 없다`, async () => {
-        await expect(
-          service.updateCollaboratorRole(requesterId, problemId, {
-            userId: inviteeId,
-            role: CollaboratorRole.Editor
-          })
-        ).to.be.rejectedWith(ForbiddenAccessException)
-        expectNoWrites()
-      })
-    }
-
     it('Owner 역할을 부여할 수 없다', async () => {
       await expect(
-        service.updateCollaboratorRole(ownerId, problemId, {
+        service.updateCollaboratorRole(problemId, {
           userId: inviteeId,
           role: CollaboratorRole.Owner
         })
@@ -754,7 +613,7 @@ describe('CollaboratorService', () => {
     it('대상 협업자가 없으면 변경하지 않는다', async () => {
       db.mandeuldangCollaborator.findFirst.resolves(null)
       await expect(
-        service.updateCollaboratorRole(ownerId, problemId, {
+        service.updateCollaboratorRole(problemId, {
           userId: inviteeId,
           role: CollaboratorRole.Editor
         })
@@ -767,7 +626,7 @@ describe('CollaboratorService', () => {
       db.mandeuldangCollaborator.findFirst.resolves(collaborator)
       db.mandeuldangCollaborator.update.rejects(error)
       await expect(
-        service.updateCollaboratorRole(ownerId, problemId, {
+        service.updateCollaboratorRole(problemId, {
           userId: inviteeId,
           role: CollaboratorRole.Editor
         })
