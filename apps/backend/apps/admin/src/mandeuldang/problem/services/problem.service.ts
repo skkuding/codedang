@@ -1,15 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import {
   CollaboratorRole,
   CollaboratorStatus,
   ProblemCreationMode,
-  ProblemStatus,
-  Role
+  ProblemStatus
 } from '@prisma/client'
 import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
@@ -123,14 +121,10 @@ export class MandeuldangProblemService {
   /**
    * 문제 ID로 상세 조회. Statement, 발행 가능 여부, Solution/Tool/TestFile 목록,
    * Collaborator 목록, 요청자의 역할을 한 번에 반환한다.
-   *
-   * 접근 권한: Published 문제는 (기존 Problem API와 동등하게) 누구나 조회 가능하다.
-   * 그 외(Draft/Ready)는 Owner·승인된 Collaborator·Admin/SuperAdmin만 조회할 수 있다.
    */
   async getProblem(
     id: number,
-    userId: number,
-    userRole: Role
+    userId: number
   ): Promise<MandeuldangProblemOutput> {
     const problem = await this.prisma.problem.findUnique({
       where: { id },
@@ -144,26 +138,6 @@ export class MandeuldangProblemService {
 
     if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
       throw new EntityNotExistException('MandeuldangProblem')
-    }
-
-    const myCollaborator = problem.mandeuldangCollaborators.find(
-      (collaborator) => collaborator.userId === userId
-    )
-    const isOwner = problem.createdById === userId
-    const isApprovedCollaborator =
-      myCollaborator?.status === CollaboratorStatus.Approved
-    const hasPrivilege = userRole === Role.Admin || userRole === Role.SuperAdmin
-
-    const isVisible =
-      problem.status === ProblemStatus.Published ||
-      isOwner ||
-      isApprovedCollaborator ||
-      hasPrivilege
-
-    if (!isVisible) {
-      throw new ForbiddenAccessException(
-        'Only the owner, an approved collaborator, or an admin can access a problem that is not yet published'
-      )
     }
 
     const { canPublish, missing } = await this.publishCheckService.check(
@@ -185,7 +159,7 @@ export class MandeuldangProblemService {
    *
    * 접근 권한: Owner 또는 Editor만 수정할 수 있다.
    */
-  async updateProblem(input: UpdateMandeuldangProblemInput, userId: number) {
+  async updateProblem(input: UpdateMandeuldangProblemInput) {
     const { id, title, languages, ...rest } = input
 
     const problem = await this.prisma.problem.findUnique({
@@ -194,20 +168,6 @@ export class MandeuldangProblemService {
 
     if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
       throw new EntityNotExistException('MandeuldangProblem')
-    }
-
-    // 수정 권한이 있는지 확인 (Owner, Editor만 가능)
-    const isOwner = problem.createdById === userId
-    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { problemId_userId: { problemId: id, userId } }
-    })
-    const isApprovedEditor =
-      collaborator?.status === CollaboratorStatus.Approved &&
-      (collaborator.role === CollaboratorRole.Editor ||
-        collaborator.role === CollaboratorRole.Owner)
-    if (!isOwner && !isApprovedEditor) {
-      throw new ForbiddenAccessException('Only Owner or Editor can edit')
     }
 
     // 제목은 빈 문자열일 수 없다.
@@ -281,26 +241,13 @@ export class MandeuldangProblemService {
    *
    * 접근 권한: Owner만 발행할 수 있다.
    */
-  async publishProblem(problemId: number, userId: number) {
+  async publishProblem(problemId: number) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: problemId }
     })
 
     if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
       throw new EntityNotExistException('MandeuldangProblem')
-    }
-
-    // 발행 권한이 있는지 확인 (Owner만 가능)
-    const isOwner = problem.createdById === userId
-    const collaborator = await this.prisma.mandeuldangCollaborator.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { problemId_userId: { problemId, userId } }
-    })
-    const isApprovedOwner =
-      collaborator?.status === CollaboratorStatus.Approved &&
-      collaborator.role === CollaboratorRole.Owner
-    if (!isOwner && !isApprovedOwner) {
-      throw new ForbiddenAccessException('Only Owner can publish a problem')
     }
 
     return await this.prisma.$transaction(async (tx) => {
@@ -390,26 +337,13 @@ export class MandeuldangProblemService {
    * Mandeuldang 모드의 문제만 삭제할 수 있으며,
    * 해당 문제의 Owner만 삭제할 수 있다.
    */
-  async deleteProblem(id: number, userId: number) {
-    const problem = await this.prisma.problem.findFirstOrThrow({
+  async deleteProblem(id: number) {
+    await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
         creationMode: ProblemCreationMode.Mandeuldang
-      },
-      include: {
-        mandeuldangCollaborators: {
-          where: {
-            userId,
-            role: CollaboratorRole.Owner
-          }
-        }
       }
     })
-
-    // 해당 문제의 Owner만 삭제할 수 있다.
-    if (problem.mandeuldangCollaborators.length === 0) {
-      throw new ForbiddenException('Only the owner can delete this problem')
-    }
 
     // Disable attachment deletion until the file deletion policy is defined.
     /*
