@@ -51,7 +51,7 @@ export function ContestCard({ contest }: Props) {
       <div className="mb-4 flex items-center justify-between">
         <div className="line-clamp-2 flex flex-col gap-2">
           <div className="inline-flex items-center gap-2 whitespace-nowrap text-xs text-gray-800 opacity-80">
-            <CalendarIcon width={16} height={16} />
+            <CalendarIcon className="text-primary size-4" />
             <p className="overflow-hidden text-ellipsis whitespace-pre-wrap">
               {startTime} ~ {endTime}
             </p>
