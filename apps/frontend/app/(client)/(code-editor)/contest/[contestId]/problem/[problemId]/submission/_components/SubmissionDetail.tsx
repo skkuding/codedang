@@ -27,34 +27,37 @@ export function SubmissionDetail({
     problemId: number,
     contestId: number
   ): Promise<SubmissionDetail> => {
-    const response = await fetcherWithAuth(`submission/${submissionId}`, {
+    const submissionRes = await fetcherWithAuth(`submission/${submissionId}`, {
       searchParams: { problemId, contestId }
     })
-    if (!response.ok) {
+    if (!submissionRes.ok) {
       return dataIfError
     }
 
-    return response.json<SubmissionDetail>()
+    return submissionRes.json<SubmissionDetail>()
   }
-
-  const submission: SubmissionDetail = useSuspenseQuery({
-    queryKey: ['submission detail', submissionId, problemId, contestId],
-    queryFn: () => fetchSubmission(submissionId, problemId, contestId)
-  })
 
   const fetchContestSubmission = async (
     contestId: number,
     problemId: number
   ): Promise<ContestSubmission | null> => {
-    const response = await fetcherWithAuth(`contest/${contestId}/submission`, {
-      searchParams: { problemId, take: 100 }
-    })
-    if (!response.ok) {
+    const contestSubmissionRes = await fetcherWithAuth(
+      `contest/${contestId}/submission`,
+      {
+        searchParams: { problemId, take: 100 }
+      }
+    )
+    if (!contestSubmissionRes.ok) {
       return null
     }
 
-    return response.json<ContestSubmission>()
+    return contestSubmissionRes.json<ContestSubmission>()
   }
+
+  const { data: submission } = useSuspenseQuery({
+    queryKey: ['submission detail', submissionId, problemId, contestId],
+    queryFn: () => fetchSubmission(submissionId, problemId, contestId)
+  })
 
   const contestSubmission = useSuspenseQuery({
     queryKey: ['contest submissions', contestId, problemId],
