@@ -6,6 +6,7 @@ import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { ContestSubmission, SubmissionDetail } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { IoIosLock } from 'react-icons/io'
 
 interface SubmissionDetailProps {
@@ -14,30 +15,55 @@ interface SubmissionDetailProps {
   contestId: number
   refreshTrigger: number
 }
-export async function SubmissionDetail({
+export function SubmissionDetail({
   problemId,
   submissionId,
   contestId,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   refreshTrigger // 해당 컴포넌트에서 사용하지 않는 것처럼 보이지만 refresh의 위력을 발휘하는 중입니다. 삭제하지 말아주세요 ㅠㅠ
 }: SubmissionDetailProps) {
-  const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId, contestId }
-  })
-  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-
-  const contestSubmissionRes = await fetcherWithAuth(
-    `contest/${contestId}/submission`,
-    {
-      searchParams: { problemId, take: 100 }
+  const fetchSubmission = async (
+    submissionId: number,
+    problemId: number,
+    contestId: number
+  ): Promise<SubmissionDetail> => {
+    const response = await fetcherWithAuth(`submission/${submissionId}`, {
+      searchParams: { problemId, contestId }
+    })
+    if (!response.ok) {
+      return dataIfError
     }
-  )
-  const contestSubmission: ContestSubmission | null = contestSubmissionRes.ok
-    ? await contestSubmissionRes.json()
-    : null
-  const targetSubmission = contestSubmission?.data.filter(
+
+    return response.json<SubmissionDetail>()
+  }
+
+  const submission: SubmissionDetail = useSuspenseQuery({
+    queryKey: ['submission detail', submissionId, problemId, contestId],
+    queryFn: () => fetchSubmission(submissionId, problemId, contestId)
+  })
+
+  const fetchContestSubmission = async (
+    contestId: number,
+    problemId: number
+  ): Promise<ContestSubmission | null> => {
+    const response = await fetcherWithAuth(`contest/${contestId}/submission`, {
+      searchParams: { problemId, take: 100 }
+    })
+    if (!response.ok) {
+      return null
+    }
+
+    return response.json<ContestSubmission>()
+  }
+
+  const contestSubmission = useSuspenseQuery({
+    queryKey: ['contest submissions', contestId, problemId],
+    queryFn: () => fetchContestSubmission(contestId, problemId)
+  })
+
+  const targetSubmission = contestSubmission.data?.data.find(
     (submission) => submission.id === submissionId
-  )[0]
+  )
 
   return (
     <>
