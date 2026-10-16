@@ -10,6 +10,7 @@ import {
   CollaboratorRole,
   CollaboratorStatus,
   ProblemCreationMode,
+  ProblemStatus,
   Role
 } from '@prisma/client'
 import { expect } from 'chai'
@@ -144,7 +145,8 @@ describe('MandeuldangRolesGuard', () => {
     db.mandeuldangCollaborator.findUnique.reset()
     db.problem.findUnique.resolves({
       createdById: 1,
-      creationMode: ProblemCreationMode.Mandeuldang
+      creationMode: ProblemCreationMode.Mandeuldang,
+      status: ProblemStatus.Draft
     })
     db.mandeuldangCollaborator.findUnique.resolves(null)
   })
@@ -159,9 +161,38 @@ describe('MandeuldangRolesGuard', () => {
           Reflect.getMetadata(MANDEULDANG_ROLES_KEY, route.handler)
         ).to.deep.equal({
           roles: route.roles,
-          problemIdPath: route.path
+          problemIdPath: route.path,
+          ...(route.handler ===
+          MandeuldangProblemResolver.prototype.getMandeuldangProblem
+            ? { allowPublished: true }
+            : {})
         })
       })
+
+      for (const userRole of Object.values(Role)) {
+        it(
+          'Published 문제에서 비협업자 ' + userRole + '는 상세 조회만 허용한다',
+          async () => {
+            db.problem.findUnique.resolves({
+              createdById: 1,
+              creationMode: ProblemCreationMode.Mandeuldang,
+              status: ProblemStatus.Published
+            })
+
+            const result = guard.canActivate(
+              createContext(route.handler, route.args, 2, userRole)
+            )
+            if (
+              route.handler ===
+              MandeuldangProblemResolver.prototype.getMandeuldangProblem
+            ) {
+              expect(await result).to.equal(true)
+            } else {
+              await expect(result).to.be.rejectedWith(ForbiddenException)
+            }
+          }
+        )
+      }
 
       it('Owner의 접근을 허용한다', async () => {
         expect(
@@ -216,6 +247,24 @@ describe('MandeuldangRolesGuard', () => {
   }
 
   const route = routes[0]
+  for (const userRole of Object.values(Role)) {
+    it(
+      'Ready 문제는 비협업자 ' + userRole + '의 상세 조회를 거절한다',
+      async () => {
+        db.problem.findUnique.resolves({
+          createdById: 1,
+          creationMode: ProblemCreationMode.Mandeuldang,
+          status: ProblemStatus.Ready
+        })
+        await expect(
+          guard.canActivate(
+            createContext(route.handler, route.args, 2, userRole)
+          )
+        ).to.be.rejectedWith(ForbiddenException)
+      }
+    )
+  }
+
   it('문제가 없으면 접근을 거절한다', async () => {
     db.problem.findUnique.resolves(null)
     await expect(
@@ -225,7 +274,8 @@ describe('MandeuldangRolesGuard', () => {
   it('일반 문제에는 만들당 권한을 적용하지 않는다', async () => {
     db.problem.findUnique.resolves({
       createdById: 1,
-      creationMode: ProblemCreationMode.Legacy
+      creationMode: ProblemCreationMode.Legacy,
+      status: ProblemStatus.Published
     })
     await expect(
       guard.canActivate(createContext(route.handler, route.args, 1))
@@ -252,7 +302,12 @@ describe('MandeuldangRolesGuard', () => {
       guard.canActivate(createContext(() => undefined, { id: 10 }))
     ).to.be.rejectedWith(ForbiddenException)
   })
-  it('인증된 사용자 ID가 없으면 거절한다', async () => {
+  it('Published 문제도 인증된 사용자 ID가 없으면 거절한다', async () => {
+    db.problem.findUnique.resolves({
+      createdById: 1,
+      creationMode: ProblemCreationMode.Mandeuldang,
+      status: ProblemStatus.Published
+    })
     await expect(
       guard.canActivate(createContext(route.handler, route.args, 0))
     ).to.be.rejectedWith(ForbiddenException)

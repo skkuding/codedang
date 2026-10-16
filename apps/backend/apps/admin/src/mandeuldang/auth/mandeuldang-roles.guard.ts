@@ -11,7 +11,8 @@ import { GqlExecutionContext } from '@nestjs/graphql'
 import {
   CollaboratorRole,
   CollaboratorStatus,
-  ProblemCreationMode
+  ProblemCreationMode,
+  ProblemStatus
 } from '@prisma/client'
 import type { AuthenticatedRequest } from '@libs/auth'
 import { PrismaService } from '@libs/prisma'
@@ -64,13 +65,19 @@ export class MandeuldangRolesGuard implements CanActivate {
       where: { id: problemId },
       select: {
         createdById: true,
-        creationMode: true
+        creationMode: true,
+        status: true
       }
     })
 
     // 기존 문제에 만들당 협업 권한 정책이 적용되지 않도록 제한한다.
     if (!problem || problem.creationMode !== ProblemCreationMode.Mandeuldang) {
       throw new NotFoundException('Mandeuldang problem not found')
+    }
+
+    // 공개 조회를 허용한 API에서는 Published 문제의 조회를 허용한다.
+    if (options.allowPublished && problem.status === ProblemStatus.Published) {
+      return true
     }
 
     // Owner의 접근 권한을 확인한다.
