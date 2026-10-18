@@ -134,6 +134,13 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
+    if (msg.problemId !== request.problemId) {
+      throw new UnprocessableDataException(
+        `problemId mismatch: expected ${request.problemId}, received ${msg.problemId}`
+      )
+    }
+
+    const problemId = request.problemId
     const isSuccess = msg.resultCode === 0
     const now = new Date()
 
@@ -148,7 +155,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    await this.updateLatestRuns(msg.problemId)
+    await this.updateLatestRuns(problemId)
 
     this.logger.log(
       {
@@ -174,14 +181,14 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
       const testFileData = await Promise.all(
         fileRequests.map(async ({ fileName, baseName, ext }) => {
-          const filePath = `${msg.problemId}/${fileName}`
+          const filePath = `${problemId}/${fileName}`
           const fileSize = await this.storageService.getObjectSize(
             filePath,
             'testcase'
           )
 
           return {
-            problemId: msg.problemId,
+            problemId,
             fileName,
             baseName,
             fileType: ext === 'in' ? TestFileType.IN : TestFileType.OUT,
@@ -194,7 +201,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       if (testFileData.length > 0) {
         await this.prisma.$transaction([
           this.prisma.mandeuldangTestFile.deleteMany({
-            where: { problemId: msg.problemId }
+            where: { problemId }
           }),
           this.prisma.mandeuldangTestFile.createMany({ data: testFileData })
         ])
@@ -217,6 +224,13 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
+    if (msg.problemId !== request.problemId) {
+      throw new UnprocessableDataException(
+        `problemId mismatch: expected ${request.problemId}, received ${msg.problemId}`
+      )
+    }
+
+    const problemId = request.problemId
     const isSuccess =
       msg.resultCode === 0 && msg.toolResult?.isAllValid === true
     const now = new Date()
@@ -232,7 +246,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    await this.updateLatestRuns(msg.problemId)
+    await this.updateLatestRuns(problemId)
 
     this.logger.log(
       {
