@@ -27,7 +27,7 @@ export function SideBar({
   const pathname = usePathname()
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       {navItems.map((item) => (
         <SidebarLink
           key={item.name}
@@ -54,18 +54,24 @@ function SidebarLink({ item, isActive, isExpanded }: SidebarLinkProps) {
   return (
     <Link
       href={item.path as Route}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'flex items-center px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-[#474747] hover:bg-gray-100',
-        isExpanded ? 'w-48 rounded-full' : 'rounded-xs'
+        'flex h-[46px] w-full items-center gap-2.5 px-4 py-3 transition-colors',
+        isActive
+          ? 'bg-primary text-white'
+          : 'text-color-neutral-30 hover:bg-color-neutral-99',
+        isExpanded ? 'rounded-full' : 'justify-center rounded-full px-3'
       )}
     >
       <item.icon
-        className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
+        className={cn(
+          'size-[18px] shrink-0',
+          isActive
+            ? 'fill-white text-white'
+            : 'fill-color-neutral-70 text-color-neutral-70'
+        )}
       />
-      {isExpanded && (
-        <span className="ml-3 text-sm font-normal">{item.name}</span>
-      )}
+      {isExpanded && <span className="text-sub3_sb_16">{item.name}</span>}
     </Link>
   )
 }
