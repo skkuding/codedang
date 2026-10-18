@@ -26,15 +26,17 @@ export function SubmissionDetail({
     submissionId: number,
     problemId: number,
     contestId: number
-  ): Promise<SubmissionDetail> => {
+  ): Promise<{ submission: SubmissionDetail } & { isForbidden: boolean }> => {
     const submissionRes = await fetcherWithAuth(`submission/${submissionId}`, {
       searchParams: { problemId, contestId }
     })
-    if (!submissionRes.ok) {
-      return dataIfError
-    }
 
-    return submissionRes.json<SubmissionDetail>()
+    return {
+      isForbidden: submissionRes.status === 403,
+      submission: submissionRes.ok
+        ? await submissionRes.json<SubmissionDetail>()
+        : dataIfError
+    }
   }
 
   const fetchContestSubmission = async (
@@ -54,17 +56,19 @@ export function SubmissionDetail({
     return contestSubmissionRes.json<ContestSubmission>()
   }
 
-  const { data: submission } = useSuspenseQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ['submission detail', submissionId, problemId, contestId],
     queryFn: () => fetchSubmission(submissionId, problemId, contestId)
   })
 
-  const contestSubmission = useSuspenseQuery({
+  const { submission, isForbidden } = data
+
+  const { data: contestSubmission } = useSuspenseQuery({
     queryKey: ['contest submissions', contestId, problemId],
     queryFn: () => fetchContestSubmission(contestId, problemId)
   })
 
-  const targetSubmission = contestSubmission.data?.data.find(
+  const targetSubmission = contestSubmission?.data.find(
     (submission) => submission.id === submissionId
   )
 
@@ -111,7 +115,7 @@ export function SubmissionDetail({
       </div>
       <div className="-ml-16 h-2 min-w-full bg-[#121728]" />
 
-      {res.ok ? null : (
+      {isForbidden && (
         <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
