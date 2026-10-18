@@ -12,7 +12,8 @@ import {
   CollaboratorRole,
   CollaboratorStatus,
   ProblemCreationMode,
-  ProblemStatus
+  ProblemStatus,
+  Role
 } from '@prisma/client'
 import type { AuthenticatedRequest } from '@libs/auth'
 import { PrismaService } from '@libs/prisma'
@@ -77,6 +78,14 @@ export class MandeuldangRolesGuard implements CanActivate {
 
     // 공개 조회를 허용한 API에서는 Published 문제의 조회를 허용한다.
     if (options.allowPublished && problem.status === ProblemStatus.Published) {
+      return true
+    }
+
+    // 관리자 조회를 허용한 API에서는 Admin/SuperAdmin의 조회를 허용한다.
+    if (
+      options.allowAdmin &&
+      (req.user.role === Role.Admin || req.user.role === Role.SuperAdmin)
+    ) {
       return true
     }
 

@@ -164,7 +164,7 @@ describe('MandeuldangRolesGuard', () => {
           problemIdPath: route.path,
           ...(route.handler ===
           MandeuldangProblemResolver.prototype.getMandeuldangProblem
-            ? { allowPublished: true }
+            ? { allowPublished: true, allowAdmin: true }
             : {})
         })
       })
@@ -226,12 +226,34 @@ describe('MandeuldangRolesGuard', () => {
         }
       }
 
-      for (const role of Object.values(Role)) {
-        it('협업자가 아닌 ' + role + '의 접근을 거절한다', async () => {
-          await expect(
-            guard.canActivate(createContext(route.handler, route.args, 2, role))
-          ).to.be.rejectedWith(ForbiddenException)
-        })
+      for (const status of [ProblemStatus.Draft, ProblemStatus.Ready]) {
+        for (const role of Object.values(Role)) {
+          const allowed =
+            route.handler ===
+              MandeuldangProblemResolver.prototype.getMandeuldangProblem &&
+            (role === Role.Admin || role === Role.SuperAdmin)
+          it(
+            status +
+              ' 비협업자 ' +
+              role +
+              (allowed ? ' 조회 허용' : ' 접근 거절'),
+            async () => {
+              db.problem.findUnique.resolves({
+                createdById: 1,
+                creationMode: ProblemCreationMode.Mandeuldang,
+                status
+              })
+              const result = guard.canActivate(
+                createContext(route.handler, route.args, 2, role)
+              )
+              if (allowed) {
+                expect(await result).to.equal(true)
+              } else {
+                await expect(result).to.be.rejectedWith(ForbiddenException)
+              }
+            }
+          )
+        }
       }
 
       it('생성자가 아닌 사용자의 Owner 협업 행은 인정하지 않는다', async () => {
@@ -247,22 +269,31 @@ describe('MandeuldangRolesGuard', () => {
   }
 
   const route = routes[0]
-  for (const userRole of Object.values(Role)) {
-    it(
-      'Ready 문제는 비협업자 ' + userRole + '의 상세 조회를 거절한다',
-      async () => {
-        db.problem.findUnique.resolves({
-          createdById: 1,
-          creationMode: ProblemCreationMode.Mandeuldang,
-          status: ProblemStatus.Ready
-        })
-        await expect(
-          guard.canActivate(
-            createContext(route.handler, route.args, 2, userRole)
-          )
-        ).to.be.rejectedWith(ForbiddenException)
-      }
-    )
+  for (const role of [Role.Admin, Role.SuperAdmin]) {
+    it(role + '도 존재하지 않는 문제는 조회할 수 없다', async () => {
+      db.problem.findUnique.resolves(null)
+      await expect(
+        guard.canActivate(createContext(route.handler, route.args, 2, role))
+      ).to.be.rejectedWith(NotFoundException)
+    })
+
+    it(role + '도 일반 문제는 만들당 API로 조회할 수 없다', async () => {
+      db.problem.findUnique.resolves({
+        createdById: 1,
+        creationMode: ProblemCreationMode.Legacy,
+        status: ProblemStatus.Draft
+      })
+      await expect(
+        guard.canActivate(createContext(route.handler, route.args, 2, role))
+      ).to.be.rejectedWith(NotFoundException)
+    })
+
+    it(role + '도 인증된 사용자 ID가 없으면 거절한다', async () => {
+      await expect(
+        guard.canActivate(createContext(route.handler, route.args, 0, role))
+      ).to.be.rejectedWith(ForbiddenException)
+      expect(db.problem.findUnique.called).to.equal(false)
+    })
   }
 
   it('문제가 없으면 접근을 거절한다', async () => {

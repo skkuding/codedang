@@ -190,7 +190,11 @@ async function main() {
       )
       if (address) brunoGqlUrl.hostname = address.address
     }
-    const vars = { baseUrl, gqlUrl: brunoGqlUrl.href, collabProblemId: problem.id }
+    const vars = {
+      baseUrl,
+      gqlUrl: brunoGqlUrl.href,
+      collabProblemId: problem.id
+    }
     for (const label of labels) {
       vars[`${label}UserId`] = users[label].id
       vars[`${label}Username`] = users[label].username
@@ -214,14 +218,18 @@ async function main() {
       tokens[`${label}Token`] = authorization.slice(7)
     }
     mkdirSync(resolve(output, '..'), { recursive: true })
-    writeFileSync(output, 'module.exports = ' + JSON.stringify({ ...vars, ...tokens }, null, 2) + '\n', { mode: 0o600 })
+    writeFileSync(
+      output,
+      'module.exports = ' +
+        JSON.stringify({ ...vars, ...tokens }, null, 2) +
+        '\n',
+      { mode: 0o600 }
+    )
     chmodSync(output, 0o600)
     console.log(
       'Login complete for all 6 accounts. Tokens saved to ignored collaborator.generated.js (not printed).'
     )
-    console.log(
-      'Open Codedang Admin > Mandeuldang Collaborator; choose Local.'
-    )
+    console.log('Open Codedang Admin > Mandeuldang Collaborator; choose Local.')
     console.table(
       labels.map((label) => ({
         account: users[label].username,

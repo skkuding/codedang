@@ -58,7 +58,8 @@ export class MandeuldangProblemResolver {
       CollaboratorRole.Reviewer
     ],
     problemIdPath: 'id',
-    allowPublished: true
+    allowPublished: true,
+    allowAdmin: true
   })
   async getMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
