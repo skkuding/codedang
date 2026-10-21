@@ -55,6 +55,14 @@ node --test tests/x509-distrust/node.test.mjs
 X509_DISTRUST_LIVE=1 node --test tests/x509-distrust/node.live.test.mjs
 ```
 
+## Trust-store observation (2026-10-21)
+
+Ubuntu `ca-certificates` `20260816ubuntu0.24.04.1` removes
+`emSign ECC Root CA - G3` and `AAA Certificate Services` from the bundle, but
+keeps the unrelated `emSign Root CA - C1` and `emSign ECC Root CA - C3`. A broad
+`grep emSign` therefore does not mean the image is unpatched. The shipped CD
+check asserts only the compromised G3 root and records AAA separately.
+
 ## Meaningfulness checks
 
 A passing test is only useful if the previous runtime fails it.
