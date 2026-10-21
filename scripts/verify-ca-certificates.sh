@@ -31,7 +31,8 @@ case "$family" in
     required="${3:-20261020-r0}"
     package="$(docker run --rm --entrypoint apk "$image" info -v ca-certificates)"
     installed="${package#ca-certificates-}"
-    if [[ "$(printf '%s\n%s\n' "$required" "$installed" | sort -V | head -n 1)" != "$required" ]]; then
+    comparison="$(docker run --rm --entrypoint apk "$image" version -t "$installed" "$required")"
+    if [[ "$comparison" == "<" ]]; then
       echo "::error::${image} ships ca-certificates ${installed}, need ${required} or newer" >&2
       exit 1
     fi
