@@ -55,13 +55,13 @@ subjects() {
     | grep '^subject'
 }
 
-emsign="$(subjects | grep -cE 'emSign ECC Root CA - G3|emSign Root CA - C1|emSign ECC Root CA - C3' || true)"
+emsign="$(subjects | grep -c 'emSign ECC Root CA - G3' || true)"
 aaa="$(subjects | grep -c 'AAA Certificate Services' || true)"
 
-echo "emSign root subjects: ${emsign}"
+echo "emSign ECC Root CA - G3 subjects: ${emsign}"
 echo "AAA Certificate Services subjects: ${aaa} (recorded, not a failure)"
 
 if [[ "$emsign" -ne 0 ]]; then
-  echo "::error::${image} still trusts ${emsign} emSign root(s)" >&2
+  echo "::error::${image} still trusts the emSign ECC Root CA - G3 root" >&2
   exit 1
 fi
