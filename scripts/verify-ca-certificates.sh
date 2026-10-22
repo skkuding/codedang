@@ -18,8 +18,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# The patched Ubuntu package also drops AAA Certificate Services, the anchor of
+# the Sectigo cross-sign path. Alpine's removal of it is not confirmed, so it
+# is only recorded there.
+require_aaa_absent=0
+
 case "$family" in
   ubuntu)
+    require_aaa_absent=1
     required="${3:-20260816ubuntu0.24.04.1}"
     installed="$(docker run --rm --entrypoint dpkg-query "$image" -W -f='${Version}' ca-certificates)"
     if ! dpkg --compare-versions "$installed" ge "$required"; then
@@ -59,9 +65,19 @@ emsign="$(subjects | grep -c 'emSign ECC Root CA - G3' || true)"
 aaa="$(subjects | grep -c 'AAA Certificate Services' || true)"
 
 echo "emSign ECC Root CA - G3 subjects: ${emsign}"
-echo "AAA Certificate Services subjects: ${aaa} (recorded, not a failure)"
+if [[ "$require_aaa_absent" -eq 1 ]]; then
+  echo "AAA Certificate Services subjects: ${aaa}"
+else
+  echo "AAA Certificate Services subjects: ${aaa} (recorded, not a failure for ${family})"
+fi
 
+failed=0
 if [[ "$emsign" -ne 0 ]]; then
   echo "::error::${image} still trusts the emSign ECC Root CA - G3 root" >&2
-  exit 1
+  failed=1
 fi
+if [[ "$require_aaa_absent" -eq 1 && "$aaa" -ne 0 ]]; then
+  echo "::error::${image} still trusts the AAA Certificate Services root" >&2
+  failed=1
+fi
+exit "$failed"

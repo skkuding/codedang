@@ -55,13 +55,23 @@ node --test tests/x509-distrust/node.test.mjs
 X509_DISTRUST_LIVE=1 node --test tests/x509-distrust/node.live.test.mjs
 ```
 
+The live check is a temporary rollout aid, not a required CI check. It runs
+weekly and on demand from `.github/workflows/x509-distrust-live.yml`, and
+passes only when a compromised host is rejected with `CERT_REVOKED`. Other
+certificate errors, such as an expired test leaf, are reported as
+inconclusive because an unpatched runtime raises them too. Remove the workflow
+and `node.live.test.mjs` once production is verified and n8n runs a patched
+Node, and no later than 2027-05-03, when the test leaves expire.
+
 ## Trust-store observation (2026-10-21)
 
 Ubuntu `ca-certificates` `20260816ubuntu0.24.04.1` removes
 `emSign ECC Root CA - G3` and `AAA Certificate Services` from the bundle, but
 keeps the unrelated `emSign Root CA - C1` and `emSign ECC Root CA - C3`. A broad
-`grep emSign` therefore does not mean the image is unpatched. The shipped CD
-check asserts only the compromised G3 root and records AAA separately.
+`grep emSign` therefore does not mean the image is unpatched. The CD check
+fails Ubuntu images that still contain `emSign ECC Root CA - G3` or
+`AAA Certificate Services`. For Alpine it fails only on the G3 root and
+records AAA, because Alpine's removal of AAA is not confirmed.
 
 ## Meaningfulness checks
 
@@ -72,4 +82,5 @@ A passing test is only useful if the previous runtime fails it.
   `verification succeeded with 1 chain(s)`.
 - Node: under Node 22.18.0, the live check must report `TRUSTED` for
   `dv-g3b-emudhra.we-have-a-problem.com` (and therefore fail).
-  Under 22.23.4 both compromised hosts are rejected with `CERT_REVOKED`.
+  Under 22.23.4, 24.22.1 and 26.12.1 both compromised hosts are rejected with
+  `CERT_REVOKED` (rechecked 2026-10-22).

@@ -526,41 +526,6 @@ jobs:
       - name: Test offline fixtures
         run: node --test tests/x509-distrust/node.test.mjs
 
-  test-x509-distrust-live:
-    name: Test x509 Distrust (Live, Node ${{ matrix.node-version }})
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.x509_distrust == 'true'
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: ['22.23.4', '24.22.1', '26.12.1']
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      # A DNS or connect failure is inconclusive, not a pass. The test retries
-      # network failures itself; retry the job once more for a transient reset.
-      - name: Test live handshakes
-        env:
-          X509_DISTRUST_LIVE: '1'
-        run: |
-          for attempt in 1 2; do
-            if node --test tests/x509-distrust/node.live.test.mjs; then
-              exit 0
-            fi
-            echo "::warning::live x509 distrust check failed on attempt ${attempt}"
-            sleep 5
-          done
-          exit 1
-
-
   # TODO: write smoke test for backend
   # e.g) start backend server and check if it responds to requests
   #
@@ -832,7 +797,6 @@ jobs:
       - test-runner-pod-manager
       - test-x509-distrust-go
       - test-x509-distrust-node
-      - test-x509-distrust-live
       - build-frontend
       - ansible-lint
       - check-ssh-public-keys
@@ -862,7 +826,6 @@ jobs:
             "test-runner-pod-manager:${{ needs['test-runner-pod-manager'].result }}"
             "test-x509-distrust-go:${{ needs['test-x509-distrust-go'].result }}"
             "test-x509-distrust-node:${{ needs['test-x509-distrust-node'].result }}"
-            "test-x509-distrust-live:${{ needs['test-x509-distrust-live'].result }}"
             "build-frontend:${{ needs['build-frontend'].result }}"
             "ansible-lint:${{ needs['ansible-lint'].result }}"
             "check-ssh-public-keys:${{ needs['check-ssh-public-keys'].result }}"
