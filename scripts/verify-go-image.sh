@@ -28,7 +28,7 @@ docker cp "$container:$binary" "$tmpdir/binary"
 
 got="$(go version "$tmpdir/binary" | awk '{print $2}')"
 echo "Binary $binary was built with $got"
-go version -m "$tmpdir/binary" | head -n 1
+go version -m "$tmpdir/binary" | sed -n '1p'
 
 if [[ "$(printf '%s\n%s\n' "$required" "$got" | sort -V | head -n 1)" != "$required" ]]; then
   echo "::error::${image}:${binary} was built with $got, need $required or newer" >&2

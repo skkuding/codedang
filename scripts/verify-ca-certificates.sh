@@ -55,14 +55,15 @@ echo "ca-certificates: ${installed}"
 container="$(docker create "$image")"
 docker cp "$container:/etc/ssl/certs/ca-certificates.crt" "$tmpdir/ca-certificates.crt"
 
-subjects() {
+subjects="$(
   openssl crl2pkcs7 -nocrl -certfile "$tmpdir/ca-certificates.crt" \
     | openssl pkcs7 -print_certs -noout \
     | grep '^subject'
-}
+)"
+echo "Trust store subjects: $(grep -c '' <<<"$subjects")"
 
-emsign="$(subjects | grep -c 'emSign ECC Root CA - G3' || true)"
-aaa="$(subjects | grep -c 'AAA Certificate Services' || true)"
+emsign="$(grep -c 'emSign ECC Root CA - G3' <<<"$subjects" || true)"
+aaa="$(grep -c 'AAA Certificate Services' <<<"$subjects" || true)"
 
 echo "emSign ECC Root CA - G3 subjects: ${emsign}"
 if [[ "$require_aaa_absent" -eq 1 ]]; then
