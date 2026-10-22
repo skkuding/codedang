@@ -2623,10 +2623,10 @@ type PlagiarismClusterSumAggregate {
   strength: Float
 }
 
-type PolygonApprovalRequest {
+type MandeuldangApprovalRequest {
   id: ID!
   message: String
-  problem: PolygonProblem!
+  problem: MandeuldangProblem!
   problemId: Int!
   rejectionReason: String
   requester: User!
@@ -2634,18 +2634,18 @@ type PolygonApprovalRequest {
   reviewedAt: DateTime
   reviewer: User
   reviewerId: Int
-  status: PolygonApprovalStatus!
+  status: MandeuldangApprovalStatus!
   submittedAt: DateTime!
 }
 
-type PolygonApprovalRequestAvgAggregate {
+type MandeuldangApprovalRequestAvgAggregate {
   id: Float
   problemId: Float
   requesterId: Float
   reviewerId: Float
 }
 
-type PolygonApprovalRequestCountAggregate {
+type MandeuldangApprovalRequestCountAggregate {
   _all: Int!
   id: Int!
   message: Int!
@@ -2658,7 +2658,7 @@ type PolygonApprovalRequestCountAggregate {
   submittedAt: Int!
 }
 
-type PolygonApprovalRequestMaxAggregate {
+type MandeuldangApprovalRequestMaxAggregate {
   id: Int
   message: String
   problemId: Int
@@ -2666,11 +2666,11 @@ type PolygonApprovalRequestMaxAggregate {
   requesterId: Int
   reviewedAt: DateTime
   reviewerId: Int
-  status: PolygonApprovalStatus
+  status: MandeuldangApprovalStatus
   submittedAt: DateTime
 }
 
-type PolygonApprovalRequestMinAggregate {
+type MandeuldangApprovalRequestMinAggregate {
   id: Int
   message: String
   problemId: Int
@@ -2678,27 +2678,27 @@ type PolygonApprovalRequestMinAggregate {
   requesterId: Int
   reviewedAt: DateTime
   reviewerId: Int
-  status: PolygonApprovalStatus
+  status: MandeuldangApprovalStatus
   submittedAt: DateTime
 }
 
-type PolygonApprovalRequestSumAggregate {
+type MandeuldangApprovalRequestSumAggregate {
   id: Int
   problemId: Int
   requesterId: Int
   reviewerId: Int
 }
 
-enum PolygonApprovalStatus {
+enum MandeuldangApprovalStatus {
   Approved
   Pending
   Rejected
 }
 
-type PolygonCollaborator {
+type MandeuldangCollaborator {
   createTime: DateTime!
   id: ID!
-  problem: PolygonProblem!
+  problem: MandeuldangProblem!
   problemId: Int!
   role: CollaboratorRole!
   status: CollaboratorStatus!
@@ -2706,13 +2706,13 @@ type PolygonCollaborator {
   userId: Int!
 }
 
-type PolygonCollaboratorAvgAggregate {
+type MandeuldangCollaboratorAvgAggregate {
   id: Float
   problemId: Float
   userId: Float
 }
 
-type PolygonCollaboratorCountAggregate {
+type MandeuldangCollaboratorCountAggregate {
   _all: Int!
   createTime: Int!
   id: Int!
@@ -2722,7 +2722,7 @@ type PolygonCollaboratorCountAggregate {
   userId: Int!
 }
 
-type PolygonCollaboratorMaxAggregate {
+type MandeuldangCollaboratorMaxAggregate {
   createTime: DateTime
   id: Int
   problemId: Int
@@ -2731,7 +2731,7 @@ type PolygonCollaboratorMaxAggregate {
   userId: Int
 }
 
-type PolygonCollaboratorMinAggregate {
+type MandeuldangCollaboratorMinAggregate {
   createTime: DateTime
   id: Int
   problemId: Int
@@ -2740,14 +2740,14 @@ type PolygonCollaboratorMinAggregate {
   userId: Int
 }
 
-type PolygonCollaboratorSumAggregate {
+type MandeuldangCollaboratorSumAggregate {
   id: Int
   problemId: Int
   userId: Int
 }
 
-type PolygonProblem {
-  _count: PolygonProblemCount!
+type MandeuldangProblem {
+  _count: MandeuldangProblemCount!
   createTime: DateTime!
   createdBy: User
   createdById: Int
@@ -2759,34 +2759,34 @@ type PolygonProblem {
   lastRunPass: Boolean!
   memoryLimit: Int!
   outputDescription: String!
-  polygonApprovalRequests: [PolygonApprovalRequest!]
-  polygonCollaborators: [PolygonCollaborator!]
-  polygonSamples: [PolygonSample!]
-  polygonSolution: PolygonSolution
-  polygonTestFiles: [PolygonTestFile!]
-  polygonTools: [PolygonTool!]
-  status: PolygonProblemStatus!
+  MandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
+  MandeuldangCollaborators: [MandeuldangCollaborator!]
+  MandeuldangSamples: [MandeuldangSample!]
+  MandeuldangSolution: MandeuldangSolution
+  MandeuldangTestFiles: [MandeuldangTestFile!]
+  MandeuldangTools: [MandeuldangTool!]
+  status: MandeuldangProblemStatus!
   timeLimit: Int!
   title: String!
   updateTime: DateTime!
 }
 
-type PolygonProblemAvgAggregate {
+type MandeuldangProblemAvgAggregate {
   createdById: Float
   id: Float
   memoryLimit: Float
   timeLimit: Float
 }
 
-type PolygonProblemCount {
-  polygonApprovalRequests: Int!
-  polygonCollaborators: Int!
-  polygonSamples: Int!
-  polygonTestFiles: Int!
-  polygonTools: Int!
+type MandeuldangProblemCount {
+  MandeuldangApprovalRequests: Int!
+  MandeuldangCollaborators: Int!
+  MandeuldangSamples: Int!
+  MandeuldangTestFiles: Int!
+  MandeuldangTools: Int!
 }
 
-type PolygonProblemCountAggregate {
+type MandeuldangProblemCountAggregate {
   _all: Int!
   createTime: Int!
   createdById: Int!
@@ -2804,7 +2804,7 @@ type PolygonProblemCountAggregate {
   updateTime: Int!
 }
 
-type PolygonProblemMaxAggregate {
+type MandeuldangProblemMaxAggregate {
   createTime: DateTime
   createdById: Int
   description: String
@@ -2814,13 +2814,13 @@ type PolygonProblemMaxAggregate {
   lastRunPass: Boolean
   memoryLimit: Int
   outputDescription: String
-  status: PolygonProblemStatus
+  status: MandeuldangProblemStatus
   timeLimit: Int
   title: String
   updateTime: DateTime
 }
 
-type PolygonProblemMinAggregate {
+type MandeuldangProblemMinAggregate {
   createTime: DateTime
   createdById: Int
   description: String
@@ -2830,13 +2830,13 @@ type PolygonProblemMinAggregate {
   lastRunPass: Boolean
   memoryLimit: Int
   outputDescription: String
-  status: PolygonProblemStatus
+  status: MandeuldangProblemStatus
   timeLimit: Int
   title: String
   updateTime: DateTime
 }
 
-enum PolygonProblemStatus {
+enum MandeuldangProblemStatus {
   Draft
   PendingApproval
   Published
@@ -2844,30 +2844,30 @@ enum PolygonProblemStatus {
   Rejected
 }
 
-type PolygonProblemSumAggregate {
+type MandeuldangProblemSumAggregate {
   createdById: Int
   id: Int
   memoryLimit: Int
   timeLimit: Int
 }
 
-type PolygonSample {
+type MandeuldangSample {
   createTime: DateTime!
   id: ID!
   inputText: String!
   order: Int!
   outputText: String!
-  problem: PolygonProblem!
+  problem: MandeuldangProblem!
   problemId: Int!
 }
 
-type PolygonSampleAvgAggregate {
+type MandeuldangSampleAvgAggregate {
   id: Float
   order: Float
   problemId: Float
 }
 
-type PolygonSampleCountAggregate {
+type MandeuldangSampleCountAggregate {
   _all: Int!
   createTime: Int!
   id: Int!
@@ -2877,7 +2877,7 @@ type PolygonSampleCountAggregate {
   problemId: Int!
 }
 
-type PolygonSampleMaxAggregate {
+type MandeuldangSampleMaxAggregate {
   createTime: DateTime
   id: Int
   inputText: String
@@ -2886,7 +2886,7 @@ type PolygonSampleMaxAggregate {
   problemId: Int
 }
 
-type PolygonSampleMinAggregate {
+type MandeuldangSampleMinAggregate {
   createTime: DateTime
   id: Int
   inputText: String
@@ -2895,29 +2895,29 @@ type PolygonSampleMinAggregate {
   problemId: Int
 }
 
-type PolygonSampleSumAggregate {
+type MandeuldangSampleSumAggregate {
   id: Int
   order: Int
   problemId: Int
 }
 
-type PolygonSolution {
+type MandeuldangSolution {
   createTime: DateTime!
   fileName: String!
   filePath: String!
   id: ID!
   language: Language!
-  problem: PolygonProblem!
+  problem: MandeuldangProblem!
   problemId: Int!
   updateTime: DateTime!
 }
 
-type PolygonSolutionAvgAggregate {
+type MandeuldangSolutionAvgAggregate {
   id: Float
   problemId: Float
 }
 
-type PolygonSolutionCountAggregate {
+type MandeuldangSolutionCountAggregate {
   _all: Int!
   createTime: Int!
   fileName: Int!
@@ -2928,7 +2928,7 @@ type PolygonSolutionCountAggregate {
   updateTime: Int!
 }
 
-type PolygonSolutionMaxAggregate {
+type MandeuldangSolutionMaxAggregate {
   createTime: DateTime
   fileName: String
   filePath: String
@@ -2938,7 +2938,7 @@ type PolygonSolutionMaxAggregate {
   updateTime: DateTime
 }
 
-type PolygonSolutionMinAggregate {
+type MandeuldangSolutionMinAggregate {
   createTime: DateTime
   fileName: String
   filePath: String
@@ -2948,12 +2948,12 @@ type PolygonSolutionMinAggregate {
   updateTime: DateTime
 }
 
-type PolygonSolutionSumAggregate {
+type MandeuldangSolutionSumAggregate {
   id: Int
   problemId: Int
 }
 
-type PolygonTestFile {
+type MandeuldangTestFile {
   baseName: String!
   createTime: DateTime!
   fileName: String!
@@ -2961,17 +2961,17 @@ type PolygonTestFile {
   fileSize: String!
   fileType: TestFileType!
   id: ID!
-  problem: PolygonProblem!
+  problem: MandeuldangProblem!
   problemId: Int!
 }
 
-type PolygonTestFileAvgAggregate {
+type MandeuldangTestFileAvgAggregate {
   fileSize: Float
   id: Float
   problemId: Float
 }
 
-type PolygonTestFileCountAggregate {
+type MandeuldangTestFileCountAggregate {
   _all: Int!
   baseName: Int!
   createTime: Int!
@@ -2983,7 +2983,7 @@ type PolygonTestFileCountAggregate {
   problemId: Int!
 }
 
-type PolygonTestFileMaxAggregate {
+type MandeuldangTestFileMaxAggregate {
   baseName: String
   createTime: DateTime
   fileName: String
@@ -2994,7 +2994,7 @@ type PolygonTestFileMaxAggregate {
   problemId: Int
 }
 
-type PolygonTestFileMinAggregate {
+type MandeuldangTestFileMinAggregate {
   baseName: String
   createTime: DateTime
   fileName: String
@@ -3005,29 +3005,29 @@ type PolygonTestFileMinAggregate {
   problemId: Int
 }
 
-type PolygonTestFileSumAggregate {
+type MandeuldangTestFileSumAggregate {
   fileSize: String
   id: Int
   problemId: Int
 }
 
-type PolygonTool {
+type MandeuldangTool {
   createTime: DateTime!
   fileName: String!
   filePath: String!
   id: ID!
-  problem: PolygonProblem!
+  problem: MandeuldangProblem!
   problemId: Int!
   toolType: ToolType!
   updateTime: DateTime!
 }
 
-type PolygonToolAvgAggregate {
+type MandeuldangToolAvgAggregate {
   id: Float
   problemId: Float
 }
 
-type PolygonToolCountAggregate {
+type MandeuldangToolCountAggregate {
   _all: Int!
   createTime: Int!
   fileName: Int!
@@ -3038,7 +3038,7 @@ type PolygonToolCountAggregate {
   updateTime: Int!
 }
 
-type PolygonToolMaxAggregate {
+type MandeuldangToolMaxAggregate {
   createTime: DateTime
   fileName: String
   filePath: String
@@ -3048,7 +3048,7 @@ type PolygonToolMaxAggregate {
   updateTime: DateTime
 }
 
-type PolygonToolMinAggregate {
+type MandeuldangToolMinAggregate {
   createTime: DateTime
   fileName: String
   filePath: String
@@ -3058,7 +3058,7 @@ type PolygonToolMinAggregate {
   updateTime: DateTime
 }
 
-type PolygonToolSumAggregate {
+type MandeuldangToolSumAggregate {
   id: Int
   problemId: Int
 }
@@ -4414,10 +4414,10 @@ type User {
   lastLogin: DateTime
   major: String
   notice: [Notice!]
-  polygonApprovalRequests: [PolygonApprovalRequest!]
-  polygonCollaborations: [PolygonCollaborator!]
-  polygonProblems: [PolygonProblem!]
-  polygonReviewedApprovals: [PolygonApprovalRequest!]
+  MandeuldangApprovalRequests: [MandeuldangApprovalRequest!]
+  MandeuldangCollaborations: [MandeuldangCollaborator!]
+  MandeuldangProblems: [MandeuldangProblem!]
+  MandeuldangReviewedApprovals: [MandeuldangApprovalRequest!]
   problem: [Problem!]
   role: Role!
   studentId: String!
@@ -4549,10 +4549,10 @@ type UserCount {
   createdQnAs: Int!
   file: Int!
   notice: Int!
-  polygonApprovalRequests: Int!
-  polygonCollaborations: Int!
-  polygonProblems: Int!
-  polygonReviewedApprovals: Int!
+  MandeuldangApprovalRequests: Int!
+  MandeuldangCollaborations: Int!
+  MandeuldangProblems: Int!
+  MandeuldangReviewedApprovals: Int!
   problem: Int!
   submission: Int!
   testSubmission: Int!
