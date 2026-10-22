@@ -81,6 +81,8 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ArgoCD Image Updater follows the :stage tag, so push only the commit tag
+      # here and move :stage after the image passes verification.
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -92,8 +94,6 @@ jobs:
           build-args: ${{ matrix.target.build-args }}
           tags: |
             ghcr.io/skkuding/codedang-${{ matrix.target.target }}:${{ github.sha }}
-            ghcr.io/skkuding/codedang-${{ matrix.target.target }}:stage
-            ghcr.io/skkuding/codedang-${{ matrix.target.target }}:latest
 
       - name: Set up Go for provenance check
         if: matrix.target.binary != ''
@@ -120,6 +120,13 @@ jobs:
         if: matrix.target.node_check
         run: |
           ./scripts/verify-node-image.sh \
+            "ghcr.io/skkuding/codedang-${{ matrix.target.target }}:${{ github.sha }}"
+
+      - name: Promote verified image
+        run: |
+          docker buildx imagetools create \
+            -t "ghcr.io/skkuding/codedang-${{ matrix.target.target }}:stage" \
+            -t "ghcr.io/skkuding/codedang-${{ matrix.target.target }}:latest" \
             "ghcr.io/skkuding/codedang-${{ matrix.target.target }}:${{ github.sha }}"
 
   build-frontend:
@@ -164,18 +171,20 @@ jobs:
             GQL_BASEURL=https://stage.codedang.com/graphql
             RUNNER_BASEURL=wss://run.stage.codedang.com/run
             ADMIN_REST_URL=https://stage.codedang.com/admin-api
+          # :stage and :latest are added by verify-frontend after verification.
           tags: |
             ghcr.io/skkuding/codedang-frontend:${{ github.sha }}
-            ghcr.io/skkuding/codedang-frontend:stage
-            ghcr.io/skkuding/codedang-frontend:latest
 
   verify-frontend:
-    name: Verify Frontend Image
+    name: Verify and Promote Frontend Image
     needs: build-frontend
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -187,4 +196,11 @@ jobs:
       - name: Verify Node.js runtime
         run: |
           ./scripts/verify-node-image.sh \
+            "ghcr.io/skkuding/codedang-frontend:${{ github.sha }}"
+
+      - name: Promote verified image
+        run: |
+          docker buildx imagetools create \
+            -t ghcr.io/skkuding/codedang-frontend:stage \
+            -t ghcr.io/skkuding/codedang-frontend:latest \
             "ghcr.io/skkuding/codedang-frontend:${{ github.sha }}"
