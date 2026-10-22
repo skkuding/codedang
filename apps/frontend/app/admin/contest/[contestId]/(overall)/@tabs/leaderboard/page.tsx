@@ -143,7 +143,7 @@ export default function ContestLeaderBoard() {
         </div>
         <div className="relative">
           <SearchIcon
-            className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
+            className="text-color-neutral-90 absolute left-5 top-1/2 size-5 -translate-y-1/2 cursor-pointer"
             onClick={() => {
               handleSearch({ text: searchText, leaderboardUsers })
             }}
