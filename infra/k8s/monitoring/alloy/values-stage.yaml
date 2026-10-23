@@ -1,1 +1,4 @@
-environment: stage
+alloy:
+  extraEnv:
+    - name: ALLOY_ENVIRONMENT
+      value: stage
