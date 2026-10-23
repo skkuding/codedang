@@ -34,6 +34,9 @@ export function RunTestButton({
   const session = useSession()
   const setIsTesting = useTestPollingStore((state) => state.setIsTesting)
   const startPolling = useTestPollingStore((state) => state.startPolling)
+  const setSubmissionProgress = useTestPollingStore(
+    (state) => state.setSubmissionProgress
+  )
   const showSignIn = useAuthModalStore((state) => state.showSignIn)
   const getCode = useCodeStore((state) => state.getCode)
   const getUserTestcases = useTestcaseStore((state) => state.getUserTestcases)
@@ -126,12 +129,13 @@ export function RunTestButton({
     }
 
     setIsTesting(true)
+    setSubmissionProgress(null)
     mutate({ code, testcases })
   }
 
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <Button
           size="editor"
           variant="editor"
