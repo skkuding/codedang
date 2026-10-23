@@ -13,6 +13,10 @@ diagnostics:
 
 image:
   repository: n8nio/n8n
+  # NOTE: n8n 1.120.4 bundles Node.js 22.21.0, which predates the eMudhra
+  # distrust fix (22.23.4). No n8n release is built on a patched Node yet:
+  # 2.45.1 (the latest at 2026-10-21) bundles 26.10.0, and the patched 26.x
+  # release is 26.12.1. Accepted residual risk until n8n bumps its Node base.
   tag: 1.120.4
   pullPolicy: IfNotPresent
 
@@ -67,6 +71,7 @@ main:
     n8n_git_node_disable_bare_repos: 'true'
   initContainers:
     - name: import-managed-workflows
+      # Keep in sync with image.tag above; both pins run the same Node runtime.
       image: n8nio/n8n:1.120.4
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']

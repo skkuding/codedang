@@ -21,34 +21,54 @@ jobs:
           - target: client-api
             file: ./apps/backend/Dockerfile
             context: .
+            binary: ''
+            ca_family: ''
+            node_check: true
             build-args: |
               target=client
               app_env=production
           - target: admin-api
             file: ./apps/backend/Dockerfile
             context: .
+            binary: ''
+            ca_family: ''
+            node_check: true
             build-args: |
               target=admin
               app_env=production
           - target: iris
             file: ''
             context: apps/iris
+            binary: /iris
+            ca_family: ubuntu
+            node_check: false
             build-args: |
               app_env=stage
           - target: plag
             file: ''
             context: apps/plag
+            binary: /plag
+            ca_family: ubuntu
+            node_check: false
             build-args: |
               app_env=stage
           - target: runner-pod-manager
             file: ''
             context: apps/runner/pod-manager
+            binary: /app/pod-manager
+            ca_family: alpine
+            node_check: false
             build-args: ''
           - target: runner
             file: ''
             context: apps/runner/backend
+            binary: /app/server
+            ca_family: ubuntu
+            node_check: false
             build-args: ''
     steps:
+      - uses: actions/checkout@v7
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -59,6 +79,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # ArgoCD Image Updater follows the :production tag, so push only the
+      # commit tag here and move :production after the image passes
+      # verification.
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -69,8 +92,40 @@ jobs:
           push: true
           build-args: ${{ matrix.target.build-args }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:production
             ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:${{github.sha}}
+
+      - name: Set up Go for provenance check
+        if: matrix.target.binary != ''
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.3'
+
+      - name: Verify Go binary provenance
+        if: matrix.target.binary != ''
+        run: |
+          ./scripts/verify-go-image.sh \
+            "ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:${{ github.sha }}" \
+            "${{ matrix.target.binary }}" \
+            go1.27.3
+
+      - name: Verify trust store
+        if: matrix.target.ca_family != ''
+        run: |
+          ./scripts/verify-ca-certificates.sh \
+            "ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:${{ github.sha }}" \
+            "${{ matrix.target.ca_family }}"
+
+      - name: Verify Node.js runtime
+        if: matrix.target.node_check
+        run: |
+          ./scripts/verify-node-image.sh \
+            "ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:${{ github.sha }}"
+
+      - name: Promote verified image
+        run: |
+          docker buildx imagetools create \
+            -t "ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:production" \
+            "ghcr.io/${{ github.repository_owner }}/codedang-${{ matrix.target.target }}:${{ github.sha }}"
 
   build-frontend:
     name: Build and Push Image (Frontend)
@@ -98,6 +153,35 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-production
           push: true
           build-args: ''
+          # :production is added by verify-frontend after verification.
           tags: |
-            ghcr.io/${{ github.repository_owner }}/codedang-frontend:production
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{github.sha}}
+
+  verify-frontend:
+    name: Verify and Promote Frontend Image
+    needs: build-frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Node.js runtime
+        run: |
+          ./scripts/verify-node-image.sh \
+            "ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{ github.sha }}"
+
+      - name: Promote verified image
+        run: |
+          docker buildx imagetools create \
+            -t "ghcr.io/${{ github.repository_owner }}/codedang-frontend:production" \
+            "ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{ github.sha }}"

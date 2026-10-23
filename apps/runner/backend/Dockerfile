@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS build
+FROM golang:1.27.3-alpine AS build
 
 WORKDIR /code
 COPY go.mod go.sum /code/
@@ -8,6 +8,15 @@ COPY *.go /code/
 RUN go build -o /code/server
 
 FROM ubuntu:24.04 AS runtime
+
+# The eMudhra intermediate CA compromise requires a patched trust store.
+# golang-go below is the toolchain for user submissions, not a TLS client.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && installed="$(dpkg-query -W -f='${Version}' ca-certificates)" \
+    && dpkg --compare-versions "$installed" ge '20260816ubuntu0.24.04.1' \
+    && echo "ca-certificates ${installed}" \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN apt update && apt install -y \
     wget \
