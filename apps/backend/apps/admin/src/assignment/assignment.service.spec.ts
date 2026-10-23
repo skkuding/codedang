@@ -229,6 +229,16 @@ const updateInput = {
   enableCopyPaste: false
 } satisfies UpdateAssignmentInput
 
+const mockTransaction = async (operation) => {
+  if (typeof operation === 'function') {
+    return await operation(db)
+  }
+
+  const updatedProblem = await db.problem.update()
+  const newAssignmentProblem = await db.assignmentProblem.create()
+  return [newAssignmentProblem, updatedProblem]
+}
+
 const db = {
   assignment: {
     findFirst: stub().resolves(Assignment),
@@ -247,6 +257,7 @@ const db = {
   assignmentRecord: {
     findMany: stub().resolves([AssignmentRecord]),
     create: stub().resolves(AssignmentRecord),
+    createMany: stub().resolves({ count: 1 }),
     count: stub().resolves(Number)
   },
   assignmentProblemRecord: {
@@ -265,6 +276,7 @@ const db = {
     findUnique: stub().resolves(Group)
   },
   userGroup: {
+    findMany: stub().resolves([{ userId }]),
     count: stub().resolves(Number)
   },
   submission: {
@@ -273,11 +285,7 @@ const db = {
   // submissionResult: {
   //   findMany: stub().resolves([submissionResults])
   // },
-  $transaction: stub().callsFake(async () => {
-    const updatedProblem = await db.problem.update()
-    const newAssignmentProblem = await db.assignmentProblem.create()
-    return [newAssignmentProblem, updatedProblem]
-  }),
+  $transaction: stub().callsFake(mockTransaction),
   $executeRaw: stub().resolves(1),
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -323,11 +331,55 @@ describe('AssignmentService', () => {
 
   describe('createAssignment', () => {
     it('should return created assignment', async () => {
-      db.assignment.create.resolves(assignment)
       db.group.findUnique.resolves(group)
+      db.assignment.create.resolves(assignment)
+      db.assignment.create.resetHistory()
+      db.$transaction.resetHistory()
 
       const res = await service.createAssignment(groupId, userId, input)
       expect(res).to.deep.equal(assignment)
+      expect(db.assignment.create.calledOnce).to.be.true
+      expect(db.$transaction.calledOnce).to.be.true
+    })
+
+    it('should delete the created assignment when no members can be invited', async () => {
+      db.userGroup.findMany.resolves([])
+      db.assignment.create.resolves(assignment)
+      db.group.findUnique.resolves(group)
+      db.assignment.delete.resetHistory()
+
+      try {
+        await expect(
+          service.createAssignment(groupId, userId, input)
+        ).to.be.rejectedWith('Course Member')
+        expect(
+          db.assignment.delete.calledOnceWithExactly({
+            where: { id: assignmentId }
+          })
+        ).to.be.true
+      } finally {
+        db.userGroup.findMany.resolves([{ userId }])
+      }
+    })
+
+    it('should delete the created assignment when invitation writes fail', async () => {
+      db.assignmentProblemRecord.createMany.rejects(
+        new Error('Invitation failed')
+      )
+      db.assignment.delete.resetHistory()
+
+      try {
+        await expect(
+          service.createAssignment(groupId, userId, input)
+        ).to.be.rejectedWith('Invitation failed')
+        expect(
+          db.assignment.delete.calledOnceWithExactly({
+            where: { id: assignmentId }
+          })
+        ).to.be.true
+      } finally {
+        db.assignmentProblemRecord.createMany.resolves([])
+      }
     })
   })
 

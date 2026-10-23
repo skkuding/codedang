@@ -1,7 +1,8 @@
 import { auth } from '@/libs/auth'
+import { hasContestAdminRole } from '@/libs/contestRole'
 import { safeFetcherWithAuth } from '@/libs/utils'
 import type { Course } from '@/types/type'
-import { ContestRole, type User, type UserContest } from '@generated/graphql'
+import type { User } from '@generated/graphql'
 import { redirect } from 'next/navigation'
 import { ClientApolloProvider } from './_components/ApolloProvider'
 import { ManagementSidebar } from './_components/ManagementSidebar'
@@ -23,16 +24,7 @@ async function fetchGroupLeaderRole() {
 
 async function fetchContestRoles() {
   try {
-    const response: UserContest[] = await safeFetcherWithAuth
-      .get('contest/role')
-      .json()
-
-    return response.some((userContest) => {
-      return (
-        userContest.role !== ContestRole.Participant &&
-        userContest.role !== ContestRole.Reviewer
-      )
-    })
+    return await hasContestAdminRole()
   } catch (error) {
     console.error('Error fetching contest roles:', error)
   }

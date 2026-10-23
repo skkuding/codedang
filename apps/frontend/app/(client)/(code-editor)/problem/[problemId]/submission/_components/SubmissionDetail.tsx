@@ -12,7 +12,6 @@ import {
 } from '@/components/shadcn/table'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail } from '@/types/type'
-import { revalidateTag } from 'next/cache'
 
 interface Props {
   problemId: number
@@ -22,16 +21,10 @@ interface Props {
 export async function SubmissionDetail({ problemId, submissionId }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId },
-    next: {
-      tags: [`submission/${submissionId}`]
-    }
+    cache: 'no-store'
   })
 
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
-
-  if (submission.result === 'Judging') {
-    revalidateTag(`submission/${submissionId}`)
-  }
 
   return (
     <>

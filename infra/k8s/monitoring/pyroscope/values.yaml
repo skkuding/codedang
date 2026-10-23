@@ -24,20 +24,29 @@ pyroscope:
         name: monitoring-user
   # The MinIO Tenant creates buckets only during initial provisioning. Also
   # create the bucket when adding Pyroscope to an already running tenant.
+  # MinIO no longer publishes minio/mc images, so use the AWS CLI instead.
   initContainers:
     - name: create-profile-bucket
-      image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+      image: public.ecr.aws/aws-cli/aws-cli:2.37.7
       command: ['/bin/sh', '-ec']
       args:
         - |
-          mc alias set monitoring http://minio.monitoring-minio.svc.cluster.local:80 "$CONSOLE_ACCESS_KEY" "$CONSOLE_SECRET_KEY"
-          mc mb --ignore-existing monitoring/pyroscope
+          export AWS_ACCESS_KEY_ID="$CONSOLE_ACCESS_KEY" AWS_SECRET_ACCESS_KEY="$CONSOLE_SECRET_KEY"
+          if aws s3api head-bucket --bucket pyroscope 2>/dev/null; then
+            echo 'Bucket pyroscope already exists'
+          else
+            aws s3api create-bucket --bucket pyroscope
+          fi
       envFrom:
         - secretRef:
             name: monitoring-user
       env:
-        - name: MC_CONFIG_DIR
-          value: /tmp/mc
+        - name: AWS_ENDPOINT_URL
+          value: http://minio.monitoring-minio.svc.cluster.local:80
+        - name: AWS_REGION
+          value: us-east-1
+        - name: HOME
+          value: /tmp
   persistence:
     enabled: true # Pyroscope v2 metastore Raft state must survive Pod restarts.
     size: 10Gi
