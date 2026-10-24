@@ -1,0 +1,23 @@
+coverage:
+  status:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: exclude
+    project:
+      default: off
+      iris:
+        flags:
+          - iris
+        target: auto
+        informational: true
+    patch:
+      default: off
+      iris:
+        flags:
+          - iris
+        target: auto
+        informational: true
+
+flags:
+  iris:
+    paths:
+      - apps/iris/

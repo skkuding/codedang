@@ -84,6 +84,7 @@ jobs:
               - 'pnpm-lock.yaml'
             iris:
               - *ci_workflow_path
+              - 'codecov.yml'
               - 'apps/iris/**'
             plag:
               - *ci_workflow_path
@@ -399,6 +400,9 @@ jobs:
     needs: detect-changes
     if: needs['detect-changes'].outputs.iris == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v7
@@ -414,8 +418,18 @@ jobs:
         working-directory: ./apps/iris
 
       - name: Test (Go)
-        run: go test ./...
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
         working-directory: ./apps/iris
+
+      - name: Upload Iris coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/iris/coverage.out
+          flags: iris
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
 
   test-plag:
     name: Test Plag
