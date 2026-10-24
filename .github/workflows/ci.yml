@@ -25,7 +25,12 @@ jobs:
       backend_test: ${{ steps.filter.outputs.backend_test }}
       iris: ${{ steps.filter.outputs.iris }}
       plag: ${{ steps.filter.outputs.plag }}
+      runner_backend: ${{ steps.filter.outputs.runner_backend }}
+      runner_pod_manager: ${{ steps.filter.outputs.runner_pod_manager }}
       go_lint: ${{ steps.filter.outputs.go_lint }}
+      go_toolchain: ${{ steps.filter.outputs.go_toolchain }}
+      x509_distrust: ${{ steps.filter.outputs.x509_distrust }}
+      node_version: ${{ steps.filter.outputs.node_version }}
       frontend: ${{ steps.filter.outputs.frontend }}
       infra_ansible: ${{ steps.filter.outputs.infra_ansible }}
       infra_ssh_keys: ${{ steps.filter.outputs.infra_ssh_keys }}
@@ -79,14 +84,53 @@ jobs:
               - 'pnpm-lock.yaml'
             iris:
               - *ci_workflow_path
+              - 'codecov.yml'
               - 'apps/iris/**'
             plag:
               - *ci_workflow_path
               - 'apps/plag/**'
+            runner_backend:
+              - *ci_workflow_path
+              - 'apps/runner/backend/**'
+            runner_pod_manager:
+              - *ci_workflow_path
+              - 'apps/runner/pod-manager/**'
             go_lint:
               - *ci_workflow_path
               - 'apps/iris/**'
               - 'apps/plag/**'
+              - 'apps/runner/backend/**'
+              - 'apps/runner/pod-manager/**'
+            go_toolchain:
+              - *ci_workflow_path
+              - 'apps/iris/**'
+              - 'apps/plag/**'
+              - 'apps/runner/backend/**'
+              - 'apps/runner/pod-manager/**'
+              - 'scripts/verify-go-toolchain-pins.sh'
+            node_version:
+              - *ci_workflow_path
+              - '.nvmrc'
+              - 'package.json'
+              - '.github/actions/setup-pnpm/**'
+              - 'apps/backend/Dockerfile'
+              - 'apps/frontend/Dockerfile'
+            x509_distrust:
+              - *ci_workflow_path
+              - 'tests/x509-distrust/**'
+              - 'apps/iris/go.mod'
+              - 'apps/plag/go.mod'
+              - 'apps/runner/backend/go.mod'
+              - 'apps/runner/pod-manager/go.mod'
+              - 'apps/iris/Dockerfile'
+              - 'apps/plag/Dockerfile'
+              - 'apps/runner/backend/Dockerfile'
+              - 'apps/runner/pod-manager/Dockerfile'
+              - '.nvmrc'
+              - 'package.json'
+              - '.github/actions/setup-pnpm/**'
+              - 'apps/backend/Dockerfile'
+              - 'apps/frontend/Dockerfile'
             frontend:
               - *ci_workflow_path
               - 'apps/frontend/**'
@@ -175,6 +219,34 @@ jobs:
       - name: Lint (Node.js)
         run: git diff --name-only --diff-filter=ACMRUXB origin/main | grep -E "(.ts$|.tsx$|.js$|.jsx$)" | grep -v 'next.config.js$' | xargs -r pnpm eslint
 
+  verify-node-runtime:
+    name: Verify Node Runtime
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.node_version == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          install: 'no'
+
+      - name: Check Node.js version
+        run: |
+          version="$(node -v)"
+          echo "node ${version}"
+          if [[ "${version}" != "v22.23.4" ]]; then
+            echo "::error::.nvmrc/setup-pnpm resolved to ${version}, need v22.23.4"
+            exit 1
+          fi
+
+      # The Node bump must not change pnpm-lock.yaml, but a full frozen install
+      # catches native-addon prebuild mismatches for argon2, sharp, Prisma and
+      # msgpackr-extract.
+      - name: Install dependencies with the lockfile
+        run: pnpm install --frozen-lockfile
+
   # ===========================================================================
   # Backend
   # ===========================================================================
@@ -196,11 +268,23 @@ jobs:
 
       - name: Check Style (Go)
         run: |
-          if [ -n "$(gofmt -l apps/iris apps/plag)" ]; then
+          if [ -n "$(gofmt -l apps/iris apps/plag apps/runner/backend apps/runner/pod-manager)" ]; then
             echo "Go files must be formatted with gofmt. Please run:"
             echo "  go fmt ./..."
             exit 1
           fi
+
+  verify-go-toolchain-pins:
+    name: Verify Go Toolchain Pins
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.go_toolchain == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check go.mod and builder image pins
+        run: ./scripts/verify-go-toolchain-pins.sh 1.27.3
 
   build-backend-client:
     name: Build Backend (client)
@@ -316,6 +400,9 @@ jobs:
     needs: detect-changes
     if: needs['detect-changes'].outputs.iris == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v7
@@ -326,9 +413,23 @@ jobs:
           go-version-file: apps/iris/go.mod
           cache-dependency-path: apps/iris/go.sum
 
-      - name: Test (Go)
-        run: go test ./...
+      - name: Vet (Go)
+        run: go vet ./...
         working-directory: ./apps/iris
+
+      - name: Test (Go)
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
+        working-directory: ./apps/iris
+
+      - name: Upload Iris coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/iris/coverage.out
+          flags: iris
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
 
   test-plag:
     name: Test Plag
@@ -345,9 +446,99 @@ jobs:
           go-version-file: apps/plag/go.mod
           cache-dependency-path: apps/plag/go.sum
 
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/plag
+
       - name: Test (Go)
         run: go test ./...
         working-directory: ./apps/plag
+
+  test-runner-backend:
+    name: Test Runner Backend
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.runner_backend == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/runner/backend/go.mod
+          cache-dependency-path: apps/runner/backend/go.sum
+
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/runner/backend
+
+      - name: Test (Go)
+        run: go test ./...
+        working-directory: ./apps/runner/backend
+
+  test-runner-pod-manager:
+    name: Test Runner Pod Manager
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.runner_pod_manager == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/runner/pod-manager/go.mod
+          cache-dependency-path: apps/runner/pod-manager/go.sum
+
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/runner/pod-manager
+
+      - name: Test (Go)
+        run: go test ./...
+        working-directory: ./apps/runner/pod-manager
+
+  test-x509-distrust-go:
+    name: Test x509 Distrust (Go)
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.x509_distrust == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tests/x509-distrust/go.mod
+
+      - name: Test offline chains
+        run: go test ./...
+        working-directory: ./tests/x509-distrust
+
+  test-x509-distrust-node:
+    name: Test x509 Distrust (Node ${{ matrix.node-version }})
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.x509_distrust == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['22.23.4', '24.22.1', '26.12.1']
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Test offline fixtures
+        run: node --test tests/x509-distrust/node.test.mjs
 
   # TODO: write smoke test for backend
   # e.g) start backend server and check if it responds to requests
@@ -608,12 +799,18 @@ jobs:
       - typecheck
       - lint-pr-title
       - lint-node
+      - verify-node-runtime
       - lint-go
+      - verify-go-toolchain-pins
       - build-backend-client
       - build-backend-admin
       - test-backend
       - test-iris
       - test-plag
+      - test-runner-backend
+      - test-runner-pod-manager
+      - test-x509-distrust-go
+      - test-x509-distrust-node
       - build-frontend
       - ansible-lint
       - check-ssh-public-keys
@@ -631,12 +828,18 @@ jobs:
             "typecheck:${{ needs.typecheck.result }}"
             "lint-pr-title:${{ needs['lint-pr-title'].result }}"
             "lint-node:${{ needs['lint-node'].result }}"
+            "verify-node-runtime:${{ needs['verify-node-runtime'].result }}"
             "lint-go:${{ needs['lint-go'].result }}"
+            "verify-go-toolchain-pins:${{ needs['verify-go-toolchain-pins'].result }}"
             "build-backend-client:${{ needs['build-backend-client'].result }}"
             "build-backend-admin:${{ needs['build-backend-admin'].result }}"
             "test-backend:${{ needs['test-backend'].result }}"
             "test-iris:${{ needs['test-iris'].result }}"
             "test-plag:${{ needs['test-plag'].result }}"
+            "test-runner-backend:${{ needs['test-runner-backend'].result }}"
+            "test-runner-pod-manager:${{ needs['test-runner-pod-manager'].result }}"
+            "test-x509-distrust-go:${{ needs['test-x509-distrust-go'].result }}"
+            "test-x509-distrust-node:${{ needs['test-x509-distrust-node'].result }}"
             "build-frontend:${{ needs['build-frontend'].result }}"
             "ansible-lint:${{ needs['ansible-lint'].result }}"
             "check-ssh-public-keys:${{ needs['check-ssh-public-keys'].result }}"
