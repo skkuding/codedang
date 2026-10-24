@@ -14,8 +14,12 @@ import {
 } from '@/components/PaginatorV2'
 import { getTakeQueryParam, usePagination } from '@/libs/hooks/usePaginationV2'
 import type { SubmissionItem } from '@/types/type'
-import { useSuspenseQuery, useSuspenseQueries } from '@tanstack/react-query'
-import { useState } from 'react'
+import {
+  useSuspenseQuery,
+  useSuspenseQueries,
+  useQueryClient
+} from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { columns } from './Columns'
 
 const itemsPerPage = 17
@@ -28,11 +32,12 @@ export function SubmissionPaginatedTable({
   contestId: number
 }) {
   const refreshTrigger = useSubmissionSync((state) => state.refreshTrigger)
+  const queryClient = useQueryClient()
   const [queryParams] = useState({
     take: getTakeQueryParam({ itemsPerPage })
   })
   const problemIdList = useSuspenseQuery({
-    queryKey: ['Contest Problem', contestId, refreshTrigger],
+    queryKey: ['Contest Problem', contestId],
     queryFn: async () => {
       const response = await getContestProblemList({
         contestId,
@@ -46,6 +51,12 @@ export function SubmissionPaginatedTable({
       return problemIdList
     }
   })
+
+  useEffect(() => {
+    queryClient.refetchQueries({
+      queryKey: ['Contest Problem', contestId]
+    })
+  }, [refreshTrigger, contestId, queryClient])
 
   const [...allSubmissionsResponse] = useSuspenseQueries({
     queries: problemIdList.data.map((problemIndex) =>

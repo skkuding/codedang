@@ -6,6 +6,7 @@ import { CodeEditor } from '@/components/CodeEditor'
 import { ScrollArea, ScrollBar } from '@/components/shadcn/scroll-area'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { ContestSubmission, SubmissionDetail } from '@/types/type'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { IoIosLock } from 'react-icons/io'
 
 interface SubmissionDetailProps {
@@ -14,30 +15,62 @@ interface SubmissionDetailProps {
   contestId: number
   refreshTrigger: number
 }
-export async function SubmissionDetail({
+export function SubmissionDetail({
   problemId,
   submissionId,
   contestId,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   refreshTrigger // 해당 컴포넌트에서 사용하지 않는 것처럼 보이지만 refresh의 위력을 발휘하는 중입니다. 삭제하지 말아주세요 ㅠㅠ
 }: SubmissionDetailProps) {
-  const res = await fetcherWithAuth(`submission/${submissionId}`, {
-    searchParams: { problemId, contestId }
-  })
-  const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
+  const fetchSubmission = async (
+    submissionId: number,
+    problemId: number,
+    contestId: number
+  ): Promise<{ submission: SubmissionDetail } & { isForbidden: boolean }> => {
+    const submissionRes = await fetcherWithAuth(`submission/${submissionId}`, {
+      searchParams: { problemId, contestId }
+    })
 
-  const contestSubmissionRes = await fetcherWithAuth(
-    `contest/${contestId}/submission`,
-    {
-      searchParams: { problemId, take: 100 }
+    return {
+      isForbidden: submissionRes.status === 403,
+      submission: submissionRes.ok
+        ? await submissionRes.json<SubmissionDetail>()
+        : dataIfError
     }
-  )
-  const contestSubmission: ContestSubmission | null = contestSubmissionRes.ok
-    ? await contestSubmissionRes.json()
-    : null
-  const targetSubmission = contestSubmission?.data.filter(
+  }
+
+  const fetchContestSubmission = async (
+    contestId: number,
+    problemId: number
+  ): Promise<ContestSubmission | null> => {
+    const contestSubmissionRes = await fetcherWithAuth(
+      `contest/${contestId}/submission`,
+      {
+        searchParams: { problemId, take: 100 }
+      }
+    )
+    if (!contestSubmissionRes.ok) {
+      return null
+    }
+
+    return contestSubmissionRes.json<ContestSubmission>()
+  }
+
+  const { data } = useSuspenseQuery({
+    queryKey: ['submission detail', submissionId, problemId, contestId],
+    queryFn: () => fetchSubmission(submissionId, problemId, contestId)
+  })
+
+  const { submission, isForbidden } = data
+
+  const { data: contestSubmission } = useSuspenseQuery({
+    queryKey: ['contest submissions', contestId, problemId],
+    queryFn: () => fetchContestSubmission(contestId, problemId)
+  })
+
+  const targetSubmission = contestSubmission?.data.find(
     (submission) => submission.id === submissionId
-  )[0]
+  )
 
   return (
     <>
@@ -82,7 +115,7 @@ export async function SubmissionDetail({
       </div>
       <div className="-ml-16 h-2 min-w-full bg-[#121728]" />
 
-      {res.ok ? null : (
+      {isForbidden && (
         <div className="backdrop-blur-xs absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center gap-1">
           <IoIosLock size={100} />
           <p className="mt-4 text-xl font-semibold">Access Denied</p>
