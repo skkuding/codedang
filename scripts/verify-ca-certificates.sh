@@ -35,10 +35,15 @@ case "$family" in
     ;;
   alpine)
     required="${3:-20261020-r0}"
-    package="$(docker run --rm --entrypoint apk "$image" info -v ca-certificates)"
+    # Without -e, apk 2.14 prints the description block instead of name-version.
+    package="$(docker run --rm --entrypoint apk "$image" info -e -v ca-certificates)"
+    if [[ "$package" != ca-certificates-* ]]; then
+      echo "::error::${image}: unexpected apk output for ca-certificates: ${package}" >&2
+      exit 1
+    fi
     installed="${package#ca-certificates-}"
     comparison="$(docker run --rm --entrypoint apk "$image" version -t "$installed" "$required")"
-    if [[ "$comparison" == "<" ]]; then
+    if [[ "$comparison" != "=" && "$comparison" != ">" ]]; then
       echo "::error::${image} ships ca-certificates ${installed}, need ${required} or newer" >&2
       exit 1
     fi
