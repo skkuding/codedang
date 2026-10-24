@@ -13,11 +13,12 @@ diagnostics:
 
 image:
   repository: n8nio/n8n
-  # NOTE: n8n 1.120.4 bundles Node.js 22.21.0, which predates the eMudhra
-  # distrust fix (22.23.4). No n8n release is built on a patched Node yet:
-  # 2.45.1 (the latest at 2026-10-21) bundles 26.10.0, and the patched 26.x
-  # release is 26.12.1. Accepted residual risk until n8n bumps its Node base.
-  tag: 1.120.4
+  # n8n 1.123.87 bundles Node.js 24.22.1, which contains the Brotli decoder fix
+  # for CVE-2026-111497 (fixed in Node 22.23.4/24.22.1/26.12.1) and the eMudhra
+  # distrust update. Stay on the 1.x line for now: n8n 2.x enables task runners
+  # by default and enforces stricter config file permissions, which needs its
+  # own migration.
+  tag: 1.123.87
   pullPolicy: IfNotPresent
 
 versionNotifications:
@@ -50,7 +51,16 @@ main:
       memory: 1Gi
   persistence:
     enabled: true
+    # The chart selects the claim from existingClaim. Without it the chart
+    # renders n8n-main-persistence, whose PV is pinned to the decommissioned
+    # skkuding-4f-4 node, and the pod stays Pending. The real data lives on
+    # the adopted n8n-data PVC (PV pinned to skkuding-4f-1). volumeName only
+    # names the pod volume and must stay n8n-data because the init container
+    # mounts it by that name.
+    existingClaim: n8n-data
     volumeName: n8n-data
+    # storageClass, size and annotations only apply when the chart creates the
+    # PVC, so they are inert while existingClaim is set.
     storageClass: local-path
     accessMode: ReadWriteOnce
     size: 8Gi
@@ -72,7 +82,7 @@ main:
   initContainers:
     - name: import-managed-workflows
       # Keep in sync with image.tag above; both pins run the same Node runtime.
-      image: n8nio/n8n:1.120.4
+      image: n8nio/n8n:1.123.87
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']
       args:
