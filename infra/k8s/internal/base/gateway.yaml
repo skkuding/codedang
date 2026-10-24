@@ -86,6 +86,7 @@ spec:
                 values:
                   - kube-system
                   - cloud-beaver
+                  - frigate
                   - headlamp
                   - iris
                   - minio

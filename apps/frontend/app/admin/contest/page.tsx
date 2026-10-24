@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export default function Page() {
   return (
-    <div className="container mx-auto space-y-[46px] py-20">
+    <div className="container mx-auto space-y-[46px] py-10">
       <div className="flex justify-between">
         <div>
           <p className="text-[32px] font-bold">CONTEST LIST</p>

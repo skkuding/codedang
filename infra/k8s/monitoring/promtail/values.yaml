@@ -6,11 +6,11 @@ service:
 
 resources:
   limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
     cpu: 200m
     memory: 256Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
 
 # Mount host journal directory + machine-id so promtail can scrape systemd-journald.
 # /etc/machine-id is required because journald stores logs under

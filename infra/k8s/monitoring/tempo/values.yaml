@@ -45,6 +45,9 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/api/v1/write
+    processor:
+      local_blocks:
+        flush_to_storage: true
 
 distributor:
   replicas: 1

@@ -1,0 +1,54 @@
+{
+  "name": "Notion Activity Git Backup",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/5 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "ad660f20-e727-4381-9f93-9c729ba279fb",
+      "name": "Every five minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "command": "node /opt/n8n-provisioning/notion-activity-backup.mjs"
+      },
+      "id": "5430f049-3a82-4a70-bcef-571f2ddc1f06",
+      "name": "Push Activity Log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [520, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every five minutes": {
+      "main": [
+        [
+          {
+            "node": "Push Activity Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Seoul"
+  },
+  "versionId": "9b62ac17-50d5-445f-b2d4-08603207ba38",
+  "id": "notionActivityBackupV1",
+  "tags": []
+}

@@ -1,0 +1,21 @@
+# 로컬 개발용 Prometheus 설정.
+# 클러스터와 같이 collector의 prometheus exporter를 스크랩(pull)하고,
+# Tempo metrics_generator가 만드는 span-metrics·service-graphs는 remote write로 받는다.
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # 애플리케이션이 보낸 메트릭
+  - job_name: otel-collector
+    static_configs:
+      - targets: ['otel-collector:8889']
+
+  # collector 자체 상태 (OpenTelemetry Collector 대시보드)
+  - job_name: otel-collector-telemetry
+    static_configs:
+      - targets: ['otel-collector:8888']
+
+  # rabbitmq_prometheus 플러그인 (RabbitMQ Overview 대시보드)
+  - job_name: rabbitmq
+    static_configs:
+      - targets: ['rabbitmq:15692']

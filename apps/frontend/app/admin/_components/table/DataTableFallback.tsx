@@ -63,19 +63,21 @@ function TableFallback<TData>({
   })
 
   return (
-    <ScrollArea className="rounded-xs max-w-full border">
+    <ScrollArea className="rounded-xs max-w-full">
       <Table>
-        <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
+        <TableHeader className="border-b-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead key={header.id} className={headerStyle[header.id]}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  <div className="h-[39px]! flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 text-sm font-normal [&:has([role=checkbox])]:w-14 [&:has([role=checkbox])]:bg-transparent">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </div>
                 </TableHead>
               ))}
             </TableRow>

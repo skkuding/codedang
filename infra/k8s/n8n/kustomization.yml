@@ -1,10 +1,25 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+generatorOptions:
+  disableNameSuffixHash: true
+
 configMapGenerator:
-  - name: n8n-workflows
+  - name: n8n-provisioning
     files:
-      - workflows/workflow.json
+      - github-notion.json=workflows/workflow.json
+      - notion-activity.json=workflows/notion-activity.json
+      - notion-activity-backup.json=workflows/notion-activity-backup.json
+      - notion-backup.json=workflows/notion-backup.json
+      - execution-lock.mjs=scripts/execution-lock.mjs
+      - notion-activity-backup.mjs=scripts/notion-activity-backup.mjs
+      - notion-backup.mjs=scripts/notion-backup.mjs
+      - notion-s3.mjs=scripts/notion-s3.mjs
+      - notion-s3-preflight.mjs=scripts/notion-s3-preflight.mjs
+      - notion-restore.mjs=scripts/notion-restore.mjs
 resources:
+  - activity-backup-credentials.yaml
+  - backup-credentials.yaml
+  - notion-backup-s3-credentials.yaml
   - user-credentials.yaml
   - integration-credentials.yaml

@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
   - route53-credentials.yaml
+  - local-path-retain.yaml
 
 commonAnnotations:
   managed-by: kustomize
