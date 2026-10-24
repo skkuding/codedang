@@ -65,14 +65,10 @@ func getAWSInstanceID() (string, error) {
 	return string(bytes), nil
 }
 
-func newResource(ctx context.Context, serviceName, serviceVersion string) (*resource.Resource, error) {
+func newResource(ctx context.Context, serviceName string) (*resource.Resource, error) {
 	appEnv := strings.ToLower(os.Getenv("APP_ENV"))
 	attrs := []resource.Option{
-		resource.WithAttributes(
-			semconv.ServiceName(serviceName),
-			semconv.ServiceVersion(serviceVersion),
-			semconv.DeploymentEnvironment(appEnv),
-		),
+		resource.WithAttributes(semconv.ServiceName(serviceName)),
 		resource.WithProcess(),
 		resource.WithHost(),
 		resource.WithContainer(),
@@ -101,6 +97,7 @@ func newResource(ctx context.Context, serviceName, serviceVersion string) (*reso
 
 	// 결정된 instanceID를 속성으로 추가합니다.
 	attrs = append(attrs, resource.WithAttributes(semconv.ServiceInstanceID(instanceID)))
+	attrs = append(attrs, resource.WithFromEnv())
 
 	res, err := resource.New(ctx, attrs...)
 	if err != nil {
@@ -109,16 +106,17 @@ func newResource(ctx context.Context, serviceName, serviceVersion string) (*reso
 	return res, nil
 }
 
-func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string) (shutdown func(context.Context) error, err error) {
+// serviceName은 OTEL_SERVICE_NAME 환경변수가 있으면 그 값으로 덮인다
+func Init(ctx context.Context, serviceName string) (shutdown func(context.Context) error, err error) {
 	initOnce.Do(func() {
-		res, rErr := newResource(ctx, serviceName, serviceVersion)
+		res, rErr := newResource(ctx, serviceName)
 		if rErr != nil {
 			err = fmt.Errorf("failed to initialize resource: %w", rErr)
 			return
 		}
 
 		// Trace
-		traceExporter, trExpErr := otlptracegrpc.New(ctx, otlptracegrpc.WithEndpoint(otlpEndpoint), otlptracegrpc.WithInsecure())
+		traceExporter, trExpErr := otlptracegrpc.New(ctx)
 		if trExpErr != nil {
 			err = fmt.Errorf("trace exporter: %w", trExpErr)
 			return
@@ -129,7 +127,7 @@ func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string)
 		shutdownFuncs = append(shutdownFuncs, tracerProvider.Shutdown)
 
 		// Metric
-		metricExporter, mExpErr := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithEndpoint(otlpEndpoint), otlpmetricgrpc.WithInsecure())
+		metricExporter, mExpErr := otlpmetricgrpc.New(ctx)
 		if mExpErr != nil {
 			err = fmt.Errorf("metric exporter: %w", mExpErr)
 			return
@@ -140,7 +138,7 @@ func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string)
 		shutdownFuncs = append(shutdownFuncs, meterProvider.Shutdown)
 
 		// Log
-		logExporter, lExpErr := otlploggrpc.New(ctx, otlploggrpc.WithEndpoint(otlpEndpoint), otlploggrpc.WithInsecure())
+		logExporter, lExpErr := otlploggrpc.New(ctx)
 		if lExpErr != nil {
 			err = fmt.Errorf("failed to create OTLP log exporter: %w", lExpErr)
 			return
@@ -159,7 +157,7 @@ func Init(ctx context.Context, serviceName, serviceVersion, otlpEndpoint string)
 			propagation.Baggage{},
 		))
 
-		log.Println("OpenTelemetry initialized successfully", "endpoint", otlpEndpoint)
+		log.Println("OpenTelemetry initialized successfully")
 	})
 
 	shutdown = func(ctx context.Context) error {
@@ -224,5 +222,5 @@ func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 }
 
 func GetSemanticSpanName(packageName, functionName string) string {
-	return fmt.Sprintf("%s:%s:%s", "IRIS", packageName, functionName)
+	return fmt.Sprintf("%s:%s", packageName, functionName)
 }
