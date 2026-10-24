@@ -80,6 +80,7 @@ jobs:
               - 'apps/backend/apps/admin/**'
             backend_test:
               - *ci_workflow_path
+              - 'codecov.yml'
               - 'apps/backend/**'
               - 'pnpm-lock.yaml'
             iris:
@@ -325,6 +326,9 @@ jobs:
     needs: detect-changes
     if: needs['detect-changes'].outputs.backend_test == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
@@ -392,8 +396,27 @@ jobs:
           MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Test
-        run: pnpm --filter="@codedang/backend" test
+      - name: Test with coverage
+        run: pnpm --filter="@codedang/backend" test:coverage
+
+      - name: Normalize Backend coverage paths
+        run: |
+          report=apps/backend/coverage/lcov.info
+          if ! grep -q '^SF:' "$report"; then
+            echo '::error::Backend coverage report contains no source files'
+            exit 1
+          fi
+          sed -i 's|^SF:|SF:apps/backend/|' "$report"
+
+      - name: Upload Backend coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/backend/coverage/lcov.info
+          flags: backend
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
 
   test-iris:
     name: Test Iris
