@@ -1,5 +1,10 @@
 global:
   domain: argocd.codedang.com
+  image:
+    # argo-cd 9.5.11 is the last chart on the 3.3 line and still defaults to v3.3.9.
+    # Pin the October 2026 security patch explicitly (GHSA-fw5c, GHSA-9v9p, GHSA-m3vr,
+    # GHSA-fmxq/CVE-2026-77459, GHSA-j6cw/CVE-2026-55797, GHSA-4439, GHSA-g3ff, GHSA-w996).
+    tag: v3.3.18
 
 configs:
   secret:
