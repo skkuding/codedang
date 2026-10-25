@@ -138,7 +138,7 @@ Before the first ArgoCD sync:
 2. Copy the live SQLite database and n8n user state into `n8n-main-persistence`.
 3. Inspect the ArgoCD diff for replacement or deletion of the existing Helm resources.
 4. Sync manually with pruning disabled.
-5. Confirm authenticated owner access and all existing workflows before exposing or activating the backup workflow.
+5. Confirm authenticated owner access and all existing workflows before exposing n8n.
 6. Run the backup against a small test page and test branch.
 7. Confirm `Notion Markdown Backup` is active, run a full backup, and inspect the resulting commit.
 
@@ -146,7 +146,7 @@ The chart currently references the existing `n8n-encryption-key-secret-v2` Secre
 
 Do not apply the local ArgoCD Application until `n8n-encryption-key-secret-v2` is represented by a verified SealedSecret in the private Git source. ArgoCD can track the current cluster while that Secret exists, but it cannot rebuild n8n without it.
 
-The provisioning init container imports the encrypted integration credentials, restores the GitHub-to-Notion workflow as active, and imports and activates all four managed workflows. It refuses to start n8n if provisioning fails, so preserve and verify the existing owner and encryption key before rollout.
+The provisioning init container imports the encrypted integration credentials and the four managed workflows, then activates all four. It refuses to start n8n if provisioning fails, so preserve and verify the existing owner and encryption key before rollout.
 
 ## Git limitations
 
@@ -156,7 +156,7 @@ Both backup branches must accept direct fast-forward pushes from their respectiv
 
 External file URLs are retained as links instead of downloaded because they can point to arbitrary hosts. Notion-hosted temporary URLs are downloaded during the run. Restore with `node /opt/n8n-provisioning/notion-restore.mjs <snapshot-key> <output-directory>`; it rejects traversal and verifies every recovered file's size and SHA-256 before writing it.
 
-The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout. The backup workflow stays active after provisioning.
+The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout.
 
 The S3 SealedSecret placeholder is not listed in `kustomization.yml`, so it cannot create an empty live Secret. Seal the approved workload credentials separately before adding that manifest to the rendered resources.
 
