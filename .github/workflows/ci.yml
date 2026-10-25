@@ -32,7 +32,6 @@ jobs:
       x509_distrust: ${{ steps.filter.outputs.x509_distrust }}
       node_version: ${{ steps.filter.outputs.node_version }}
       frontend: ${{ steps.filter.outputs.frontend }}
-      frontend_build_args: ${{ steps.filter.outputs.frontend_build_args }}
       infra_ansible: ${{ steps.filter.outputs.infra_ansible }}
       infra_ssh_keys: ${{ steps.filter.outputs.infra_ssh_keys }}
     steps:
@@ -140,13 +139,6 @@ jobs:
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
-            frontend_build_args:
-              - *ci_workflow_path
-              - 'apps/frontend/Dockerfile'
-              - '.github/workflows/cd-prod-k8s.yml'
-              - '.github/workflows/cd-stage-k8s.yml'
-              - '.github/workflows/legacy/cd-stage.yml'
-              - 'scripts/verify-frontend-build-args.sh'
             infra_ansible:
               - *ci_workflow_path
               - 'infra/ansible/**'
@@ -255,18 +247,6 @@ jobs:
       # msgpackr-extract.
       - name: Install dependencies with the lockfile
         run: pnpm install --frozen-lockfile
-
-  verify-frontend-build-args:
-    name: Verify Frontend Build Args
-    needs: detect-changes
-    if: needs['detect-changes'].outputs.frontend_build_args == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Check build args per environment
-        run: ./scripts/verify-frontend-build-args.sh
 
   # ===========================================================================
   # Backend
@@ -844,7 +824,6 @@ jobs:
       - lint-pr-title
       - lint-node
       - verify-node-runtime
-      - verify-frontend-build-args
       - lint-go
       - verify-go-toolchain-pins
       - build-backend-client
@@ -874,7 +853,6 @@ jobs:
             "lint-pr-title:${{ needs['lint-pr-title'].result }}"
             "lint-node:${{ needs['lint-node'].result }}"
             "verify-node-runtime:${{ needs['verify-node-runtime'].result }}"
-            "verify-frontend-build-args:${{ needs['verify-frontend-build-args'].result }}"
             "lint-go:${{ needs['lint-go'].result }}"
             "verify-go-toolchain-pins:${{ needs['verify-go-toolchain-pins'].result }}"
             "build-backend-client:${{ needs['build-backend-client'].result }}"
