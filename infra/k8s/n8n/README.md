@@ -6,7 +6,7 @@ n8n currently runs as a private, locally managed Helm release in the production 
 
 n8n is currently installed manually with Helm and is not managed by Argo CD. Changes to `values.yaml` are not applied automatically, so run the Helm upgrade command after changing the configuration.
 
-The chart version is pinned to `1.23.0`. This version supports both `extraManifests`, which is used to create the `HTTPRoute`, and `main.extraEnv`, which is used to load credentials from Secrets.
+The chart version is pinned to `1.23.0`. This version renders the Traefik `Ingress` and derives `N8N_EDITOR_BASE_URL` from `ingress.hosts`; `main.extraEnvVars` carries the execution settings that n8n reads from its environment.
 
 ### Install or upgrade
 
@@ -42,7 +42,7 @@ Check the installed chart version and resources:
 
 ```sh
 helm list --namespace n8n
-kubectl get pods,httproute --namespace n8n
+kubectl get pods,ingress --namespace n8n
 ```
 
 Render the manifests locally before applying a change:
@@ -58,7 +58,7 @@ helm template n8n community-charts/n8n \
 
 `workflows/notion-backup.json` schedules `scripts/notion-backup.mjs` daily at 03:00 Asia/Seoul. `workflows/notion-activity.json` receives signed Notion deletion and restoration events and stores them on the n8n PVC. `workflows/notion-activity-backup.json` independently publishes that append-only event log to a dedicated Git repository every five minutes.
 
-The persisted webhook verification token is made read-only before n8n starts so another verification payload cannot replace the active signing key. To rotate it, remove the file while n8n is running, recreate and verify the Notion webhook subscription, then set `/home/node/.n8n/notion-events/verification-token` to mode `0400` again.
+The persisted webhook verification token lives on the n8n PVC. The running pod template does not apply the `0400` hardening; only a later, never-deployed values revision did. To rotate it, remove the file while n8n is running, recreate and verify the Notion webhook subscription, then set `/home/node/.n8n/notion-events/verification-token` to mode `0400` again.
 
 The exporter:
 

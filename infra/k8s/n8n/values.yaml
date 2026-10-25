@@ -77,7 +77,8 @@ main:
     executions_timeout: '43200'
     executions_timeout_max: '43200'
     n8n_block_env_access_in_node: 'false'
-    n8n_concurrency_production_limit: '5'
+    # Mirrors the live deployment, which serializes production executions.
+    n8n_concurrency_production_limit: '1'
     n8n_git_node_disable_bare_repos: 'true'
   initContainers:
     - name: import-managed-workflows
@@ -85,13 +86,14 @@ main:
       image: n8nio/n8n:1.123.87
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']
+      # Mirrors the live pod template (marker v6). The live marker file is
+      # already present, so bumping this version would re-run the imports and
+      # reactivate the backup workflow on the next pod restart.
       args:
         - |
           set -eu
           node /opt/n8n-provisioning/notion-s3-preflight.mjs
-          verification_token=/home/node/.n8n/notion-events/verification-token
-          [ ! -f "$verification_token" ] || chmod 0400 "$verification_token"
-          marker=/home/node/.n8n/.managed-workflows-v7
+          marker=/home/node/.n8n/.managed-workflows-v6
           if [ ! -f "$marker" ]; then
             if n8n import:credentials --separate --input=/opt/n8n-credentials \
               && n8n import:workflow --input=/opt/n8n-provisioning/github-notion.json \
@@ -101,13 +103,20 @@ main:
               && n8n update:workflow --id=Kk6GC9syEGfI5u0e --active=true \
               && n8n update:workflow --id=notionActivityV1 --active=true \
               && n8n update:workflow --id=notionActivityBackupV1 --active=true \
-              && n8n update:workflow --id=notionBackupV1 --active=true; then
+              && n8n update:workflow --id=notionBackupV1 --active=false; then
               touch "$marker"
             else
               echo 'Managed workflow import failed; leaving the marker absent for retry'
               exit 1
             fi
           fi
+      # Mirrors the manual env patch on the live deployment; the chart does not
+      # propagate main.extraEnvVars to init containers.
+      env:
+        - name: NODE_FUNCTION_ALLOW_BUILTIN
+          value: crypto,fs
+        - name: N8N_CONCURRENCY_PRODUCTION_LIMIT
+          value: '5'
       envFrom:
         - configMapRef:
             name: n8n-database-configmap
@@ -155,7 +164,10 @@ main:
       mountPath: /run/secrets/notion-s3-backup
       readOnly: true
 ingress:
-  enabled: false
+  # Live still serves n8n through this Traefik ingress, and the chart derives
+  # N8N_EDITOR_BASE_URL (https://n8n.codedang.com) from it. The gateway
+  # HTTPRoute was never applied in production, so it is not rendered here.
+  enabled: true
   className: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns01
@@ -168,28 +180,6 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-
-extraManifests:
-  - apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
-    metadata:
-      name: n8n-httproute
-      namespace: n8n
-    spec:
-      parentRefs:
-        - name: main-gateway
-          namespace: kube-system
-          sectionName: https-wildcard
-      hostnames:
-        - n8n.codedang.com
-      rules:
-        - matches:
-            - path:
-                type: PathPrefix
-                value: /
-          backendRefs:
-            - name: n8n
-              port: 5678
 
 # Enable Prometheus monitoring
 serviceMonitor:
