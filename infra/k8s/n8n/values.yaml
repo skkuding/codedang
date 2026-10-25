@@ -42,6 +42,9 @@ existingEncryptionKeySecret: n8n-encryption-key-secret-v2
 
 main:
   count: 1
+  # The chart only derives N8N_EDITOR_BASE_URL from an enabled Ingress, so set
+  # it explicitly for the HTTPRoute.
+  editorBaseUrl: https://n8n.codedang.com
   resources:
     requests:
       cpu: 250m
@@ -77,8 +80,7 @@ main:
     executions_timeout: '43200'
     executions_timeout_max: '43200'
     n8n_block_env_access_in_node: 'false'
-    # Mirrors the live deployment, which serializes production executions.
-    n8n_concurrency_production_limit: '1'
+    n8n_concurrency_production_limit: '5'
     n8n_git_node_disable_bare_repos: 'true'
   initContainers:
     - name: import-managed-workflows
@@ -164,22 +166,29 @@ main:
       mountPath: /run/secrets/notion-s3-backup
       readOnly: true
 ingress:
-  # Live still serves n8n through this Traefik ingress, and the chart derives
-  # N8N_EDITOR_BASE_URL (https://n8n.codedang.com) from it. The gateway
-  # HTTPRoute was never applied in production, so it is not rendered here.
-  enabled: true
-  className: traefik
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dns01
-  tls:
-    - hosts:
+  enabled: false
+
+extraManifests:
+  - apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: n8n-httproute
+      namespace: n8n
+    spec:
+      parentRefs:
+        - name: main-gateway
+          namespace: kube-system
+          sectionName: https-wildcard
+      hostnames:
         - n8n.codedang.com
-      secretName: n8n-tls
-  hosts:
-    - host: n8n.codedang.com
-      paths:
-        - path: /
-          pathType: Prefix
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          backendRefs:
+            - name: n8n
+              port: 5678
 
 # Enable Prometheus monitoring
 serviceMonitor:

@@ -6,7 +6,7 @@ n8n currently runs as a private, locally managed Helm release in the production 
 
 n8n is currently installed manually with Helm and is not managed by Argo CD. Changes to `values.yaml` are not applied automatically, so run the Helm upgrade command after changing the configuration.
 
-The chart version is pinned to `1.23.0`. This version renders the Traefik `Ingress` and derives `N8N_EDITOR_BASE_URL` from `ingress.hosts`; `main.extraEnvVars` carries the execution settings that n8n reads from its environment.
+The chart version is pinned to `1.23.0`. This version supports `extraManifests`, which is used to create the `HTTPRoute` on the shared `main-gateway`, and `main.extraEnvVars`, which carries the execution settings that n8n reads from its environment. The chart derives `N8N_EDITOR_BASE_URL` only from an enabled `Ingress`, so `main.editorBaseUrl` sets it explicitly.
 
 ### Install or upgrade
 
@@ -42,7 +42,7 @@ Check the installed chart version and resources:
 
 ```sh
 helm list --namespace n8n
-kubectl get pods,ingress --namespace n8n
+kubectl get pods,httproute --namespace n8n
 ```
 
 Render the manifests locally before applying a change:
@@ -58,7 +58,7 @@ helm template n8n community-charts/n8n \
 
 `workflows/notion-backup.json` schedules `scripts/notion-backup.mjs` daily at 03:00 Asia/Seoul. `workflows/notion-activity.json` receives signed Notion deletion and restoration events and stores them on the n8n PVC. `workflows/notion-activity-backup.json` independently publishes that append-only event log to a dedicated Git repository every five minutes.
 
-The persisted webhook verification token lives on the n8n PVC. The running pod template does not apply the `0400` hardening; only a later, never-deployed values revision did. To rotate it, remove the file while n8n is running, recreate and verify the Notion webhook subscription, then set `/home/node/.n8n/notion-events/verification-token` to mode `0400` again.
+The webhook verification token persists on the n8n PVC at `/home/node/.n8n/notion-events/verification-token`. Keep it at mode `0400` so another verification payload cannot replace the active signing key. The provisioning init container does not change its mode. To rotate it, remove the file while n8n is running, recreate and verify the Notion webhook subscription, then set the file to mode `0400` again.
 
 The exporter:
 
@@ -150,7 +150,7 @@ The provisioning init container imports the encrypted integration credentials, r
 
 ## Git limitations
 
-Files larger than 1 GiB fail the run by default rather than silently producing an incomplete backup. The configured limit is enforced while streaming and declared HTTP lengths must match received bytes. The exporter uses the stock `n8nio/n8n:1.120.4` image and its bundled `@aws-sdk/client-s3@3.808.0`; objects use manually managed streamed multipart uploads, so raise the limit deliberately for larger Notion files. GitHub stores Markdown and recovery metadata only.
+Files larger than 1 GiB fail the run by default rather than silently producing an incomplete backup. The configured limit is enforced while streaming and declared HTTP lengths must match received bytes. The exporter uses the stock `n8nio/n8n:1.123.87` image and its bundled `@aws-sdk/client-s3@3.808.0`; objects use manually managed streamed multipart uploads, so raise the limit deliberately for larger Notion files. GitHub stores Markdown and recovery metadata only.
 
 Both backup branches must accept direct fast-forward pushes from their respective backup identities. Use dedicated repositories or unprotected backup branches rather than branches that require pull requests.
 
@@ -162,7 +162,7 @@ The S3 SealedSecret placeholder is not listed in `kustomization.yml`, so it cann
 
 ## Updating the workflow
 
-The import init container uses `/home/node/.n8n/.managed-workflows-v7` as a migration marker. When changing the managed workflows or credentials, increment the marker suffix in `values.yaml`. The GitHub-to-Notion workflow, webhook activity logger, activity Git publisher, and document backup are activated during provisioning.
+The import init container uses `/home/node/.n8n/.managed-workflows-v6` as a migration marker. When changing the managed workflows or credentials, increment the marker suffix in `values.yaml`. The GitHub-to-Notion workflow, webhook activity logger, and activity Git publisher are activated during provisioning; the document backup is imported inactive.
 
 ## TODO
 
