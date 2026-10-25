@@ -76,7 +76,7 @@ The document and activity publishers use separate filesystem locks. A manual exe
 
 The activity publisher clones both repositories at the start of every execution, resolves known entity titles from the latest document manifest, and calls the Notion Users API to resolve actor names. It writes daily Asia/Seoul JSONL files under `log/YYYY-MM/YYYY-MM-DD.jsonl` in the dedicated activity repository, with its own commit and push cycle. Existing daily files are retained, and late or retried events update their corresponding day. Provisioning activates the publisher after its repository-scoped SealedSecret is available.
 
-Git stores the backup, so no PVC is required for exported documents. The n8n PVC only preserves users, credentials, workflows, and execution metadata. The production `local-path` StorageClass is node-local, so the Git repository remains the disaster-recovery copy.
+Git stores the backup, so no PVC is required for exported documents. The n8n PVC only preserves users, credentials, workflows, execution metadata, the activity event log, and the webhook verification token. The production `local-path` StorageClass is node-local, so the Git repository remains the disaster-recovery copy.
 
 ## Credentials
 
@@ -135,7 +135,7 @@ Notion-hosted file URLs expire after one hour. The exporter downloads each URL w
 Before the first ArgoCD sync:
 
 1. Export the live n8n workflows and credentials and preserve the current encryption key.
-2. Copy the live SQLite database and n8n user state into `n8n-main-persistence`.
+2. Copy the live SQLite database and n8n user state into the `n8n-data` claim that `main.persistence.existingClaim` selects. Do not use `n8n-main-persistence`: its PV is pinned to the decommissioned `skkuding-4f-4` node.
 3. Inspect the ArgoCD diff for replacement or deletion of the existing Helm resources.
 4. Sync manually with pruning disabled.
 5. Confirm authenticated owner access and all existing workflows before exposing n8n.
@@ -158,7 +158,7 @@ External file URLs are retained as links instead of downloaded because they can 
 
 The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout.
 
-The S3 SealedSecret placeholder is not listed in `kustomization.yml`, so it cannot create an empty live Secret. Seal the approved workload credentials separately before adding that manifest to the rendered resources.
+`notion-backup-s3-credentials.yaml` is listed in `kustomization.yml` and carries the sealed S3 credentials, so `kubectl apply -k .` creates both the SealedSecret and the Secret it decrypts. Rotate them by resealing the values, not by applying a plaintext Secret.
 
 ## Updating the workflow
 
