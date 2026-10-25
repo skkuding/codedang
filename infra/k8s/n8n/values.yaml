@@ -88,14 +88,15 @@ main:
       image: n8nio/n8n:1.123.87
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']
-      # Mirrors the live pod template (marker v6). The live marker file is
-      # already present, so bumping this version would re-run the imports and
-      # reactivate the backup workflow on the next pod restart.
+      # Bumping the marker re-imports the managed credentials and workflows from
+      # the repo on the next pod start, overwriting UI edits.
       args:
         - |
           set -eu
           node /opt/n8n-provisioning/notion-s3-preflight.mjs
-          marker=/home/node/.n8n/.managed-workflows-v6
+          verification_token=/home/node/.n8n/notion-events/verification-token
+          [ ! -f "$verification_token" ] || chmod 0400 "$verification_token"
+          marker=/home/node/.n8n/.managed-workflows-v7
           if [ ! -f "$marker" ]; then
             if n8n import:credentials --separate --input=/opt/n8n-credentials \
               && n8n import:workflow --input=/opt/n8n-provisioning/github-notion.json \
@@ -105,7 +106,7 @@ main:
               && n8n update:workflow --id=Kk6GC9syEGfI5u0e --active=true \
               && n8n update:workflow --id=notionActivityV1 --active=true \
               && n8n update:workflow --id=notionActivityBackupV1 --active=true \
-              && n8n update:workflow --id=notionBackupV1 --active=false; then
+              && n8n update:workflow --id=notionBackupV1 --active=true; then
               touch "$marker"
             else
               echo 'Managed workflow import failed; leaving the marker absent for retry'
