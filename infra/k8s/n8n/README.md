@@ -58,7 +58,7 @@ helm template n8n community-charts/n8n \
 
 `workflows/notion-backup.json` schedules `scripts/notion-backup.mjs` daily at 03:00 Asia/Seoul. `workflows/notion-activity.json` receives signed Notion deletion and restoration events and stores them on the n8n PVC. `workflows/notion-activity-backup.json` independently publishes that append-only event log to a dedicated Git repository every five minutes.
 
-The webhook verification token persists on the n8n PVC at `/home/node/.n8n/notion-events/verification-token`. Keep it at mode `0400` so another verification payload cannot replace the active signing key. The provisioning init container does not change its mode. To rotate it, remove the file while n8n is running, recreate and verify the Notion webhook subscription, then set the file to mode `0400` again.
+The webhook verification token persists on the n8n PVC at `/home/node/.n8n/notion-events/verification-token`. The provisioning init container sets it to mode `0400` on every start so another verification payload cannot replace the active signing key. To rotate it, remove the file while n8n is running, recreate and verify the Notion webhook subscription; the next start (or a manual `chmod`) restores mode `0400`.
 
 The exporter:
 
@@ -140,13 +140,13 @@ Before the first ArgoCD sync:
 4. Sync manually with pruning disabled.
 5. Confirm authenticated owner access and all existing workflows before exposing or activating the backup workflow.
 6. Run the backup against a small test page and test branch.
-7. Activate `Notion Markdown Backup`, run a full backup, and inspect the resulting commit.
+7. Confirm `Notion Markdown Backup` is active, run a full backup, and inspect the resulting commit.
 
 The chart currently references the existing `n8n-encryption-key-secret-v2` Secret to avoid encryption-key drift during adoption. Convert it to a production SealedSecret after migration so a cluster rebuild does not depend on an uncommitted generated Secret.
 
 Do not apply the local ArgoCD Application until `n8n-encryption-key-secret-v2` is represented by a verified SealedSecret in the private Git source. ArgoCD can track the current cluster while that Secret exists, but it cannot rebuild n8n without it.
 
-The provisioning init container imports the encrypted integration credentials, restores the GitHub-to-Notion workflow as active, and imports the Notion backup workflow as inactive. It refuses to start n8n if provisioning fails, so preserve and verify the existing owner and encryption key before rollout.
+The provisioning init container imports the encrypted integration credentials, restores the GitHub-to-Notion workflow as active, and imports and activates all four managed workflows. It refuses to start n8n if provisioning fails, so preserve and verify the existing owner and encryption key before rollout.
 
 ## Git limitations
 
@@ -156,13 +156,13 @@ Both backup branches must accept direct fast-forward pushes from their respectiv
 
 External file URLs are retained as links instead of downloaded because they can point to arbitrary hosts. Notion-hosted temporary URLs are downloaded during the run. Restore with `node /opt/n8n-provisioning/notion-restore.mjs <snapshot-key> <output-directory>`; it rejects traversal and verifies every recovered file's size and SHA-256 before writing it.
 
-The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout. The backup workflow remains inactive during this staging step.
+The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout. The backup workflow stays active after provisioning.
 
 The S3 SealedSecret placeholder is not listed in `kustomization.yml`, so it cannot create an empty live Secret. Seal the approved workload credentials separately before adding that manifest to the rendered resources.
 
 ## Updating the workflow
 
-The import init container uses `/home/node/.n8n/.managed-workflows-v6` as a migration marker. When changing the managed workflows or credentials, increment the marker suffix in `values.yaml`. The GitHub-to-Notion workflow, webhook activity logger, and activity Git publisher are activated during provisioning; the document backup is imported inactive.
+The import init container uses `/home/node/.n8n/.managed-workflows-v7` as a migration marker. When changing the managed workflows or credentials, increment the marker suffix in `values.yaml`. The GitHub-to-Notion workflow, webhook activity logger, activity Git publisher, and document backup are activated during provisioning.
 
 ## TODO
 
