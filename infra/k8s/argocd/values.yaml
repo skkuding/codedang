@@ -95,6 +95,10 @@ server:
 
 notifications:
   enabled: true
+  # The SealedSecret in extraObjects creates argocd-notifications-secret. A
+  # chart-created empty Secret with the same name keeps the app OutOfSync.
+  secret:
+    create: false
   context:
     argocdUrl: https://argocd.codedang.com
   notifiers:
