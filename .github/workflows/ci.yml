@@ -145,6 +145,7 @@ jobs:
               - 'apps/frontend/Dockerfile'
               - '.github/workflows/cd-prod-k8s.yml'
               - '.github/workflows/cd-stage-k8s.yml'
+              - '.github/workflows/legacy/cd-stage.yml'
               - 'scripts/verify-frontend-build-args.sh'
             infra_ansible:
               - *ci_workflow_path
