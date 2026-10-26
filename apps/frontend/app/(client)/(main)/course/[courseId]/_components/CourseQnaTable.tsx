@@ -85,8 +85,8 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
       columns={columns}
       defaultSortState={[{ id: 'createTime', desc: true }]}
     >
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex h-[44px] w-[390px] items-center rounded-full border border-gray-200 bg-white p-1 px-[5px] py-[5px]">
+      <div className="mb-6 flex flex-nowrap items-center justify-between gap-6">
+        <div className="flex h-[44px] min-w-0 max-w-[390px] flex-[3_1_0] items-center rounded-full border border-gray-200 bg-white p-1 px-[5px] py-[5px]">
           <button
             onClick={() => setFilterType('General')}
             className={cn(
@@ -111,7 +111,10 @@ export function CourseQnaTable({ courseId }: CourseQnaTableProps) {
           </button>
         </div>
 
-        <DataTableSearchBar columndId="title" />
+        <DataTableSearchBar
+          columndId="title"
+          containerClassName="w-full min-w-0 max-w-[280px] flex-[2_1_0]"
+        />
       </div>
       <DataTable
         getHref={(row: CourseQnaListItem) =>
