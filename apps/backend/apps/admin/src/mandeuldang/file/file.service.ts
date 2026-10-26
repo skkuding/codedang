@@ -127,20 +127,15 @@ export class FileService {
 
     await this.storageService.deleteObject(tool.filePath, 'mandeuldang')
 
-    if (toolType == ToolType.Generator) {
-      const testcasePrefix = `mandeuldang/${problemId}/testcases/`
+    if (toolType === ToolType.Generator) {
       const testcaseFiles = await this.storageService.listObjects(
-        testcasePrefix,
+        `${problemId}/`,
         'testcase'
       )
 
-      await Promise.all(
-        testcaseFiles.map(async (file) => {
-          if (file.Key) {
-            await this.storageService.deleteObject(file.Key, 'testcase')
-          }
-        })
-      )
+      const keys = testcaseFiles.flatMap((file) => (file.Key ? [file.Key] : []))
+
+      await this.storageService.deleteObjects(keys, 'testcase')
     }
     return await this.prisma.mandeuldangTool.delete({
       where: { id: tool.id }
