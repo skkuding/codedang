@@ -32,6 +32,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           await this.handleGeneratorResult(res)
         } catch (error) {
           this.logError(error, 'Unexpected generator result error')
+          throw error
         }
       },
       onValidateResult: async (msg: object) => {
@@ -44,6 +45,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           await this.handleValidatorResult(res)
         } catch (error) {
           this.logError(error, 'Unexpected validator result error')
+          throw error
         }
       }
     })
