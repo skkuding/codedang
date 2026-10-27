@@ -686,9 +686,6 @@ export class ContestService {
     if (!userContest) {
       throw new EntityNotExistException('UserContest')
     }
-    if (!contestRecord) {
-      throw new EntityNotExistException('ContestRecord')
-    }
     if (
       !requesterRole ||
       (requesterRole.role !== ContestRole.Admin &&
@@ -705,7 +702,7 @@ export class ContestService {
     }
 
     return await this.prisma.$transaction(async (tx) => {
-      if (now >= contest.startTime) {
+      if (contestRecord && now >= contest.startTime) {
         // 강퇴당한 user가 firstSolver인 문제 존재 여부 확인 후 있으면 다음 사람에게 이월
         const firstSolveProblems = await tx.contestProblemFirstSolver.findMany({
           where: { contestRecordId: contestRecord.id },
@@ -760,7 +757,7 @@ export class ContestService {
             })
           }
         }
-      } else {
+      } else if (contestRecord) {
         await tx.contestRecord.delete({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
