@@ -1231,14 +1231,10 @@ export class ContestService {
           }
         }
       }),
-      this.prisma.contestRecord.count({
+      this.prisma.userContest.count({
         where: {
           contestId,
-          user: {
-            userContest: {
-              some: { contestId }
-            }
-          }
+          role: ContestRole.Participant
         }
       }),
       // Contest의 최고 점수 계산
