@@ -137,8 +137,12 @@ export class FileService {
 
       await this.storageService.deleteObjects(keys, 'testcase')
     }
-    return await this.prisma.mandeuldangTool.delete({
-      where: { id: tool.id }
-    })
+    await this.prisma.$transaction([
+      this.prisma.mandeuldangTool.delete({ where: { id: tool.id } }),
+      ...(toolType === ToolType.Generator
+        ? [this.prisma.mandeuldangTestFile.deleteMany({ where: { problemId } })]
+        : [])
+    ])
+    return tool
   }
 }
