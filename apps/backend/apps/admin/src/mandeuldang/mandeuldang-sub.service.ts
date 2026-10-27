@@ -127,7 +127,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
   @Span()
   async handleGeneratorResult(msg: GeneratorResultDto): Promise<void> {
     const requestId = Number(msg.messageId)
-    if (isNaN(requestId)) {
+    if (!Number.isSafeInteger(requestId) || requestId <= 0) {
       throw new UnprocessableDataException(
         `Invalid messageId format: ${msg.messageId}`
       )
@@ -219,7 +219,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
   @Span()
   async handleValidatorResult(msg: ValidatorResultDto): Promise<void> {
     const requestId = Number(msg.messageId)
-    if (isNaN(requestId)) {
+    if (!Number.isSafeInteger(requestId) || requestId <= 0) {
       throw new UnprocessableDataException(
         `Invalid messageId format: ${msg.messageId}`
       )

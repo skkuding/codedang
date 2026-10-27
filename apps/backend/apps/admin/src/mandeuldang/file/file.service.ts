@@ -6,7 +6,6 @@ import {
   ToolType
 } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
-import { extname } from 'path'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
@@ -94,8 +93,7 @@ export class FileService {
     const fileContent = Buffer.concat(chunks).toString('utf-8')
 
     // S3에 저장
-    const ext = extname(filename)
-    const filePath = `mandeuldang/${problemId}/tools/${toolType}${ext}`
+    const filePath = `mandeuldang/${problemId}/tools/${toolType}`
     await this.storageService.uploadObject(
       filePath,
       fileContent,
@@ -122,28 +120,25 @@ export class FileService {
   ) {
     await this.verifyToolAccess(problemId, userId, userRole)
 
-    const tool = await this.prisma.mandeuldangTool.delete({
+    const tool = await this.prisma.mandeuldangTool.findUniqueOrThrow({
       // eslint-disable-next-line @typescript-eslint/naming-convention
       where: { problemId_toolType: { problemId, toolType } }
     })
 
     await this.storageService.deleteObject(tool.filePath, 'mandeuldang')
 
-    if (toolType == ToolType.Generator) {
-      const testcasePrefix = `mandeuldang/${problemId}/testcases/`
+    if (toolType === ToolType.Generator) {
       const testcaseFiles = await this.storageService.listObjects(
-        testcasePrefix,
+        `${problemId}/`,
         'testcase'
       )
 
-      await Promise.all(
-        testcaseFiles.map(async (file) => {
-          if (file.Key) {
-            await this.storageService.deleteObject(file.Key, 'testcase')
-          }
-        })
-      )
+      const keys = testcaseFiles.flatMap((file) => (file.Key ? [file.Key] : []))
+
+      await this.storageService.deleteObjects(keys, 'testcase')
     }
-    return tool
+    return await this.prisma.mandeuldangTool.delete({
+      where: { id: tool.id }
+    })
   }
 }
