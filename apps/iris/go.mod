@@ -3,6 +3,7 @@ module github.com/skkuding/codedang/apps/iris
 go 1.25.0
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/aws/aws-sdk-go-v2 v1.37.2
 	github.com/aws/aws-sdk-go-v2/config v1.30.3
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.3 // indirect

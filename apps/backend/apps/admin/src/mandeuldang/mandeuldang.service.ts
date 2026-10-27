@@ -48,7 +48,7 @@ export class MandeuldangService {
     generatorArgs: string[],
     testcaseCount: number
   ) {
-    await this.publicationService.publishGeneratorMessage(
+    return await this.publicationService.publishGeneratorMessage(
       problemId,
       requesterId,
       generatorArgs,
