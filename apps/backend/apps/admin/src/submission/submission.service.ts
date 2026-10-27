@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Prisma, ResultStatus as PrismaResultStatus } from '@prisma/client'
+import {
+  Prisma,
+  ProblemStatus,
+  ResultStatus as PrismaResultStatus
+} from '@prisma/client'
 import * as archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
@@ -935,7 +939,13 @@ export class SubmissionService {
       }),
       this.prisma.problem.findUnique({
         where: { id: problemId },
-        select: { id: true, title: true, timeLimit: true, memoryLimit: true }
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          timeLimit: true,
+          memoryLimit: true
+        }
       })
     ])
 
@@ -957,6 +967,14 @@ export class SubmissionService {
           'Only group leaders can rejudge submissions'
         )
       }
+    }
+
+    // 만들당 Draft/Ready 문제는 아직 공개되지 않았으므로 재채점 대상이 될 수 없다 —
+    // limit이 채워져 있어도 발행 전이면 막는다.
+    if (problem.status !== ProblemStatus.Published) {
+      throw new UnprocessableDataException(
+        'Only published problems can be rejudged'
+      )
     }
 
     // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable).

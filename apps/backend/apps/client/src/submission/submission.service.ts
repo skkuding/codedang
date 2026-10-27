@@ -337,6 +337,14 @@ export class SubmissionService {
     if (problem.status !== ProblemStatus.Published) {
       throw new EntityNotExistException('Problem')
     }
+    // assignmentProblemRecord를 isSubmitted=true로 먼저 바꾸고 나면, createSubmission이
+    // 뒤에서 이 체크로 실패해도 "제출됨" 표시만 남고 실제 제출물은 없는 상태가 된다 —
+    // 레코드를 건드리기 전에 먼저 막는다.
+    if (problem.timeLimit == null || problem.memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be judged'
+      )
+    }
 
     await this.prisma.assignmentProblemRecord.upsert({
       where: {
@@ -486,6 +494,14 @@ export class SubmissionService {
     stopOnNotAccepted?: boolean
     judgeOnlyHiddenTestcases?: boolean
   }) {
+    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable) —
+    // submission/submissionResult 레코드를 만들기 전에 먼저 막아, 검증 실패 시
+    // Judging 상태로 영구히 남는 레코드가 생기지 않도록 한다.
+    if (problem.timeLimit == null || problem.memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be judged'
+      )
+    }
     if (!problem.languages.includes(submissionDto.language)) {
       throw new ConflictFoundException(
         `This problem does not support language ${submissionDto.language}`
@@ -830,6 +846,20 @@ export class SubmissionService {
 
     if (!problem) {
       throw new EntityNotExistException('Problem')
+    }
+
+    // 만들당 Draft/Ready 문제는 아직 공개되지 않았으므로 테스트 채점 대상이 될 수 없다.
+    if (problem.status !== ProblemStatus.Published) {
+      throw new UnprocessableDataException(
+        'Only published problems can be tested'
+      )
+    }
+
+    // createSubmission과 동일한 이유 — 캐시에 Judging 상태를 써넣기 전에 먼저 막는다.
+    if (problem.timeLimit == null || problem.memoryLimit == null) {
+      throw new UnprocessableDataException(
+        'Problem is missing timeLimit/memoryLimit and cannot be judged'
+      )
     }
 
     if (!problem.languages.includes(submissionDto.language)) {
