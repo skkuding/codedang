@@ -10,9 +10,7 @@ import { WhitespaceVisualizer } from './WhitespaceVisualizer'
 
 interface TestcasePanelProps {
   testResults: (Omit<TestCaseResult, 'problemTestcase'> & {
-    expectedOutput: string
     order: number
-    input: string
   })[]
   isTesting?: boolean
 }
@@ -148,9 +146,7 @@ export function TestcasePanel({
 
 interface TestcaseResultProps {
   displayTestResults: (Omit<TestCaseResult, 'problemTestcase'> & {
-    expectedOutput: string
     order: number
-    input: string
   })[]
 }
 
