@@ -11,21 +11,28 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { AssignmentOverallTabs } from '../../../../_components/AssignmentOverallTabs'
+import { AssignmentTitle } from '../_components/AssignmentTitle'
 
 export default function Layout({ tabs }: { tabs: React.ReactNode }) {
   const { courseId, assignmentId } = useParams()
 
-  const assignmentData = useQuery(GET_ASSIGNMENT, {
-    variables: {
-      groupId: Number(courseId),
-      assignmentId: Number(assignmentId)
+  const { data: assignment, loading: assignmentLoading } = useQuery(
+    GET_ASSIGNMENT,
+    {
+      variables: {
+        groupId: Number(courseId),
+        assignmentId: Number(assignmentId)
+      }
     }
-  }).data?.getAssignment
+  )
 
-  const { data, loading } = useQuery(GET_COURSE, {
+  const { data, loading: courseLoading } = useQuery(GET_COURSE, {
     variables: { groupId: Number(courseId) },
     skip: !courseId
   })
+
+  const assignmentData = assignment?.getAssignment
+  const loading = assignmentLoading && courseLoading
 
   const currentCourse = data?.getCourse
 
@@ -44,8 +51,13 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
           <Link href={`/admin/course/${courseId}/assignment` as const}>
             <FaAngleLeft className="h-12 hover:text-gray-700/80" />
           </Link>
-          <span className="text-4xl font-bold">{assignmentData?.title}</span>
-          <p className="text-body1_m_16 text-color-neutral-50">{`[${courseCode}] ${courseTitle} ㆍ ${courseSemester}`}</p>
+          <AssignmentTitle
+            title={assignmentData?.title}
+            courseCode={String(courseCode)}
+            courseTitle={courseTitle}
+            courseSemester={courseSemester}
+            isLoading={loading}
+          />
         </div>
         <Link
           href={
