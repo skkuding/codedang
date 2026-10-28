@@ -39,13 +39,13 @@ export function DurationDisplay({
     'text-error text-base font-medium'
 
   return (
-    <div className="flex items-center gap-2 whitespace-nowrap">
+    <div className="flex min-h-7 items-center gap-2 whitespace-nowrap">
       <div className="flex shrink-0 items-center gap-[6px]">
         {titleIcon}
         <span className={titleStyle}>{title} :</span>
       </div>
       {isLoading ? (
-        <Skeleton className="h-5 w-[250px]" />
+        <Skeleton className="h-6 w-[250px]" />
       ) : (
         <DurationDate startTime={startTime} endTime={endTime} />
       )}
