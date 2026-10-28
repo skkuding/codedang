@@ -53,7 +53,7 @@ AUTO_INSTALL_TOOLS=false ./bootstrap-cluster.sh
 ArgoCD depends on the SealedSecret CRD (its `values.yaml` contains SealedSecret resources). Install the sealed-secrets controller before bootstrapping ArgoCD:
 
 ```bash
-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+helm repo add sealed-secrets https://bitnami.github.io/sealed-secrets
 helm install sealed-secrets sealed-secrets/sealed-secrets -n kube-system
 ```
 
