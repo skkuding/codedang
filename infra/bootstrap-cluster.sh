@@ -112,7 +112,7 @@ echo "========================================="
 
 # Add Helm repository
 echo "Adding sealed-secrets Helm repository..."
-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+helm repo add sealed-secrets https://bitnami.github.io/sealed-secrets
 helm repo update
 echo -e "${GREEN}✓ Helm repository added${NC}"
 
