@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { FaAngleLeft } from 'react-icons/fa6'
 import { AssignmentOverallTabs } from '../../../../_components/AssignmentOverallTabs'
-import { AssignmentTitle } from '../_components/AssignmentTitle'
+import { AssignmentTitle } from './_components/AssignmentTitle'
 
 export default function Layout({ tabs }: { tabs: React.ReactNode }) {
   const { courseId, assignmentId } = useParams()
@@ -74,12 +74,12 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
         <div className="flex flex-col gap-[6px]">
           <CountdownStatus
             showText={true}
-            startTime={assignmentData?.startTime}
-            baseTime={assignmentData?.dueTime ?? assignmentData?.endTime}
+            startTime={assignmentData.startTime}
+            baseTime={assignmentData.dueTime ?? assignmentData.endTime}
           />
           <DurationDisplay
-            startTime={assignmentData?.startTime}
-            endTime={assignmentData?.endTime}
+            startTime={assignmentData.startTime}
+            endTime={assignmentData.endTime}
             title="visible"
           />
         </div>
