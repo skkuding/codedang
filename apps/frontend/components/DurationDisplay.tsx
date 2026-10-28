@@ -4,9 +4,11 @@ import InvisibleOrangeIcon from '@/public/icons/invisible-orange.svg'
 import SubtractIcon from '@/public/icons/subtract.svg'
 import dayjs from 'dayjs'
 import { TimeStatusBadge } from './TimeStatusBadge'
+import { Skeleton } from './shadcn/skeleton'
 
 interface DurationDisplayProps {
   startTime?: Date
+  isLoading?: boolean
   endTime: Date
   title: string
 }
@@ -14,10 +16,9 @@ interface DurationDisplayProps {
 export function DurationDisplay({
   startTime,
   endTime,
-  title
+  title,
+  isLoading = false
 }: DurationDisplayProps) {
-  const currentTime = dayjs()
-
   const titleIcons = {
     duration: <ClockIcon className="text-flowkit-red h-5" />,
     visible: <InvisibleOrangeIcon className="w-5" />,
@@ -43,6 +44,25 @@ export function DurationDisplay({
         {titleIcon}
         <span className={titleStyle}>{title} :</span>
       </div>
+      {isLoading ? (
+        <Skeleton className="h-5 w-[250px]" />
+      ) : (
+        <DurationDate startTime={startTime} endTime={endTime} />
+      )}
+    </div>
+  )
+}
+
+interface DurationDateProps {
+  startTime?: Date
+  endTime: Date
+}
+
+function DurationDate({ startTime, endTime }: DurationDateProps) {
+  const currentTime = dayjs()
+
+  return (
+    <>
       <span className="text-color-neutral-30 shrink-0 text-base">
         {dateFormatter(startTime ?? '', 'YYYY-MM-DD HH:mm')} ~{' '}
         {dateFormatter(endTime ?? '', 'YYYY-MM-DD HH:mm')}
@@ -57,6 +77,6 @@ export function DurationDisplay({
           <TimeStatusBadge status="upcoming" />
         )}
       </div>
-    </div>
+    </>
   )
 }

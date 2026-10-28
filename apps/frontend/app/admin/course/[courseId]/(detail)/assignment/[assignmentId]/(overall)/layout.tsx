@@ -32,7 +32,7 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
   })
 
   const assignmentData = assignment?.getAssignment
-  const loading = assignmentLoading && courseLoading
+  const loading = assignmentLoading || courseLoading
 
   const currentCourse = data?.getCourse
 
@@ -70,20 +70,20 @@ export default function Layout({ tabs }: { tabs: React.ReactNode }) {
           </Button>
         </Link>
       </div>
-      {assignmentData && (
-        <div className="flex flex-col gap-[6px]">
-          <CountdownStatus
-            showText={true}
-            startTime={assignmentData.startTime}
-            baseTime={assignmentData.dueTime ?? assignmentData.endTime}
-          />
-          <DurationDisplay
-            startTime={assignmentData.startTime}
-            endTime={assignmentData.endTime}
-            title="visible"
-          />
-        </div>
-      )}
+      <div className="flex flex-col gap-[6px]">
+        <CountdownStatus
+          showText={true}
+          startTime={assignmentData?.startTime}
+          baseTime={assignmentData?.dueTime ?? assignmentData?.endTime}
+          isLoading={loading}
+        />
+        <DurationDisplay
+          startTime={assignmentData?.startTime}
+          endTime={assignmentData?.endTime}
+          title="visible"
+          isLoading={loading}
+        />
+      </div>
 
       <AssignmentOverallTabs
         groupId={Number(courseId)}
