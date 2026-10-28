@@ -58,6 +58,9 @@ export function SubmissionPaginatedTable({
       queryClient.refetchQueries({
         queryKey: ['Contest Problem', contestId]
       })
+      queryClient.refetchQueries({
+        queryKey: ['submission', 'contest', contestId]
+      })
     }
 
     mounted.current = true
