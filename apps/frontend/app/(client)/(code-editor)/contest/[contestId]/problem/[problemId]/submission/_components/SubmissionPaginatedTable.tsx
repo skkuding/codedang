@@ -19,7 +19,7 @@ import {
   useSuspenseQueries,
   useQueryClient
 } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { columns } from './Columns'
 
 const itemsPerPage = 17
@@ -32,6 +32,7 @@ export function SubmissionPaginatedTable({
   contestId: number
 }) {
   const refreshTrigger = useSubmissionSync((state) => state.refreshTrigger)
+  const mounted = useRef(false)
   const queryClient = useQueryClient()
   const [queryParams] = useState({
     take: getTakeQueryParam({ itemsPerPage })
@@ -53,9 +54,13 @@ export function SubmissionPaginatedTable({
   })
 
   useEffect(() => {
-    queryClient.refetchQueries({
-      queryKey: ['Contest Problem', contestId]
-    })
+    if (mounted.current) {
+      queryClient.refetchQueries({
+        queryKey: ['Contest Problem', contestId]
+      })
+    }
+
+    mounted.current = true
   }, [refreshTrigger, contestId, queryClient])
 
   const [...allSubmissionsResponse] = useSuspenseQueries({
