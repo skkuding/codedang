@@ -45,14 +45,16 @@ export function DurationDisplay({
         isLoading && 'w-120'
       )}
     >
-      <div className="flex shrink-0 items-center gap-[6px]">
-        {titleIcon}
-        <span className={titleStyle}>{title} :</span>
-      </div>
       {isLoading ? (
         <Skeleton className="h-6 w-[100%]" />
       ) : (
-        <DurationDate startTime={startTime} endTime={endTime} />
+        <>
+          <div className="flex shrink-0 items-center gap-[6px]">
+            {titleIcon}
+            <span className={titleStyle}>{title} :</span>
+          </div>
+          <DurationDate startTime={startTime} endTime={endTime} />
+        </>
       )}
     </div>
   )
