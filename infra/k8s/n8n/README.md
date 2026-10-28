@@ -1,57 +1,29 @@
 # n8n
 
-n8n currently runs as a private, locally managed Helm release in the production cluster. `../argocd/applications/n8n.yaml` defines future ArgoCD tracking with self-heal enabled and pruning disabled, but intentionally points to the unpushed local branch. Move it to a private Git remote before applying it. Preserve the existing SQLite database and user state when adopting the release.
+n8n runs in the production cluster and is managed by Argo CD through `../argocd/applications/n8n.yaml` (`n8n-production`, `release` branch, self-heal on, pruning off).
 
 ## Deployment
 
-n8n is currently installed manually with Helm and is not managed by Argo CD. Changes to `values.yaml` are not applied automatically, so run the Helm upgrade command after changing the configuration.
+Argo CD renders the pinned Helm chart with `values.yaml` and applies this directory's Kustomization (SealedSecrets and the `n8n-provisioning` ConfigMap). Changes reach production when they land on the `release` branch; do not run `helm upgrade` or `kubectl apply` by hand.
 
 The chart version is pinned to `1.23.0`. This version supports `extraManifests`, which is used to create the `HTTPRoute` on the shared `main-gateway`, and `main.extraEnvVars`, which carries the execution settings that n8n reads from its environment. The chart derives `N8N_EDITOR_BASE_URL` only from an enabled `Ingress`, so `main.editorBaseUrl` sets it explicitly.
 
-### Install or upgrade
-
-Run the following commands from this directory:
-
-1. Add and update the Community Charts repository:
-
-```sh
-helm repo add community-charts https://community-charts.github.io/helm-charts
-helm repo update
-```
-
-2. Create the namespace and apply the SealedSecrets and workflow ConfigMap:
-
-```sh
-kubectl create namespace n8n --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -k .
-```
-
-3. Install or upgrade n8n with the pinned chart version:
-
-```sh
-helm upgrade --install n8n community-charts/n8n \
-  --version 1.23.0 \
-  --namespace n8n \
-  --values values.yaml \
-  --wait
-```
-
 ### Verify
 
-Check the installed chart version and resources:
+Render the manifests locally before changing them:
 
 ```sh
-helm list --namespace n8n
-kubectl get pods,httproute --namespace n8n
-```
-
-Render the manifests locally before applying a change:
-
-```sh
-helm template n8n community-charts/n8n \
+helm template n8n n8n --repo https://community-charts.github.io/helm-charts \
   --version 1.23.0 \
   --namespace n8n \
   --values values.yaml
+kubectl kustomize .
+```
+
+After a release, check that `n8n-production` is `Synced` and `Healthy` in Argo CD and that the pod is ready:
+
+```sh
+kubectl get pods,httproute --namespace n8n
 ```
 
 ## Notion backup
@@ -130,21 +102,16 @@ Notion documents an average limit of three requests per second for each integrat
 
 Notion-hosted file URLs expire after one hour. The exporter downloads each URL while processing its page rather than storing the temporary URL. A full export can run longer than the URL lifetime, so when a download fails with 403 or 404 the exporter re-reads the owning page or block for a fresh signed URL and retries once; it still fails the run if the refreshed download fails. Plus education is a paid plan for Notion file-size purposes, so the workspace may contain uploads much larger than a normal Git host accepts; see Git limitations below.
 
-## Initial adoption
+## Argo CD adoption
 
-Before the first ArgoCD sync:
+The release used to be installed by hand with Helm. Argo CD takes it over in place:
 
-1. Export the live n8n workflows and credentials and preserve the current encryption key.
-2. Copy the live SQLite database and n8n user state into the `n8n-data` claim that `main.persistence.existingClaim` selects. Do not use `n8n-main-persistence`: its PV is pinned to the decommissioned `skkuding-4f-4` node.
-3. Inspect the ArgoCD diff for replacement or deletion of the existing Helm resources.
-4. Sync manually with pruning disabled.
-5. Confirm authenticated owner access and all existing workflows before exposing n8n.
-6. Run the backup against a small test page and test branch.
-7. Confirm `Notion Markdown Backup` is active, run a full backup, and inspect the resulting commit.
+1. Before the first sync, export the live workflows and credentials and keep the encryption key. The data stays on the `n8n-data` claim that `main.persistence.existingClaim` selects; `n8n-main-persistence` is pinned to the decommissioned `skkuding-4f-4` node and is unused.
+2. The first sync replaces the Ingress with the `HTTPRoute` and restarts n8n. The v7 marker is missing, so provisioning re-imports the managed credentials and workflows and overwrites UI edits to them.
+3. Pruning is off, so delete the leftover `Ingress/n8n` and the old Helm release Secrets (`sh.helm.release.v1.n8n.*`) by hand once n8n is healthy.
+4. Confirm owner login, the four workflows, and one backup run.
 
-The chart currently references the existing `n8n-encryption-key-secret-v2` Secret to avoid encryption-key drift during adoption. Convert it to a production SealedSecret after migration so a cluster rebuild does not depend on an uncommitted generated Secret.
-
-Do not apply the local ArgoCD Application until `n8n-encryption-key-secret-v2` is represented by a verified SealedSecret in the private Git source. ArgoCD can track the current cluster while that Secret exists, but it cannot rebuild n8n without it.
+The chart references the existing `n8n-encryption-key-secret-v2` Secret, which is not in Git. Argo CD does not manage it; convert it to a production SealedSecret so a cluster rebuild does not depend on it.
 
 The provisioning init container imports the encrypted integration credentials and the four managed workflows, then activates all four. It refuses to start n8n if provisioning fails, so preserve and verify the existing owner and encryption key before rollout.
 
@@ -158,7 +125,7 @@ External file URLs are retained as links instead of downloaded because they can 
 
 The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout.
 
-`notion-backup-s3-credentials.yaml` is listed in `kustomization.yml` and carries the sealed S3 credentials, so `kubectl apply -k .` creates both the SealedSecret and the Secret it decrypts. Rotate them by resealing the values, not by applying a plaintext Secret.
+`notion-backup-s3-credentials.yaml` is listed in `kustomization.yml` and carries the sealed S3 credentials, so Argo CD creates the SealedSecret and the controller decrypts it into the Secret. Rotate them by resealing the values, not by applying a plaintext Secret.
 
 ## Updating the workflow
 
