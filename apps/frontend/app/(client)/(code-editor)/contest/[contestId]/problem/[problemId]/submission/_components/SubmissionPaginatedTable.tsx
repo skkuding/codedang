@@ -53,19 +53,6 @@ export function SubmissionPaginatedTable({
     }
   })
 
-  useEffect(() => {
-    if (mounted.current) {
-      queryClient.refetchQueries({
-        queryKey: ['Contest Problem', contestId]
-      })
-      queryClient.refetchQueries({
-        queryKey: ['submission', 'contest', contestId]
-      })
-    }
-
-    mounted.current = true
-  }, [refreshTrigger, contestId, queryClient])
-
   const [...allSubmissionsResponse] = useSuspenseQueries({
     queries: problemIdList.data.map((problemIndex) =>
       contestSubmissionQueries.list({
@@ -85,6 +72,19 @@ export function SubmissionPaginatedTable({
     (a, b) =>
       new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
   )
+
+  useEffect(() => {
+    if (mounted.current) {
+      queryClient.refetchQueries({
+        queryKey: ['Contest Problem', contestId]
+      })
+      queryClient.refetchQueries({
+        queryKey: ['submission', 'contest', contestId]
+      })
+    }
+
+    mounted.current = true
+  }, [refreshTrigger, contestId, queryClient])
 
   const {
     paginatedItems,
