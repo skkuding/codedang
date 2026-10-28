@@ -1,10 +1,7 @@
 import type { ProblemTestcase, TestCaseResult } from '@generated/graphql'
 
 export function mapTestResults(
-  testcases: Pick<
-    ProblemTestcase,
-    'id' | 'input' | 'output' | 'order' | 'isHidden'
-  >[],
+  testcases: Pick<ProblemTestcase, 'id' | 'order' | 'isHidden'>[],
   results: Omit<TestCaseResult, 'problemTestcase'>[]
 ) {
   return results.map((result) => {
@@ -14,8 +11,6 @@ export function mapTestResults(
     return {
       ...result,
       isHidden: testcase?.isHidden || false,
-      input: testcase?.input || '',
-      expectedOutput: testcase?.output || '',
       order: testcase?.order || 0
     }
   })

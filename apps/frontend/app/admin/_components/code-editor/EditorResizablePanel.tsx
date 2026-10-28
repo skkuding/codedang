@@ -100,9 +100,7 @@ export function EditorMainResizablePanel({ children }: ProblemEditorProps) {
 
   const [testResults, setTestResults] = useState<
     (Omit<TestCaseResult, 'problemTestcase'> & {
-      expectedOutput: string
       order: number
-      input: string
     })[]
   >([])
 

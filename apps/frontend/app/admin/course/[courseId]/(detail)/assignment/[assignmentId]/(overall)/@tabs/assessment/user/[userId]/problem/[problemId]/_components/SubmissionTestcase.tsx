@@ -10,7 +10,7 @@ import {
   TableRow,
   TableFooter
 } from '@/components/shadcn/table'
-import { GET_PROBLEM_TESTCASE } from '@/graphql/problem/queries'
+import { GET_PROBLEM_TESTCASE_WITHOUT_IO } from '@/graphql/problem/queries'
 import { GET_ASSIGNMENT_LATEST_SUBMISSION } from '@/graphql/submission/queries'
 import { cn, getResultColor } from '@/libs/utils'
 import { useTestcaseStore } from '@/stores/testcaseStore'
@@ -49,9 +49,7 @@ export function SubmissionTestcase() {
 
   const [testResults, setTestResults] = useState<
     (Omit<TestCaseResult, 'problemTestcase'> & {
-      expectedOutput: string
       order: number
-      input: string
     })[]
   >([])
   const submission = useSuspenseQuery(GET_ASSIGNMENT_LATEST_SUBMISSION, {
@@ -63,7 +61,7 @@ export function SubmissionTestcase() {
     }
   }).data.getAssignmentLatestSubmission
 
-  const testcase = useSuspenseQuery(GET_PROBLEM_TESTCASE, {
+  const testcase = useSuspenseQuery(GET_PROBLEM_TESTCASE_WITHOUT_IO, {
     variables: {
       id: Number(problemId)
     }
