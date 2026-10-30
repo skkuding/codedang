@@ -106,20 +106,22 @@ describe('ProblemService', () => {
   })
 
   describe('createProblem', () => {
+    // 이 mock의 필드들은 Problem 전체 타입(nullable)에서 왔지만 실제 값은 항상
+    // 채워져 있다 — CreateProblemInput은 (레거시 문제 생성 시 그대로) non-null을 요구한다.
     const input = {
       title: problems[0].title,
-      description: problems[0].description,
-      inputDescription: problems[0].inputDescription,
-      outputDescription: problems[0].outputDescription,
-      hint: problems[0].hint,
+      description: problems[0].description!,
+      inputDescription: problems[0].inputDescription!,
+      outputDescription: problems[0].outputDescription!,
+      hint: problems[0].hint!,
       isVisible: false,
       template: problems[0].template,
       languages: problems[0].languages,
       solution: problems[0].solution,
-      timeLimit: problems[0].timeLimit,
-      memoryLimit: problems[0].memoryLimit,
+      timeLimit: problems[0].timeLimit!,
+      memoryLimit: problems[0].memoryLimit!,
       difficulty: Level.Level1,
-      source: problems[0].source,
+      source: problems[0].source!,
       testcases: [testcaseInput],
       tagIds: [1]
     }

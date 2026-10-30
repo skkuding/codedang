@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker'
 import { Prisma, ResultStatus } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
+import { omit } from 'es-toolkit'
 import { stub } from 'sinon'
 import {
   EntityNotExistException,
@@ -68,6 +69,13 @@ const mockProblems = problems.map((problem) => {
     }
   )
 })
+
+const mockSelectedProblem = omit(mockProblems[0], [
+  'creationMode',
+  'lastRunPass',
+  'problemType',
+  'status'
+])
 
 const mockContest = {
   id: contestId,
@@ -146,11 +154,14 @@ const mockAssignment = {
 
 const mockAssignmentProblem = {
   ...Object.assign({}, assignmentProblems[0]),
-  problem: Object.assign({ tags: [tag] }, mockProblems[0])
+  problem: Object.assign({ tags: [tag] }, mockSelectedProblem)
 }
 
 const mockAssignmentProblems = assignmentProblems.map((assignmentProblem) => {
-  return { ...assignmentProblem, problem: Object.assign({}, mockProblems[0]) }
+  return {
+    ...assignmentProblem,
+    problem: Object.assign({}, mockSelectedProblem)
+  }
 })
 
 const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
@@ -168,13 +179,13 @@ const mockAssignmentProblemsWithScore = assignmentProblemsWithScore.map(
 
 const mockWorkbookProblem = {
   ...Object.assign({}, workbookProblems[0]),
-  problem: Object.assign({ tags: [tag] }, mockProblems[0])
+  problem: Object.assign({ tags: [tag] }, mockSelectedProblem)
 }
 
 const mockWorkbookProblems = workbookProblems.map((workbookProblem) => {
   return {
     ...workbookProblem,
-    problem: Object.assign({}, mockProblems[0]),
+    problem: Object.assign({}, mockSelectedProblem),
     maxScore: null,
     score: null,
     submissionTime: null

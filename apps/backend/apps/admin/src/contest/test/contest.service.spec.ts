@@ -2,7 +2,15 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
-import { ContestRole, Prisma, ResultStatus, Role } from '@prisma/client'
+import {
+  ContestRole,
+  Prisma,
+  ProblemCreationMode,
+  ProblemStatus,
+  ProblemType,
+  ResultStatus,
+  Role
+} from '@prisma/client'
 import { expect } from 'chai'
 import { stub, type SinonStub } from 'sinon'
 import { MAX_DATE } from '@libs/constants'
@@ -103,6 +111,10 @@ const contestWithParticipants: ContestWithParticipants = {
 const problem: Problem = {
   id: problemId,
   createdById: 2,
+  creationMode: ProblemCreationMode.Legacy,
+  status: ProblemStatus.Published,
+  lastRunPass: false,
+  problemType: ProblemType.General,
   title: 'test problem',
   description: 'thisistestproblem',
   inputDescription: 'inputdescription',

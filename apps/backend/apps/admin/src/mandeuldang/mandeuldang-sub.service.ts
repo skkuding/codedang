@@ -79,7 +79,7 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       latestRuns.length > 0 &&
       latestRuns.every((run) => run?.status === MandeuldangRunStatus.Success)
 
-    await tx.mandeuldangProblem.update({
+    await tx.problem.update({
       where: { id: problemId },
       data: { lastRunPass: allPassed }
     })
