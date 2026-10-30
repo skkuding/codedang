@@ -49,7 +49,9 @@ export class MandeuldangPublicationService {
 
     //실행 요청 메시지 publish
     try {
-      await this.amqpService.publishGeneratorMessage(request.id, problemId, {
+      await this.amqpService.publishGeneratorMessage({
+        requestId: request.id,
+        problemId,
         generatorLanguage: Language.Cpp,
         generatorCode,
         generatorArgs,
@@ -91,7 +93,8 @@ export class MandeuldangPublicationService {
     })
 
     try {
-      await this.amqpService.publishValidatorMessage(request.id, problemId, {
+      await this.amqpService.publishValidatorMessage({
+        requestId: request.id,
         problemId,
         language: Language.Cpp,
         validatorCode

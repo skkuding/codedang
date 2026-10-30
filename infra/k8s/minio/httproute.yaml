@@ -62,4 +62,3 @@ spec:
       backendRefs:
         - name: silo-shadow
           port: 9090
-

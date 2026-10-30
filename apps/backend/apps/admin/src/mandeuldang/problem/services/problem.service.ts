@@ -52,7 +52,6 @@ const resolveMyRole = (
     ? myCollaborator.role
     : null
 }
-
 @Injectable()
 export class MandeuldangProblemService {
   constructor(

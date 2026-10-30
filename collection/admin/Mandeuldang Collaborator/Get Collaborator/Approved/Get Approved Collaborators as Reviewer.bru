@@ -1,0 +1,53 @@
+meta {
+  name: Get Approved Collaborators as Reviewer
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: reviewer
+}
+
+auth:bearer {
+  token: {{reviewerToken}}
+}
+
+body:graphql {
+  query ($problemId: Int!) {
+    getApprovedCollaborator(problemId: $problemId) {
+      id
+      username
+      email
+      role
+      status
+      invitedBy {
+        id
+        username
+      }
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}}
+  }
+}
+
+tests {
+  test("Get Approved Collaborators as Reviewer", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.undefined;
+    expect(res.body.data.getApprovedCollaborator).to.be.an("array");
+  });
+}

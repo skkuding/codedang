@@ -1,0 +1,55 @@
+meta {
+  name: [ERR] Approve Invitation as Editor
+  type: graphql
+  seq: 10
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: editor
+}
+
+auth:bearer {
+  token: {{editorToken}}
+}
+
+body:graphql {
+  mutation ($problemId: Int!, $userId: Int!) {
+    approveInvite(problemId: $problemId, userId: $userId) {
+      id
+      problemId
+      userId
+      role
+      status
+      invitedById
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}},
+    "userId": {{pendingUserId}}
+  }
+}
+
+tests {
+  test("Approve Invitation as Editor - FORBIDDEN", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.an("array").that.is.not.empty;
+    const error = res.body.errors.find(e => e.path && e.path[0] === "approveInvite");
+    expect(error).to.not.equal(undefined);
+    expect(error.extensions.code).to.equal("FORBIDDEN");
+    expect(error.message).to.equal("No permission to approve/reject");
+    expect(res.body.data == null || res.body.data.approveInvite == null).to.equal(true);
+  });
+}

@@ -1,0 +1,55 @@
+meta {
+  name: Reject Pending Invitation
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: owner
+}
+
+auth:bearer {
+  token: {{ownerToken}}
+}
+
+body:graphql {
+  mutation ($problemId: Int!, $userId: Int!) {
+    rejectInvite(problemId: $problemId, userId: $userId) {
+      id
+      problemId
+      userId
+      role
+      status
+      invitedById
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}},
+    "userId": {{pendingUserId}}
+  }
+}
+
+tests {
+  test("Reject Pending Invitation", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.undefined;
+    const value = res.body.data.rejectInvite;
+    expect(value.userId).to.equal(Number(bru.getVar("pendingUserId")));
+    expect(value.problemId).to.equal(Number(bru.getVar("collabProblemId")));
+    expect(value.status).to.equal("Rejected");
+    expect(value.approvedAt).to.equal(null);
+  });
+}

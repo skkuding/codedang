@@ -1,0 +1,54 @@
+meta {
+  name: Remove Collaborator
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: owner
+}
+
+auth:bearer {
+  token: {{ownerToken}}
+}
+
+body:graphql {
+  mutation ($problemId: Int!, $userId: Int!) {
+    removeCollaborator(problemId: $problemId, userId: $userId) {
+      id
+      problemId
+      userId
+      role
+      status
+      invitedById
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}},
+    "userId": {{reviewerUserId}}
+  }
+}
+
+tests {
+  test("Remove Collaborator", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.undefined;
+    const value = res.body.data.removeCollaborator;
+    expect(value.userId).to.equal(Number(bru.getVar("reviewerUserId")));
+    expect(value.problemId).to.equal(Number(bru.getVar("collabProblemId")));
+    expect(value.status).to.equal("Approved");
+  });
+}

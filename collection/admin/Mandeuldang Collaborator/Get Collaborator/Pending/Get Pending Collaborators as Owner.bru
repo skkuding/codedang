@@ -1,0 +1,53 @@
+meta {
+  name: Get Pending Collaborators as Owner
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: owner
+}
+
+auth:bearer {
+  token: {{ownerToken}}
+}
+
+body:graphql {
+  query ($problemId: Int!) {
+    getPendingCollaborator(problemId: $problemId) {
+      id
+      username
+      email
+      role
+      status
+      invitedBy {
+        id
+        username
+      }
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}}
+  }
+}
+
+tests {
+  test("Get Pending Collaborators as Owner", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.undefined;
+    expect(res.body.data.getPendingCollaborator).to.be.an("array");
+  });
+}
