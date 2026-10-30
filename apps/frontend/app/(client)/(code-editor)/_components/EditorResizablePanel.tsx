@@ -323,6 +323,7 @@ export function EditorMainResizablePanel({
                 exerciseId={exerciseId}
                 courseId={courseId}
                 templateString={problem.template[0]}
+                onSubmissionStart={() => setIsBottomPanelHidden(false)}
               />
               <ResizablePanelGroup direction="vertical" className="h-32">
                 <ResizablePanel
