@@ -31,6 +31,9 @@ spec:
             valueFiles:
               - '$codedang/infra/k8s/monitoring/alloy/values.yaml'
               - '$codedang/infra/k8s/monitoring/alloy/values-{{.env}}.yaml'
+            fileParameters:
+              - name: alloy.configMap.content
+                path: '$codedang/infra/k8s/monitoring/alloy/config.alloy'
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
           ref: codedang
