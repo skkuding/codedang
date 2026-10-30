@@ -1,0 +1,38 @@
+meta {
+  name: NOT_FOUND
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation DeleteMandeuldangProblem($id: Int!) {
+    deleteMandeuldangProblem(id: $id) {
+      id
+      title
+      description
+      createdById
+      creationMode
+      status
+      myRole
+      testFileCount
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 9999
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}

@@ -1,0 +1,54 @@
+meta {
+  name: Succeed with Required Fields Only
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation CreateMandeuldangProblem(
+    $input: CreateMandeuldangProblemInput!
+  ) {
+    createMandeuldangProblem(input: $input) {
+      id
+      createdById
+      title
+      problemType
+      description
+      inputDescription
+      outputDescription
+      timeLimit
+      memoryLimit
+      difficulty
+      languages
+      creationMode
+      status
+      myRole
+      testFileCount
+      mandeuldangCollaborators {
+        userId
+        role
+        status
+      }
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "title": "최소 입력 문제",
+      "problemType": "General"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

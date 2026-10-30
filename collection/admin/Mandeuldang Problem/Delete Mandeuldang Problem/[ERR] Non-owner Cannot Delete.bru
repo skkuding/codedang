@@ -1,0 +1,38 @@
+meta {
+  name: [ERR] Non-owner Cannot Delete
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation DeleteMandeuldangProblem($id: Int!) {
+    deleteMandeuldangProblem(id: $id) {
+      id
+      title
+      description
+      createdById
+      creationMode
+      status
+      myRole
+      testFileCount
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "id": 29
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
