@@ -23,7 +23,7 @@ services:
 
   storage:
     container_name: codedang-storage
-    image: docker.io/pgsty/silo:RELEASE.2026-10-26T00-00-00Z
+    image: pgsty/silo
     ports:
       - 9000:9000
       - 9001:9001
