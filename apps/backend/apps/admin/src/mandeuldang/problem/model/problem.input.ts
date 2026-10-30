@@ -30,3 +30,33 @@ export class CreateMandeuldangProblemInput {
   @Field(() => [Language], { nullable: true })
   languages?: Array<keyof typeof Language> | null
 }
+
+@InputType()
+export class UpdateMandeuldangProblemInput {
+  @Field(() => Int, { nullable: false })
+  id!: number
+
+  @Field(() => String, { nullable: true })
+  title?: string
+
+  @Field(() => String, { nullable: true })
+  description?: string
+
+  @Field(() => String, { nullable: true })
+  inputDescription?: string
+
+  @Field(() => String, { nullable: true })
+  outputDescription?: string
+
+  @Field(() => [Language], { nullable: true })
+  languages?: Array<keyof typeof Language>
+
+  @Field(() => Int, { nullable: true })
+  timeLimit?: number
+
+  @Field(() => Int, { nullable: true })
+  memoryLimit?: number
+
+  @Field(() => Level, { nullable: true })
+  difficulty?: keyof typeof Level
+}
