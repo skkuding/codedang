@@ -1,11 +1,12 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common'
-import { MandeuldangRunStatus } from '@prisma/client'
+import { MandeuldangRunStatus, TestFileType, type Prisma } from '@prisma/client'
 import { plainToInstance } from 'class-transformer'
 import { validateOrReject, ValidationError } from 'class-validator'
 import { Span } from 'nestjs-otel'
 import { MandeuldangAMQPService } from '@libs/amqp'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import {
   GeneratorResultDto,
   ValidatorResultDto
@@ -17,7 +18,8 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly amqpService: MandeuldangAMQPService
+    private readonly amqpService: MandeuldangAMQPService,
+    private readonly storageService: StorageService
   ) {}
 
   onModuleInit() {
@@ -50,10 +52,38 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    this.amqpService.startGeneratorSubscription()
-    this.amqpService.startValidatorSubscription()
+    this.amqpService.startSubscription()
   }
 
+  private async updateLatestRuns(
+    tx: Prisma.TransactionClient,
+    problemId: number
+  ): Promise<void> {
+    const tools = await tx.mandeuldangTool.findMany({
+      where: { problemId }
+    })
+
+    const latestRuns = await Promise.all(
+      tools.map((tool) =>
+        tx.mandeuldangRunRequest.findFirst({
+          where: {
+            problemId,
+            toolType: tool.toolType
+          },
+          orderBy: { submittedAt: 'desc' }
+        })
+      )
+    )
+
+    const allPassed =
+      latestRuns.length > 0 &&
+      latestRuns.every((run) => run?.status === MandeuldangRunStatus.Success)
+
+    await tx.mandeuldangProblem.update({
+      where: { id: problemId },
+      data: { lastRunPass: allPassed }
+    })
+  }
   /**
    * Generator를 실행한 결과 메세지를 class-validator를 통해 검증합니다.
    *
@@ -109,25 +139,69 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
-    const isSuccess = msg.resultCode === 0
-    const now = new Date()
+    if (msg.problemId !== request.problemId) {
+      throw new UnprocessableDataException(
+        `problemId mismatch: expected ${request.problemId}, received ${msg.problemId}`
+      )
+    }
 
-    await this.prisma.$transaction([
-      this.prisma.mandeuldangRunRequest.update({
+    const problemId = request.problemId
+    const isSuccess = msg.resultCode === 0
+    let testFileData: Prisma.MandeuldangTestFileCreateManyInput[] = []
+
+    if (isSuccess && msg.toolResult?.testcaseIds?.length) {
+      const fileRequests = msg.toolResult?.testcaseIds.flatMap((testcaseId) => {
+        const baseName = String(testcaseId)
+        return (['in', 'out'] as const).map((ext) => ({
+          fileName: `${baseName}.${ext}`,
+          baseName,
+          ext
+        }))
+      })
+
+      testFileData = await Promise.all(
+        fileRequests.map(async ({ fileName, baseName, ext }) => {
+          const filePath = `${problemId}/${fileName}`
+          const fileSize = await this.storageService.getObjectSize(
+            filePath,
+            'testcase'
+          )
+
+          return {
+            problemId,
+            fileName,
+            baseName,
+            fileType: ext === 'in' ? TestFileType.IN : TestFileType.OUT,
+            filePath,
+            fileSize: BigInt(fileSize)
+          }
+        })
+      )
+    }
+
+    // S3 조회 후에 DB를 변경합니다.
+    await this.prisma.$transaction(async (tx) => {
+      if (testFileData.length > 0) {
+        await tx.mandeuldangTestFile.deleteMany({
+          where: { problemId }
+        })
+
+        await tx.mandeuldangTestFile.createMany({ data: testFileData })
+      }
+
+      await tx.mandeuldangRunRequest.update({
         where: { id: requestId },
         data: {
           status: isSuccess
             ? MandeuldangRunStatus.Success
             : MandeuldangRunStatus.Failed,
           resultCode: msg.resultCode,
-          completedAt: now
+          completedAt: new Date()
         }
-      }),
-      this.prisma.mandeuldangProblem.update({
-        where: { id: request.problemId },
-        data: { lastRunPass: isSuccess }
       })
-    ])
+
+      await this.updateLatestRuns(tx, problemId)
+    })
 
     this.logger.log(
       {
@@ -157,12 +231,19 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       }
     })
 
+    if (msg.problemId !== request.problemId) {
+      throw new UnprocessableDataException(
+        `problemId mismatch: expected ${request.problemId}, received ${msg.problemId}`
+      )
+    }
+
+    const problemId = request.problemId
     const isSuccess =
       msg.resultCode === 0 && msg.toolResult?.isAllValid === true
     const now = new Date()
 
-    await this.prisma.$transaction([
-      this.prisma.mandeuldangRunRequest.update({
+    await this.prisma.$transaction(async (tx) => {
+      await tx.mandeuldangRunRequest.update({
         where: { id: requestId },
         data: {
           status: isSuccess
@@ -171,12 +252,10 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
           resultCode: msg.resultCode,
           completedAt: now
         }
-      }),
-      this.prisma.mandeuldangProblem.update({
-        where: { id: request.problemId },
-        data: { lastRunPass: isSuccess }
       })
-    ])
+
+      await this.updateLatestRuns(tx, problemId)
+    })
 
     this.logger.log(
       {
@@ -187,8 +266,6 @@ export class MandeuldangSubscriptionService implements OnModuleInit {
       },
       'Handled Mandeuldang Validator Result Message'
     )
-
-    // TODO: Validator 실행 결과 수신 후 백엔드 서비스 로직
   }
 
   private logError(error: unknown, message: string) {
