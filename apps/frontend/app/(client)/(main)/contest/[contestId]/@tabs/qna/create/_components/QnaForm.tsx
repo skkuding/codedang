@@ -2,7 +2,7 @@
 
 import { AlertModal } from '@/components/AlertModal'
 import { fetcherWithAuth } from '@/libs/utils'
-import IconInfoBlueIcon from '@/public/icons/icon-info-blue.svg'
+import IconInfoBlueIcon from '@/public/icons/info.svg'
 import type {
   ContestTop,
   ProblemDataTop,
@@ -253,7 +253,7 @@ export function QnaForm() {
 
       {!isContestStarted && !isLoadingProblems && (
         <div className="mt-[4px] flex">
-          <IconInfoBlueIcon width={16} height={16} className="ml-2 mr-[2px]" />
+          <IconInfoBlueIcon className="text-primary ml-2 mr-[2px] size-4" />
           <span className="text-primary text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
             Contest has not started yet. Only General questions are available.
           </span>

@@ -1,7 +1,7 @@
 import { dateFormatter } from '@/libs/utils'
 import ClockIcon from '@/public/icons/clock.svg'
-import InvisibleOrangeIcon from '@/public/icons/invisible-orange.svg'
-import SubtractIcon from '@/public/icons/subtract.svg'
+import TicketIcon from '@/public/icons/ticket.svg'
+import VisibleIcon from '@/public/icons/visible-fill.svg'
 import dayjs from 'dayjs'
 import { TimeStatusBadge } from './TimeStatusBadge'
 
@@ -19,12 +19,12 @@ export function DurationDisplay({
   const currentTime = dayjs()
 
   const titleIcons = {
-    duration: <ClockIcon className="text-flowkit-red h-5" />,
-    visible: <InvisibleOrangeIcon className="w-5" />,
-    registration: <SubtractIcon className="w-5" />
+    duration: <ClockIcon className="text-flowkit-red size-5" />,
+    visible: <VisibleIcon className="text-color-orange-50 size-5" />,
+    registration: <TicketIcon className="text-primary size-5" />
   }
   const titleIcon = titleIcons[title as keyof typeof titleIcons] || (
-    <ClockIcon className="text-flowkit-red h-5" />
+    <ClockIcon className="text-flowkit-red size-5" />
   )
 
   const titleDesigns = {

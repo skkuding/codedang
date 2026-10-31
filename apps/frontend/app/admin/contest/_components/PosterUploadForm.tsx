@@ -104,11 +104,7 @@ export function PosterUploadForm({
                 className="h-[312px] w-[234px] object-contain"
               />
             ) : (
-              <ImageUploadIcon
-                width={234}
-                height={312}
-                className="h-full w-full object-contain"
-              />
+              <ImageUploadIcon className="h-[312px] w-[234px] object-contain text-[#333333]" />
             )}
           </div>
         )}

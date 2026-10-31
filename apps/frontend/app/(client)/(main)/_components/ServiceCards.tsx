@@ -1,10 +1,10 @@
 'use client'
 
 import { cn } from '@/libs/utils'
-import GraduationIcon from '@/public/icons/graduation_blue.svg'
+import GraduationIcon from '@/public/icons/graduation.svg'
 import LaptopCodingIcon from '@/public/icons/laptop-coding.svg'
 import NotificationIcon from '@/public/icons/notification.svg'
-import PrizeIcon from '@/public/icons/prize_blue.svg'
+import PrizeIcon from '@/public/icons/prize.svg'
 import { useState } from 'react'
 
 const SERVICE_TABS = [
@@ -35,7 +35,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '대회',
       desc: '대회 개최와 참가를 통해 실력을 겨루고 성장해보세요.',
-      icon: <PrizeIcon />
+      icon: <PrizeIcon className="text-primary h-8 w-8" />
     }
   ],
   PROBLEM: [
@@ -49,7 +49,7 @@ const FEATURE_LIST: Record<ServiceTab, Feature[]> = {
     {
       title: '강의 지원',
       desc: '강의와 연계된 과제 및 실습으로 체계적으로 학습해보세요.',
-      icon: <GraduationIcon />
+      icon: <GraduationIcon className="text-primary h-8 w-8" />
     }
   ]
   // STUDY: []

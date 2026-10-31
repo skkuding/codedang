@@ -3,8 +3,8 @@
 import { Button } from '@/components/shadcn/button'
 import { GET_CONTEST_UPDATE_HISTORIES } from '@/graphql/contest/queries'
 import { cn, convertToLetter, dateFormatter } from '@/libs/utils'
-import ArrowBlueTopIcon from '@/public/icons/arrow_blue_top.svg'
-import ArrowBottomThinIcon from '@/public/icons/arrow_bottom_thin.svg'
+import ArrowBottomThinIcon from '@/public/icons/arrow-bottom-thin.svg'
+import ArrowTopIcon from '@/public/icons/arrow-top.svg'
 import { useQuery } from '@apollo/client'
 import { useState } from 'react'
 
@@ -119,9 +119,11 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             onClickSeemore()
           }}
         >
-          <ArrowBlueTopIcon
-            width={18}
-            className={cn(!openHistory && 'rotate-180')}
+          <ArrowTopIcon
+            className={cn(
+              !openHistory && 'rotate-180',
+              'text-primary size-[18px]'
+            )}
           />
           <p className="text-primary text-body1_m_16 ml-[6px] leading-[22.4px] tracking-[0.48px]">
             {seemore}
@@ -135,7 +137,7 @@ export function UpdateHistoryBox({ contestId }: { contestId: number }) {
             onClickSeemore()
           }}
         >
-          <ArrowBottomThinIcon width={18} />
+          <ArrowBottomThinIcon className="text-color-neutral-80 size-[18px]" />
           <p className="text-color-neutral-70 ml-[6px] text-base font-medium leading-[22.4px] tracking-[0.48px]">
             {seemore}
           </p>

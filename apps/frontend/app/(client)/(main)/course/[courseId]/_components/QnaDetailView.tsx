@@ -8,10 +8,10 @@ import { safeFetcherWithAuth } from '@/libs/utils'
 import { dateFormatter } from '@/libs/utils'
 import ArrowLeftIcon from '@/public/icons/arrow-left.svg'
 import CheckCircleIcon from '@/public/icons/check-circle.svg'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
-import LockGrayIcon from '@/public/icons/lock-gray.svg'
+import LockIcon from '@/public/icons/lock.svg'
 import PenIcon from '@/public/icons/pen.svg'
 import UserIcon from '@/public/icons/person-fill.svg'
+import WarningIcon from '@/public/icons/warning.svg'
 import type { CourseSingleQnaData } from '@/types/type'
 import {
   useSuspenseQuery,
@@ -137,7 +137,9 @@ export function QnaDetailView() {
 
       <div className="flex flex-col gap-4 pb-8">
         <h1 className="flex items-center gap-2 text-2xl font-semibold">
-          {qna.isPrivate && <LockGrayIcon className="h-6 w-6" />}
+          {qna.isPrivate && (
+            <LockIcon className="text-color-neutral-60 h-6 w-6" />
+          )}
           {qna.title}
         </h1>
         <div className="text-color-neutral-50 flex flex-col gap-[6px] text-[13px]">
@@ -159,7 +161,7 @@ export function QnaDetailView() {
         </span>
         {!qna.comments || qna.comments.length === 0 ? (
           <div className="bg-color-neutral-99 text-color-neutral-80 flex flex-col items-center justify-center gap-[6px] rounded-lg py-10">
-            <InfoGrayIcon />
+            <WarningIcon className="text-color-neutral-80 size-[30px]" />
             <span>Comments not registered</span>
           </div>
         ) : (

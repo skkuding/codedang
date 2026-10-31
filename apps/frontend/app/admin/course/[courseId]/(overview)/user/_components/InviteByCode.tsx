@@ -521,7 +521,7 @@ export function InviteByCode({ courseId }: InviteByCodeProps) {
                         className="border-primary flex h-10 shrink-0 items-center justify-center gap-1 rounded-full border bg-white px-[22px] duration-200 hover:bg-blue-50"
                         onClick={handleAddStudent}
                       >
-                        <PlusLineIcon />
+                        <PlusLineIcon className="text-primary size-4" />
                         <span className="text-primary text-[14px] font-medium">
                           Add
                         </span>
