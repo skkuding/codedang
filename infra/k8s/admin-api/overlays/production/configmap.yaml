@@ -5,3 +5,4 @@ metadata:
   namespace: admin-api
 data:
   DATABASE_CONNECTION_LIMIT: '25'
+  MEDIA_CDN_URL: 'https://media.codedang.com'
