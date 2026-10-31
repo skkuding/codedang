@@ -61,6 +61,8 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: 'deployment.environment.name=$(APP_ENV)'
       volumes:
         - name: cgroup
           hostPath:
