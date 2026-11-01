@@ -13,11 +13,12 @@ diagnostics:
 
 image:
   repository: n8nio/n8n
-  # NOTE: n8n 1.120.4 bundles Node.js 22.21.0, which predates the eMudhra
-  # distrust fix (22.23.4). No n8n release is built on a patched Node yet:
-  # 2.45.1 (the latest at 2026-10-21) bundles 26.10.0, and the patched 26.x
-  # release is 26.12.1. Accepted residual risk until n8n bumps its Node base.
-  tag: 1.120.4
+  # n8n 1.123.87 bundles Node.js 24.22.1, which contains the Brotli decoder fix
+  # for CVE-2026-111497 (fixed in Node 22.23.4/24.22.1/26.12.1) and the eMudhra
+  # distrust update. Stay on the 1.x line for now: n8n 2.x enables task runners
+  # by default and enforces stricter config file permissions, which needs its
+  # own migration.
+  tag: 1.123.87
   pullPolicy: IfNotPresent
 
 versionNotifications:
@@ -41,6 +42,9 @@ existingEncryptionKeySecret: n8n-encryption-key-secret-v2
 
 main:
   count: 1
+  # The chart only derives N8N_EDITOR_BASE_URL from an enabled Ingress, so set
+  # it explicitly for the HTTPRoute.
+  editorBaseUrl: https://n8n.codedang.com
   resources:
     requests:
       cpu: 250m
@@ -50,7 +54,16 @@ main:
       memory: 1Gi
   persistence:
     enabled: true
+    # The chart selects the claim from existingClaim. Without it the chart
+    # renders n8n-main-persistence, whose PV is pinned to the decommissioned
+    # skkuding-4f-4 node, and the pod stays Pending. The real data lives on
+    # the adopted n8n-data PVC (PV pinned to skkuding-4f-1). volumeName only
+    # names the pod volume and must stay n8n-data because the init container
+    # mounts it by that name.
+    existingClaim: n8n-data
     volumeName: n8n-data
+    # storageClass, size and annotations only apply when the chart creates the
+    # PVC, so they are inert while existingClaim is set.
     storageClass: local-path
     accessMode: ReadWriteOnce
     size: 8Gi
@@ -72,9 +85,11 @@ main:
   initContainers:
     - name: import-managed-workflows
       # Keep in sync with image.tag above; both pins run the same Node runtime.
-      image: n8nio/n8n:1.120.4
+      image: n8nio/n8n:1.123.87
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']
+      # Bumping the marker re-imports the managed credentials and workflows from
+      # the repo on the next pod start, overwriting UI edits.
       args:
         - |
           set -eu
@@ -98,6 +113,13 @@ main:
               exit 1
             fi
           fi
+      # Mirrors the manual env patch on the live deployment; the chart does not
+      # propagate main.extraEnvVars to init containers.
+      env:
+        - name: NODE_FUNCTION_ALLOW_BUILTIN
+          value: crypto,fs
+        - name: N8N_CONCURRENCY_PRODUCTION_LIMIT
+          value: '5'
       envFrom:
         - configMapRef:
             name: n8n-database-configmap
@@ -146,18 +168,6 @@ main:
       readOnly: true
 ingress:
   enabled: false
-  className: traefik
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dns01
-  tls:
-    - hosts:
-        - n8n.codedang.com
-      secretName: n8n-tls
-  hosts:
-    - host: n8n.codedang.com
-      paths:
-        - path: /
-          pathType: Prefix
 
 extraManifests:
   - apiVersion: gateway.networking.k8s.io/v1
