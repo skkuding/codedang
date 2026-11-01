@@ -1,6 +1,10 @@
 resource "aws_s3_bucket" "media" {
   bucket = "codedang-media"
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = {
     Name = "Codedang-Media"
   }

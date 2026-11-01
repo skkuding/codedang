@@ -4,6 +4,10 @@
 resource "aws_route53_record" "media" {
   for_each = toset(["A", "AAAA"])
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   name    = "media.codedang.com"
   zone_id = data.aws_route53_zone.codedang.zone_id
   type    = each.value

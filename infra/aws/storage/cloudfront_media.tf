@@ -103,6 +103,10 @@ resource "aws_cloudfront_distribution" "media" {
   aliases             = [local.media_cdn_domain]
   wait_for_deployment = true
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   origin {
     origin_id                = "codedang-media"
     domain_name              = aws_s3_bucket.media.bucket_regional_domain_name
