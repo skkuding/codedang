@@ -516,7 +516,7 @@ export class AssignmentService {
         map[record.problemId] = {
           finalScore: assignment.isFinalScoreVisible ? record.finalScore : null,
           isSubmitted: record.isSubmitted,
-          comment: record.comment
+          comment: assignment.isFinalScoreVisible ? record.comment : null
         }
         return map
       },
@@ -525,7 +525,7 @@ export class AssignmentService {
         {
           finalScore: Prisma.Decimal | null
           isSubmitted: boolean
-          comment: string
+          comment: string | null
         }
       >
     )
