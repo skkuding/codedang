@@ -1,0 +1,30 @@
+# The k8sattributes processor resolves the sending Pod through the Kubernetes
+# API, so the collector needs read access to the objects it reads attributes
+# from: pods and namespaces for k8s.pod.name / k8s.namespace.name, replicasets
+# for k8s.deployment.name (derived from the Pod's ownerReference chain).
+# The access is cluster-wide because every namespace sends telemetry here.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otelcol-simplest-k8sattributes
+rules:
+  - apiGroups: ['']
+    resources: ['pods', 'namespaces']
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['apps']
+    resources: ['replicasets']
+    verbs: ['get', 'list', 'watch']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otelcol-simplest-k8sattributes
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otelcol-simplest-k8sattributes
+subjects:
+  # ServiceAccount the operator creates for the `simplest` collector.
+  - kind: ServiceAccount
+    name: simplest-collector
+    namespace: monitoring-otel
