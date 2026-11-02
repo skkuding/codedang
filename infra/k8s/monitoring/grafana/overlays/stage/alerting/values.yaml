@@ -408,8 +408,4 @@ alerting:
                 발급자: {{ `{{ $labels.issuer_name }}` }}
                 남은 기간: {{ `{{ printf "%.1f" $values.B.Value }}` }}일 (임계 7일)
                 의미: 만료되면 해당 도메인 HTTPS 접속이 전부 차단됨
-                조치:
-                  1. kubectl describe certificate -n <namespace> <name>
-                  2. cert-manager pod 로그 확인 (ACME/DNS01 실패 여부)
-                  3. 원인 해결 후 cmctl renew <name> -n <namespace> 로 갱신 재시도
-                  주의: 인증서 Secret을 삭제하지 말 것. 재발급 전까지 HTTPS가 끊기고, CA 인증서(rabbitmq-root-ca, rabbitmq-intermediate-ca)는 ClusterIssuer가 그 Secret을 쓴다
+                조치: kubectl describe certificate -n <namespace> <name> 및 cert-manager pod 로그로 갱신 실패 원인 확인
