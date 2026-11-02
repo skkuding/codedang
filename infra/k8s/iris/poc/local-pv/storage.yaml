@@ -1,0 +1,54 @@
+# TAS-3060: local kind PoC only; not wired into stage/production deployment.
+# Cluster: iris-pv-poc (context: kind-iris-pv-poc), Kubernetes v1.34.3.
+# Create the iris namespace and /var/lib/iris/testcases inside the kind node first.
+# PVC binding waits for test-pod.yaml to provide a consumer.
+# Files survive Pod recreation, but not deletion of the kind node container.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: iris-tc-local-poc
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: iris-tc-local-poc
+  labels:
+    purpose: iris-tc-local-poc
+spec:
+  capacity:
+    # Binding capacity declaration, not a filesystem quota.
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: iris-tc-local-poc
+  local:
+    path: /var/lib/iris/testcases
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                # Local kind cluster used by this PoC.
+                - iris-pv-poc-control-plane
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: iris-tc-local-poc
+  namespace: iris
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: iris-tc-local-poc
+  selector:
+    matchLabels:
+      purpose: iris-tc-local-poc
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,29 @@
+# TAS-3060: local PV smoke test; this Pod does not run Iris or download testcases.
+# Apply storage.yaml first, then apply this file to context kind-iris-pv-poc.
+# Write a file under /cache/testcases, delete/recreate only this Pod, then read it.
+# Keep the PVC and kind node intact during the persistence check.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iris-pv-test
+  namespace: iris
+spec:
+  restartPolicy: Never
+  containers:
+    - name: volume-test
+      image: busybox:1.37.0
+      command: ['sleep', '86400']
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: testcase-cache
+          mountPath: /cache/testcases
+  volumes:
+    - name: testcase-cache
+      persistentVolumeClaim:
+        claimName: iris-tc-local-poc

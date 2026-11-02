@@ -1,0 +1,91 @@
+# TAS-3060: local kind + Docker Desktop integration test only.
+# Standalone resources; do not apply deployment-patch.yaml with this Pod.
+# Prerequisites: existing iris namespace/PVC, local MinIO fixtures, and RabbitMQ
+# topology from rabbitmq-definitions.json imported into the existing local vh.
+# host.docker.internal must resolve and ports 9000, 5433, 5672 must be reachable
+# from kind Pods. Verify this before applying; 127.0.0.1 would mean the Pod itself.
+# Credentials below are repository docker-compose development defaults only.
+# Build from repository root, then load into the existing kind cluster:
+#   docker build -t codedang-iris:tas3060-poc apps/iris
+#   kind load docker-image codedang-iris:tas3060-poc --name iris-pv-poc
+# Apply explicitly with --context kind-iris-pv-poc after review.
+# No readiness probe: Iris /health does not verify RabbitMQ connectivity.
+# Running/Ready alone is insufficient; verify queue consumer and judge responses.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iris-local-pv-poc-env
+  namespace: iris
+data:
+  APP_ENV: 'stage'
+  DISABLE_INSTRUMENTATION: 'true'
+  TESTCASE_CACHE_PATH: '/cache/testcases'
+  TESTCASE_BUCKET_NAME: 'codedang-testcase'
+  MINIO_ENDPOINT_URL: 'http://host.docker.internal:9000'
+  AWS_ACCESS_KEY_ID: 'skku'
+  AWS_SECRET_ACCESS_KEY: 'skku1234'
+  DATABASE_URL: 'postgresql://postgres:1234@host.docker.internal:5433/skkuding?sslmode=disable'
+  DATABASE_CONNECTION_LIMIT: '2'
+  RABBITMQ_HOST: 'host.docker.internal'
+  RABBITMQ_PORT: '5672'
+  RABBITMQ_SSL: 'false'
+  RABBITMQ_DEFAULT_USER: 'skku'
+  RABBITMQ_DEFAULT_PASS: '1234'
+  RABBITMQ_DEFAULT_VHOST: 'vh'
+  JUDGE_REQUEST_CONSUMER_CONNECTION_NAME: 'iris-local-pv-poc-consumer'
+  JUDGE_REQUEST_QUEUE_NAME: 'iris.local-pv-poc.request'
+  JUDGE_REQUEST_CONSUMER_TAG: 'iris-local-pv-poc'
+  JUDGE_RESULT_PRODUCER_CONNECTION_NAME: 'iris-local-pv-poc-producer'
+  JUDGE_RESULT_EXCHANGE_NAME: 'iris.local-pv-poc'
+  JUDGE_RESULT_ROUTING_KEY: 'result'
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iris-local-pv-poc
+  namespace: iris
+  labels:
+    app: iris-local-pv-poc
+spec:
+  restartPolicy: Never
+  containers:
+    - name: iris
+      image: codedang-iris:tas3060-poc
+      imagePullPolicy: Never
+      workingDir: /app
+      # Local adapter for the existing Dockerfile: the binary is /iris, while
+      # Go constants resolve Judger relative to the working directory.
+      # This fixture uses C; Java policy packaging is outside this smoke test.
+      command: ['/bin/bash', '-ec']
+      args:
+        - |
+          mkdir -p /app/lib/judger /app/logs
+          ln -s /app/sandbox/libjudger.so /app/lib/judger/libjudger.so
+          ln -s /iris /app/iris
+          exec /entrypoint.sh
+      envFrom:
+        - configMapRef:
+            name: iris-local-pv-poc-env
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: '1'
+          memory: 1Gi
+      # Match the existing Iris Judger deployment's cgroup access requirements.
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: testcase-cache
+          mountPath: /cache/testcases
+        - name: cgroup
+          mountPath: /sys/fs/cgroup
+  volumes:
+    - name: testcase-cache
+      persistentVolumeClaim:
+        claimName: iris-tc-local-poc
+    - name: cgroup
+      hostPath:
+        path: /sys/fs/cgroup
+        type: Directory

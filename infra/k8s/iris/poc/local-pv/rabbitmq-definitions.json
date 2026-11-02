@@ -1,0 +1,47 @@
+{
+  "exchanges": [
+    {
+      "name": "iris.local-pv-poc",
+      "vhost": "vh",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "iris.local-pv-poc.request",
+      "vhost": "vh",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "iris.local-pv-poc.result",
+      "vhost": "vh",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "iris.local-pv-poc",
+      "vhost": "vh",
+      "destination": "iris.local-pv-poc.request",
+      "destination_type": "queue",
+      "routing_key": "request",
+      "arguments": {}
+    },
+    {
+      "source": "iris.local-pv-poc",
+      "vhost": "vh",
+      "destination": "iris.local-pv-poc.result",
+      "destination_type": "queue",
+      "routing_key": "result",
+      "arguments": {}
+    }
+  ]
+}
