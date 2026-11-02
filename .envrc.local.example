@@ -1,7 +1,9 @@
 # 커밋하지 않는 개인 값을 두는 곳입니다. .envrc.local로 복사한 뒤 값을 채우세요.
 
 ### Grafana 서비스 계정 토큰 ###
-# 토큰은 인프라팀에 요청해 발급받습니다. (Grafana Admin만 발급 가능)
+# Grafana > Administration > Users and access > Service accounts 에서
+# Viewer 역할로 만든 토큰을 넣습니다. 발급은 Grafana Admin만 가능하니
+# 인프라팀 또는 운영진에게 문의하세요.
 # Grafana MCP 서버(.mcp.json의 grafana-prod / grafana-stage, 다른 AI 도구에
 # 등록했다면 그쪽)가 이 변수를 읽습니다. 값을 읽어오려면 direnv가 필요합니다.
 export GRAFANA_PROD_TOKEN=""
