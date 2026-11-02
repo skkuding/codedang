@@ -4,7 +4,18 @@
 envFromSecrets:
   - name: grafana-github-oauth
   - name: discord-webhook
-  - name: grafana-database-credentials
+
+# PostgreSQL 데이터소스 계정. 원본은 postgres/grafana-ro-credentials 이고
+# reflector 가 grafana-database-credentials 로 복사한다.
+envValueFrom:
+  GRAFANA_DB_USER:
+    secretKeyRef:
+      name: grafana-database-credentials
+      key: username
+  GRAFANA_DB_PASSWORD:
+    secretKeyRef:
+      name: grafana-database-credentials
+      key: password
 
 replicas: 1
 autoscaling:
@@ -109,7 +120,7 @@ datasources:
         jsonData:
           minStep: 1m
         editable: false
-      # CloudBeaver 를 대체하는 읽기 전용 SQL 접근 창구(stage 전용).
+      # CloudBeaver 를 대체하는 읽기 전용 데이터 조회 창구(stage 전용).
       # grafana_ro 는 DB 에 수동으로 만든 role 이다. 쓰기는 권한(SELECT 만)으로
       # 막고, default_transaction_read_only 와 role 단위 timeout 은 실수 방지용이다.
       # Grafana 사용자는 모두 Editor 라 public 스키마 전체를 조회할 수 있다.
@@ -119,7 +130,7 @@ datasources:
         access: proxy
         # postgres-v18-svc 는 마이그레이션용 임시 endpoint 라 안정 이름을 쓴다.
         url: postgres-svc.postgres.svc.cluster.local:5432
-        user: grafana_ro
+        user: $__env{GRAFANA_DB_USER}
         secureJsonData:
           password: $__env{GRAFANA_DB_PASSWORD}
         jsonData:
@@ -154,10 +165,11 @@ dashboardProviders:
         editable: false
         options:
           path: /var/lib/grafana/dashboards/grafana-dashboards
+      # 저장소의 JSON 이 원본이라, 파일을 지우면 대시보드도 지운다.
       - name: db-dashboards
         orgId: 1
         type: file
-        disableDeletion: true
+        disableDeletion: false
         editable: false
         options:
           path: /var/lib/grafana/dashboards/db-dashboards

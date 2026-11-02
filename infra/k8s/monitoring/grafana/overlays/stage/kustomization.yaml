@@ -12,7 +12,7 @@ resources:
 configMapGenerator:
   - name: grafana-db-dashboards
     files:
-      - dashboards/db-overview.json
+      - dashboards/db-browser.json
 
 generatorOptions:
   disableNameSuffixHash: true
