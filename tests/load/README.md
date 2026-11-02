@@ -75,8 +75,9 @@ k6 run \
 
 Prometheus remote write를 함께 사용할 때:
 
-Prometheus는 더 이상 인터넷에 공개되어 있지 않다. 먼저 로컬로 포트 포워딩한다.
-`kubectl` context 를 테스트 대상 클러스터(stage/production)로 맞춘 뒤 실행한다.
+Prometheus 는 공개 엔드포인트로 노출하지 않는다. remote write 는 로컬 포트
+포워딩으로 붙인다. `kubectl` context 를 테스트 대상 클러스터(stage/production)로
+맞춘 뒤, 별도 터미널에서 실행한다.
 
 ```bash
 kubectl -n monitoring-prometheus port-forward \
@@ -179,5 +180,5 @@ payloads/
 
 - **production 실행 시** 비활성 시간대에 실행하세요
 - 테스트 후 대량의 submission 레코드가 DB에 남습니다 — 정리 계획을 세우세요
-- Prometheus는 공개 라우트가 제거되어 인터넷에서 접근할 수 없습니다. remote write는
-  위의 `kubectl port-forward` 경로를 사용하세요
+- Prometheus 는 공개 라우트로 노출하지 않습니다. remote write 는 위의
+  `kubectl port-forward` 경로를 사용하세요
