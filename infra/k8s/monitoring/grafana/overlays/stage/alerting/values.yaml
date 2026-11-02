@@ -302,3 +302,113 @@ alerting:
                 미확인 메시지: {{ `{{ $values.B.Value }}` }}개 (임계 50, 5분 지속)
                 의미: Consumer가 받았지만 ack 못 보냄 (처리 실패/hang 의심)
                 조치: Consumer pod 로그 및 재시작 검토
+
+      - orgId: 1
+        name: Cert Manager
+        folder: Infra Alerts
+        interval: 5m
+        rules:
+          - uid: cert-expiring-soon
+            title: TLS 인증서 만료 임박
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: threshold
+                  expression: B
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 21
+                        type: lt
+            for: 15m
+            noDataState: OK
+            execErrState: Error
+            labels:
+              severity: warning
+              service: cert-manager
+              environment: stage
+            annotations:
+              summary: '인증서 {{ `{{ $labels.name }}` }} 만료 21일 이내'
+              description: |
+                인증서: {{ `{{ $labels.exported_namespace }}` }}/{{ `{{ $labels.name }}` }}
+                발급자: {{ `{{ $labels.issuer_name }}` }}
+                남은 기간: {{ `{{ printf "%.1f" $values.B.Value }}` }}일 (임계 21일)
+                의미: cert-manager는 만료 30일 전에 갱신을 시작하므로, 21일 미만이면 갱신이 9일 이상 실패한 상태
+                조치: kubectl describe certificate -n <namespace> <name> 으로 갱신 실패 원인 확인
+
+          - uid: cert-expiring-critical
+            title: TLS 인증서 만료 직전
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400
+                  intervalMs: 60000
+                  maxDataPoints: 43200
+              - refId: B
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: reduce
+                  expression: A
+                  reducer: last
+              - refId: C
+                relativeTimeRange:
+                  from: 600
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  type: threshold
+                  expression: B
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 7
+                        type: lt
+            for: 15m
+            noDataState: OK
+            execErrState: Error
+            labels:
+              severity: critical
+              service: cert-manager
+              environment: stage
+            annotations:
+              summary: '인증서 {{ `{{ $labels.name }}` }} 만료 7일 이내'
+              description: |
+                인증서: {{ `{{ $labels.exported_namespace }}` }}/{{ `{{ $labels.name }}` }}
+                발급자: {{ `{{ $labels.issuer_name }}` }}
+                남은 기간: {{ `{{ printf "%.1f" $values.B.Value }}` }}일 (임계 7일)
+                의미: 만료되면 해당 도메인 HTTPS 접속이 전부 차단됨
+                조치:
+                  1. kubectl describe certificate -n <namespace> <name>
+                  2. cert-manager pod 로그 확인 (ACME/DNS01 실패 여부)
+                  3. 갱신 불가 시 인증서 Secret 삭제 후 재발급 유도
