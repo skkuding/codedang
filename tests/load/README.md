@@ -76,6 +76,7 @@ k6 run \
 Prometheus remote write를 함께 사용할 때:
 
 Prometheus는 더 이상 인터넷에 공개되어 있지 않다. 먼저 로컬로 포트 포워딩한다.
+`kubectl` context 를 테스트 대상 클러스터(stage/production)로 맞춘 뒤 실행한다.
 
 ```bash
 kubectl -n monitoring-prometheus port-forward \

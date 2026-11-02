@@ -52,6 +52,8 @@ prometheus:
       # 조회는 Grafana Explore 를 쓰고, Tempo remote write 는 ClusterIP
       # (prometheus-kube-prometheus-prometheus:9090) 로 계속 동작한다.
       # 다시 열려면 forward-auth 등 엣지 인증을 먼저 붙인다.
+      # ArgoCD ApplicationSet 이 prune: false 라서 이 값만으로는 live HTTPRoute 가
+      # 지워지지 않는다. 머지 후 monitoring-prometheus namespace 에서 수동 삭제한다.
       enabled: false
       apiVersion: gateway.networking.k8s.io/v1
       kind: HTTPRoute
