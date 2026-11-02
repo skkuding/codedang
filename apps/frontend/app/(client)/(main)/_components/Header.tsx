@@ -31,6 +31,7 @@ export function Header() {
                   width={135.252}
                   height={28}
                   priority
+                  fetchPriority="high"
                   className="cursor-pointer"
                 />
               </Link>
@@ -46,6 +47,7 @@ export function Header() {
                 width={135.252}
                 height={28}
                 priority
+                fetchPriority="high"
                 className="cursor-pointer"
               />
             </Link>
