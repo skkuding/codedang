@@ -32,7 +32,7 @@ jobs:
         run: |
           latest=$(pnpm view caniuse-lite version)
           if grep '^  caniuse-lite@' pnpm-lock.yaml | grep -Fv "  caniuse-lite@${latest}:" > /dev/null; then
-            pnpm dlx update-browserslist-db@latest
+            pnpm -r up caniuse-lite --depth=9999 --no-save --lockfile-only --ignore-scripts
           fi
 
           # Check the shared lockfile, including all workspace packages.
