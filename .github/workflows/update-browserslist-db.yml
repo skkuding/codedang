@@ -32,7 +32,13 @@ jobs:
         run: |
           latest=$(pnpm view caniuse-lite version)
           if grep '^  caniuse-lite@' pnpm-lock.yaml | grep -Fv "  caniuse-lite@${latest}:" > /dev/null; then
-            pnpm update caniuse-lite --recursive --lockfile-only --ignore-scripts
+            pnpm dlx update-browserslist-db@latest
+          fi
+
+          # Check the shared lockfile, including all workspace packages.
+          if grep '^  caniuse-lite@' pnpm-lock.yaml | grep -Fv "  caniuse-lite@${latest}:" > /dev/null; then
+            echo '::error::Outdated caniuse-lite entries remain in pnpm-lock.yaml.'
+            exit 1
           fi
 
       - name: Generate token
@@ -51,11 +57,12 @@ jobs:
           commit-message: 'chore(deps): update Browserslist DB'
           title: 'chore(deps): update Browserslist DB'
           body: |
-            Updates caniuse-lite browser data in pnpm-lock.yaml.
-            pnpm may also normalize existing dependency resolutions while updating the lockfile.
+            Updates caniuse-lite browser data in pnpm-lock.yaml using
+            the official update-browserslist-db tool.
+
+            pnpm may also re-resolve unrelated dependencies while updating the lockfile.
+            Please review dependency changes (especially CodeMirror) before merging.
 
             Renovate continues to maintain all dependencies and the lockfile.
-            This targeted update is unnecessary when Renovate has already updated the browser data.
-
             Merge manually after CI passes.
           labels: dependencies
