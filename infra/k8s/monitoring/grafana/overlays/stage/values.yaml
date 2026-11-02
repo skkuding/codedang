@@ -4,6 +4,7 @@
 envFromSecrets:
   - name: grafana-github-oauth
   - name: discord-webhook
+  - name: grafana-database-credentials
 
 replicas: 1
 autoscaling:
@@ -108,6 +109,25 @@ datasources:
         jsonData:
           minStep: 1m
         editable: false
+      # CloudBeaver 를 대체하는 읽기 전용 SQL 접근 창구.
+      # grafana_ro 는 SELECT 만 가능하고 default_transaction_read_only=on 이다.
+      - name: PostgreSQL
+        type: postgres
+        uid: postgres
+        access: proxy
+        url: postgres-v18-svc.postgres.svc.cluster.local:5432
+        user: grafana_ro
+        secureJsonData:
+          password: $__env{GRAFANA_DB_PASSWORD}
+        jsonData:
+          database: skkuding
+          sslmode: disable
+          postgresVersion: 1800
+          maxOpenConns: 5
+          maxIdleConns: 2
+          connMaxLifetime: 14400
+          timescaledb: false
+        editable: false
 
 # help grafana to detect provisioned dashboards
 sidecar:
@@ -129,6 +149,17 @@ dashboardProviders:
         editable: false
         options:
           path: /var/lib/grafana/dashboards/grafana-dashboards
+      - name: db-dashboards
+        orgId: 1
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/db-dashboards
+
+# 저장소에 두는 커스텀 대시보드는 ConfigMap 으로 마운트한다.
+dashboardsConfigMaps:
+  db-dashboards: grafana-db-dashboards
 
 dashboards:
   grafana-dashboards:
