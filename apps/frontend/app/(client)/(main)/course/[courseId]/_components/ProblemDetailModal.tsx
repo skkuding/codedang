@@ -16,7 +16,7 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { MdArrowForwardIos } from 'react-icons/md'
 
 export const hasProblemComment = (comment: string | null | undefined) =>
-  Boolean(comment)
+  Boolean(comment?.trim())
 
 interface ProblemDetailModalProps {
   problemId: number
@@ -108,7 +108,7 @@ export function ProblemDetailModal({
             {submission && (
               <div className="flex flex-col gap-[14px]">
                 <span className="text-sub2_m_18">Last Submission</span>
-                <div className="border-line bg-color-neutral-99 flex items-center justify-around gap-4 rounded-lg border p-5 text-center [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px]">
+                <div className="border-line bg-color-neutral-99 grid grid-cols-2 gap-4 rounded-lg border p-5 text-center sm:flex sm:items-center sm:justify-around [&>div]:flex [&>div]:min-w-0 [&>div]:flex-col [&>div]:items-center [&>div]:gap-[14px] [&_p]:break-words">
                   <div>
                     <p className="text-sub3_sb_16 text-color-neutral-60">
                       User ID
@@ -119,7 +119,7 @@ export function ProblemDetailModal({
                   </div>
                   <Separator
                     orientation="vertical"
-                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6] max-sm:!hidden"
                   />
                   <div>
                     <p className="text-sub3_sb_16 text-color-neutral-60">
@@ -129,7 +129,7 @@ export function ProblemDetailModal({
                   </div>
                   <Separator
                     orientation="vertical"
-                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6] max-sm:!hidden"
                   />
                   <div>
                     <p className="text-sub3_sb_16 text-color-neutral-60">
@@ -139,7 +139,7 @@ export function ProblemDetailModal({
                   </div>
                   <Separator
                     orientation="vertical"
-                    className="h-[60px] w-[0.5px] bg-[#E6E6E6]"
+                    className="h-[60px] w-[0.5px] bg-[#E6E6E6] max-sm:!hidden"
                   />
                   <div>
                     <p className="text-sub3_sb_16 text-color-neutral-60">
