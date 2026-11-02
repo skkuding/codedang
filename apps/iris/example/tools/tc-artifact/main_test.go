@@ -7,10 +7,12 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
 	"github.com/skkuding/codedang/apps/iris/src/handler/run"
+	"github.com/skkuding/codedang/apps/iris/src/router/response"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 )
 
@@ -59,6 +61,7 @@ func TestGeneratedFixturesLoadAndReuseCache(t *testing.T) {
 			t.Fatalf("ids=%v reads=%v", ids, source.keys)
 		}
 	}
+	seenIDs := make(map[int]bool)
 	for _, kind := range []string{"judge", "run"} {
 		data, err := os.ReadFile(filepath.Join(dir, "requests", kind+".json"))
 		if err != nil {
@@ -76,6 +79,16 @@ func TestGeneratedFixturesLoadAndReuseCache(t *testing.T) {
 		}
 		if envelope.Properties.Type != kind || envelope.Properties.MessageID == "" {
 			t.Fatal("invalid message properties")
+		}
+		id, err := strconv.Atoi(envelope.Properties.MessageID)
+		if err != nil || id <= 0 || seenIDs[id] {
+			t.Fatalf("invalid or duplicate numeric messageId: %q", envelope.Properties.MessageID)
+		}
+		seenIDs[id] = true
+		// Exercise the actual response conversion that previously returned zero.
+		result := response.NewJudgeResponse(envelope.Properties.MessageID, nil, nil)
+		if result.SubmissionId != id {
+			t.Fatalf("response lost messageId: got %d, want %d", result.SubmissionId, id)
 		}
 		if kind == "judge" {
 			var req judge.JudgeRequest

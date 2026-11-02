@@ -16,6 +16,8 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
+	"time"
 
 	"github.com/klauspost/compress/zstd"
 	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
@@ -102,12 +104,15 @@ func generate(out, setID string) (string, error) {
 		return "", err
 	}
 	// Defaults exercise all TCs for judge and public TCs only for run.
-	for _, req := range []struct {
+	// Iris converts messageId to an integer submissionId in responses.
+	// Milliseconds fit both a 64-bit Go int and a JavaScript safe integer.
+	messageID := time.Now().UnixMilli()
+	for i, req := range []struct {
 		kind string
 		body any
 	}{{"judge", judgeReq}, {"run", runReq}} {
 		envelope := map[string]any{
-			"properties": map[string]string{"messageId": rand.Text(), "type": req.kind},
+			"properties": map[string]string{"messageId": strconv.FormatInt(messageID+int64(i), 10), "type": req.kind},
 			"body":       req.body,
 		}
 		if err := writeJSON(filepath.Join(out, "requests", req.kind+".json"), envelope); err != nil {
