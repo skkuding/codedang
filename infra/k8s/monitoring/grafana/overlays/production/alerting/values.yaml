@@ -515,4 +515,5 @@ alerting:
                 조치:
                   1. kubectl describe certificate -n <namespace> <name>
                   2. cert-manager pod 로그 확인 (ACME/DNS01 실패 여부)
-                  3. 갱신 불가 시 인증서 Secret 삭제 후 재발급 유도
+                  3. 원인 해결 후 cmctl renew <name> -n <namespace> 로 갱신 재시도
+                  주의: 인증서 Secret을 삭제하지 말 것. 재발급 전까지 HTTPS가 끊기고, CA 인증서(rabbitmq-root-ca, rabbitmq-intermediate-ca)는 ClusterIssuer가 그 Secret을 쓴다
