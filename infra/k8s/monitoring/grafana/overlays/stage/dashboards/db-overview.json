@@ -2,23 +2,38 @@
   "annotations": {
     "list": []
   },
+  "description": "stage PostgreSQL 의 현재 상태 스냅샷(grafana_ro, 읽기 전용). 시간 범위와 무관하며 누적값은 통계 리셋 이후 기준이다. 임의 SQL 은 Explore 에서 실행한다.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "title": "SQL 직접 조회 (Explore)",
+      "type": "link",
+      "icon": "external link",
+      "tooltip": "PostgreSQL 데이터소스로 Explore 를 연다. 읽기 전용, 문장당 30초 제한.",
+      "url": "/explore?schemaVersion=1&panes=%7B%22db%22%3A%7B%22datasource%22%3A%22postgres%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22postgres%22%2C%22uid%22%3A%22postgres%22%7D%2C%22editorMode%22%3A%22code%22%2C%22format%22%3A%22table%22%2C%22rawQuery%22%3Atrue%2C%22rawSql%22%3A%22SELECT%20relname%2C%20n_live_tup%20FROM%20pg_stat_user_tables%20ORDER%20BY%20n_live_tup%20DESC%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D",
+      "targetBlank": false,
+      "keepTime": false,
+      "includeVars": false,
+      "asDropdown": false,
+      "tags": []
+    }
+  ],
   "panels": [
     {
       "id": 1,
       "type": "stat",
       "title": "DB 크기",
+      "description": "현재 데이터베이스(skkuding)의 디스크 사용량.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 0
       },
@@ -55,14 +70,12 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "textMode": "auto",
@@ -74,14 +87,15 @@
       "id": 2,
       "type": "stat",
       "title": "연결 수",
+      "description": "클러스터 전체 client backend 수. 연결 사용률과 함께 본다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 4,
+        "x": 4,
         "y": 0
       },
       "targets": [
@@ -94,7 +108,7 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT count(*) AS value FROM pg_stat_activity WHERE datname = current_database()"
+          "rawSql": "SELECT count(*) AS value\nFROM pg_stat_activity\nWHERE backend_type = 'client backend'"
         }
       ],
       "fieldConfig": {
@@ -116,14 +130,12 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "textMode": "auto",
@@ -134,15 +146,16 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "캐시 히트율",
+      "title": "연결 사용률",
+      "description": "client backend 수 / max_connections. 90% 를 넘으면 새 연결이 거부되기 직전이다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 12,
+        "w": 4,
+        "x": 8,
         "y": 0
       },
       "targets": [
@@ -155,7 +168,7 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT COALESCE(round(100.0 * sum(blks_hit) / NULLIF(sum(blks_hit + blks_read), 0), 2), 0) AS value FROM pg_stat_database WHERE datname = current_database()"
+          "rawSql": "SELECT round(100.0 * count(*) / current_setting('max_connections')::numeric, 1) AS value\nFROM pg_stat_activity\nWHERE backend_type = 'client backend'"
         }
       ],
       "fieldConfig": {
@@ -169,6 +182,14 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
               }
             ]
           },
@@ -178,14 +199,12 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "textMode": "auto",
@@ -196,15 +215,16 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "데드락",
+      "title": "캐시 히트율",
+      "description": "shared buffer 에서 읽은 블록 비율. 통계 리셋 이후 누적값이다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 12,
         "y": 0
       },
       "targets": [
@@ -217,7 +237,76 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT COALESCE(sum(deadlocks), 0) AS value FROM pg_stat_database WHERE datname = current_database()"
+          "rawSql": "SELECT COALESCE(round(100.0 * sum(blks_hit) / NULLIF(sum(blks_hit + blks_read), 0), 2), 0) AS value\nFROM pg_stat_database\nWHERE datname = current_database()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 90
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1"
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "데드락",
+      "description": "통계 리셋 이후 누적 데드락 수. 리셋 시각은 하단 데이터베이스 표의 stats_reset 에 있다.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT COALESCE(sum(deadlocks), 0) AS value\nFROM pg_stat_database\nWHERE datname = current_database()"
         }
       ],
       "fieldConfig": {
@@ -231,6 +320,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
               }
             ]
           }
@@ -239,14 +332,12 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "textMode": "auto",
@@ -255,16 +346,87 @@
       "pluginVersion": "12.3.1"
     },
     {
-      "id": 5,
-      "type": "table",
-      "title": "활성 세션",
+      "id": 6,
+      "type": "stat",
+      "title": "가장 오래 열린 트랜잭션",
+      "description": "가장 오래 열려 있는 트랜잭션의 경과 시간(이 대시보드 자신은 제외). 길면 VACUUM 과 DDL(마이그레이션)을 막는다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT COALESCE(EXTRACT(EPOCH FROM max(now() - xact_start)), 0) AS value\nFROM pg_stat_activity\nWHERE backend_type = 'client backend' AND xact_start IS NOT NULL AND pid <> pg_backend_pid()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 300
+              }
+            ]
+          },
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1"
+    },
+    {
+      "id": 7,
+      "type": "table",
+      "title": "활성 세션",
+      "description": "1초 이상 실행 중이거나 트랜잭션을 연 채 멈춰 있는 세션(짧은 쿼리와 이 대시보드의 조회는 제외). wait 가 Lock 이면 아래 차단된 세션을, idle in transaction 이 오래 남아 있으면 해당 클라이언트를 확인한다. query 셀을 클릭하면 전체 SQL 을 볼 수 있다.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
         "x": 0,
         "y": 4
       },
@@ -278,7 +440,7 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT pid, usename, state,\n       date_trunc('second', now() - query_start) AS duration,\n       left(query, 80) AS query\nFROM pg_stat_activity\nWHERE datname = current_database() AND pid <> pg_backend_pid()\nORDER BY query_start ASC NULLS LAST\nLIMIT 20"
+          "rawSql": "SELECT pid, usename, application_name AS app, state,\n       concat_ws(':', wait_event_type, wait_event) AS wait,\n       EXTRACT(EPOCH FROM now() - query_start) AS duration,\n       left(query, 1000) AS query\nFROM pg_stat_activity\nWHERE backend_type = 'client backend' AND state <> 'idle' AND pid <> pg_backend_pid()\n  AND query_start < now() - interval '1 second'\nORDER BY query_start ASC NULLS LAST\nLIMIT 20"
         }
       ],
       "fieldConfig": {
@@ -291,56 +453,100 @@
             "inspect": false
           }
         },
-        "overrides": []
-      },
-      "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": false
-        }
-      },
-      "pluginVersion": "12.3.1",
-      "description": "현재 실행 중이거나 대기 중인 세션. duration 이 길면 락 대기나 느린 쿼리를 의심한다."
-    },
-    {
-      "id": 6,
-      "type": "table",
-      "title": "테이블 크기",
-      "datasource": {
-        "type": "postgres",
-        "uid": "postgres"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "postgres",
-            "uid": "postgres"
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pid"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 70
+              }
+            ]
           },
-          "editorMode": "code",
-          "rawQuery": true,
-          "format": "table",
-          "rawSql": "SELECT schemaname, relname,\n       pg_size_pretty(pg_total_relation_size(relid)) AS total,\n       pg_size_pretty(pg_relation_size(relid)) AS table,\n       pg_size_pretty(pg_total_relation_size(relid) - pg_relation_size(relid)) AS index\nFROM pg_catalog.pg_statio_user_tables\nORDER BY pg_total_relation_size(relid) DESC\nLIMIT 20"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "usename"
             },
-            "inspect": false
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "app"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "state"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wait"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "query"
+            },
+            "properties": [
+              {
+                "id": "custom.inspect",
+                "value": true
+              }
+            ]
           }
-        },
-        "overrides": []
+        ]
       },
       "options": {
         "showHeader": true,
@@ -352,67 +558,19 @@
       "pluginVersion": "12.3.1"
     },
     {
-      "id": 7,
-      "type": "table",
-      "title": "테이블 활동",
-      "datasource": {
-        "type": "postgres",
-        "uid": "postgres"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 12
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "postgres",
-            "uid": "postgres"
-          },
-          "editorMode": "code",
-          "rawQuery": true,
-          "format": "table",
-          "rawSql": "SELECT relname, seq_scan, idx_scan, n_dead_tup, last_autovacuum\nFROM pg_stat_user_tables\nORDER BY n_dead_tup DESC, seq_scan DESC\nLIMIT 20"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": false
-        }
-      },
-      "pluginVersion": "12.3.1",
-      "description": "seq_scan 이 크고 idx_scan 이 작으면 인덱스 후보. n_dead_tup 이 크면 VACUUM 이 필요하다."
-    },
-    {
       "id": 8,
       "type": "table",
-      "title": "락",
+      "title": "차단된 세션",
+      "description": "다른 세션의 락 때문에 기다리는 세션. blocked_by 의 pid 를 활성 세션 표에서 찾는다. 비어 있는 것이 정상이다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 12
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 11
       },
       "targets": [
         {
@@ -424,7 +582,7 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT l.locktype, l.mode, l.granted, l.pid,\n       date_trunc('second', now() - a.query_start) AS duration\nFROM pg_locks l\nLEFT JOIN pg_stat_activity a ON a.pid = l.pid\nWHERE l.database = (SELECT oid FROM pg_database WHERE datname = current_database())\nORDER BY l.granted, duration DESC NULLS LAST\nLIMIT 20"
+          "rawSql": "SELECT pid, usename, array_to_string(pg_blocking_pids(pid), ', ') AS blocked_by,\n       concat_ws(':', wait_event_type, wait_event) AS wait,\n       EXTRACT(EPOCH FROM now() - query_start) AS duration,\n       left(query, 1000) AS query\nFROM pg_stat_activity\nWHERE cardinality(pg_blocking_pids(pid)) > 0\nORDER BY query_start ASC NULLS LAST\nLIMIT 20"
         }
       ],
       "fieldConfig": {
@@ -437,7 +595,88 @@
             "inspect": false
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pid"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 70
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "usename"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "blocked_by"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wait"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "query"
+            },
+            "properties": [
+              {
+                "id": "custom.inspect",
+                "value": true
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "showHeader": true,
@@ -451,16 +690,17 @@
     {
       "id": 9,
       "type": "table",
-      "title": "데이터베이스",
+      "title": "테이블 크기",
+      "description": "용량 상위 20개 테이블. index 는 인덱스만, total 은 TOAST 를 포함한다. rows 는 추정치다. DDL 이 테이블을 잠그고 있으면 lock timeout(3초)으로 실패한다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
       },
       "gridPos": {
-        "h": 6,
-        "w": 24,
+        "h": 9,
+        "w": 12,
         "x": 0,
-        "y": 20
+        "y": 16
       },
       "targets": [
         {
@@ -472,7 +712,7 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT datname, pg_size_pretty(pg_database_size(datname)) AS size,\n       numbackends, xact_commit, xact_rollback\nFROM pg_stat_database\nWHERE datname IS NOT NULL\nORDER BY pg_database_size(datname) DESC"
+          "rawSql": "SELECT relname,\n       n_live_tup AS rows,\n       pg_total_relation_size(relid) AS total,\n       pg_relation_size(relid) AS heap,\n       pg_indexes_size(relid) AS index\nFROM pg_stat_user_tables\nORDER BY pg_total_relation_size(relid) DESC\nLIMIT 20"
         }
       ],
       "fieldConfig": {
@@ -485,7 +725,184 @@
             "inspect": false
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "heap"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "index"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "12.3.1"
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "테이블 활동",
+      "description": "통계 리셋 이후 누적값. seq_scan 이 크고 idx_scan 이 작으면 인덱스 후보, n_dead_tup 이 크고 last_vacuum 이 오래되었으면 VACUUM 이 밀린 것이다.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT relname, seq_scan, COALESCE(idx_scan, 0) AS idx_scan, n_dead_tup,\n       GREATEST(last_vacuum, last_autovacuum) AS last_vacuum\nFROM pg_stat_user_tables\nORDER BY n_dead_tup DESC, seq_scan DESC\nLIMIT 20"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "last_vacuum"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "12.3.1"
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "데이터베이스",
+      "description": "인스턴스의 데이터베이스 목록(템플릿 제외). stats_reset 은 누적 통계의 기준 시각이다.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT d.datname, pg_database_size(d.datname) AS size,\n       s.numbackends, s.xact_commit, s.xact_rollback, s.deadlocks, s.stats_reset\nFROM pg_database d\nJOIN pg_stat_database s ON s.datid = d.oid\nWHERE NOT d.datistemplate\nORDER BY pg_database_size(d.datname) DESC"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "size"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "stats_reset"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "showHeader": true,
@@ -499,20 +916,19 @@
   ],
   "refresh": "1m",
   "schemaVersion": 39,
-  "tags": [
-    "codedang",
-    "postgres"
-  ],
+  "tags": ["codedang", "postgres"],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-15m",
     "to": "now"
   },
-  "timepicker": {},
+  "timepicker": {
+    "refresh_intervals": ["30s", "1m", "5m"]
+  },
   "timezone": "browser",
   "title": "Database Overview",
   "uid": "db-overview",
-  "version": 1
+  "version": 2
 }

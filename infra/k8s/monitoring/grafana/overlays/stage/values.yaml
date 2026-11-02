@@ -109,13 +109,16 @@ datasources:
         jsonData:
           minStep: 1m
         editable: false
-      # CloudBeaver 를 대체하는 읽기 전용 SQL 접근 창구.
-      # grafana_ro 는 SELECT 만 가능하고 default_transaction_read_only=on 이다.
+      # CloudBeaver 를 대체하는 읽기 전용 SQL 접근 창구(stage 전용).
+      # grafana_ro 는 DB 에 수동으로 만든 role 이다. 쓰기는 권한(SELECT 만)으로
+      # 막고, default_transaction_read_only 와 role 단위 timeout 은 실수 방지용이다.
+      # Grafana 사용자는 모두 Editor 라 public 스키마 전체를 조회할 수 있다.
       - name: PostgreSQL
         type: postgres
         uid: postgres
         access: proxy
-        url: postgres-v18-svc.postgres.svc.cluster.local:5432
+        # postgres-v18-svc 는 마이그레이션용 임시 endpoint 라 안정 이름을 쓴다.
+        url: postgres-svc.postgres.svc.cluster.local:5432
         user: grafana_ro
         secureJsonData:
           password: $__env{GRAFANA_DB_PASSWORD}
@@ -123,9 +126,11 @@ datasources:
           database: skkuding
           sslmode: disable
           postgresVersion: 1800
+          # role 의 CONNECTION LIMIT 5 를 넘지 않는다.
           maxOpenConns: 5
           maxIdleConns: 2
-          connMaxLifetime: 14400
+          # 세션에 남은 SET 과 role 설정 변경이 10분 안에 정리되도록 짧게 둔다.
+          connMaxLifetime: 600
           timescaledb: false
         editable: false
 
