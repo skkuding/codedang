@@ -69,6 +69,15 @@ datasources:
         access: proxy
         url: http://loki.monitoring-loki.svc.cluster.local:3100
         editable: false
+        jsonData:
+          # 로그의 trace_id 라벨을 Tempo 링크로 만든다
+          derivedFields:
+            - name: TraceID
+              datasourceUid: tempo
+              matcherType: label
+              matcherRegex: trace_id
+              url: '$${__value.raw}'
+              urlDisplayLabel: '트레이스 보기'
       - name: Prometheus
         type: prometheus
         uid: prometheus
@@ -81,6 +90,16 @@ datasources:
         access: proxy
         url: http://tempo.monitoring-tempo.svc.cluster.local:3200
         editable: false
+        jsonData:
+          # 트레이스에서 같은 서비스·시간대의 로그로 이동
+          tracesToLogsV2:
+            datasourceUid: loki
+            spanStartTimeShift: '-5m'
+            spanEndTimeShift: '5m'
+            filterByTraceID: true
+            tags:
+              - key: service.name
+                value: service_name
       - name: Pyroscope
         type: grafana-pyroscope-datasource
         uid: pyroscope

@@ -153,7 +153,10 @@ jobs:
             type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-production
           cache-to: type=registry,ref=ghcr.io/skkuding/codedang-frontend:cache-production
           push: true
-          build-args: ''
+          # The other NEXT_PUBLIC_* values come from the Dockerfile defaults,
+          # which are production values.
+          build-args: |
+            ADMIN_REST_URL=https://codedang.com/admin-api
           # :production is added by verify-frontend after verification.
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{github.sha}}

@@ -1,6 +1,7 @@
 dist/
 node_modules/
 *.md
+*.alloy
 pnpm-lock.yaml
 .pnpm-store/
 @generated/

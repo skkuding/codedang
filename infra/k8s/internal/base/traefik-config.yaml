@@ -20,3 +20,13 @@ spec:
         http:
           middlewares:
             - kube-system-hsts@kubernetescrd
+    # In-cluster collector is plaintext gRPC. tls: null stops the chart from
+    # also emitting TLS flags, which Traefik v3.6+ rejects next to insecure.
+    tracing:
+      otlp:
+        enabled: true
+        grpc:
+          enabled: true
+          endpoint: simplest-collector.monitoring-otel.svc.cluster.local:4317
+          insecure: true
+          tls: null

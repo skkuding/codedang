@@ -433,7 +433,10 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out'
       },
       borderRadius: {
-        'tab-button': '2.22px'
+        'tab-button': '2.22px',
+        large: '12px',
+        middle: '10px',
+        small: '8px'
       }
     }
   },
