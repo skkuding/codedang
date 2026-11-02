@@ -47,7 +47,12 @@ prometheus:
 
   route:
     main:
-      enabled: true
+      # 공개 노출 제거: 엣지 인증이 없는데 remote write receiver 까지 켜져 있어
+      # 누구나 PromQL 조회와 임의 metric write(alert 조작)가 가능했다.
+      # 조회는 Grafana Explore 를 쓰고, Tempo remote write 는 ClusterIP
+      # (prometheus-kube-prometheus-prometheus:9090) 로 계속 동작한다.
+      # 다시 열려면 forward-auth 등 엣지 인증을 먼저 붙인다.
+      enabled: false
       apiVersion: gateway.networking.k8s.io/v1
       kind: HTTPRoute
       hostnames:

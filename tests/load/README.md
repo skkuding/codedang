@@ -75,7 +75,15 @@ k6 run \
 
 Prometheus remote write를 함께 사용할 때:
 
+Prometheus는 더 이상 인터넷에 공개되어 있지 않다. 먼저 로컬로 포트 포워딩한다.
+
 ```bash
+kubectl -n monitoring-prometheus port-forward \
+  svc/prometheus-kube-prometheus-prometheus 9090:9090
+```
+
+```bash
+K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
 k6 run \
   --out experimental-prometheus-rw \
   --out "json=results/$(date +%Y%m%d-%H%M%S).json" \
@@ -170,4 +178,5 @@ payloads/
 
 - **production 실행 시** 비활성 시간대에 실행하세요
 - 테스트 후 대량의 submission 레코드가 DB에 남습니다 — 정리 계획을 세우세요
-- `prometheus.codedang.com`에 인증 없이 remote write가 열려 있습니다 — 테스트 후 접근 제한 추가를 권장합니다
+- Prometheus는 공개 라우트가 제거되어 인터넷에서 접근할 수 없습니다. remote write는
+  위의 `kubectl port-forward` 경로를 사용하세요
