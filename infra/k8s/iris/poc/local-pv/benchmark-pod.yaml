@@ -1,0 +1,57 @@
+# TAS-3060: local MinIO/PV measurement only. Not part of deployment overlays.
+# Build the tc-cache-bench Dockerfile, then load codedang-tc-cache-bench:tas3060
+# into kind-iris-pv-poc. Requires the existing iris namespace and local PVC.
+# Before applying, upload generated objects/ to the local codedang-testcase
+# bucket and create ConfigMap iris-tc-bench-suite with a suite.json entry.
+# Local development credentials below match docker-compose.yml only.
+# The Pod waits; it does NOT start measuring on apply. After review, run:
+# kubectl --context kind-iris-pv-poc -n iris exec iris-tc-cache-bench -- \
+#   tc-cache-bench measure -suite /fixtures/suite.json \
+#   -bucket codedang-testcase -cache-root /cache/testcases -repeats 5
+# stdout is the JSON report; stderr contains progress. Redirect stdout on the
+# host to retain results. Avoid other judge requests/builds during measurement.
+# Each run retains ~610 MiB of unpacked TC under fresh tc-bench-* directories.
+# Record these CPU/memory limits with results. No privileged/cgroup mount needed.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iris-tc-cache-bench
+  namespace: iris
+  labels:
+    app: iris-tc-cache-bench
+spec:
+  restartPolicy: Never
+  containers:
+    - name: benchmark
+      image: codedang-tc-cache-bench:tas3060
+      imagePullPolicy: Never
+      command: ['sleep', '86400']
+      env:
+        - name: MINIO_ENDPOINT_URL
+          value: 'http://host.docker.internal:9000'
+        - name: AWS_ACCESS_KEY_ID
+          value: 'skku'
+        - name: AWS_SECRET_ACCESS_KEY
+          value: 'skku1234'
+        - name: AWS_EC2_METADATA_DISABLED
+          value: 'true'
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: '1'
+          memory: 1Gi
+      volumeMounts:
+        - name: testcase-cache
+          mountPath: /cache/testcases
+        - name: suite
+          mountPath: /fixtures
+          readOnly: true
+  volumes:
+    - name: testcase-cache
+      persistentVolumeClaim:
+        claimName: iris-tc-local-poc
+    - name: suite
+      configMap:
+        name: iris-tc-bench-suite
