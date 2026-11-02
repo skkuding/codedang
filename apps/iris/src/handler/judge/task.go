@@ -70,6 +70,9 @@ func (t *Task) RunAction(ctx context.Context, messageID string, sendMessage hand
 	} else {
 		res, err := testcase.ReadRequestedTestcase(ctx, t.tcManager, strconv.Itoa(validReq.ProblemId), validReq.TestcaseSetID, validReq.ManifestKey, t.tcFilter)
 		if err != nil {
+			if t.logger != nil {
+				t.logger.LogWithContext(logger.ERROR, fmt.Sprintf("judge testcase lookup failed: messageId=%q testcaseSetId=%q manifestKey=%q: %v", messageID, validReq.TestcaseSetID, validReq.ManifestKey, err), ctx)
+			}
 			sendResult(handler.ResultMessage{Result: nil, Err: handler.NewTaskError("judge", handler.TESTCASE_ERROR, logger.ERROR, fmt.Errorf("get testcase failed: %w", err))})
 			return
 		}
