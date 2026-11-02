@@ -1,0 +1,12 @@
+# values shared by every environment
+# check default values.yaml
+# https://artifacthub.io/packages/helm/grafana/grafana?modal=values
+
+grafana.ini:
+  plugins:
+    # Grafana가 기동 시 스스로 설치하는 drilldown 앱 플러그인 목록이다.
+    # 버전을 생략하면 Grafana 버전에 맞는 최신 버전을 받아오므로, 설치되는 조합을
+    # 코드로 고정해 Grafana 업그레이드가 플러그인까지 같이 올리지 않도록 한다.
+    # 차트의 `plugins` 값(GF_INSTALL_PLUGINS)은 Grafana 12에서 deprecated이고,
+    # 설정하면 preinstall이 아예 동작하지 않으므로 쓰지 않는다.
+    preinstall: grafana-pyroscope-app@1.17.0,grafana-exploretraces-app@1.3.2,grafana-lokiexplore-app@1.0.37,grafana-metricsdrilldown-app@1.0.31
