@@ -47,13 +47,6 @@ prometheus:
 
   route:
     main:
-      # 공개 노출 제거: 엣지 인증이 없는데 remote write receiver 까지 켜져 있어
-      # 누구나 PromQL 조회와 임의 metric write(alert 조작)가 가능했다.
-      # 조회는 Grafana Explore 를 쓰고, Tempo remote write 는 ClusterIP
-      # (prometheus-kube-prometheus-prometheus:9090) 로 계속 동작한다.
-      # 다시 열려면 forward-auth 등 엣지 인증을 먼저 붙인다.
-      # 이 앱은 ArgoCD prune: false 다. 라우트를 없앨 때는 sync 후
-      # monitoring-prometheus namespace 에서 수동 삭제가 필요하다.
       enabled: false
       apiVersion: gateway.networking.k8s.io/v1
       kind: HTTPRoute
