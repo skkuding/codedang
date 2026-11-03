@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
 import type KeyvRedis from '@keyv/redis'
@@ -32,6 +32,8 @@ import type {
   KakaoUser,
   OAuthTokenPayload
 } from './interface/social-user.interface'
+
+const RECENTLY_CONSUMED_REFRESH_TOKEN_TTL_SECONDS = 10
 
 @Injectable()
 export class AuthService {
@@ -83,12 +85,20 @@ export class AuthService {
     }
     const tokens = await this.createJwtTokens(userId, username, userRole)
     try {
-      if (!(await this.consumeRefreshToken(refreshToken, userId))) {
+      const consumeResult = await this.consumeRefreshToken(refreshToken, userId)
+      if (consumeResult === 'recently-consumed') {
+        throw new ConflictException('Refresh token was recently rotated')
+      }
+      if (consumeResult === 'missing') {
         throw new InvalidJwtTokenException('Unidentified refresh token')
       }
       return tokens
     } catch (error) {
-      await this.deleteRefreshToken(userId, tokens.refreshToken)
+      try {
+        await this.deleteRefreshToken(userId, tokens.refreshToken)
+      } catch {
+        this.logger.warn('Failed to delete unused replacement refresh token')
+      }
       throw error
     }
   }
@@ -108,10 +118,22 @@ export class AuthService {
   async consumeRefreshToken(refreshToken: string, userId: number) {
     const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
     const client = await store.getClient()
-    const value = await client.getDel(
-      refreshTokenCacheKey(userId, refreshToken)
+    const tokenKey = refreshTokenCacheKey(userId, refreshToken)
+    const result = await client.eval(
+      `if redis.call('GETDEL', KEYS[1]) then
+         redis.call('SET', KEYS[2], '1', 'EX', ARGV[1])
+         return 1
+       end
+       if redis.call('EXISTS', KEYS[2]) == 1 then return 2 end
+       return 0`,
+      {
+        keys: [tokenKey, `${tokenKey}:consumed`],
+        arguments: [String(RECENTLY_CONSUMED_REFRESH_TOKEN_TTL_SECONDS)]
+      }
     )
-    return value !== null
+    if (result === 1) return 'consumed'
+    if (result === 2) return 'recently-consumed'
+    return 'missing'
   }
 
   async createJwtTokens(userId: number, username: string, userRole: string) {
