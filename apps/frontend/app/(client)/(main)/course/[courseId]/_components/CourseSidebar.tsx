@@ -2,14 +2,12 @@
 
 import { SideBar } from '@/components/SideBar'
 import { cn } from '@/libs/utils'
+import AssignmentIcon from '@/public/icons/assignment.svg'
+import ExerciseIcon from '@/public/icons/exercise.svg'
+import NoticeIcon from '@/public/icons/notice.svg'
+import QnaIcon from '@/public/icons/qna.svg'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  NoticeIcon,
-  AssignmentIcon,
-  ExerciseIcon,
-  QnaIcon
-} from '../../../../../../components/Icons'
 import { CourseInfoBox } from './CourseInfoBox'
 
 interface CourseSidebarProps {
@@ -77,14 +75,11 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="ml-[116px] mt-20 hidden shrink-0 lg:flex">
-        <aside
-          data-testid="course-sidebar"
-          className="flex h-[468px] w-[280px] flex-col gap-5 rounded-xl bg-white px-5 py-10 shadow-[0_4px_20px_rgba(53,78,116,0.10)]"
-        >
+      <div className="mt-20 hidden shrink-0 self-start lg:flex">
+        <aside className="flex w-[280px] flex-col gap-5 rounded-xl bg-white px-5 py-10 shadow-[0_4px_20px_rgba(53,78,116,0.10)]">
           <CourseInfoBox courseId={courseId} />
           <nav aria-label="강의 메뉴">
-            <SideBar navItems={navItems} isSidebarExpanded />
+            <SideBar navItems={navItems} />
           </nav>
         </aside>
       </div>
