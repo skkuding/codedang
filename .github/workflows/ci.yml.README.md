@@ -39,6 +39,13 @@ When adding a conditional CI job:
 that these links are not missing. It also checks that each conditional path
 filter includes the shared `ci_workflow_path`.
 
+## Storage service
+
+`Test Backend` starts Silo with an explicit `docker run` command and waits for
+readiness before initializing buckets. Its image digest matches local Compose
+and the Silo version already deployed in stage. Failure logs are collected and
+the temporary container and its volumes are removed after the job.
+
 ## Required checks
 
 Branch protection should require:

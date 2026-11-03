@@ -351,22 +351,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 1234
           POSTGRES_DB: skkuding
-      minio:
-        # NOTE: GitHub Actions service containers do not support custom commands.
-        # This image from Bitnami includes the command to run MinIO.
-        # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
-        # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
-        # https://github.com/bitnami/charts/issues/35164
-        # NOTE: due to instability of Bitnami image, switch to lazybit's image
-        # https://stackoverflow.com/questions/64031598/creating-a-minios3-container-inside-a-github-actions-yml-file
-        image: lazybit/minio:latest
-        ports:
-          - 9000:9000
-          - 9001:9001
-        env:
-          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
-          MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          MINIO_BROWSER: 'off'
       redis:
         image: redis:7-alpine
         ports:
@@ -376,6 +360,26 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup-pnpm
+
+      - name: Start Silo
+        timeout-minutes: 3
+        env:
+          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker run --detach --name codedang-ci-storage \
+            --publish 127.0.0.1:9000:9000 \
+            --env MINIO_ROOT_USER --env MINIO_ROOT_PASSWORD \
+            docker.io/pgsty/silo@sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac \
+            server /data --console-address ':9001'
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --max-time 2 "$MINIO_ENDPOINT_URL/minio/health/ready" >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo '::error::Silo did not become ready within the retry limit.'
+          exit 1
 
       - name: Check Prisma Migration
         run: |
@@ -390,7 +394,7 @@ jobs:
       - name: Migrate Prisma
         run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
-      - name: Initialize MinIO
+      - name: Initialize Silo buckets
         run: pnpm run init:storage
         env:
           MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
@@ -417,6 +421,14 @@ jobs:
           disable_search: true
           fail_ci_if_error: true
           use_oidc: true
+
+      - name: Show Silo logs on failure
+        if: failure()
+        run: docker logs codedang-ci-storage || true
+
+      - name: Remove Silo container
+        if: always()
+        run: docker rm --force --volumes codedang-ci-storage || true
 
   test-iris:
     name: Test Iris
