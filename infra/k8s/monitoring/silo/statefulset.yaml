@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: silo
+spec:
+  serviceName: silo-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-silo
+  template:
+    metadata:
+      labels:
+        app: monitoring-silo
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: silo
+          # Match the version already serving stage application storage.
+          # RELEASE.2026-08-06T00-00-00Z
+          image: docker.io/pgsty/silo@sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac
+          args:
+            - server
+            - /export
+            - --certs-dir
+            - /tmp/certs
+            - --console-address
+            - :9090
+          env:
+            # Silo natively reads the existing root credentials from this file.
+            - name: MINIO_CONFIG_ENV_FILE
+              value: /tmp/minio/config.env
+            - name: MINIO_BROWSER_REDIRECT_URL
+              value: https://monitoring.minio.codedang.com
+            - name: MINIO_UPDATE
+              value: 'off'
+            - name: HOME
+              value: /tmp
+          ports:
+            - name: api
+              containerPort: 9000
+            - name: console
+              containerPort: 9090
+          # Silo serves readiness directly instead of using the Operator sidecar.
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: api
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 1
+            failureThreshold: 1
+          volumeMounts:
+            - name: data
+              mountPath: /export
+            - name: configuration
+              mountPath: /tmp/minio
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: silo-data
+        - name: configuration
+          secret:
+            secretName: tenant-config
+            defaultMode: 0440
+            items:
+              - key: config.env
+                path: config.env
+        - name: tmp
+          emptyDir: {}
