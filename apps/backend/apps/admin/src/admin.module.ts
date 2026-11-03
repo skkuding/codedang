@@ -40,12 +40,17 @@ import { WorkbookModule } from './workbook/workbook.module'
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
-      sortSchema: true,
-      introspection: true,
-      formatError: apolloErrorFormatter
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        autoSchemaFile: 'schema.gql',
+        sortSchema: true,
+        introspection: true,
+        formatError: apolloErrorFormatter,
+        playground: configService.get<string>('APP_ENV') !== 'production'
+      }),
+      inject: [ConfigService]
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
