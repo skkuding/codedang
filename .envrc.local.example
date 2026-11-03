@@ -2,7 +2,7 @@
 
 ### Grafana 서비스 계정 토큰 ###
 # Grafana > Administration > Users and access > Service accounts 에서
-# Viewer 역할로 만든 토큰을 넣습니다. Grafana MCP 서버(.mcp.json의 grafana-prod /
-# grafana-stage, 다른 AI 도구에 등록했다면 그쪽)가 이 변수를 읽습니다.
+# Viewer 역할로 만든 토큰을 넣습니다. 발급은 Grafana Admin만 가능하니
+# 인프라팀 또는 운영진에게 문의하세요.
 export GRAFANA_PROD_TOKEN=""
 export GRAFANA_STAGE_TOKEN=""
