@@ -15,15 +15,10 @@ interface NavItem {
 
 interface SideBarProps {
   navItems: NavItem[]
-  isSidebarExpanded: boolean
   defaultItem?: string
 }
 
-export function SideBar({
-  navItems,
-  isSidebarExpanded,
-  defaultItem
-}: SideBarProps) {
+export function SideBar({ navItems, defaultItem }: SideBarProps) {
   const pathname = usePathname()
 
   return (
@@ -37,7 +32,6 @@ export function SideBar({
               ? pathname === item.path
               : pathname.startsWith(item.path)
           }
-          isExpanded={isSidebarExpanded}
         />
       ))}
     </div>
@@ -47,31 +41,27 @@ export function SideBar({
 interface SidebarLinkProps {
   item: NavItem
   isActive: boolean
-  isExpanded: boolean
 }
 
-function SidebarLink({ item, isActive, isExpanded }: SidebarLinkProps) {
+function SidebarLink({ item, isActive }: SidebarLinkProps) {
   return (
     <Link
       href={item.path as Route}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'flex h-[46px] w-full items-center gap-2.5 px-4 py-3 transition-colors',
+        'flex h-[46px] w-full items-center gap-2.5 rounded-full px-4 py-3 transition-colors',
         isActive
           ? 'bg-primary text-white'
-          : 'text-color-neutral-30 hover:bg-color-neutral-99',
-        isExpanded ? 'rounded-full' : 'justify-center rounded-full px-3'
+          : 'text-color-neutral-30 hover:bg-color-neutral-99'
       )}
     >
       <item.icon
         className={cn(
           'size-[18px] shrink-0',
-          isActive
-            ? 'fill-white text-white'
-            : 'fill-color-neutral-70 text-color-neutral-70'
+          isActive ? 'text-white' : 'text-color-neutral-70'
         )}
       />
-      {isExpanded && <span className="text-sub3_sb_16">{item.name}</span>}
+      <span className="text-sub3_sb_16">{item.name}</span>
     </Link>
   )
 }

@@ -35,13 +35,13 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
   }, [courseId, setHeaderTitle])
 
   return (
-    <div className="after:bg-line-neutral relative flex h-[166px] w-full flex-col gap-4 pb-5 after:absolute after:inset-x-0 after:bottom-0 after:h-px">
-      <div className="flex h-[84px] shrink-0 flex-col gap-1">
-        <div className="flex h-[18px] shrink-0 items-center gap-1">
-          <span className="bg-primary flex size-3.5 items-center justify-center rounded-full">
+    <div className="after:bg-line-neutral relative flex w-full flex-col gap-4 pb-5 after:absolute after:inset-x-0 after:bottom-0 after:h-px">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1">
+          <span className="bg-primary flex size-3.5 shrink-0 items-center justify-center rounded-full">
             <CourseStatusPlayIcon
               aria-hidden="true"
-              className="size-[9.333px]"
+              className="size-[9.333px] text-white"
             />
           </span>
           {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
@@ -49,20 +49,20 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
             {course && 'ONGOING'}
           </p>
         </div>
-        <p className="text-head6_m_24 line-clamp-2 h-[62px] break-words leading-[1.3] tracking-[-0.72px]">
+        <p className="text-head6_m_24 line-clamp-2 break-words">
           {course
             ? `[${course.courseInfo.courseNum}_${course.courseInfo.classNum}] ${course.groupName}`
             : ''}
         </p>
       </div>
-      <div className="flex h-[46px] shrink-0 flex-col gap-1">
-        <div className="flex h-[21px] items-center gap-2">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
           <CourseCalendarIcon aria-hidden="true" className="size-4 shrink-0" />
           <p className="text-body2_m_14 text-color-neutral-40">
             {course ? course.courseInfo.semester : ''}
           </p>
         </div>
-        <div className="flex h-[21px] items-center gap-2">
+        <div className="flex items-center gap-2">
           <PersonFillIcon
             aria-hidden="true"
             className="text-primary size-4 shrink-0"
