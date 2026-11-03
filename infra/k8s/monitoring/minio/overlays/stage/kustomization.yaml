@@ -4,5 +4,6 @@ namespace: monitoring-minio
 
 resources:
   - ../../base
+  - ../../../silo
   - tenant-config.yaml
   - users.yaml
