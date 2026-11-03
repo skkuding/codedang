@@ -13,7 +13,7 @@
       "type": "link",
       "icon": "external link",
       "tooltip": "PostgreSQL 데이터소스로 Explore 를 연다. 읽기 전용, 쿼리당 30초 제한.",
-      "url": "/explore?schemaVersion=1&panes=%7B%22db%22%3A%7B%22datasource%22%3A%22postgres%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22postgres%22%2C%22uid%22%3A%22postgres%22%7D%2C%22editorMode%22%3A%22code%22%2C%22format%22%3A%22table%22%2C%22rawQuery%22%3Atrue%2C%22rawSql%22%3A%22SELECT%20%2A%20FROM%20public.%5C%22%24table%5C%22%20LIMIT%2050%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D",
+      "url": "/explore?schemaVersion=1&panes=%7B%22db%22%3A%7B%22datasource%22%3A%22postgres%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22postgres%22%2C%22uid%22%3A%22postgres%22%7D%2C%22editorMode%22%3A%22code%22%2C%22format%22%3A%22table%22%2C%22rawQuery%22%3Atrue%2C%22rawSql%22%3A%22SELECT%20%2A%20FROM%20public.%5C%22${table:percentencode}%5C%22%20LIMIT%2050%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D",
       "targetBlank": false,
       "keepTime": false,
       "includeVars": false,
@@ -339,5 +339,5 @@
   "timezone": "browser",
   "title": "DB Browser",
   "uid": "db-browser",
-  "version": 1
+  "version": 2
 }
