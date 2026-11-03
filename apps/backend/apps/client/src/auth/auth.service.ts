@@ -81,10 +81,16 @@ export class AuthService {
     if (tokenType !== 'refresh') {
       throw new InvalidJwtTokenException('Invalid refresh token type')
     }
-    if (!(await this.consumeRefreshToken(refreshToken, userId))) {
-      throw new InvalidJwtTokenException('Unidentified refresh token')
+    const tokens = await this.createJwtTokens(userId, username, userRole)
+    try {
+      if (!(await this.consumeRefreshToken(refreshToken, userId))) {
+        throw new InvalidJwtTokenException('Unidentified refresh token')
+      }
+      return tokens
+    } catch (error) {
+      await this.deleteRefreshToken(userId, tokens.refreshToken)
+      throw error
     }
-    return await this.createJwtTokens(userId, username, userRole)
   }
 
   async verifyJwtToken(token: string, options: JwtVerifyOptions = {}) {

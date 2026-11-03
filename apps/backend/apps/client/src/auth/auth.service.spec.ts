@@ -28,6 +28,7 @@ describe('AuthService', () => {
   let createJwtTokensSpy: Sinon.SinonStub
   const ACCESS_TOKEN = 'access_token'
   const REFRESH_TOKEN = 'refresh_token'
+  const NEW_REFRESH_TOKEN = 'new_refresh_token'
   const VALID_PASSWORD = 'password'
   const user: User = {
     id: 1,
@@ -135,6 +136,10 @@ describe('AuthService', () => {
     let verifyJwtTokenSpy: Sinon.SinonStub
 
     beforeEach(() => {
+      createJwtTokensSpy.resolves({
+        accessToken: ACCESS_TOKEN,
+        refreshToken: NEW_REFRESH_TOKEN
+      })
       verifyJwtTokenSpy = stub(service, 'verifyJwtToken').resolves({
         userId,
         username,
@@ -158,10 +163,10 @@ describe('AuthService', () => {
       expect(getDel.calledOnce).to.be.true
       expect(createJwtTokensSpy.calledOnce).to.be.true
       expect(createJwtTokensSpy.calledWith(userId, username)).to.be.true
-      expect(getDel.calledBefore(createJwtTokensSpy)).to.be.true
+      expect(createJwtTokensSpy.calledBefore(getDel)).to.be.true
       expect(result).to.deep.equal({
         accessToken: ACCESS_TOKEN,
-        refreshToken: REFRESH_TOKEN
+        refreshToken: NEW_REFRESH_TOKEN
       })
     })
 
@@ -169,6 +174,10 @@ describe('AuthService', () => {
       //given
       const invalidToken = REFRESH_TOKEN
       getDel.resolves(null)
+      const deleteRefreshTokenSpy = stub(
+        service,
+        'deleteRefreshToken'
+      ).resolves()
 
       //when
       await expect(service.updateJwtTokens(invalidToken)).to.be.rejectedWith(
@@ -178,7 +187,34 @@ describe('AuthService', () => {
       //then
       expect(verifyJwtTokenSpy.calledWith(invalidToken)).to.be.true
       expect(getDel.calledOnce).to.be.true
-      expect(createJwtTokensSpy.called).to.be.false
+      expect(createJwtTokensSpy.calledOnce).to.be.true
+      expect(deleteRefreshTokenSpy.calledOnceWith(userId, NEW_REFRESH_TOKEN)).to
+        .be.true
+    })
+
+    it('keeps the original refresh token when replacement creation fails', async () => {
+      createJwtTokensSpy.rejects(new Error('cache write failed'))
+
+      await expect(service.updateJwtTokens(refreshToken)).to.be.rejectedWith(
+        'cache write failed'
+      )
+
+      expect(getDel.called).to.be.false
+    })
+
+    it('removes the unused replacement when token consumption fails', async () => {
+      getDel.rejects(new Error('Redis read failed'))
+      const deleteRefreshTokenSpy = stub(
+        service,
+        'deleteRefreshToken'
+      ).resolves()
+
+      await expect(service.updateJwtTokens(refreshToken)).to.be.rejectedWith(
+        'Redis read failed'
+      )
+
+      expect(deleteRefreshTokenSpy.calledOnceWith(userId, NEW_REFRESH_TOKEN)).to
+        .be.true
     })
 
     it('should reject an access token on the reissue endpoint', async () => {
