@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: silo-headless
+spec:
+  clusterIP: None
+  selector:
+    app: monitoring-silo
+  ports:
+    - name: api
+      port: 9000
+      targetPort: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: silo
+spec:
+  selector:
+    app: monitoring-silo
+  ports:
+    - name: api
+      port: 80
+      targetPort: api
+    - name: console
+      port: 9090
+      targetPort: console
