@@ -88,7 +88,8 @@ export class ContestService {
           select: {
             userContest: {
               where: {
-                role: ContestRole.Participant
+                role: ContestRole.Participant,
+                userId: { not: null }
               }
             }
           }
@@ -146,7 +147,8 @@ export class ContestService {
           select: {
             userContest: {
               where: {
-                role: ContestRole.Participant
+                role: ContestRole.Participant,
+                userId: { not: null }
               }
             }
           }
@@ -1234,7 +1236,8 @@ export class ContestService {
       this.prisma.userContest.count({
         where: {
           contestId,
-          role: ContestRole.Participant
+          role: ContestRole.Participant,
+          userId: { not: null }
         }
       }),
       // Contest의 최고 점수 계산
