@@ -24,6 +24,7 @@ export function QuantityForm({
   return (
     <div className="w-30 border-line bg-color-neutral-99 flex h-10 items-center justify-center overflow-hidden rounded-[4px] border">
       <button
+        type="button"
         onClick={decrease}
         className="text-color-neutral-60 bg-color-common-100 active:bg-color-neutral-95 flex h-10 w-10 items-center justify-center"
       >
@@ -33,6 +34,7 @@ export function QuantityForm({
         {value}
       </span>
       <button
+        type="button"
         onClick={increase}
         className="text-color-neutral-60 bg-color-common-100 active:bg-color-neutral-95 flex h-10 w-10 items-center justify-center"
       >
