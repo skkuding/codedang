@@ -11,6 +11,7 @@ import { expect } from 'chai'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
 import { JwtAuthService } from '@libs/auth'
+import { refreshTokenCacheKey } from '@libs/cache'
 import {
   InvalidJwtTokenException,
   UnidentifiedException
@@ -161,8 +162,12 @@ describe('AuthService', () => {
       //then
       expect(verifyJwtTokenSpy.calledWith(refreshToken)).to.be.true
       expect(getDel.calledOnce).to.be.true
+      expect(
+        getDel.calledWithExactly(refreshTokenCacheKey(userId, refreshToken))
+      ).to.be.true
       expect(createJwtTokensSpy.calledOnce).to.be.true
-      expect(createJwtTokensSpy.calledWith(userId, username)).to.be.true
+      expect(createJwtTokensSpy.calledWithExactly(userId, username, 'User')).to
+        .be.true
       expect(createJwtTokensSpy.calledBefore(getDel)).to.be.true
       expect(result).to.deep.equal({
         accessToken: ACCESS_TOKEN,
@@ -252,8 +257,11 @@ describe('AuthService', () => {
       const signAsyncSpy = stub(jwtService, 'signAsync')
       signAsyncSpy.onFirstCall().resolves(ACCESS_TOKEN)
       signAsyncSpy.onSecondCall().resolves(REFRESH_TOKEN)
+      signAsyncSpy.onThirdCall().resolves(ACCESS_TOKEN)
+      signAsyncSpy.onCall(3).resolves(NEW_REFRESH_TOKEN)
       const setSpy = stub(cache, 'set').resolves(1)
 
+      await service.createJwtTokens(user.id, user.username, user.role)
       await service.createJwtTokens(user.id, user.username, user.role)
 
       expect(signAsyncSpy.firstCall.args[0]).to.include({
@@ -264,8 +272,12 @@ describe('AuthService', () => {
         userId: user.id,
         tokenType: 'refresh'
       })
-      expect(signAsyncSpy.secondCall.args[1]?.jwtid).to.be.a('string')
-      expect(setSpy.calledOnce).to.be.true
+      const firstJwtId = signAsyncSpy.secondCall.args[1]?.jwtid
+      const secondJwtId = signAsyncSpy.getCall(3).args[1]?.jwtid
+      expect(firstJwtId).to.be.a('string')
+      expect(secondJwtId).to.be.a('string')
+      expect(secondJwtId).not.to.equal(firstJwtId)
+      expect(setSpy.calledTwice).to.be.true
     })
   })
 })

@@ -106,8 +106,6 @@ export class AuthService {
   }
 
   async consumeRefreshToken(refreshToken: string, userId: number) {
-    // CacheConfigService uses one unprefixed Redis store. GETDEL prevents
-    // concurrent reissue requests from consuming the same token twice.
     const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
     const client = await store.getClient()
     const value = await client.getDel(
