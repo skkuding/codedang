@@ -24,6 +24,7 @@ describe('AuthService', () => {
   let service
   let jwtAuthService: JwtAuthService
   let cache: Cache
+  let getDel: Sinon.SinonStub
   let createJwtTokensSpy: Sinon.SinonStub
   const ACCESS_TOKEN = 'access_token'
   const REFRESH_TOKEN = 'refresh_token'
@@ -49,6 +50,7 @@ describe('AuthService', () => {
   }
 
   beforeEach(async () => {
+    getDel = stub()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -60,14 +62,15 @@ describe('AuthService', () => {
         },
         { provide: PrismaService, useValue: {} },
         { provide: ConfigService, useValue: {} },
-        { provide: JwtService, useValue: {} },
+        { provide: JwtService, useValue: { signAsync: async () => '' } },
         { provide: HttpService, useValue: { axiosRef: stub() } },
         { provide: MailerService, useValue: {} },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
             set: () => [],
-            get: () => []
+            del: () => [],
+            stores: [{ store: { getClient: async () => ({ getDel }) } }]
           })
         }
       ]
@@ -135,6 +138,8 @@ describe('AuthService', () => {
       verifyJwtTokenSpy = stub(service, 'verifyJwtToken').resolves({
         userId,
         username,
+        userRole: 'User',
+        tokenType: 'refresh',
         iat: undefined,
         exp: undefined,
         iss: undefined
@@ -143,19 +148,17 @@ describe('AuthService', () => {
 
     it('should return new access token and refresh token when the given refresh token is valid', async () => {
       //given
-      const isValidRefreshTokenSpy = stub(
-        service,
-        'isValidRefreshToken'
-      ).resolves(true)
+      getDel.resolves('{"value":1}')
 
       //when
       const result = await service.updateJwtTokens(refreshToken)
 
       //then
       expect(verifyJwtTokenSpy.calledWith(refreshToken)).to.be.true
-      expect(isValidRefreshTokenSpy.calledWith(refreshToken, userId)).to.be.true
+      expect(getDel.calledOnce).to.be.true
       expect(createJwtTokensSpy.calledOnce).to.be.true
       expect(createJwtTokensSpy.calledWith(userId, username)).to.be.true
+      expect(getDel.calledBefore(createJwtTokensSpy)).to.be.true
       expect(result).to.deep.equal({
         accessToken: ACCESS_TOKEN,
         refreshToken: REFRESH_TOKEN
@@ -165,10 +168,7 @@ describe('AuthService', () => {
     it('should throw InvalidJwtTokenException when the given refresh token is invalid', async () => {
       //given
       const invalidToken = REFRESH_TOKEN
-      const isValidRefreshTokenSpy = stub(
-        service,
-        'isValidRefreshToken'
-      ).resolves(false)
+      getDel.resolves(null)
 
       //when
       await expect(service.updateJwtTokens(invalidToken)).to.be.rejectedWith(
@@ -177,40 +177,59 @@ describe('AuthService', () => {
 
       //then
       expect(verifyJwtTokenSpy.calledWith(invalidToken)).to.be.true
-      expect(isValidRefreshTokenSpy.calledWith(invalidToken, userId)).to.be.true
+      expect(getDel.calledOnce).to.be.true
+      expect(createJwtTokensSpy.called).to.be.false
+    })
+
+    it('should reject an access token on the reissue endpoint', async () => {
+      verifyJwtTokenSpy.resolves({
+        userId,
+        username,
+        userRole: 'User',
+        tokenType: 'access'
+      })
+      await expect(service.updateJwtTokens(ACCESS_TOKEN)).to.be.rejectedWith(
+        InvalidJwtTokenException
+      )
+
+      expect(getDel.called).to.be.false
+      expect(createJwtTokensSpy.called).to.be.false
     })
   })
 
-  describe('isValidRefreshToken', () => {
-    it("should return true when the given refresh token match with the user's cached refresh token", async () => {
-      //given
-      stub(cache, 'get').resolves(1)
+  describe('consumeRefreshToken', () => {
+    it('allows the stored token only once', async () => {
+      getDel.onFirstCall().resolves('{"value":1}')
+      getDel.onSecondCall().resolves(null)
 
-      //when
-      const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)
-
-      //then
-      expect(result).to.equal(true)
+      expect(await service.consumeRefreshToken(REFRESH_TOKEN, user.id)).to.be
+        .true
+      expect(await service.consumeRefreshToken(REFRESH_TOKEN, user.id)).to.be
+        .false
     })
-    it("should return false when the given refresh token does not match with the user's cached refresh token", async () => {
-      //given
-      stub(cache, 'get').resolves('invalid value')
+  })
 
-      //when
-      const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)
+  describe('createJwtTokens', () => {
+    it('signs access and refresh tokens with distinct token types', async () => {
+      createJwtTokensSpy.restore()
+      const jwtService = service['jwtService'] as JwtService
+      const signAsyncSpy = stub(jwtService, 'signAsync')
+      signAsyncSpy.onFirstCall().resolves(ACCESS_TOKEN)
+      signAsyncSpy.onSecondCall().resolves(REFRESH_TOKEN)
+      const setSpy = stub(cache, 'set').resolves(1)
 
-      //then
-      expect(result).to.equal(false)
-    })
-    it("should return false when the user's refresh token does not exist in the cache", async () => {
-      //given
-      stub(cache, 'get').resolves(null)
+      await service.createJwtTokens(user.id, user.username, user.role)
 
-      //when
-      const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)
-
-      //then
-      expect(result).to.equal(false)
+      expect(signAsyncSpy.firstCall.args[0]).to.include({
+        userId: user.id,
+        tokenType: 'access'
+      })
+      expect(signAsyncSpy.secondCall.args[0]).to.include({
+        userId: user.id,
+        tokenType: 'refresh'
+      })
+      expect(signAsyncSpy.secondCall.args[1]?.jwtid).to.be.a('string')
+      expect(setSpy.calledOnce).to.be.true
     })
   })
 })

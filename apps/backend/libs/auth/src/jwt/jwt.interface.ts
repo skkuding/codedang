@@ -2,6 +2,7 @@ export interface JwtPayload {
   userId: number
   username: string
   userRole: string
+  tokenType: 'access' | 'refresh'
 }
 
 export interface JwtObject extends JwtPayload {

@@ -3,10 +3,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
+import type KeyvRedis from '@keyv/redis'
 import { Role, type Provider } from '@prisma/client'
 import { AxiosError } from 'axios'
 import { Cache } from 'cache-manager'
 import type { Response } from 'express'
+import { randomUUID } from 'node:crypto'
 import { JwtAuthService, type JwtPayload } from '@libs/auth'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
@@ -74,9 +76,12 @@ export class AuthService {
   }
 
   async updateJwtTokens(refreshToken: string) {
-    const { userId, username, userRole } =
+    const { userId, username, userRole, tokenType } =
       await this.verifyJwtToken(refreshToken)
-    if (!(await this.isValidRefreshToken(refreshToken, userId))) {
+    if (tokenType !== 'refresh') {
+      throw new InvalidJwtTokenException('Invalid refresh token type')
+    }
+    if (!(await this.consumeRefreshToken(refreshToken, userId))) {
       throw new InvalidJwtTokenException('Unidentified refresh token')
     }
     return await this.createJwtTokens(userId, username, userRole)
@@ -94,24 +99,32 @@ export class AuthService {
     }
   }
 
-  async isValidRefreshToken(refreshToken: string, userId: number) {
-    const cachedRefreshToken = await this.cacheManager.get(
+  async consumeRefreshToken(refreshToken: string, userId: number) {
+    // CacheConfigService uses one unprefixed Redis store. GETDEL prevents
+    // concurrent reissue requests from consuming the same token twice.
+    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
+    const client = await store.getClient()
+    const value = await client.getDel(
       refreshTokenCacheKey(userId, refreshToken)
     )
-    if (cachedRefreshToken !== 1) {
-      return false
-    }
-    return true
+    return value !== null
   }
 
   async createJwtTokens(userId: number, username: string, userRole: string) {
-    const payload: JwtPayload = { userId, username, userRole }
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: ACCESS_TOKEN_EXPIRE_TIME
-    })
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: REFRESH_TOKEN_EXPIRE_TIME
-    })
+    const payload = { userId, username, userRole }
+    const accessToken = await this.jwtService.signAsync(
+      { ...payload, tokenType: 'access' } satisfies JwtPayload,
+      {
+        expiresIn: ACCESS_TOKEN_EXPIRE_TIME
+      }
+    )
+    const refreshToken = await this.jwtService.signAsync(
+      { ...payload, tokenType: 'refresh' } satisfies JwtPayload,
+      {
+        expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
+        jwtid: randomUUID()
+      }
+    )
 
     // userId: refreshToken을 key로 cache에 저장
     await this.cacheManager.set(
