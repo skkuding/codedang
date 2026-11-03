@@ -63,6 +63,10 @@ export const middleware = async (req: NextRequest) => {
         cache: 'no-store'
       })
 
+      if (reissueRes.status === 409) {
+        return NextResponse.next()
+      }
+
       if (!reissueRes.ok) {
         throw new Error('Failed to reissue token')
       }
