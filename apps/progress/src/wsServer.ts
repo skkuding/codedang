@@ -30,7 +30,8 @@ function parseClientMessage(raw: RawData): ClientMessage | null {
   if (
     (type !== 'subscribe' && type !== 'unsubscribe') ||
     typeof submissionId !== 'number' ||
-    !Number.isInteger(submissionId)
+    !Number.isInteger(submissionId) ||
+    submissionId <= 0
   ) {
     return null
   }
