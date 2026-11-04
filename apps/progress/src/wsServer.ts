@@ -2,6 +2,11 @@ import { WebSocketServer, WebSocket, type RawData } from 'ws'
 import type { ProgressStore } from './progressStore'
 import type { ProgressUpdateMessage } from './types'
 
+// 클라이언트 메시지는 1 KiB로 제한
+const MAX_PAYLOAD_BYTES = 1024
+// 연결 하나가 동시에 구독할 수 있는 submission 수
+const MAX_SUBSCRIPTIONS = 20
+
 interface ClientMessage {
   type: 'subscribe' | 'unsubscribe'
   submissionId: number
@@ -39,7 +44,7 @@ function parseClientMessage(raw: RawData): ClientMessage | null {
  */
 export function startWebSocketServer(port: number, store: ProgressStore) {
   const subscribers = new Map<number, Set<WebSocket>>()
-  const wss = new WebSocketServer({ port })
+  const wss = new WebSocketServer({ port, maxPayload: MAX_PAYLOAD_BYTES })
 
   function addSubscriber(id: number, ws: WebSocket) {
     const conns = subscribers.get(id) ?? new Set<WebSocket>()
@@ -73,6 +78,22 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
         return
       }
 
+      // 채점이 끝나 broadcast에서 정리된 구독은 개수에서 뺀다.
+      for (const id of subscribedIds) {
+        if (!subscribers.get(id)?.has(ws)) {
+          subscribedIds.delete(id)
+        }
+      }
+      if (
+        !subscribedIds.has(message.submissionId) &&
+        subscribedIds.size >= MAX_SUBSCRIPTIONS
+      ) {
+        ws.send(
+          JSON.stringify({ type: 'error', message: 'too many subscriptions' })
+        )
+        return
+      }
+
       const snapshot = store.getSnapshot(message.submissionId)
       if (snapshot) {
         ws.send(JSON.stringify(snapshot))
@@ -83,6 +104,12 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
       }
       subscribedIds.add(message.submissionId)
       addSubscriber(message.submissionId, ws)
+    })
+
+    // maxPayload 초과 등 프로토콜 에러. 리스너가 없으면 서버 전체가 죽는다.
+    // ws가 이 연결을 알아서 닫으므로 로그만 남기고, 정리는 close에서 한다.
+    ws.on('error', (e) => {
+      console.warn('[progress-server] websocket client error', e.message)
     })
 
     ws.on('close', () => {
