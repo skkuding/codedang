@@ -2,11 +2,8 @@ import { WebSocketServer, WebSocket, type RawData } from 'ws'
 import type { ProgressStore } from './progressStore'
 import type { ProgressUpdateMessage } from './types'
 
-// 클라이언트 메시지는 1 KiB로 제한
 const MAX_PAYLOAD_BYTES = 1024
-// 연결 하나가 동시에 구독할 수 있는 submission 수
 const MAX_SUBSCRIPTIONS = 20
-// 서버가 동시에 유지할 WebSocket 연결 수
 const MAX_CONNECTIONS = 1000
 
 interface ClientMessage {
@@ -40,10 +37,6 @@ function parseClientMessage(raw: RawData): ClientMessage | null {
   return { type, submissionId }
 }
 
-/**
- * 클라이언트 → 서버: { type: 'subscribe' | 'unsubscribe', submissionId }
- * 서버 → 클라이언트: ProgressUpdateMessage (구독 시 현재 스냅샷을 먼저 보냄)
- */
 export function startWebSocketServer(port: number, store: ProgressStore) {
   const subscribers = new Map<number, Set<WebSocket>>()
   const wss = new WebSocketServer({ port, maxPayload: MAX_PAYLOAD_BYTES })
@@ -66,6 +59,10 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
   }
 
   wss.on('connection', (ws) => {
+    ws.on('error', (e) => {
+      console.warn('[progress-server] websocket client error', e.message)
+    })
+
     if (wss.clients.size > MAX_CONNECTIONS) {
       ws.close(1013, 'too many connections')
       return
@@ -89,7 +86,11 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
           subscribedIds.delete(id)
         }
       }
+
+      const snapshot = store.getSnapshot(message.submissionId)
+      const isFinished = snapshot !== null && snapshot.status !== 'judging'
       if (
+        !isFinished &&
         !subscribedIds.has(message.submissionId) &&
         subscribedIds.size >= MAX_SUBSCRIPTIONS
       ) {
@@ -98,20 +99,14 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
         )
         return
       }
-
-      const snapshot = store.getSnapshot(message.submissionId)
       if (snapshot) {
         ws.send(JSON.stringify(snapshot))
       }
-      if (snapshot && snapshot.status !== 'judging') {
+      if (isFinished) {
         return
       }
       subscribedIds.add(message.submissionId)
       addSubscriber(message.submissionId, ws)
-    })
-
-    ws.on('error', (e) => {
-      console.warn('[progress-server] websocket client error', e.message)
     })
 
     ws.on('close', () => {
