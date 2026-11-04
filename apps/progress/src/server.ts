@@ -6,8 +6,16 @@ import { startWebSocketServer } from './wsServer'
 // 기본값은 루트 docker-compose.yml의 로컬 RabbitMQ 설정이다.
 function getAmqpUrl() {
   const protocol = process.env.RABBITMQ_SSL === 'true' ? 'amqps' : 'amqp'
-  const user = process.env.RABBITMQ_DEFAULT_USER ?? 'skku'
-  const pass = process.env.RABBITMQ_DEFAULT_PASS ?? '1234'
+  const isProd = process.env.NODE_ENV === 'production'
+  const user =
+    process.env.RABBITMQ_DEFAULT_USER ?? (isProd ? undefined : 'skku')
+  const pass =
+    process.env.RABBITMQ_DEFAULT_PASS ?? (isProd ? undefined : '1234')
+  if (!user || !pass) {
+    throw new Error(
+      'RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS must be set in production'
+    )
+  }
   const host = process.env.RABBITMQ_HOST ?? 'localhost'
   const port = process.env.RABBITMQ_PORT ?? '5672'
   const vhost = process.env.RABBITMQ_DEFAULT_VHOST ?? 'vh'
