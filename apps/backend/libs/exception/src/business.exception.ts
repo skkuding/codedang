@@ -1,6 +1,6 @@
 import {
   UnauthorizedException,
-  type HttpException,
+  HttpException,
   NotFoundException,
   ConflictException,
   UnprocessableEntityException,
@@ -26,6 +26,17 @@ export class UnidentifiedException extends BusinessException {
 
   convert2HTTPException(message?: string) {
     return new UnauthorizedException(message ?? this.message)
+  }
+}
+
+/** [429] Throw when a client exceeds a request limit. */
+export class TooManyRequestsException extends BusinessException {
+  constructor() {
+    super('Too many requests. Please try again later.')
+  }
+
+  convert2HTTPException(message?: string) {
+    return new HttpException(message ?? this.message, 429)
   }
 }
 

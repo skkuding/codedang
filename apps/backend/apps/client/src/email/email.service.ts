@@ -22,4 +22,19 @@ export class EmailService {
     })
     this.logger.log(sentMessageInfo, 'sendEmailAuthenticationPin')
   }
+
+  /**
+   * 이메일 주소로 가입된 사용자 아이디를 전송하고, 로그를 기록합니다.
+   *
+   * @param {string} email 이메일 주소
+   * @param {string} username 사용자 아이디
+   */
+  async sendUsername(email: string, username: string) {
+    const sentMessageInfo = await this.mailerService.sendMail({
+      to: email,
+      subject: '[Codedang] Your User ID',
+      html: `<p>Your Codedang user ID is <b>${username}</b>.</p>`
+    })
+    this.logger.log(sentMessageInfo, 'sendUsername')
+  }
 }
