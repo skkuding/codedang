@@ -69,6 +69,7 @@ func parseDatabaseURL(databaseURL string) (string, error) {
 func (p *Postgres) Save(ctx context.Context, elements []ElementIn) ([]int, error) {
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.save.start items=%d", len(elements)))
+
 	if len(elements) == 0 {
 		p.logger.Log(logger.WARN, "sql.save.skip reason=empty_elements")
 		return nil, nil
@@ -81,65 +82,105 @@ func (p *Postgres) Save(ctx context.Context, elements []ElementIn) ([]int, error
 		}
 	}
 
-	// Retiring and inserting are no longer wrapped in a single *sql.Tx. A *sql.Tx pins one
-	// connection, so concurrent goroutines sharing it would serialize behind that connection's
-	// internal lock instead of actually running in parallel — negating the whole point of
-	// inserting per-testcase. Each insert below uses p.client (the connection pool) directly, so
-	// goroutines get their own connections and genuinely run in parallel, the same way the admin
-	// backend's testcase.service.ts::createTestcases already does (Promise.all of independent
-	// prisma.create() calls, not wrapped in a transaction either). The tradeoff is the same one
-	// already accepted for the S3 upload phase below: retire can succeed while some inserts fail,
-	// leaving the problem with fewer (or zero) active testcases until retried.
-	if _, err := p.client.ExecContext(
+	// All database changes below use the same transaction.
+	tx, err := p.client.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelReadCommitted,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin testcase transaction: %w", err)
+	}
+
+	// Roll back on any early return. After Commit, ErrTxDone is expected.
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	// Acquire the lock before retiring any rows.
+	// The lock is automatically released when the transaction ends.
+	if _, err := tx.ExecContext(
+		ctx,
+		`SELECT pg_advisory_xact_lock($1::bigint)`,
+		int64(problemID),
+	); err != nil {
+		return nil, fmt.Errorf(
+			"failed to acquire testcase lock for problem %d: %w",
+			problemID,
+			err,
+		)
+	}
+
+	if _, err := tx.ExecContext(
 		ctx,
 		`UPDATE public.problem_testcase
 		 SET is_outdated = true, outdate_time = NOW()
 		 WHERE problem_id = $1 AND is_outdated = false`,
 		problemID,
 	); err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=retire problem_id=%d err=%v", problemID, err))
+		p.logger.Log(
+			logger.ERROR,
+			fmt.Sprintf("sql.save.failed stage=retire problem_id=%d err=%v",
+				problemID,
+				err,
+			),
+		)
 		return nil, fmt.Errorf("failed to retire existing testcases: %w", err)
 	}
 
-	type insertResult struct {
-		index int
-		id    int
-		err   error
-	}
-	resultChan := make(chan insertResult, len(elements))
+	// Insert sequentially on the transaction's single connection.
+	// Preserve the correspondence between input elements and returned IDs.
+	ids := make([]int, len(elements))
+
 	for idx, element := range elements {
-		go func(idx int, element ElementIn) {
-			var id int
-			err := p.client.QueryRowContext(ctx,
-				`INSERT INTO public.problem_testcase
-				 (problem_id, is_hidden_testcase, "order", update_time)
-				 VALUES ($1, $2, $3, $4)
-				 RETURNING id`,
-				element.ProblemId, element.Hidden, idx+1, start,
-			).Scan(&id)
-			resultChan <- insertResult{index: idx, id: id, err: err}
-		}(idx, element)
+		if err := tx.QueryRowContext(
+			ctx,
+			`INSERT INTO public.problem_testcase
+			 (problem_id, is_hidden_testcase, "order", update_time)
+			 VALUES ($1, $2, $3, $4)
+			 RETURNING id`,
+			element.ProblemId,
+			element.Hidden,
+			idx+1,
+			start,
+		).Scan(&ids[idx]); err != nil {
+			p.logger.Log(
+				logger.ERROR,
+				fmt.Sprintf(
+					"sql.save.failed stage=insert index=%d err=%v",
+					idx,
+					err,
+				),
+			)
+			return nil, fmt.Errorf(
+				"failed to save testcase at index %d: %w",
+				idx,
+				err,
+			)
+		}
 	}
 
-	ids := make([]int, len(elements))
-	var errs []error
-	for range elements {
-		r := <-resultChan
-		if r.err != nil {
-			p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=insert index=%d err=%v", r.index, r.err))
-			errs = append(errs, r.err)
-			continue
-		}
-		ids[r.index] = r.id // each goroutine knows its own index, so no matching column is needed
-	}
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("failed to save %d/%d testcases: %v", len(errs), len(elements), errs)
+	// Return IDs only after a successful commit.
+	if err := tx.Commit(); err != nil {
+		p.logger.Log(
+			logger.ERROR,
+			fmt.Sprintf(
+				"sql.save.failed stage=commit problem_id=%d err=%v",
+				problemID,
+				err,
+			),
+		)
+		return nil, fmt.Errorf("failed to commit testcase replacement: %w", err)
 	}
 
 	p.logger.Log(
 		logger.INFO,
-		fmt.Sprintf("sql.save.done inserted=%d duration=%s", len(elements), time.Since(start)),
+		fmt.Sprintf(
+			"sql.save.done inserted=%d duration=%s",
+			len(elements),
+			time.Since(start),
+		),
 	)
+
 	return ids, nil
 }
 

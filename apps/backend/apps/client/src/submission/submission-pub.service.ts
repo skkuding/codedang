@@ -72,9 +72,11 @@ export class SubmissionPublicationService {
       throw new EntityNotExistException('Problem')
     }
 
-    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable) —
-    // 채점 요청을 만들려면 이 값이 반드시 있어야 하므로 여기서 명확히 막는다.
-    // 원래는 발행 검증(publish validation)에서 걸러졌어야 할 상태다.
+    // 만들당 Draft/Ready 문제는 timeLimit/memoryLimit이 아직 없을 수 있다(nullable).
+    // 실제 검증은 submission/submissionResult(또는 캐시) 레코드가 생기기 전인
+    // SubmissionService.createSubmission / submitTest 쪽으로 옮겨졌다 — 거기서 이미
+    // 막히므로 여기까지는 도달하지 않는 게 정상이다. 다만 이 메서드가 다른 경로에서도
+    // 호출될 수 있으므로, 타입 좁히기(narrowing)를 겸한 방어적 체크로 남겨둔다.
     const { timeLimit, memoryLimit } = problem
     if (timeLimit == null || memoryLimit == null) {
       throw new UnprocessableDataException(
