@@ -21,10 +21,11 @@ export class MandeuldangResolver {
   async uploadMandeuldangTool(
     @Args('input') input: UploadMandeuldangToolInput
   ) {
+    const file = await input.file
     return this.mandeuldangService.uploadMandeuldangTool(
       input.problemId,
       input.toolType,
-      await input.file
+      file
     )
   }
 

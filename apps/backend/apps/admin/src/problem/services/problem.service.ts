@@ -7,7 +7,7 @@ import {
   ProblemWhereInput,
   UpdateHistory
 } from '@generated'
-import { ContestRole, ProblemField, Role } from '@prisma/client'
+import { ContestRole, ProblemField, ProblemStatus, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { Response } from 'express'
 import { Readable } from 'stream'
@@ -550,6 +550,18 @@ export class ProblemService {
           'User can only edit problems they created, were shared with, or manage via contest role'
         )
       }
+    }
+
+    // Published 문제는 누구나 제출할 수 있는 상태이므로, timeLimit/memoryLimit을
+    // 명시적으로 null로 바꾸는 수정은 막는다 — 그렇지 않으면 공개돼 있지만 채점은
+    // 받을 수 없는 문제가 생긴다(제출 시점에는 뒤늦게 거부됨).
+    if (
+      problem.status === ProblemStatus.Published &&
+      (input.timeLimit === null || input.memoryLimit === null)
+    ) {
+      throw new UnprocessableDataException(
+        'Published problems require timeLimit and memoryLimit'
+      )
     }
 
     const updatedByid = userId

@@ -2,17 +2,21 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   DeleteObjectCommand,
-  ListObjectsV2Command,
+  DeleteObjectsCommand,
+  paginateListObjectsV2,
   GetObjectCommand,
   PutObjectCommand,
   HeadObjectCommand,
-  S3Client
+  S3Client,
+  type _Object
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import type { ReadStream } from 'fs'
 import { type ContentType, ContentTypes } from './content.type'
 
 export type S3BucketType = 'testcase' | 'media' | 'checkResult' | 'mandeuldang'
+
+const MAX_DELETE_OBJECTS = 1000
 @Injectable()
 export class StorageService {
   constructor(
@@ -40,6 +44,7 @@ export class StorageService {
    * @param content 파일 내용
    * @param type 업로드할 파일의 MIME type
    * @param tags S3 Object에 붙일 태그
+   * @param bucket 업로드할 Bucket 종류 (기본값: 'testcase')
    */
   async uploadObject(
     filename: string,
@@ -121,19 +126,27 @@ export class StorageService {
    * For example, if prefix is 'testcase/', it will list all files under 'testcase/'.
    *
    * @param prefix Directory name to list files from
-   * @param bucket Bucket type to list files from ('testcase' or 'media')
+   * @param bucket 조회할 Bucket 종류 ('testcase' | 'media' | 'checkResult' | 'mandeuldang')
    */
-  async listObjects(prefix: string, bucket: 'testcase' | 'media') {
+  async listObjects(
+    prefix: string,
+    bucket: 'testcase' | 'media' | 'checkResult' | 'mandeuldang'
+  ) {
     const bucketName = this.getBucketName(bucket)
-    const objects = await this.client.send(
-      new ListObjectsV2Command({
-        Bucket: bucketName,
-        Prefix: prefix
-      })
-    )
-    return objects.Contents ?? []
-  }
 
+    const paginator = paginateListObjectsV2(
+      { client: this.client },
+      { Bucket: bucketName, Prefix: prefix }
+    )
+
+    const objects: _Object[] = []
+    for await (const page of paginator) {
+      if (page.Contents) {
+        objects.push(...page.Contents)
+      }
+    }
+    return objects
+  }
   /**
    * Remove the object from S3 Bucket.
    *
@@ -153,6 +166,34 @@ export class StorageService {
     )
   }
 
+  /**
+   * 여러 Object를 한 번의 요청으로 삭제합니다. (요청당 최대 1000개)
+   * 일부 Object 삭제에 실패하면 실패한 key 목록과 함께 에러를 던집니다.
+   *
+   * @param keys 삭제할 Object key 목록
+   * @param bucket 삭제할 Bucket 종류
+   */
+  async deleteObjects(keys: string[], bucket: S3BucketType) {
+    const bucketName = this.getBucketName(bucket)
+    const failedKeys: string[] = []
+
+    for (let i = 0; i < keys.length; i += MAX_DELETE_OBJECTS) {
+      const chunk = keys.slice(i, i + MAX_DELETE_OBJECTS)
+      const { Errors } = await this.client.send(
+        new DeleteObjectsCommand({
+          Bucket: bucketName,
+          Delete: { Objects: chunk.map((key) => ({ Key: key })), Quiet: true }
+        })
+      )
+
+      failedKeys.push(...(Errors ?? []).map((e) => e.Key ?? '(unknown key)'))
+    }
+    if (failedKeys.length > 0) {
+      throw new Error(
+        `Failed to delete ${failedKeys.length} object(s) from ${bucket}: ${failedKeys.join(', ')}`
+      )
+    }
+  }
   /**
    * S3에 저장된 파일을 삭제합니다.
    * @param filename 파일 이름
