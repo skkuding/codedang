@@ -68,7 +68,7 @@ export class MandeuldangProblemService {
     const paginator = this.prisma.getPaginator(cursor)
     const problems = await this.prisma.problem.findMany({
       ...paginator,
-      take: Math.min(take, MAX_TAKE),
+      take: Math.max(1, Math.min(take, MAX_TAKE)),
       where: {
         creationMode: ProblemCreationMode.Mandeuldang,
         createdById: userId,
@@ -100,7 +100,7 @@ export class MandeuldangProblemService {
     const paginator = this.prisma.getPaginator(cursor)
     const problems = await this.prisma.problem.findMany({
       ...paginator,
-      take: Math.min(take, MAX_TAKE),
+      take: Math.max(1, Math.min(take, MAX_TAKE)),
       where: {
         creationMode: ProblemCreationMode.Mandeuldang,
         status: status ?? { not: ProblemStatus.Published },
