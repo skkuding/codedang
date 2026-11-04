@@ -66,6 +66,7 @@ export function isIrisProgressPayload(
     typeof current === 'number' &&
     Number.isInteger(current) &&
     current >= 0 &&
+    current <= total &&
     isSandboxStatusCode(statusCode)
   )
 }
