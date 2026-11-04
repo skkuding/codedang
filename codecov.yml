@@ -1,0 +1,36 @@
+coverage:
+  status:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: exclude
+    project:
+      default: off
+      backend:
+        flags:
+          - backend
+        target: auto
+        informational: true
+      iris:
+        flags:
+          - iris
+        target: auto
+        informational: true
+    patch:
+      default: off
+      backend:
+        flags:
+          - backend
+        target: auto
+        informational: true
+      iris:
+        flags:
+          - iris
+        target: auto
+        informational: true
+
+flags:
+  backend:
+    paths:
+      - apps/backend/
+  iris:
+    paths:
+      - apps/iris/

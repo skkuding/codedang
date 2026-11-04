@@ -369,6 +369,48 @@ describe('TestcaseService', () => {
         exampleProblemTestcases
       )
     })
+
+    for (const [hiddenZip, sampleZip] of [
+      [false, false],
+      [true, false],
+      [false, true],
+      [true, true]
+    ]) {
+      it(`selects requested IO respecting ZIP flags (hidden=${hiddenZip}, sample=${sampleZip})`, async () => {
+        db.problem.findUnique.resolves({
+          isHiddenUploadedByZip: hiddenZip,
+          isSampleUploadedByZip: sampleZip
+        })
+        db.problemTestcase.findMany.reset()
+        db.problemTestcase.findMany.resolves([])
+
+        await service.getProblemTestcases(1, true)
+
+        expect(db.problemTestcase.findMany.callCount).to.equal(2)
+        for (const call of db.problemTestcase.findMany.getCalls()) {
+          const { where, select } = call.args[0]
+          const uploadedByZip = where.isHidden ? hiddenZip : sampleZip
+          expect('input' in select).to.equal(!uploadedByZip)
+          expect('output' in select).to.equal(!uploadedByZip)
+        }
+      })
+    }
+
+    it('does not select input or output for metadata-only requests', async () => {
+      db.problem.findUnique.resolves({
+        isHiddenUploadedByZip: false,
+        isSampleUploadedByZip: false
+      })
+      db.problemTestcase.findMany.resolves([])
+
+      await service.getProblemTestcases(1, false)
+
+      expect(db.problemTestcase.findMany.callCount).to.equal(2)
+      for (const call of db.problemTestcase.findMany.getCalls()) {
+        expect(call.args[0].select).not.to.have.property('input')
+        expect(call.args[0].select).not.to.have.property('output')
+      }
+    })
   })
 })
 
