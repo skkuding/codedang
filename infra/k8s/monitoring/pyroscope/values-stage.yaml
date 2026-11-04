@@ -1,0 +1,5 @@
+pyroscope:
+  structuredConfig:
+    limits:
+      retention_period: 14d
+      max_query_lookback: 14d

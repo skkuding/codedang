@@ -1,9 +1,12 @@
 package build
 
 import (
+	"errors"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
 	"github.com/stretchr/testify/assert"
@@ -97,4 +100,58 @@ func TestBuildUnitRunSerializesSameUnit(t *testing.T) {
 	<-done
 	<-done
 	assert.False(t, concurrent, "same BuildUnit entered the sandbox concurrently")
+}
+
+type compilingSandbox struct {
+	*blockingSandbox
+	baseDir string
+	result  sandbox.CompileResult
+	err     error
+}
+
+func (s *compilingSandbox) MakeSrcPath(dir string, _ sandbox.Language) (string, error) {
+	return filepath.Join(s.baseDir, dir, "main.c"), nil
+}
+
+func (s *compilingSandbox) Compile(sandbox.CompileRequest) (sandbox.CompileResult, error) {
+	return s.result, s.err
+}
+
+func TestBuildUnitSetupClassifiesCompileFailure(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		result      sandbox.CompileResult
+		err         error
+		isUserError bool
+	}{
+		{
+			name: "compiler rejected source",
+			result: sandbox.CompileResult{
+				ExecResult: sandbox.ExecResult{StatusCode: sandbox.COMPILE_ERROR},
+				ErrOutput:  "syntax error",
+			},
+			isUserError: true,
+		},
+		{
+			name: "compiler could not start",
+			err:  errors.New("compiler execution failed"),
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			baseDir := t.TempDir()
+			unit := &BuildUnit{Code: "invalid source", Language: string(sandbox.CPP)}
+			fake := &compilingSandbox{
+				blockingSandbox: newBlockingSandbox(),
+				baseDir:         baseDir,
+				result:          tc.result,
+				err:             tc.err,
+			}
+
+			buildErr := unit.Setup(0, 1, file.NewFileManager(baseDir), fake)
+
+			require.Error(t, buildErr)
+			assert.Equal(t, "compile", buildErr.Phase)
+			assert.Equal(t, tc.isUserError, buildErr.IsUserError)
+		})
+	}
 }

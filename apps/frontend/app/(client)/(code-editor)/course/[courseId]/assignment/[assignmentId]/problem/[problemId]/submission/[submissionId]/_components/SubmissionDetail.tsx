@@ -12,7 +12,6 @@ import {
 } from '@/components/shadcn/table'
 import { dateFormatter, fetcherWithAuth, getResultColor } from '@/libs/utils'
 import type { SubmissionDetail, ContestSubmission } from '@/types/type'
-import { revalidateTag } from 'next/cache'
 import { IoIosLock } from 'react-icons/io'
 
 interface Props {
@@ -28,9 +27,7 @@ export async function SubmissionDetail({
 }: Props) {
   const res = await fetcherWithAuth(`submission/${submissionId}`, {
     searchParams: { problemId, assignmentId },
-    next: {
-      tags: [`submission/${submissionId}`]
-    }
+    cache: 'no-store'
   })
   const submission: SubmissionDetail = res.ok ? await res.json() : dataIfError
   const assignmentSubmissionRes = await fetcherWithAuth(
@@ -45,9 +42,6 @@ export async function SubmissionDetail({
     (submission) => submission.id === submissionId
   )[0]
 
-  if (submission.result === 'Judging') {
-    revalidateTag(`submission/${submissionId}`)
-  }
   let sampleCount = 1
   let hiddenCount = 1
 

@@ -4,4 +4,6 @@ metadata:
   name: admin-api-env
   namespace: admin-api
 data:
+  APP_ENV: 'production'
   DATABASE_CONNECTION_LIMIT: '25'
+  MEDIA_CDN_URL: 'https://media.codedang.com'
