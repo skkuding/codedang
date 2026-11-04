@@ -14,6 +14,7 @@ import { stub } from 'sinon'
 import { JwtAuthService } from '@libs/auth'
 import { refreshTokenCacheKey } from '@libs/cache'
 import {
+  EntityNotExistException,
   InvalidJwtTokenException,
   UnidentifiedException
 } from '@libs/exception'
@@ -128,6 +129,25 @@ describe('AuthService', () => {
       expect(userMock.getUserCredential.calledWith(loginUserDto.username)).to.be
         .true
       expect(isValidUserSpy.calledWith(user, loginUserDto.password)).to.be.true
+    })
+
+    it('should verify dummy hash and throw UnidentifiedException when the user does not exist', async () => {
+      //given
+      userMock.getUserCredential.rejects(new EntityNotExistException('User'))
+      const verifyAgainstDummySpy = stub(
+        jwtAuthService,
+        'verifyAgainstDummy'
+      ).resolves()
+
+      //when
+      await expect(service.issueJwtTokens(loginUserDto)).to.be.rejectedWith(
+        UnidentifiedException
+      )
+      userMock.getUserCredential.resolves(user)
+
+      //then
+      expect(verifyAgainstDummySpy.calledOnceWith(loginUserDto.password)).to.be
+        .true
     })
   })
 
