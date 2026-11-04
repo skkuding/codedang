@@ -5,6 +5,7 @@ import type { ProgressUpdateMessage } from './types'
 const MAX_PAYLOAD_BYTES = 1024
 const MAX_SUBSCRIPTIONS = 20
 const MAX_CONNECTIONS = 1000
+const MAX_BUFFERED_BYTES = 1024 * 1024
 
 interface ClientMessage {
   type: 'subscribe' | 'unsubscribe'
@@ -36,6 +37,14 @@ function parseClientMessage(raw: RawData): ClientMessage | null {
     return null
   }
   return { type, submissionId }
+}
+
+function safeSend(ws: WebSocket, data: string) {
+  if (ws.bufferedAmount > MAX_BUFFERED_BYTES) {
+    ws.terminate()
+    return
+  }
+  ws.send(data)
 }
 
 export function startWebSocketServer(port: number, store: ProgressStore) {
