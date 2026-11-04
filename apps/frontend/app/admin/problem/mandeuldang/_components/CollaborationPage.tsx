@@ -11,10 +11,6 @@ import {
 } from '../_libs/collaboration'
 import { CollaborationDialogs } from './CollaborationDialogs'
 import { CollaborationInviteForm } from './CollaborationInviteForm'
-import {
-  FIGMA_PREVIEW_PARTICIPANTS,
-  FIGMA_PREVIEW_REQUESTS
-} from './CollaborationPage.fixture'
 import { CollaboratorList } from './CollaboratorList'
 
 export type { Collaborator, CollaboratorRole } from '../_libs/collaboration'
@@ -22,32 +18,22 @@ export type { Collaborator, CollaboratorRole } from '../_libs/collaboration'
 interface CollaborationPageProps {
   initialRequests?: Collaborator[]
   initialParticipants?: Collaborator[]
-  currentUserEmail?: string
 }
 
 export function CollaborationPage({
-  initialRequests,
-  initialParticipants,
-  currentUserEmail
+  initialRequests = [],
+  initialParticipants = []
 }: CollaborationPageProps = {}) {
-  const previewEnabled = process.env.NODE_ENV === 'development'
-  const requestsAtStart =
-    initialRequests ?? (previewEnabled ? FIGMA_PREVIEW_REQUESTS : [])
-  const participantsAtStart =
-    initialParticipants ?? (previewEnabled ? FIGMA_PREVIEW_PARTICIPANTS : [])
-
   const invitationId = useRef(0)
   const [activeTab, setActiveTab] = useState<CollaborationTab>('requests')
   const [email, setEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<CollaboratorRole>('Editor')
   const [emailError, setEmailError] = useState('')
-  const [requests, setRequests] = useState<Collaborator[]>(requestsAtStart)
+  const [requests, setRequests] = useState<Collaborator[]>(initialRequests)
   const [participants, setParticipants] =
-    useState<Collaborator[]>(participantsAtStart)
+    useState<Collaborator[]>(initialParticipants)
   const [pendingAction, setPendingAction] =
     useState<PendingCollaborationAction | null>(null)
-
-  const normalizedCurrentUserEmail = currentUserEmail?.trim().toLowerCase()
 
   const validateEmail = (value: string) => {
     const normalizedEmail = value.trim().toLowerCase()
@@ -58,10 +44,6 @@ export function CollaborationPage({
 
     if (!EMAIL_PATTERN.test(normalizedEmail)) {
       return '유효하지 않은 이메일입니다.'
-    }
-
-    if (normalizedEmail === normalizedCurrentUserEmail) {
-      return '본인은 협업자로 초대할 수 없습니다.'
     }
 
     const isAlreadyInvited = [...requests, ...participants].some(
@@ -76,6 +58,20 @@ export function CollaborationPage({
     return ''
   }
 
+  // 초기 데이터의 id와 겹치지 않는 초대 id를 만든다
+  const createInvitationId = () => {
+    const existingIds = new Set(
+      [...requests, ...participants].map(({ id }) => id)
+    )
+    let id: string
+
+    do {
+      id = `invited-${invitationId.current++}`
+    } while (existingIds.has(id))
+
+    return id
+  }
+
   const inviteCollaborator = () => {
     const errorMessage = validateEmail(email)
 
@@ -86,7 +82,7 @@ export function CollaborationPage({
 
     const normalizedEmail = email.trim().toLowerCase()
     const invitedCollaborator: Collaborator = {
-      id: `invited-${invitationId.current++}`,
+      id: createInvitationId(),
       name: nameFromEmail(normalizedEmail),
       email: normalizedEmail,
       role: inviteRole
