@@ -6,6 +6,8 @@ import type { ProgressUpdateMessage } from './types'
 const MAX_PAYLOAD_BYTES = 1024
 // 연결 하나가 동시에 구독할 수 있는 submission 수
 const MAX_SUBSCRIPTIONS = 20
+// 서버가 동시에 유지할 WebSocket 연결 수
+const MAX_CONNECTIONS = 1000
 
 interface ClientMessage {
   type: 'subscribe' | 'unsubscribe'
@@ -64,6 +66,10 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
   }
 
   wss.on('connection', (ws) => {
+    if (wss.clients.size > MAX_CONNECTIONS) {
+      ws.close(1013, 'too many connections')
+      return
+    }
     const subscribedIds = new Set<number>()
 
     ws.on('message', (raw) => {
@@ -78,7 +84,6 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
         return
       }
 
-      // 채점이 끝나 broadcast에서 정리된 구독은 개수에서 뺀다.
       for (const id of subscribedIds) {
         if (!subscribers.get(id)?.has(ws)) {
           subscribedIds.delete(id)
@@ -98,7 +103,6 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
       if (snapshot) {
         ws.send(JSON.stringify(snapshot))
       }
-      // 이미 끝난 채점이면 스냅샷만 보내고 구독은 하지 않는다.
       if (snapshot && snapshot.status !== 'judging') {
         return
       }
@@ -106,8 +110,6 @@ export function startWebSocketServer(port: number, store: ProgressStore) {
       addSubscriber(message.submissionId, ws)
     })
 
-    // maxPayload 초과 등 프로토콜 에러. 리스너가 없으면 서버 전체가 죽는다.
-    // ws가 이 연결을 알아서 닫으므로 로그만 남기고, 정리는 close에서 한다.
     ws.on('error', (e) => {
       console.warn('[progress-server] websocket client error', e.message)
     })
