@@ -24,6 +24,29 @@ const activeParticipant: Collaborator = {
   role: 'Viewer'
 }
 
+const typeEmail = (email: string) => {
+  fireEvent.change(screen.getByPlaceholderText('이메일을 입력해주세요'), {
+    target: { value: email }
+  })
+}
+
+const inviteByEmail = (email: string) => {
+  typeEmail(email)
+  fireEvent.click(screen.getByRole('button', { name: '협업자 초대하기' }))
+}
+
+const selectTab = (name: string) => {
+  fireEvent.mouseDown(screen.getByRole('tab', { name }), {
+    button: 0,
+    ctrlKey: false
+  })
+}
+
+const deleteParticipant = (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name: `${name} 삭제하기` }))
+  fireEvent.click(screen.getByRole('button', { name: '삭제할래요' }))
+}
+
 afterEach(cleanup)
 
 describe('CollaborationPage', () => {
@@ -41,20 +64,14 @@ describe('CollaborationPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '협업자 초대하기' }))
     expect(screen.getByText('이메일을 입력해주세요.')).toBeTruthy()
 
-    fireEvent.change(screen.getByPlaceholderText('이메일을 입력해주세요'), {
-      target: { value: 'not-an-email' }
-    })
-    fireEvent.click(screen.getByRole('button', { name: '협업자 초대하기' }))
+    inviteByEmail('not-an-email')
     expect(screen.getByText('유효하지 않은 이메일입니다.')).toBeTruthy()
   })
 
   it('유효한 이메일을 초대하면 활성화된 참여자에 즉시 추가한다', () => {
     render(<CollaborationPage />)
 
-    fireEvent.change(screen.getByPlaceholderText('이메일을 입력해주세요'), {
-      target: { value: 'new-editor@example.com' }
-    })
-    fireEvent.click(screen.getByRole('button', { name: '협업자 초대하기' }))
+    inviteByEmail('new-editor@example.com')
 
     expect(screen.getByText('new-editor@example.com')).toBeTruthy()
     expect(screen.getByText('총 1건')).toBeTruthy()
@@ -65,35 +82,38 @@ describe('CollaborationPage', () => {
     ).toBe('active')
   })
 
+  it('폼 제출(Enter)로도 협업자를 초대할 수 있다', () => {
+    render(<CollaborationPage />)
+
+    typeEmail('enter@example.com')
+    fireEvent.submit(screen.getByRole('form', { name: '협업자 초대' }))
+
+    expect(screen.getByText('enter@example.com')).toBeTruthy()
+  })
+
   it('외부 협업 요청을 승인하거나 거절할 수 있다', () => {
     const { rerender } = render(
       <CollaborationPage initialRequests={[pendingRequest]} />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: '승인하기' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Bob 승인하기' }))
     expect(screen.getByText('받은 협업 요청이 없습니다.')).toBeTruthy()
 
-    fireEvent.mouseDown(screen.getByRole('tab', { name: '활성화된 참여자' }), {
-      button: 0,
-      ctrlKey: false
-    })
+    selectTab('활성화된 참여자')
     expect(screen.getByText('bob@example.com')).toBeTruthy()
 
     rerender(
       <CollaborationPage key="reject-case" initialRequests={[pendingRequest]} />
     )
-    fireEvent.click(screen.getByRole('button', { name: '거절하기' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Bob 거절하기' }))
     expect(screen.getByText('받은 협업 요청이 없습니다.')).toBeTruthy()
   })
 
   it('활성화된 참여자를 확인 후 삭제한다', () => {
     render(<CollaborationPage initialParticipants={[activeParticipant]} />)
 
-    fireEvent.mouseDown(screen.getByRole('tab', { name: '활성화된 참여자' }), {
-      button: 0,
-      ctrlKey: false
-    })
-    fireEvent.click(screen.getByRole('button', { name: '삭제하기' }))
+    selectTab('활성화된 참여자')
+    fireEvent.click(screen.getByRole('button', { name: 'Alice 삭제하기' }))
 
     expect(
       screen.getByRole('heading', {
@@ -111,11 +131,8 @@ describe('CollaborationPage', () => {
   it('활성화된 참여자의 권한을 확인 후 변경한다', () => {
     render(<CollaborationPage initialParticipants={[activeParticipant]} />)
 
-    fireEvent.mouseDown(screen.getByRole('tab', { name: '활성화된 참여자' }), {
-      button: 0,
-      ctrlKey: false
-    })
-    fireEvent.click(screen.getByRole('button', { name: '권한 변경' }))
+    selectTab('활성화된 참여자')
+    fireEvent.click(screen.getByRole('button', { name: 'Alice 권한 변경' }))
 
     expect(
       screen.getByRole('heading', {
@@ -133,5 +150,39 @@ describe('CollaborationPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '변경할래요' }))
 
     expect(screen.getByLabelText('Alice 현재 권한: Editor')).toBeTruthy()
+  })
+
+  it('초대 ID는 기존 협업자의 ID와 겹치지 않는다', () => {
+    render(
+      <CollaborationPage
+        initialRequests={[{ ...pendingRequest, id: 'invited-1' }]}
+        initialParticipants={[{ ...activeParticipant, id: 'invited-0' }]}
+      />
+    )
+
+    inviteByEmail('carol@example.com')
+    deleteParticipant('carol')
+
+    // ID가 겹쳤다면 Alice도 함께 삭제된다
+    expect(screen.queryByText('carol@example.com')).toBeNull()
+    expect(screen.getByText('alice@example.com')).toBeTruthy()
+
+    selectTab('협업 요청')
+    expect(screen.getByText('bob@example.com')).toBeTruthy()
+  })
+
+  it('연속으로 초대한 참여자는 서로 다른 ID를 가진다', () => {
+    render(<CollaborationPage />)
+
+    inviteByEmail('carol@example.com')
+    inviteByEmail('dave@example.com')
+
+    fireEvent.click(screen.getByRole('button', { name: 'dave 권한 변경' }))
+    fireEvent.click(screen.getByRole('radio', { name: 'Viewer (보기 권한)' }))
+    fireEvent.click(screen.getByRole('button', { name: '변경할래요' }))
+
+    // dave의 권한만 바뀌고 carol은 초대 당시 권한(Editor)을 유지한다
+    expect(screen.getByLabelText('dave 현재 권한: Viewer')).toBeTruthy()
+    expect(screen.getByLabelText('carol 현재 권한: Editor')).toBeTruthy()
   })
 })

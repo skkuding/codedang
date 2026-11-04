@@ -34,7 +34,6 @@ export function CollaborationDialogs({
   return (
     <AlertDialog open={pendingAction !== null} onOpenChange={onOpenChange}>
       <AlertDialogContent
-        overlayClassName="bg-black/60 backdrop-blur-none"
         className={cn(
           'gap-0 rounded-2xl border-0 bg-white px-8 pb-6 pt-8 shadow-none',
           isRoleChange ? 'w-[560px]' : 'w-[436px]'
@@ -43,7 +42,7 @@ export function CollaborationDialogs({
         <AlertDialogHeader className="gap-2 space-y-0 text-left">
           <InfoBlueIcon aria-hidden="true" className="size-9" />
           <div className="flex flex-col gap-3">
-            <AlertDialogTitle className="text-head5_sb_24 text-color-common-0">
+            <AlertDialogTitle className="text-head5_sb_24">
               {pendingAction?.type === 'delete'
                 ? '사용자 권한을 삭제하시겠습니까?'
                 : '사용자 권한을 변경하시겠습니까?'}
@@ -71,7 +70,7 @@ export function CollaborationDialogs({
               {COLLABORATOR_ROLES.map((role) => (
                 <label
                   key={role}
-                  className="text-body1_m_16 text-color-common-0 flex cursor-pointer items-center justify-between px-4 py-3"
+                  className="text-body1_m_16 flex cursor-pointer items-center justify-between px-4 py-3"
                 >
                   <span>
                     {role === 'Viewer'

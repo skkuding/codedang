@@ -2,6 +2,7 @@ import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
 import InfoGrayIcon from '@/public/icons/info-gray.svg'
+import type { FormEvent } from 'react'
 import type { CollaboratorRole } from '../_libs/collaboration'
 import { CollaborationRoleSelect } from './CollaborationRoleSelect'
 
@@ -22,20 +23,32 @@ export function CollaborationInviteForm({
   onRoleChange,
   onInvite
 }: CollaborationInviteFormProps) {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    onInvite()
+  }
+
   return (
-    <section className="border-color-cool-neutral-90 flex flex-col gap-5 rounded-2xl border bg-white px-6 py-7">
+    // noValidate: 브라우저 기본 이메일 검증 대신 CollaborationPage의 검증 메시지를 보여준다
+    <form
+      noValidate
+      aria-labelledby="collaboration-invite-title"
+      onSubmit={handleSubmit}
+      className="border-color-cool-neutral-90 flex flex-col gap-5 rounded-2xl border bg-white px-6 py-7"
+    >
       <div className="flex items-start justify-between gap-6">
         <div className="flex min-w-0 flex-col gap-1.5">
-          <h2 className="text-head5_sb_24 text-color-common-0">협업자 초대</h2>
+          <h2 id="collaboration-invite-title" className="text-head5_sb_24">
+            협업자 초대
+          </h2>
           <p className="text-body1_m_16 text-color-cool-neutral-40 break-keep">
             내가 초대한 협업자는 즉시 활성화되고, 외부에서 온 요청만 승인/거절할
             수 있어요.
           </p>
         </div>
         <Button
-          type="button"
+          type="submit"
           variant="outline"
-          onClick={onInvite}
           className="border-primary text-primary hover:bg-color-blue-95 h-[46px] shrink-0 rounded-[10px] px-4 py-3"
         >
           <span className="text-sub3_sb_16">협업자 초대하기</span>
@@ -63,12 +76,6 @@ export function CollaborationInviteForm({
                 placeholder="이메일을 입력해주세요"
                 className="pr-[72px]"
                 onChange={(event) => onEmailChange(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault()
-                    onInvite()
-                  }
-                }}
               />
               <span
                 className={cn(
@@ -94,6 +101,6 @@ export function CollaborationInviteForm({
           초대 즉시 Approved 처리되어 ‘활성화된 참여자’에 바로 들어갑니다.
         </p>
       </div>
-    </section>
+    </form>
   )
 }

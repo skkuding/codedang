@@ -7,6 +7,7 @@ import {
 } from '@/components/shadcn/tabs'
 import InfoGrayIcon from '@/public/icons/info-gray.svg'
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 import type {
   CollaborationTab,
   Collaborator,
@@ -25,6 +26,9 @@ interface CollaboratorListProps {
   onChangeParticipantRole: (collaborator: Collaborator) => void
   onDeleteParticipant: (collaborator: Collaborator) => void
 }
+
+const TAB_TRIGGER_CLASS =
+  'text-sub3_sb_16 data-[state=active]:text-primary data-[state=active]:border-primary text-color-cool-neutral-30 h-[52px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-3 shadow-none data-[state=active]:bg-transparent'
 
 function CollaboratorIdentity({
   collaborator
@@ -52,9 +56,7 @@ function CollaboratorIdentity({
         </div>
       )}
       <div className="min-w-0">
-        <p className="text-title1_sb_20 text-color-common-0 truncate">
-          {collaborator.name}
-        </p>
+        <p className="text-title1_sb_20 truncate">{collaborator.name}</p>
         <p className="text-body4_r_14 text-color-cool-neutral-40 truncate">
           {collaborator.email}
         </p>
@@ -97,6 +99,78 @@ function EmptyCollaborators({ tab }: { tab: CollaborationTab }) {
   )
 }
 
+interface CollaboratorAction {
+  label: string
+  onClick: () => void
+}
+
+interface CollaboratorRowProps {
+  collaborator: Collaborator
+  roleControl: ReactNode
+  secondaryAction: CollaboratorAction
+  primaryAction: CollaboratorAction
+}
+
+// 협업 요청과 활성화된 참여자가 공유하는 행.
+// 버튼 이름에 협업자 이름을 붙여 스크린리더가 어느 행의 버튼인지 구분할 수 있게 한다.
+function CollaboratorRow({
+  collaborator,
+  roleControl,
+  secondaryAction,
+  primaryAction
+}: CollaboratorRowProps) {
+  return (
+    <li className="flex items-center justify-between gap-4 py-4">
+      <CollaboratorIdentity collaborator={collaborator} />
+      <div className="flex shrink-0 items-center gap-10">
+        {roleControl}
+        <div className="flex gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            aria-label={`${collaborator.name} ${secondaryAction.label}`}
+            onClick={secondaryAction.onClick}
+            className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-3"
+          >
+            <span className="text-sub3_sb_16">{secondaryAction.label}</span>
+          </Button>
+          <Button
+            type="button"
+            aria-label={`${collaborator.name} ${primaryAction.label}`}
+            onClick={primaryAction.onClick}
+            className="h-[46px] w-[88px] rounded-[10px] px-4"
+          >
+            <span className="text-sub3_sb_16">{primaryAction.label}</span>
+          </Button>
+        </div>
+      </div>
+    </li>
+  )
+}
+
+interface CollaboratorPanelProps {
+  tab: CollaborationTab
+  collaborators: Collaborator[]
+  renderRow: (collaborator: Collaborator) => ReactNode
+}
+
+function CollaboratorPanel({
+  tab,
+  collaborators,
+  renderRow
+}: CollaboratorPanelProps) {
+  return (
+    <TabsContent value={tab} className="mt-0 outline-none">
+      <p className="text-title1_sb_20 py-4">총 {collaborators.length}건</p>
+      {collaborators.length === 0 ? (
+        <EmptyCollaborators tab={tab} />
+      ) : (
+        <ul>{collaborators.map(renderRow)}</ul>
+      )}
+    </TabsContent>
+  )
+}
+
 export function CollaboratorList({
   activeTab,
   requests,
@@ -115,109 +189,64 @@ export function CollaboratorList({
         onValueChange={(value) => onTabChange(value as CollaborationTab)}
       >
         <TabsList className="border-color-line h-[52px] w-full rounded-none border-0 border-b bg-transparent p-0">
-          <TabsTrigger
-            value="requests"
-            className="text-sub3_sb_16 data-[state=active]:text-primary data-[state=active]:border-primary text-color-cool-neutral-30 h-[52px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-3 shadow-none data-[state=active]:bg-transparent"
-          >
+          <TabsTrigger value="requests" className={TAB_TRIGGER_CLASS}>
             협업 요청
           </TabsTrigger>
-          <TabsTrigger
-            value="participants"
-            className="text-sub3_sb_16 data-[state=active]:text-primary data-[state=active]:border-primary text-color-cool-neutral-30 h-[52px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-3 shadow-none data-[state=active]:bg-transparent"
-          >
+          <TabsTrigger value="participants" className={TAB_TRIGGER_CLASS}>
             활성화된 참여자
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="requests" className="mt-0 outline-none">
-          <p className="text-title1_sb_20 text-color-common-0 py-4">
-            총 {requests.length}건
-          </p>
-          {requests.length === 0 ? (
-            <EmptyCollaborators tab="requests" />
-          ) : (
-            <ul>
-              {requests.map((request) => (
-                <li
-                  key={request.id}
-                  className="flex items-center justify-between gap-4 py-4"
-                >
-                  <CollaboratorIdentity collaborator={request} />
-                  <div className="flex shrink-0 items-center gap-10">
-                    <CollaborationRoleSelect
-                      compact
-                      ariaLabel={`${request.name} 요청 권한`}
-                      value={request.role}
-                      onValueChange={(role) =>
-                        onRequestRoleChange(request.id, role)
-                      }
-                    />
-                    <div className="flex gap-1.5">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onRejectRequest(request.id)}
-                        className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-4"
-                      >
-                        <span className="text-sub3_sb_16">거절하기</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onApproveRequest(request.id)}
-                        className="h-[46px] w-[88px] rounded-[10px] px-4"
-                      >
-                        <span className="text-sub3_sb_16">승인하기</span>
-                      </Button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <CollaboratorPanel
+          tab="requests"
+          collaborators={requests}
+          renderRow={(request) => (
+            <CollaboratorRow
+              key={request.id}
+              collaborator={request}
+              roleControl={
+                <CollaborationRoleSelect
+                  compact
+                  ariaLabel={`${request.name} 요청 권한`}
+                  value={request.role}
+                  onValueChange={(role) =>
+                    onRequestRoleChange(request.id, role)
+                  }
+                />
+              }
+              secondaryAction={{
+                label: '거절하기',
+                onClick: () => onRejectRequest(request.id)
+              }}
+              primaryAction={{
+                label: '승인하기',
+                onClick: () => onApproveRequest(request.id)
+              }}
+            />
           )}
-        </TabsContent>
+        />
 
-        <TabsContent value="participants" className="mt-0 outline-none">
-          <p className="text-title1_sb_20 text-color-common-0 py-4">
-            총 {participants.length}건
-          </p>
-          {participants.length === 0 ? (
-            <EmptyCollaborators tab="participants" />
-          ) : (
-            <ul>
-              {participants.map((participant) => (
-                <li
-                  key={participant.id}
-                  className="flex items-center justify-between gap-4 py-4"
-                >
-                  <CollaboratorIdentity collaborator={participant} />
-                  <div className="flex shrink-0 items-center gap-10">
-                    <RoleBadge
-                      name={participant.name}
-                      role={participant.role}
-                    />
-                    <div className="flex gap-1.5">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onChangeParticipantRole(participant)}
-                        className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-3"
-                      >
-                        <span className="text-sub3_sb_16">권한 변경</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => onDeleteParticipant(participant)}
-                        className="h-[46px] w-[88px] rounded-[10px] px-4"
-                      >
-                        <span className="text-sub3_sb_16">삭제하기</span>
-                      </Button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <CollaboratorPanel
+          tab="participants"
+          collaborators={participants}
+          renderRow={(participant) => (
+            <CollaboratorRow
+              key={participant.id}
+              collaborator={participant}
+              roleControl={
+                <RoleBadge name={participant.name} role={participant.role} />
+              }
+              secondaryAction={{
+                label: '권한 변경',
+                onClick: () => onChangeParticipantRole(participant)
+              }}
+              primaryAction={{
+                label: '삭제하기',
+                onClick: () => onDeleteParticipant(participant)
+              }}
+            />
           )}
-        </TabsContent>
+        />
       </Tabs>
     </section>
   )
