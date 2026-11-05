@@ -43,13 +43,17 @@ export function CollaborationRoleSelect({
       >
         <SelectValue />
       </SelectTrigger>
-      <SelectContent showScrollButtons={false} className="rounded-lg p-0">
+      {/* 피그마: 메뉴 109×88(테두리는 안쪽 선이라 inset shadow로 그림), 반경 8, 항목 44px, 선택 배경 Neutral/99 */}
+      <SelectContent
+        showScrollButtons={false}
+        className="w-(--radix-select-trigger-width) min-w-0 rounded-lg border-0 p-0 shadow-[inset_0_0_0_1px_#D8D8D8] [&_[data-radix-select-viewport]]:p-0"
+      >
         {COLLABORATOR_ROLES.map((role) => (
           <SelectItem
             key={role}
             value={role}
             showSelectIcon={false}
-            className="text-body1_m_16 focus:bg-color-neutral-95 h-10 justify-center rounded-none px-5"
+            className="text-body1_m_16 text-color-cool-neutral-20 focus:bg-color-neutral-99 data-[state=checked]:bg-color-neutral-99 h-11 justify-center rounded-none px-5"
           >
             {role}
           </SelectItem>
