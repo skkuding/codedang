@@ -11,11 +11,7 @@ export class JwtAuthService {
     ARGON2_HASH_OPTION
   )
 
-  /**
-   * 존재하지 않는 사용자의 로그인 요청도 같은 시간이 걸리도록 Argon2 검증을 수행합니다.
-   *
-   * @param {string} password 입력된 비밀번호
-   */
+  // Keeps login timing for unknown users close to that of wrong passwords.
   async verifyAgainstDummy(password: string) {
     await verify(await this.dummyHash, password)
   }

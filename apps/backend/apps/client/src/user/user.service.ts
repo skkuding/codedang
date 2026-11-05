@@ -101,13 +101,6 @@ export class UserService {
     return username
   }
 
-  /**
-   * 비로그인 요청에 사용자 정보를 노출하지 않고, 가입된 이메일이면 아이디를 메일로 전송합니다.
-   * 가입 여부나 전송 한도 초과 여부와 관계없이 같은 응답을 반환합니다.
-   *
-   * @param {string} email 이메일 주소
-   * @returns 화면에 표시할 안내 문구
-   */
   async sendUsernameByEmail({ email }: UserEmailDto) {
     const { scope, limit, windowMs } = USERNAME_SEND_LIMIT
     const count = await this.increaseCount(
@@ -192,6 +185,7 @@ export class UserService {
       throw new UnprocessableDataException('Only @skku.edu emails are allowed')
     }
 
+    // Count before the duplicate check so account existence cannot be probed without limit.
     await this.enforcePinSendLimit(email)
 
     const duplicatedUser = await this.getUserCredentialByEmail(email)
@@ -205,7 +199,6 @@ export class UserService {
 
   /**
    * 비밀번호 재설정을 위한 pin번호를 사용자 이메일로 전송합니다.
-   * 가입 여부가 응답 내용과 시간으로 드러나지 않도록 사용자 조회와 메일 전송은 응답과 분리합니다.
    *
    * @param {string} email 사용자 이메일 주소
    * @throws {TooManyRequestsException} pin 전송 한도를 초과하면 예외를 발생시킵니다.
@@ -224,13 +217,6 @@ export class UserService {
     return PIN_SENT_MESSAGE
   }
 
-  /**
-   * 이메일 주소별 pin 전송 횟수를 세고, 한도를 넘으면 예외를 발생시킵니다.
-   * 가입되지 않은 이메일도 같은 기준으로 세어 한도 초과 응답으로 가입 여부가 드러나지 않습니다.
-   *
-   * @param {string} email 이메일 주소
-   * @throws {TooManyRequestsException} pin 전송 한도를 초과하면 예외를 발생시킵니다.
-   */
   private async enforcePinSendLimit(email: string) {
     for (const { scope, limit, windowMs } of PIN_SEND_LIMITS) {
       const count = await this.increaseCount(
@@ -243,13 +229,6 @@ export class UserService {
     }
   }
 
-  /**
-   * 동시 요청에도 정확하도록 Redis에서 원자적으로 횟수를 증가시킵니다.
-   *
-   * @param {string} key 횟수를 저장할 key값
-   * @param {number} ttl 첫 증가 시점부터 횟수가 유지되는 시간 (ms)
-   * @returns {Promise<number>} 증가된 횟수
-   */
   private async increaseCount(key: string, ttl: number): Promise<number> {
     const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
     const client = await store.getClient()
@@ -265,12 +244,7 @@ export class UserService {
     return count as number
   }
 
-  /**
-   * 작업을 응답과 분리해 실행하고, 실패하면 로그를 기록합니다.
-   *
-   * @param {string} context 로그에 남길 작업 이름
-   * @param task 실행할 작업
-   */
+  // Detached so response time does not reveal whether the account exists.
   private runInBackground(context: string, task: () => Promise<void>) {
     void task().catch((error) => this.logger.error(error, context))
   }
@@ -431,16 +405,15 @@ export class UserService {
 
   /**
    * 사용자가 입력한 pin번호와 캐시에 저장된 pin번호가 일치하는지 검증합니다.
-   * 시도 횟수를 비교 전에 먼저 증가시켜 동시 요청으로도 한도를 넘어 대입할 수 없으며,
-   * 한도에 도달할 때까지 일치하지 않으면 저장된 pin번호를 삭제합니다.
    *
    * @param {string} pin 핀번호
    * @param {string} email 이메일 주소
-   * @throws {UnidentifiedException} 입력한 pin번호와 캐시에 저장된 pin번호가 일치하지 않거나 시도 횟수를 초과한 경우 예외를 발생시킵니다.
+   * @throws {UnidentifiedException} 입력한 pin번호와 캐시에 저장된 pin번호가 일치하지 않을 경우 예외를 발생시킵니다.
    * @returns {boolean} pin번호가 검증되었음을 의미하는 true를 반환합니다.
    */
   async verifyPin(pin: string, email: string): Promise<boolean> | never {
     const pinCacheKey = emailAuthenticationPinCacheKey(email)
+    // Count before comparing so concurrent requests cannot exceed the limit.
     const attempts = await this.increaseCount(
       emailAuthenticationAttemptCacheKey(email),
       1000 * EMAIL_AUTH_EXPIRE_TIME

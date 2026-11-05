@@ -132,20 +132,17 @@ describe('AuthService', () => {
     })
 
     it('should verify dummy hash and throw UnidentifiedException when the user does not exist', async () => {
-      //given
       userMock.getUserCredential.rejects(new EntityNotExistException('User'))
       const verifyAgainstDummySpy = stub(
         jwtAuthService,
         'verifyAgainstDummy'
       ).resolves()
 
-      //when
       await expect(service.issueJwtTokens(loginUserDto)).to.be.rejectedWith(
         UnidentifiedException
       )
       userMock.getUserCredential.resolves(user)
 
-      //then
       expect(verifyAgainstDummySpy.calledOnceWith(loginUserDto.password)).to.be
         .true
     })

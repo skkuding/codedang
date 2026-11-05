@@ -29,7 +29,6 @@ export class UnidentifiedException extends BusinessException {
   }
 }
 
-/** [429] Throw when a client exceeds a request limit. */
 export class TooManyRequestsException extends BusinessException {
   constructor() {
     super('Too many requests. Please try again later.')
