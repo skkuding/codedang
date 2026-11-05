@@ -10,6 +10,10 @@ vi.mock('@/public/icons/icon-info-blue.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 
+vi.mock('@/public/icons/asterisk-gray.svg', () => ({
+  default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
+}))
+
 const pendingRequest: Collaborator = {
   id: 'request-1',
   name: 'Bob',
@@ -47,6 +51,12 @@ const deleteParticipant = (name: string) => {
   fireEvent.click(screen.getByRole('button', { name: '삭제할래요' }))
 }
 
+// "총 N건"은 숫자만 강조색 span으로 감싸져 있어 문단 전체 텍스트로 찾는다
+const getTotalCount = (text: string) =>
+  screen.getByText(
+    (_, element) => element?.tagName === 'P' && element.textContent === text
+  )
+
 afterEach(cleanup)
 
 describe('CollaborationPage', () => {
@@ -54,7 +64,7 @@ describe('CollaborationPage', () => {
     render(<CollaborationPage />)
 
     expect(screen.getByRole('heading', { name: '협업자 초대' })).toBeTruthy()
-    expect(screen.getByText('총 0건')).toBeTruthy()
+    expect(getTotalCount('총 0건')).toBeTruthy()
     expect(screen.getByText('받은 협업 요청이 없습니다.')).toBeTruthy()
   })
 
@@ -74,7 +84,7 @@ describe('CollaborationPage', () => {
     inviteByEmail('new-editor@example.com')
 
     expect(screen.getByText('new-editor@example.com')).toBeTruthy()
-    expect(screen.getByText('총 1건')).toBeTruthy()
+    expect(getTotalCount('총 1건')).toBeTruthy()
     expect(
       screen
         .getByRole('tab', { name: '활성화된 참여자' })

@@ -34,7 +34,7 @@ export function CollaborationRoleSelect({
       <SelectTrigger
         aria-label={ariaLabel}
         className={cn(
-          'text-body3_r_16 border-color-line bg-white pl-5 pr-4',
+          'text-body1_m_16 border-color-line bg-white pl-5 pr-4',
           compact ? 'h-10 w-[109px] rounded-full' : 'h-[46px] w-full rounded-xl'
         )}
       >
@@ -46,7 +46,7 @@ export function CollaborationRoleSelect({
             key={role}
             value={role}
             showSelectIcon={false}
-            className="text-body3_r_16 focus:bg-color-neutral-95 h-10 justify-center rounded-none px-5"
+            className="text-body1_m_16 focus:bg-color-neutral-95 h-10 justify-center rounded-none px-5"
           >
             {role}
           </SelectItem>

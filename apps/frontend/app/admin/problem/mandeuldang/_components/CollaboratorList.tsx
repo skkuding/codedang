@@ -27,8 +27,9 @@ interface CollaboratorListProps {
   onDeleteParticipant: (collaborator: Collaborator) => void
 }
 
+// 피그마: 탭 텍스트 sub3_sb_16, 비활성 CoolNeutral/40 (기본 variant의 font-normal·neutral-60을 덮어쓴다)
 const TAB_TRIGGER_CLASS =
-  'text-sub3_sb_16 data-[state=active]:text-primary data-[state=active]:border-primary text-color-cool-neutral-30 h-[52px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-3 shadow-none data-[state=active]:bg-transparent'
+  'text-sub3_sb_16 font-semibold data-[state=active]:text-primary data-[state=active]:border-primary data-[state=inactive]:text-color-cool-neutral-40 h-[52px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-3 shadow-none data-[state=active]:bg-transparent'
 
 function CollaboratorIdentity({
   collaborator
@@ -69,7 +70,7 @@ function RoleBadge({ name, role }: { name: string; role: CollaboratorRole }) {
   return (
     <div
       aria-label={`${name} 현재 권한: ${role}`}
-      className="text-body3_r_16 border-color-line flex h-10 w-[109px] items-center justify-center rounded-full border bg-white"
+      className="text-body1_m_16 border-color-line flex h-10 w-[109px] items-center justify-center rounded-full border bg-white"
     >
       {role}
     </div>
@@ -81,7 +82,8 @@ function EmptyCollaborators({ tab }: { tab: CollaborationTab }) {
 
   return (
     <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-2 rounded-xl px-6 py-[60px] text-center">
-      <InfoGrayIcon aria-hidden="true" className="size-6" />
+      {/* SVGR 빌드가 viewBox를 제거해 CSS 크기만으로는 아이콘이 줄지 않으므로 명시한다 */}
+      <InfoGrayIcon aria-hidden="true" viewBox="0 0 30 30" className="size-6" />
       <p className="text-body1_m_16 text-color-cool-neutral-50">
         <span>
           {isParticipantsTab
@@ -161,7 +163,9 @@ function CollaboratorPanel({
 }: CollaboratorPanelProps) {
   return (
     <TabsContent value={tab} className="mt-0 outline-none">
-      <p className="text-title1_sb_20 py-4">총 {collaborators.length}건</p>
+      <p className="text-title1_sb_20 pb-1 pt-5">
+        총 <span className="text-primary">{collaborators.length}</span>건
+      </p>
       {collaborators.length === 0 ? (
         <EmptyCollaborators tab={tab} />
       ) : (
