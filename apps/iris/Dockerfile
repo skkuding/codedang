@@ -3,8 +3,9 @@ ARG app_env=production
 
 FROM golang:1.27.3 AS builder
 
-COPY . /build
-WORKDIR /build
+COPY packages/go/common /build/packages/go/common
+COPY apps/iris /build/apps/iris
+WORKDIR /build/apps/iris
 
 RUN go build
 
@@ -46,10 +47,10 @@ RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" 
 RUN chmod 750 /app/sandbox/libjudger.so
 
 # Polygon-compatible generators and validators include this header directly.
-COPY ./lib/testlib.h /usr/include/testlib.h
+COPY apps/iris/lib/testlib.h /usr/include/testlib.h
 
-COPY --from=builder /build/iris .
+COPY --from=builder /build/apps/iris/iris .
 
-COPY ./entrypoint.sh .
+COPY apps/iris/entrypoint.sh .
 ENV JAVA_PATH /usr/bin/
 ENTRYPOINT ["./entrypoint.sh"]

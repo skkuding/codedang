@@ -38,8 +38,8 @@ jobs:
               target=admin
               app_env=production
           - target: iris
-            file: ''
-            context: apps/iris
+            file: ./apps/iris/Dockerfile
+            context: .
             binary: /iris
             ca_family: ubuntu
             node_check: false
