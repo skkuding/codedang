@@ -34,13 +34,20 @@ export function CollaborationDialogs({
   return (
     <AlertDialog open={pendingAction !== null} onOpenChange={onOpenChange}>
       <AlertDialogContent
+        // 피그마 dimmed 레이어: #000 60%, 블러 없음
+        overlayClassName="bg-dimmed backdrop-blur-none"
         className={cn(
           'gap-0 rounded-2xl border-0 bg-white px-8 pb-6 pt-8 shadow-none',
           isRoleChange ? 'w-[560px]' : 'w-[436px]'
         )}
       >
         <AlertDialogHeader className="gap-2 space-y-0 text-left">
-          <InfoBlueIcon aria-hidden="true" className="size-9" />
+          {/* SVGR 빌드가 viewBox를 제거해 CSS 크기만으로는 아이콘이 커지지 않으므로 명시한다 */}
+          <InfoBlueIcon
+            aria-hidden="true"
+            viewBox="0 0 16 17"
+            className="size-9"
+          />
           <div className="flex flex-col gap-3">
             <AlertDialogTitle className="text-head5_sb_24">
               {pendingAction?.type === 'delete'
@@ -91,7 +98,10 @@ export function CollaborationDialogs({
           </div>
         )}
 
-        <AlertDialogFooter className="mt-6 gap-0 space-x-0">
+        {/* 피그마: 삭제 다이얼로그는 간격 24, 권한 변경 다이얼로그는 간격 16 */}
+        <AlertDialogFooter
+          className={cn('gap-0 space-x-0', isRoleChange ? 'mt-4' : 'mt-6')}
+        >
           <AlertDialogCancel className="text-title2_sb_18 text-color-cool-neutral-30 h-12 w-[100px] border-0 bg-transparent pl-5 pr-0 text-right shadow-none hover:bg-transparent">
             취소
           </AlertDialogCancel>
