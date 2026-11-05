@@ -34,8 +34,11 @@ export function CollaborationRoleSelect({
       <SelectTrigger
         aria-label={ariaLabel}
         className={cn(
-          'text-body1_m_16 border-color-line bg-white pl-5 pr-4',
-          compact ? 'h-10 w-[109px] rounded-full' : 'h-[46px] w-full rounded-xl'
+          // 피그마: 화살표 20px #242626, 행 드롭다운 109×44 CoolNeutral/20, 폼 셀렉트 46 CoolNeutral/5
+          'text-body1_m_16 border-color-line [&>svg]:text-color-cool-neutral-15 bg-white pl-5 pr-4 [&>svg]:size-5 [&>svg]:opacity-100',
+          compact
+            ? 'text-color-cool-neutral-20 h-11 w-[109px] rounded-full'
+            : 'text-color-cool-neutral-5 h-[46px] w-full rounded-xl'
         )}
       >
         <SelectValue />

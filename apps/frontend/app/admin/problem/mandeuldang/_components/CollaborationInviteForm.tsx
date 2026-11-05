@@ -74,13 +74,16 @@ export function CollaborationInviteForm({
                 isError={Boolean(errorMessage)}
                 errorMessage={errorMessage}
                 placeholder="이메일을 입력해주세요"
-                className="pr-[72px]"
+                className={cn(
+                  'text-body1_m_16 placeholder:text-color-neutral-90 pl-4 pr-[72px]',
+                  !errorMessage && 'border-color-line'
+                )}
                 onChange={(event) => onEmailChange(event.target.value)}
               />
               <span
                 className={cn(
-                  'text-caption1_r_12 absolute right-5 top-[15px]',
-                  errorMessage ? 'text-red-500' : 'text-color-cool-neutral-60'
+                  'text-caption1_m_13 absolute right-4 top-1/2 -translate-y-1/2',
+                  errorMessage ? 'text-red-500' : 'text-color-cool-neutral-50'
                 )}
               >
                 {String(email.length).padStart(2, '0')}/50
