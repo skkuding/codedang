@@ -6,6 +6,7 @@ import {
   TabsTrigger
 } from '@/components/shadcn/tabs'
 import InfoGrayIcon from '@/public/icons/info-gray.svg'
+import TrashIcon from '@/public/icons/trashcan2-gray.svg'
 import Image from 'next/image'
 import type { ReactNode } from 'react'
 import type {
@@ -66,14 +67,43 @@ function CollaboratorIdentity({
   )
 }
 
-function RoleBadge({ name, role }: { name: string; role: CollaboratorRole }) {
+interface ParticipantControlProps {
+  collaborator: Collaborator
+  onClick: () => void
+}
+
+// 피그마: 참여자 행의 권한은 글자(body1_m_16, CoolNeutral/20)로만 보여주고, 누르면 권한 변경 다이얼로그를 연다
+function ParticipantRoleButton({
+  collaborator,
+  onClick
+}: ParticipantControlProps) {
   return (
-    <div
-      aria-label={`${name} 현재 권한: ${role}`}
-      className="text-body1_m_16 border-color-line flex h-10 w-[109px] items-center justify-center rounded-full border bg-white"
+    <button
+      type="button"
+      aria-label={`${collaborator.name} 권한 변경`}
+      onClick={onClick}
+      className="text-body1_m_16 text-color-cool-neutral-20 hover:text-primary focus-visible:ring-primary rounded-sm focus-visible:outline-none focus-visible:ring-2"
     >
-      {role}
-    </div>
+      {collaborator.role}
+    </button>
+  )
+}
+
+// 피그마: 48×36 둥근 아이콘 버튼, 배경 Neutral/99, 테두리 Neutral/90, 16px 휴지통(Neutral/70)
+function DeleteIconButton({ collaborator, onClick }: ParticipantControlProps) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      aria-label={`${collaborator.name} 삭제하기`}
+      onClick={onClick}
+      className="bg-color-neutral-99 border-color-neutral-90 hover:bg-color-neutral-95 h-9 w-12 rounded-full p-0"
+    >
+      <TrashIcon
+        aria-hidden="true"
+        className="text-color-neutral-70 size-4 shrink-0"
+      />
+    </Button>
   )
 }
 
@@ -101,50 +131,59 @@ function EmptyCollaborators({ tab }: { tab: CollaborationTab }) {
   )
 }
 
-interface CollaboratorAction {
-  label: string
-  onClick: () => void
+interface RequestActionsProps {
+  collaborator: Collaborator
+  onReject: () => void
+  onApprove: () => void
+}
+
+// 피그마: 88×46 버튼 두 개, 간격 6. 버튼 이름에 협업자 이름을 붙여 스크린리더가 어느 행인지 구분할 수 있게 한다.
+function RequestActions({
+  collaborator,
+  onReject,
+  onApprove
+}: RequestActionsProps) {
+  return (
+    <div className="flex gap-1.5">
+      <Button
+        type="button"
+        variant="outline"
+        aria-label={`${collaborator.name} 거절하기`}
+        onClick={onReject}
+        className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-4"
+      >
+        <span className="text-sub3_sb_16">거절하기</span>
+      </Button>
+      <Button
+        type="button"
+        aria-label={`${collaborator.name} 승인하기`}
+        onClick={onApprove}
+        className="h-[46px] w-[88px] rounded-[10px] px-4"
+      >
+        <span className="text-sub3_sb_16">승인하기</span>
+      </Button>
+    </div>
+  )
 }
 
 interface CollaboratorRowProps {
   collaborator: Collaborator
   roleControl: ReactNode
-  secondaryAction: CollaboratorAction
-  primaryAction: CollaboratorAction
+  actions: ReactNode
 }
 
-// 협업 요청과 활성화된 참여자가 공유하는 행.
-// 버튼 이름에 협업자 이름을 붙여 스크린리더가 어느 행의 버튼인지 구분할 수 있게 한다.
+// 협업 요청과 활성화된 참여자가 공유하는 행. 권한 컨트롤과 액션 사이는 피그마대로 40px.
 function CollaboratorRow({
   collaborator,
   roleControl,
-  secondaryAction,
-  primaryAction
+  actions
 }: CollaboratorRowProps) {
   return (
     <li className="flex items-center justify-between gap-4 py-4">
       <CollaboratorIdentity collaborator={collaborator} />
       <div className="flex shrink-0 items-center gap-10">
         {roleControl}
-        <div className="flex gap-1.5">
-          <Button
-            type="button"
-            variant="outline"
-            aria-label={`${collaborator.name} ${secondaryAction.label}`}
-            onClick={secondaryAction.onClick}
-            className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-4"
-          >
-            <span className="text-sub3_sb_16">{secondaryAction.label}</span>
-          </Button>
-          <Button
-            type="button"
-            aria-label={`${collaborator.name} ${primaryAction.label}`}
-            onClick={primaryAction.onClick}
-            className="h-[46px] w-[88px] rounded-[10px] px-4"
-          >
-            <span className="text-sub3_sb_16">{primaryAction.label}</span>
-          </Button>
-        </div>
+        {actions}
       </div>
     </li>
   )
@@ -218,14 +257,13 @@ export function CollaboratorList({
                   }
                 />
               }
-              secondaryAction={{
-                label: '거절하기',
-                onClick: () => onRejectRequest(request.id)
-              }}
-              primaryAction={{
-                label: '승인하기',
-                onClick: () => onApproveRequest(request.id)
-              }}
+              actions={
+                <RequestActions
+                  collaborator={request}
+                  onReject={() => onRejectRequest(request.id)}
+                  onApprove={() => onApproveRequest(request.id)}
+                />
+              }
             />
           )}
         />
@@ -238,16 +276,17 @@ export function CollaboratorList({
               key={participant.id}
               collaborator={participant}
               roleControl={
-                <RoleBadge name={participant.name} role={participant.role} />
+                <ParticipantRoleButton
+                  collaborator={participant}
+                  onClick={() => onChangeParticipantRole(participant)}
+                />
               }
-              secondaryAction={{
-                label: '권한 변경',
-                onClick: () => onChangeParticipantRole(participant)
-              }}
-              primaryAction={{
-                label: '삭제하기',
-                onClick: () => onDeleteParticipant(participant)
-              }}
+              actions={
+                <DeleteIconButton
+                  collaborator={participant}
+                  onClick={() => onDeleteParticipant(participant)}
+                />
+              }
             />
           )}
         />
