@@ -14,6 +14,10 @@ vi.mock('@/public/icons/asterisk-gray.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 
+vi.mock('@/public/icons/trashcan2-gray.svg', () => ({
+  default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
+}))
+
 const pendingRequest: Collaborator = {
   id: 'request-1',
   name: 'Bob',
@@ -159,7 +163,9 @@ describe('CollaborationPage', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Editor (편집 권한)' }))
     fireEvent.click(screen.getByRole('button', { name: '변경할래요' }))
 
-    expect(screen.getByLabelText('Alice 현재 권한: Editor')).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: 'Alice 권한 변경' }).textContent
+    ).toBe('Editor')
   })
 
   it('초대 ID는 기존 협업자의 ID와 겹치지 않는다', () => {
@@ -192,7 +198,11 @@ describe('CollaborationPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '변경할래요' }))
 
     // dave의 권한만 바뀌고 carol은 초대 당시 권한(Editor)을 유지한다
-    expect(screen.getByLabelText('dave 현재 권한: Viewer')).toBeTruthy()
-    expect(screen.getByLabelText('carol 현재 권한: Editor')).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: 'dave 권한 변경' }).textContent
+    ).toBe('Viewer')
+    expect(
+      screen.getByRole('button', { name: 'carol 권한 변경' }).textContent
+    ).toBe('Editor')
   })
 })
