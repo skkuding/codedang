@@ -27,9 +27,9 @@ interface CollaboratorListProps {
   onDeleteParticipant: (collaborator: Collaborator) => void
 }
 
-// 피그마: 탭 텍스트 sub3_sb_16, 비활성 CoolNeutral/40 (기본 variant의 font-normal·neutral-60을 덮어쓴다)
+// 피그마: 탭 124×38(패딩 0/12/16), 텍스트 sub3_sb_16, 비활성 CoolNeutral/40 (기본 variant의 font-normal·neutral-60을 덮어쓴다)
 const TAB_TRIGGER_CLASS =
-  'text-sub3_sb_16 font-semibold data-[state=active]:text-primary data-[state=active]:border-primary data-[state=inactive]:text-color-cool-neutral-40 h-[52px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-3 shadow-none data-[state=active]:bg-transparent'
+  'text-sub3_sb_16 font-semibold data-[state=active]:text-primary data-[state=active]:border-primary data-[state=inactive]:text-color-cool-neutral-40 h-[38px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-0 shadow-none data-[state=active]:bg-transparent'
 
 function CollaboratorIdentity({
   collaborator
@@ -132,7 +132,7 @@ function CollaboratorRow({
             variant="outline"
             aria-label={`${collaborator.name} ${secondaryAction.label}`}
             onClick={secondaryAction.onClick}
-            className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-3"
+            className="border-primary text-primary hover:bg-color-blue-95 h-[46px] w-[88px] rounded-[10px] px-4"
           >
             <span className="text-sub3_sb_16">{secondaryAction.label}</span>
           </Button>
@@ -163,7 +163,7 @@ function CollaboratorPanel({
 }: CollaboratorPanelProps) {
   return (
     <TabsContent value={tab} className="mt-0 outline-none">
-      <p className="text-title1_sb_20 pb-1 pt-5">
+      <p className="text-title1_sb_20 pb-2 pt-5">
         총 <span className="text-primary">{collaborators.length}</span>건
       </p>
       {collaborators.length === 0 ? (
@@ -187,12 +187,12 @@ export function CollaboratorList({
   onDeleteParticipant
 }: CollaboratorListProps) {
   return (
-    <section className="border-color-cool-neutral-90 min-h-[336px] rounded-2xl border bg-white px-6 pb-7 pt-3">
+    <section className="border-color-cool-neutral-90 min-h-[336px] rounded-2xl border bg-white px-6 py-7">
       <Tabs
         value={activeTab}
         onValueChange={(value) => onTabChange(value as CollaborationTab)}
       >
-        <TabsList className="border-color-line h-[52px] w-full rounded-none border-0 border-b bg-transparent p-0">
+        <TabsList className="border-color-line h-[38px] w-full rounded-none border-0 border-b bg-transparent p-0">
           <TabsTrigger value="requests" className={TAB_TRIGGER_CLASS}>
             협업 요청
           </TabsTrigger>
