@@ -15,19 +15,14 @@ interface NavItem {
 
 interface SideBarProps {
   navItems: NavItem[]
-  isSidebarExpanded: boolean
   defaultItem?: string
 }
 
-export function SideBar({
-  navItems,
-  isSidebarExpanded,
-  defaultItem
-}: SideBarProps) {
+export function SideBar({ navItems, defaultItem }: SideBarProps) {
   const pathname = usePathname()
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       {navItems.map((item) => (
         <SidebarLink
           key={item.name}
@@ -37,7 +32,6 @@ export function SideBar({
               ? pathname === item.path
               : pathname.startsWith(item.path)
           }
-          isExpanded={isSidebarExpanded}
         />
       ))}
     </div>
@@ -47,25 +41,27 @@ export function SideBar({
 interface SidebarLinkProps {
   item: NavItem
   isActive: boolean
-  isExpanded: boolean
 }
 
-function SidebarLink({ item, isActive, isExpanded }: SidebarLinkProps) {
+function SidebarLink({ item, isActive }: SidebarLinkProps) {
   return (
     <Link
       href={item.path as Route}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'flex items-center px-4 py-2 transition',
-        isActive ? 'bg-primary text-white' : 'text-[#474747] hover:bg-gray-100',
-        isExpanded ? 'w-48 rounded-full' : 'rounded-xs'
+        'flex h-[46px] w-full items-center gap-2.5 rounded-full px-4 py-3 transition-colors',
+        isActive
+          ? 'bg-primary text-white'
+          : 'text-color-neutral-30 hover:bg-color-neutral-99'
       )}
     >
       <item.icon
-        className={cn('h-4 w-4', isActive ? 'fill-white' : 'fill-gray-600')}
+        className={cn(
+          'size-[18px] shrink-0',
+          isActive ? 'text-white' : 'text-color-neutral-70'
+        )}
       />
-      {isExpanded && (
-        <span className="ml-3 text-sm font-normal">{item.name}</span>
-      )}
+      <span className="text-sub3_sb_16">{item.name}</span>
     </Link>
   )
 }
