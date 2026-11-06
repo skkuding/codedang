@@ -1,0 +1,46 @@
+meta {
+  name: [ERR] Not Found
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UpdateMandeuldangProblem(
+    $input: UpdateMandeuldangProblemInput!
+  ) {
+    updateMandeuldangProblem(input: $input) {
+      id
+      title
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 9999,
+      "title": "존재하지 않는 문제 수정 시도"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📙 [ERR] Not Found
+
+  **POST** `/graphql (mutation: updateMandeuldangProblem)`
+
+  존재하지 않거나 Mandeuldang 문제가 아닌 `id`로 수정을 시도하면,
+
+  `EntityNotExistException`("MandeuldangProblem does not exist")가 발생합니다.
+}

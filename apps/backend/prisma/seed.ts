@@ -1,13 +1,19 @@
 import {
+  CollaboratorRole,
+  CollaboratorStatus,
   ContestRole,
   GroupType,
   Language,
   Level,
   NotificationType,
   PrismaClient,
+  ProblemCreationMode,
+  ProblemStatus,
+  ProblemType,
   QnACategory,
   ResultStatus,
   Role,
+  TestFileType,
   type Announcement,
   type Assignment,
   type AssignmentRecord,
@@ -1210,6 +1216,78 @@ const createProblems = async () => {
       }
     })
   }
+}
+
+// Update/Publish mutation의 Bruno 테스트 시뮬레이션용 만들당 문제(Draft/Ready/Published 각 1개)
+const createMandeuldangProblems = async () => {
+  const base = {
+    creationMode: ProblemCreationMode.Mandeuldang,
+    problemType: ProblemType.General,
+    createdById: adminUser.id,
+    visibleLockTime: MAX_DATE,
+    mandeuldangCollaborators: {
+      create: {
+        userId: adminUser.id,
+        role: CollaboratorRole.Owner,
+        status: CollaboratorStatus.Approved
+      }
+    }
+  }
+  const complete = {
+    description: '문제 설명',
+    inputDescription: '입력 설명',
+    outputDescription: '출력 설명',
+    timeLimit: 2000,
+    memoryLimit: 512,
+    difficulty: Level.Level1,
+    languages: [Language.Cpp],
+    mandeuldangSolution: {
+      create: {
+        fileName: 'solution.cpp',
+        filePath: 'mandeuldang/seed/solution.cpp',
+        language: Language.Cpp
+      }
+    },
+    problemTestcase: { create: {} },
+    mandeuldangTestFiles: {
+      create: [
+        {
+          fileName: '1.in',
+          baseName: '1',
+          fileType: TestFileType.IN,
+          filePath: 'mandeuldang/seed/1.in',
+          fileSize: 1
+        },
+        {
+          fileName: '1.out',
+          baseName: '1',
+          fileType: TestFileType.OUT,
+          filePath: 'mandeuldang/seed/1.out',
+          fileSize: 1
+        }
+      ]
+    }
+  }
+
+  await prisma.problem.create({
+    data: { ...base, title: '만들당 작성중 문제', status: ProblemStatus.Draft }
+  })
+  await prisma.problem.create({
+    data: {
+      ...base,
+      ...complete,
+      title: '만들당 발행 대기 문제',
+      status: ProblemStatus.Ready
+    }
+  })
+  await prisma.problem.create({
+    data: {
+      ...base,
+      ...complete,
+      title: '만들당 발행된 문제',
+      status: ProblemStatus.Published
+    }
+  })
 }
 
 const createUpdateHistories = async () => {
@@ -5660,6 +5738,7 @@ const main = async () => {
   await createGroups()
   await createNotices()
   await createProblems()
+  await createMandeuldangProblems()
   await createUpdateHistories()
   await createAssignments()
   await createContests()

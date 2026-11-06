@@ -1,0 +1,119 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UpdateMandeuldangProblem(
+    $input: UpdateMandeuldangProblemInput!
+  ) {
+    updateMandeuldangProblem(input: $input) {
+      id
+      title
+      description
+      inputDescription
+      outputDescription
+      timeLimit
+      memoryLimit
+      difficulty
+      languages
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 11,
+      "title": "수정된 제목",
+      "description": "수정된 문제 본문입니다.",
+      "timeLimit": 1500,
+      "memoryLimit": 256
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # 📘 Update Mandeuldang Problem
+
+  **POST** `/graphql (mutation: updateMandeuldangProblem)`
+
+  Updates a Mandeuldang problem
+
+  만들당 문제를 수정합니다.
+
+  - **권한**: Owner 또는 승인된(Approved) Editor만 수정 가능. Reviewer, 미승인 협업자, 협업자가 아닌 사용자는 거부됩니다.
+  - **필드는 전부 선택적**이며, 요청에 포함된 필드만 갱신됩니다(넘기지 않은 필드는 그대로 유지).
+  - **상태 자동 전이**: Draft/Ready 상태의 문제는 저장 후 발행 조건 충족 여부에 따라 Draft↔Ready로 자동 승격/강등됩니다. Published 상태의 문제는 수정 후에도 발행 조건을 계속 만족해야만 저장되며, 조건이 깨지면 전체 수정이 거부됩니다.
+
+  ---
+
+  ### 🔒 Authentication
+
+  ✅ Required (Owner or Editor)
+
+  ---
+
+  ### 📥 Request Variables
+
+  | Name | Type | Required | Description |
+  | --- | --- | --- | --- |
+  | `id` | Int | ✅ | 수정할 문제의 ID |
+  | `title` | String | ❌ | 문제 제목 (빈 문자열 불가) |
+  | `description` | String | ❌ | 문제 본문 |
+  | `inputDescription` | String | ❌ | 입력 설명 |
+  | `outputDescription` | String | ❌ | 출력 설명 |
+  | `timeLimit` | Int | ❌ | 시간 제한(ms), 양수여야 함 |
+  | `memoryLimit` | Int | ❌ | 메모리 제한(MB), 양수여야 함 |
+  | `difficulty` | Level | ❌ | 난이도 |
+  | `languages` | \[Language\] | ❌ | 허용 언어 목록 |
+
+  ---
+
+  ### 📤 Response Body
+
+  #### Content-Type: `application/json`
+
+  ```json
+  {
+    "data": {
+      "updateMandeuldangProblem": {
+        "id": 11,
+        "title": "수정된 제목",
+        "description": "수정된 문제 본문입니다.",
+        "inputDescription": null,
+        "outputDescription": null,
+        "timeLimit": 1500,
+        "memoryLimit": 256,
+        "difficulty": null,
+        "languages": []
+      }
+    }
+  }
+  ```
+
+  | Field | Type | Description |
+  | --- | --- | --- |
+  | `id` | Int | 문제 ID |
+  | `title` | String | 문제 제목 |
+  | `description` | String | 문제 본문 |
+  | `inputDescription` | String | 입력 설명 |
+  | `outputDescription` | String | 출력 설명 |
+  | `timeLimit` | Int | 시간 제한(ms) |
+  | `memoryLimit` | Int | 메모리 제한(MB) |
+  | `difficulty` | Level | 난이도 |
+  | `languages` | \[Language\] | 허용 언어 목록 |
+
+}

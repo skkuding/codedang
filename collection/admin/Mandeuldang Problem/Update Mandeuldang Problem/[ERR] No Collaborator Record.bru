@@ -1,0 +1,50 @@
+meta {
+  name: [ERR] No Collaborator Record
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UpdateMandeuldangProblem(
+    $input: UpdateMandeuldangProblemInput!
+  ) {
+    updateMandeuldangProblem(input: $input) {
+      id
+      title
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "input": {
+      "id": 11,
+      "title": "협업자가 아닌 사용자의 수정 시도"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+script:pre-request {
+  await require("./login").loginUser(req);
+}
+
+docs {
+  # 📙 [ERR] No Collaborator Record
+
+  **POST** `/graphql (mutation: updateMandeuldangProblem)`
+
+  Owner도 아니고 승인된(Approved) Editor도 아닌 사용자(협업자 레코드가 없거나, Reviewer이거나, 아직 Pending 상태인 경우 포함)가 수정을 시도하면,
+
+  `ForbiddenAccessException`("Only Owner or Editor can edit")가 발생합니다.
+}
