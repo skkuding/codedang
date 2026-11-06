@@ -1,11 +1,22 @@
 import { faker } from '@faker-js/faker'
-import { type Problem, Language, Level } from '@prisma/client'
+import {
+  type Problem,
+  Language,
+  Level,
+  ProblemCreationMode,
+  ProblemStatus,
+  ProblemType
+} from '@prisma/client'
 import { MIN_DATE } from '@libs/constants'
 
 export const problems: Problem[] = [
   {
     id: 1,
     createdById: 1,
+    creationMode: ProblemCreationMode.Legacy,
+    status: ProblemStatus.Published,
+    lastRunPass: false,
+    problemType: ProblemType.General,
     title: 'public problem',
     description: '',
     inputDescription: '',

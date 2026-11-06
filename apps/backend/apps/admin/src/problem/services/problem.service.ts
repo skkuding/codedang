@@ -7,11 +7,11 @@ import {
   ProblemWhereInput,
   UpdateHistory
 } from '@generated'
-import { ContestRole, ProblemField, Role } from '@prisma/client'
+import { ContestRole, ProblemField, ProblemStatus, Role } from '@prisma/client'
 import { Workbook } from 'exceljs'
 import { Response } from 'express'
 import { Readable } from 'stream'
-import { MAX_DATE, MIN_DATE } from '@libs/constants'
+import { MAX_DATE, MIN_DATE, PUBLISHED_PROBLEM_WHERE } from '@libs/constants'
 import {
   EntityNotExistException,
   UnprocessableDataException,
@@ -30,6 +30,7 @@ import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
+import { assertLegacyProblemContent } from '../utils/assert-legacy-problem-response'
 import { TagService } from './tag.service'
 import { TestcaseService } from './testcase.service'
 
@@ -297,6 +298,10 @@ export class ProblemService {
     const whereOptions: ProblemWhereInput =
       await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
 
+    // 만들당 Draft/Ready 문제는 전용 화면(제작 중인 문제)에서만 다룬다 — 기존 문제 목록/조회에는
+    // 노출하지 않는다. 기존 Legacy 문제는 status가 항상 Published(스키마 기본값)라 영향이 없다.
+    Object.assign(whereOptions, PUBLISHED_PROBLEM_WHERE)
+
     if (input.difficulty) {
       whereOptions.difficulty = {
         in: input.difficulty
@@ -401,7 +406,9 @@ export class ProblemService {
   async getProblem(id: number, userRole: Role, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
-        id
+        id,
+        // 만들당 Draft/Ready 문제는 전용 화면에서만 조회한다 (getProblems와 동일한 정책).
+        ...PUBLISHED_PROBLEM_WHERE
       },
       include: {
         sharedGroups: true
@@ -543,6 +550,18 @@ export class ProblemService {
           'User can only edit problems they created, were shared with, or manage via contest role'
         )
       }
+    }
+
+    // Published 문제는 누구나 제출할 수 있는 상태이므로, timeLimit/memoryLimit을
+    // 명시적으로 null로 바꾸는 수정은 막는다 — 그렇지 않으면 공개돼 있지만 채점은
+    // 받을 수 없는 문제가 생긴다(제출 시점에는 뒤늦게 거부됨).
+    if (
+      problem.status === ProblemStatus.Published &&
+      (input.timeLimit === null || input.memoryLimit === null)
+    ) {
+      throw new UnprocessableDataException(
+        'Published problems require timeLimit and memoryLimit'
+      )
     }
 
     const updatedByid = userId
@@ -738,7 +757,8 @@ export class ProblemService {
     // HOTFIX: Disable attachment deletion to prevent data loss.
     /*
     // Problem description에 이미지가 포함되어 있다면 삭제
-    const uuidImageFileNames = this.extractUUIDs(problem.description)
+    // 만들당 Draft 문제는 description이 아직 없을 수 있다 (nullable) — 그 경우 추출할 이미지가 없다.
+    const uuidImageFileNames = this.extractUUIDs(problem.description ?? '')
     if (uuidImageFileNames) {
       await this.prisma.file.deleteMany({
         where: {
@@ -855,22 +875,11 @@ export class ProblemService {
   changeVisibleLockTimeToIsVisible(
     problems: Problem | Problem[]
   ): ProblemWithIsVisible | ProblemWithIsVisible[] {
-    if (Array.isArray(problems)) {
-      return problems.map((problem) => {
-        const { visibleLockTime, ...data } = problem
-        return {
-          isVisible:
-            visibleLockTime.getTime() === MIN_DATE.getTime()
-              ? true
-              : visibleLockTime < new Date() ||
-                  visibleLockTime.getTime() === MAX_DATE.getTime()
-                ? false
-                : null,
-          ...data
-        }
-      })
-    } else {
-      const { visibleLockTime, ...data } = problems
+    const convert = (problem: Problem): ProblemWithIsVisible => {
+      assertLegacyProblemContent(problem)
+
+      const { visibleLockTime, ...data } = problem
+
       return {
         isVisible:
           visibleLockTime.getTime() === MIN_DATE.getTime()
@@ -882,5 +891,7 @@ export class ProblemService {
         ...data
       }
     }
+
+    return Array.isArray(problems) ? problems.map(convert) : convert(problems)
   }
 }

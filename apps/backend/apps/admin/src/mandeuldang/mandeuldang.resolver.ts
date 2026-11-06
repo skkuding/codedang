@@ -1,15 +1,11 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { ToolType } from '@admin/@generated'
-import {
-  MandeuldangProblem,
-  MandeuldangRunRequest,
-  MandeuldangTool
-} from '@admin/@generated'
+import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
 import { MandeuldangService } from './mandeuldang.service'
 import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
-@Resolver(() => MandeuldangProblem)
+@Resolver()
 @UseDisableAdminGuard()
 export class MandeuldangResolver {
   constructor(private readonly mandeuldangService: MandeuldangService) {}
