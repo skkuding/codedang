@@ -27,10 +27,10 @@ export function UploadButton({
       <DialogTrigger asChild>
         <Button
           type="button"
-          disabled={!disabled}
-          className="itmes-center border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! w-62 flex h-12 gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+          disabled={disabled}
+          className="border-primary-light bg-primary! hover:bg-primary-strong! disabled:border-color-neutral-95 disabled:bg-color-neutral-95! w-62 flex h-12 items-center gap-[6px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
         >
-          {disabled ? (
+          {!disabled ? (
             <UploadIcon
               width={20}
               height={20}
@@ -46,7 +46,7 @@ export function UploadButton({
           <p
             className={cn(
               'text-sub3_sb_16',
-              !disabled ? 'text-color-neutral-70' : 'text-white'
+              disabled ? 'text-color-neutral-70' : 'text-white'
             )}
           >
             문제 업로드
@@ -92,14 +92,14 @@ export function UploadButton({
           <DialogClose asChild>
             <Button
               type="button"
-              className="itmes-center border-primary-light hover:bg-color-blue-95 h-12 w-[160px] rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
+              className="border-primary-light hover:bg-color-blue-95 h-12 w-[160px] items-center rounded-lg border-[1.4px] bg-white px-5 py-[13px]"
             >
               <p className="text-sub3_sb_16 text-primary">취소하기</p>
             </Button>
           </DialogClose>
           <Button
             type="button"
-            className="itmes-center border-primary hover:bg-primary-strong bg-primary h-12 w-[160px] rounded-lg border-[1.4px] px-5 py-[13px]"
+            className="border-primary hover:bg-primary-strong bg-primary h-12 w-[160px] items-center rounded-lg border-[1.4px] px-5 py-[13px]"
           >
             <p className="text-sub3_sb_16 text-white">업로드하기</p>
           </Button>
