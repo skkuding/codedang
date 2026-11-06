@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { AMQPModule } from '@libs/amqp'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@libs/storage'
+import { MandeuldangAuthModule } from './auth/mandeuldang-auth.module'
 import { CollaboratorResolver } from './collaborator/collaborator.resolver'
 import { CollaboratorService } from './collaborator/collaborator.service'
 import { FileService } from './file/file.service'
@@ -12,7 +13,13 @@ import { MandeuldangService } from './mandeuldang.service'
 import { MandeuldangProblemModule } from './problem/problem.module'
 
 @Module({
-  imports: [RolesModule, AMQPModule, MandeuldangProblemModule, StorageModule],
+  imports: [
+    RolesModule,
+    AMQPModule,
+    MandeuldangProblemModule,
+    StorageModule,
+    MandeuldangAuthModule
+  ],
   providers: [
     MandeuldangResolver,
     MandeuldangService,

@@ -1,8 +1,10 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import { ToolType as GraphQLToolType } from '@generated'
 import type { ToolType } from '@prisma/client'
+import { CollaboratorRole } from '@prisma/client'
 import { UseDisableAdminGuard, type AuthenticatedRequest } from '@libs/auth'
 import { MandeuldangRunRequest, MandeuldangTool } from '@admin/@generated'
+import { UseMandeuldangRoles } from './auth/mandeuldang-roles.decorator'
 import { MandeuldangService } from './mandeuldang.service'
 import { UploadMandeuldangToolInput } from './model/mandeuldang-tool.input'
 
@@ -12,35 +14,38 @@ export class MandeuldangResolver {
   constructor(private readonly mandeuldangService: MandeuldangService) {}
 
   @Mutation(() => MandeuldangTool)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'input.problemId'
+  })
   async uploadMandeuldangTool(
-    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UploadMandeuldangToolInput
   ) {
     const file = await input.file
     return this.mandeuldangService.uploadMandeuldangTool(
       input.problemId,
       input.toolType,
-      file,
-      req.user.id,
-      req.user.role
+      file
     )
   }
 
   @Mutation(() => MandeuldangTool)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async deleteMandeuldangTool(
-    @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
     @Args('toolType', { type: () => GraphQLToolType }) toolType: ToolType
   ) {
-    return this.mandeuldangService.deleteMandeuldangTool(
-      problemId,
-      toolType,
-      req.user.id,
-      req.user.role
-    )
+    return this.mandeuldangService.deleteMandeuldangTool(problemId, toolType)
   }
 
   @Mutation(() => MandeuldangRunRequest)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async runGenerator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number,
@@ -56,6 +61,10 @@ export class MandeuldangResolver {
   }
 
   @Mutation(() => MandeuldangRunRequest)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'problemId'
+  })
   async runValidator(
     @Context('req') req: AuthenticatedRequest,
     @Args('problemId', { type: () => Int }) problemId: number

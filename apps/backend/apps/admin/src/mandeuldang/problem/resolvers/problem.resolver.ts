@@ -1,7 +1,9 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { ProblemStatus } from '@generated'
+import { CollaboratorRole } from '@prisma/client'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { CursorValidationPipe, RequiredIntPipe } from '@libs/pipe'
+import { UseMandeuldangRoles } from '../../auth/mandeuldang-roles.decorator'
 import { CreateMandeuldangProblemInput } from '../model/problem.input'
 import { UpdateMandeuldangProblemInput } from '../model/problem.input'
 import { MandeuldangProblemOutput } from '../model/problem.output'
@@ -49,15 +51,21 @@ export class MandeuldangProblemResolver {
   }
 
   @Query(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [
+      CollaboratorRole.Owner,
+      CollaboratorRole.Editor,
+      CollaboratorRole.Reviewer
+    ],
+    problemIdPath: 'id',
+    allowPublished: true,
+    allowAdmin: true
+  })
   async getMandeuldangProblem(
     @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.mandeuldangProblemService.getProblem(
-      id,
-      req.user.id,
-      req.user.role
-    )
+    return await this.mandeuldangProblemService.getProblem(id, req.user.id)
   }
 
   @Mutation(() => MandeuldangProblemOutput)
@@ -72,29 +80,33 @@ export class MandeuldangProblemResolver {
   }
 
   @Mutation(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'id'
+  })
   async deleteMandeuldangProblem(
-    @Context('req') req: AuthenticatedRequest,
     @Args('id', { type: () => Int }, new RequiredIntPipe('id')) id: number
   ) {
-    return await this.mandeuldangProblemService.deleteProblem(id, req.user.id)
+    return await this.mandeuldangProblemService.deleteProblem(id)
   }
 
   @Mutation(() => MandeuldangProblemOutput)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner, CollaboratorRole.Editor],
+    problemIdPath: 'input.id'
+  })
   async updateMandeuldangProblem(
-    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UpdateMandeuldangProblemInput
   ) {
-    return await this.mandeuldangProblemService.updateProblem(
-      input,
-      req.user.id
-    )
+    return await this.mandeuldangProblemService.updateProblem(input)
   }
 
   @Mutation(() => MandeuldangProblemOutput)
-  async publishMandeuldangProblem(
-    @Context('req') req: AuthenticatedRequest,
-    @Args('id', { type: () => Int }) id: number
-  ) {
-    return await this.mandeuldangProblemService.publishProblem(id, req.user.id)
+  @UseMandeuldangRoles({
+    roles: [CollaboratorRole.Owner],
+    problemIdPath: 'id'
+  })
+  async publishMandeuldangProblem(@Args('id', { type: () => Int }) id: number) {
+    return await this.mandeuldangProblemService.publishProblem(id)
   }
 }
