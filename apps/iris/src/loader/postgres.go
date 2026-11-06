@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
@@ -67,27 +66,49 @@ func parseDatabaseURL(databaseURL string) (string, error) {
 }
 
 // todo: need to introduce prisma like ORM
-func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
+func (p *Postgres) Save(ctx context.Context, elements []ElementIn) ([]int, error) {
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.save.start items=%d", len(elements)))
+
 	if len(elements) == 0 {
 		p.logger.Log(logger.WARN, "sql.save.skip reason=empty_elements")
-		return nil
+		return nil, nil
 	}
 
 	problemID := elements[0].ProblemId
 	for _, element := range elements[1:] {
 		if element.ProblemId != problemID {
-			return fmt.Errorf("all testcases must have the same problemId")
+			return nil, fmt.Errorf("all testcases must have the same problemId")
 		}
 	}
 
-	tx, err := p.client.BeginTx(ctx, nil)
+	// All database changes below use the same transaction.
+	tx, err := p.client.BeginTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelReadCommitted,
+	})
+
 	if err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=begin_tx err=%v", err))
-		return fmt.Errorf("failed to begin transaction: %w", err)
+		return nil, fmt.Errorf("failed to begin testcase transaction: %w", err)
 	}
-	defer tx.Rollback() //nolint:errcheck
+
+	// Roll back on any early return. After Commit, ErrTxDone is expected.
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	// Acquire the lock before retiring any rows.
+	// The lock is automatically released when the transaction ends.
+	if _, err := tx.ExecContext(
+		ctx,
+		`SELECT pg_advisory_xact_lock($1::bigint)`,
+		int64(problemID),
+	); err != nil {
+		return nil, fmt.Errorf(
+			"failed to acquire testcase lock for problem %d: %w",
+			problemID,
+			err,
+		)
+	}
 
 	if _, err := tx.ExecContext(
 		ctx,
@@ -96,45 +117,71 @@ func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
 		 WHERE problem_id = $1 AND is_outdated = false`,
 		problemID,
 	); err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=retire problem_id=%d err=%v", problemID, err))
-		return fmt.Errorf("failed to retire existing testcases: %w", err)
+		p.logger.Log(
+			logger.ERROR,
+			fmt.Sprintf("sql.save.failed stage=retire problem_id=%d err=%v",
+				problemID,
+				err,
+			),
+		)
+		return nil, fmt.Errorf("failed to retire existing testcases: %w", err)
 	}
 
-	stmt, err := tx.PrepareContext(ctx, pq.CopyInSchema(
-		"public",
-		"problem_testcase",
-		"problem_id",
-		"input",
-		"output",
-		"is_hidden_testcase",
-		"update_time",
-	))
-	if err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=prepare err=%v", err))
-		return fmt.Errorf("failed to prepare statement: %w", err)
-	}
-	defer stmt.Close() //nolint:errcheck
+	// Insert sequentially on the transaction's single connection.
+	// Preserve the correspondence between input elements and returned IDs.
+	ids := make([]int, len(elements))
 
 	for idx, element := range elements {
-		if _, err := stmt.ExecContext(ctx, element.ProblemId, element.In, element.Out, element.Hidden, start); err != nil {
-			p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=exec index=%d err=%v", idx, err))
-			return fmt.Errorf("failed to save testcase: %w", err)
+		if err := tx.QueryRowContext(
+			ctx,
+			`INSERT INTO public.problem_testcase
+			 (problem_id, is_hidden_testcase, "order", update_time)
+			 VALUES ($1, $2, $3, $4)
+			 RETURNING id`,
+			element.ProblemId,
+			element.Hidden,
+			idx+1,
+			start,
+		).Scan(&ids[idx]); err != nil {
+			p.logger.Log(
+				logger.ERROR,
+				fmt.Sprintf(
+					"sql.save.failed stage=insert index=%d err=%v",
+					idx,
+					err,
+				),
+			)
+			return nil, fmt.Errorf(
+				"failed to save testcase at index %d: %w",
+				idx,
+				err,
+			)
 		}
 	}
-	if _, err := stmt.ExecContext(ctx); err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=flush err=%v", err))
-		return fmt.Errorf("failed to flush testcase batch: %w", err)
+
+	// Return IDs only after a successful commit.
+	if err := tx.Commit(); err != nil {
+		p.logger.Log(
+			logger.ERROR,
+			fmt.Sprintf(
+				"sql.save.failed stage=commit problem_id=%d err=%v",
+				problemID,
+				err,
+			),
+		)
+		return nil, fmt.Errorf("failed to commit testcase replacement: %w", err)
 	}
 
-	if err := tx.Commit(); err != nil {
-		p.logger.Log(logger.ERROR, fmt.Sprintf("sql.save.failed stage=commit err=%v", err))
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
 	p.logger.Log(
 		logger.INFO,
-		fmt.Sprintf("sql.save.done inserted=%d duration=%s", len(elements), time.Since(start)),
+		fmt.Sprintf(
+			"sql.save.done inserted=%d duration=%s",
+			len(elements),
+			time.Since(start),
+		),
 	)
-	return nil
+
+	return ids, nil
 }
 
 func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
@@ -142,6 +189,7 @@ func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
   SELECT id, input, output, is_hidden_testcase
   FROM public.problem_testcase
   WHERE problem_id = $1 AND is_outdated = false
+    AND input IS NOT NULL AND output IS NOT NULL
   `
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.get.start problem_id=%s", key))
