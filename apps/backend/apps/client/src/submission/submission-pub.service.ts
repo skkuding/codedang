@@ -90,7 +90,7 @@ export class SubmissionPublicationService {
           code,
           submission.language,
           judgeableProblem,
-          userTestcases!,
+          userTestcases,
           stopOnNotAccepted
         )
       : new JudgeRequest(

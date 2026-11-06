@@ -1,0 +1,61 @@
+meta {
+  name: Invite Collaborator as Editor
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: editor
+}
+
+auth:bearer {
+  token: {{editorToken}}
+}
+
+body:graphql {
+  mutation ($problemId: Int!, $userEmail: String!) {
+    inviteCollaborator(
+      problemId: $problemId
+      input: {userEmail: $userEmail, role: Editor}
+    ) {
+      id
+      problemId
+      userId
+      role
+      status
+      invitedById
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}},
+    "userEmail": "{{outsiderEmail}}"
+  }
+}
+
+tests {
+  test("Invite Collaborator as Editor", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.undefined;
+    const value = res.body.data.inviteCollaborator;
+    expect(value.userId).to.equal(Number(bru.getVar("outsiderUserId")));
+    expect(value.problemId).to.equal(Number(bru.getVar("collabProblemId")));
+    expect(value.status).to.equal("Pending");
+    expect(value.role).to.equal("Editor");
+    expect(value.invitedById).to.equal(Number(bru.getVar("editorUserId")));
+    expect(value.invitedAt).to.be.a("string");
+    expect(value.approvedAt).to.equal(null);
+  });
+}

@@ -1,0 +1,55 @@
+meta {
+  name: [ERR] Remove Collaborator as Editor
+  type: graphql
+  seq: 10
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: bearer
+}
+
+headers {
+  X-Collaborator-Test: true
+  X-Collaborator-Actor: editor
+}
+
+auth:bearer {
+  token: {{editorToken}}
+}
+
+body:graphql {
+  mutation ($problemId: Int!, $userId: Int!) {
+    removeCollaborator(problemId: $problemId, userId: $userId) {
+      id
+      problemId
+      userId
+      role
+      status
+      invitedById
+      invitedAt
+      approvedAt
+      createTime
+    }
+  }
+}
+
+body:graphql:vars {
+  {
+    "problemId": {{collabProblemId}},
+    "userId": {{reviewerUserId}}
+  }
+}
+
+tests {
+  test("Remove Collaborator as Editor - FORBIDDEN", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.errors).to.be.an("array").that.is.not.empty;
+    const error = res.body.errors.find(e => e.path && e.path[0] === "removeCollaborator");
+    expect(error).to.not.equal(undefined);
+    expect(error.extensions.code).to.equal("FORBIDDEN");
+    expect(error.message).to.equal("No permission to remove collaborator");
+    expect(res.body.data == null || res.body.data.removeCollaborator == null).to.equal(true);
+  });
+}
