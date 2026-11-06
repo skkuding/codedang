@@ -520,91 +520,95 @@ export class GroupService {
     duplicatedCourseInfo.semester = input.semester
     duplicatedCourseInfo.classNum = input.classNum
 
-    return await this.prisma.$transaction(async (tx) => {
-      const duplicatedCourse = await tx.group.create({
-        data: {
-          groupName: originCourse.groupName,
-          groupType: originCourse.groupType,
-          config: originCourse.config ?? {
-            showOnList: true,
-            allowJoinFromSearch: true,
-            allowJoinWithURL: true,
-            requireApprovalBeforeJoin: false
-          },
-          courseInfo: {
-            create: duplicatedCourseInfo
-          }
-        },
-        select: {
-          id: true,
-          groupName: true,
-          groupType: true,
-          config: true,
-          courseInfo: true
-        }
-      })
-
-      await this.whitelistService.updateWhitelist(
-        duplicatedCourse.id,
-        input.studentWhitelist,
-        tx
-      )
-
-      await tx.userGroup.create({
-        data: {
-          user: { connect: { id: userId } },
-          group: { connect: { id: duplicatedCourse.id } },
-          isGroupLeader: true
-        }
-      })
-
-      const now = new Date()
-
-      const results = await Promise.all(
-        originCourse.assignment.map(async (assignment) => {
-          const isVisible =
-            assignment.startTime <= now && now <= assignment.endTime
-
-          // prettier-ignore
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: originId, createTime, updateTime, groupId: oldGroupId, assignmentProblem, ...assignmentData } = assignment
-
-          const newAssignment = await tx.assignment.create({
-            data: {
-              ...assignmentData,
-              createdById: userId,
-              groupId: duplicatedCourse.id,
-              isVisible
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const duplicatedCourse = await tx.group.create({
+          data: {
+            groupName: originCourse.groupName,
+            groupType: originCourse.groupType,
+            config: originCourse.config ?? {
+              showOnList: true,
+              allowJoinFromSearch: true,
+              allowJoinWithURL: true,
+              requireApprovalBeforeJoin: false
+            },
+            courseInfo: {
+              create: duplicatedCourseInfo
             }
-          })
-
-          if (assignmentProblem && assignmentProblem.length > 0) {
-            await tx.assignmentProblem.createMany({
-              data: assignmentProblem.map((ap) => ({
-                order: ap.order,
-                assignmentId: newAssignment.id,
-                problemId: ap.problemId,
-                score: ap.score
-              }))
-            })
-          }
-
-          return {
-            originId,
-            newId: newAssignment.id
+          },
+          select: {
+            id: true,
+            groupName: true,
+            groupType: true,
+            config: true,
+            courseInfo: true
           }
         })
-      )
 
-      const originAssignments = results.map((r) => r.originId)
-      const copiedAssignments = results.map((r) => r.newId)
+        await this.whitelistService.updateWhitelist(
+          duplicatedCourse.id,
+          input.studentWhitelist,
+          tx
+        )
 
-      return {
-        duplicatedCourse,
-        originAssignments,
-        copiedAssignments
-      }
-    })
+        await tx.userGroup.create({
+          data: {
+            user: { connect: { id: userId } },
+            group: { connect: { id: duplicatedCourse.id } },
+            isGroupLeader: true
+          }
+        })
+
+        const now = new Date()
+
+        const results = await Promise.all(
+          originCourse.assignment.map(async (assignment) => {
+            const isVisible =
+              assignment.startTime <= now && now <= assignment.endTime
+
+            // prettier-ignore
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { id: originId, createTime, updateTime, groupId: oldGroupId, assignmentProblem, ...assignmentData } = assignment
+
+            const newAssignment = await tx.assignment.create({
+              data: {
+                ...assignmentData,
+                createdById: userId,
+                groupId: duplicatedCourse.id,
+                isVisible
+              }
+            })
+
+            if (assignmentProblem && assignmentProblem.length > 0) {
+              await tx.assignmentProblem.createMany({
+                data: assignmentProblem.map((ap) => ({
+                  order: ap.order,
+                  assignmentId: newAssignment.id,
+                  problemId: ap.problemId,
+                  score: ap.score
+                }))
+              })
+            }
+
+            return {
+              originId,
+              newId: newAssignment.id
+            }
+          })
+        )
+
+        const originAssignments = results.map((r) => r.originId)
+        const copiedAssignments = results.map((r) => r.newId)
+
+        return {
+          duplicatedCourse,
+          originAssignments,
+          copiedAssignments
+        }
+      })
+    } catch (error) {
+      throw new UnprocessableDataException(error.message)
+    }
   }
 }
 
