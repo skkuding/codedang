@@ -1,5 +1,6 @@
 import { HttpModule } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
@@ -49,6 +50,7 @@ const db = {
     findMany: stub()
   },
   contest: {
+    findUnique: stub(),
     findFirst: stub()
   },
   assignment: {
@@ -74,6 +76,7 @@ const db = {
     findUnique: stub()
   },
   contestRecord: {
+    upsert: stub(),
     findUnique: stub(),
     update: stub()
   },
@@ -82,6 +85,7 @@ const db = {
     findUnique: stub()
   },
   assignmentRecord: {
+    upsert: stub(),
     findUnique: stub(),
     update: stub()
   },
@@ -91,6 +95,8 @@ const db = {
   user: {
     findFirst: stub()
   },
+  $transaction: async <T>(fn: (prisma: typeof db) => Promise<T>): Promise<T> =>
+    fn(db),
   getPaginator: PrismaService.prototype.getPaginator
 }
 
@@ -198,34 +204,13 @@ describe('SubmissionService', () => {
   })
 
   afterEach(() => {
-    db.submission.findMany.resetHistory()
-    db.submission.findFirst.resetHistory()
-    db.submission.findUnique.resetHistory()
-    db.submission.create.resetHistory()
-    db.submission.update.resetHistory()
-    db.submission.findUniqueOrThrow.resetHistory()
-    db.submissionResult.create.resetHistory()
-    db.submissionResult.createMany.resetHistory()
-    db.submissionResult.updateMany.resetHistory()
-    db.problem.findFirst.resetHistory()
-    db.problem.findUnique.resetHistory()
-    db.problem.update.resetHistory()
-    db.problemTestcase.findMany.resetHistory()
-    db.contest.findFirst.resetHistory()
-    db.contestProblem.findUnique.resetHistory()
-    db.contestProblem.findFirst.resetHistory()
-    db.assignment.findFirst.resetHistory()
-    db.assignment.findUnique.resetHistory()
-    db.userGroup.findFirst.resetHistory()
-    db.assignmentProblem.findUnique.resetHistory()
-    db.assignmentProblem.findFirst.resetHistory()
-    db.assignmentProblem.findMany.resetHistory()
-    db.workbookProblem.findUnique.resetHistory()
-    db.contestRecord.findUnique.resetHistory()
-    db.contestRecord.update.resetHistory()
-    db.assignmentRecord.findUnique.resetHistory()
-    db.assignmentRecord.update.resetHistory()
-    db.user.findFirst.resetHistory()
+    for (const model of Object.values(db)) {
+      if (typeof model === 'object') {
+        for (const method of Object.values(model)) {
+          if ('reset' in method) method.reset()
+        }
+      }
+    }
   })
 
   it('should be defined', () => {
@@ -309,6 +294,7 @@ describe('SubmissionService', () => {
     it('should call createSubmission', async () => {
       const createSpy = stub(service, 'createSubmission')
       db.assignment.findFirst.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves({ isGroupLeader: false })
       db.assignmentRecord.findUnique.resolves({
         id: 1,
         assignment: {
@@ -708,9 +694,8 @@ describe('SubmissionService', () => {
         startTime: new Date(Date.now() - 10000),
         endTime: new Date(Date.now() + 10000)
       }
-      db.contestRecord.findUnique.resolves({
-        contest: ongoingContest
-      })
+      db.userContest.findUnique.resolves({})
+      db.contest.findUnique.resolves(ongoingContest)
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({
         ...submissions[0],
@@ -736,7 +721,7 @@ describe('SubmissionService', () => {
         endTime: mockAssignment.endTime,
         isJudgeResultVisible: mockAssignment.isJudgeResultVisible
       })
-      db.userGroup.findFirst.resolves({ userId: 1 })
+      db.userGroup.findFirst.resolves({ userId: 1, isGroupLeader: true })
       db.problem.findFirst.resolves(problems[0])
       db.submission.findFirst.resolves({
         ...submissions[0],
@@ -794,7 +779,8 @@ describe('SubmissionService', () => {
 
     it('should throw exception if user is not registered to contest', async () => {
       db.user.findFirst.resolves(null)
-      db.contestRecord.findUnique.resolves(null)
+      db.contestRecord.findUnique.resolves({})
+      db.userContest.findUnique.resolves(null)
 
       await expect(
         service.getContestSubmissions({
@@ -866,7 +852,9 @@ describe('SubmissionService', () => {
 
     it('should throw exception if user is not registered to assignment', async () => {
       db.user.findFirst.resolves(null)
-      db.assignmentRecord.findUnique.resolves(null)
+      db.assignmentRecord.findUnique.resolves({})
+      db.assignment.findUnique.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves(null)
 
       await expect(
         service.getAssignmentSubmissions({
@@ -874,7 +862,7 @@ describe('SubmissionService', () => {
           assignmentId: ASSIGNMENT_ID,
           userId: submissions[0].userId
         })
-      ).to.be.rejectedWith(EntityNotExistException)
+      ).to.be.rejectedWith(ForbiddenAccessException)
     })
 
     it("should throw exception if assignment doesn't have this problem", async () => {
@@ -909,9 +897,9 @@ describe('SubmissionService', () => {
         }
       ]
 
-      db.assignmentRecord.findUnique.resolves({
-        assignment: { isJudgeResultVisible: true }
-      })
+      db.assignment.findUnique.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves({ isGroupLeader: false })
+      db.assignmentRecord.findUnique.resolves(null)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves(mockSubmissions)
 
@@ -930,7 +918,7 @@ describe('SubmissionService', () => {
       expect(result[1].problemId).to.equal(2)
       expect(result[1].submission).to.be.null
 
-      expect(db.assignmentRecord.findUnique.calledOnce).to.be.true
+      expect(db.assignmentRecord.findUnique.called).to.be.false
       expect(db.assignmentProblem.findMany.calledOnce).to.be.true
       expect(db.submission.findMany.calledOnce).to.be.true
     })
@@ -939,9 +927,9 @@ describe('SubmissionService', () => {
       const assignmentId = 1
       const userId = 1
 
-      db.assignmentRecord.findUnique.resolves({
-        assignment: { isJudgeResultVisible: true }
-      })
+      db.assignment.findUnique.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves({ isGroupLeader: false })
+      db.assignmentRecord.findUnique.resolves(null)
       db.assignmentProblem.findMany.resolves([])
 
       const result = await service.getAssignmentSubmissionSummary(
@@ -951,7 +939,7 @@ describe('SubmissionService', () => {
 
       expect(result).to.be.an('array').that.is.empty
 
-      expect(db.assignmentRecord.findUnique.calledOnce).to.be.true
+      expect(db.assignmentRecord.findUnique.called).to.be.false
       expect(db.assignmentProblem.findMany.calledOnce).to.be.true
       expect(db.submission.findMany.called).to.be.false
     })
@@ -960,7 +948,9 @@ describe('SubmissionService', () => {
       const assignmentId = 1
       const userId = 1
 
-      db.assignmentRecord.findUnique.resolves(null)
+      db.assignmentRecord.findUnique.resolves({})
+      db.assignment.findUnique.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves(null)
 
       await expect(
         service.getAssignmentSubmissionSummary(assignmentId, userId)
@@ -969,8 +959,8 @@ describe('SubmissionService', () => {
         'User not participated in the assignment'
       )
 
-      expect(db.assignmentRecord.findUnique.calledOnce).to.be.true
-      expect(db.assignmentProblem.findMany.called).to.be.true
+      expect(db.assignmentRecord.findUnique.called).to.be.false
+      expect(db.assignmentProblem.findMany.called).to.be.false
     })
 
     it('should handle multiple submissions for the same problem and use the most recent one', async () => {
@@ -995,9 +985,9 @@ describe('SubmissionService', () => {
         }
       ]
 
-      db.assignmentRecord.findUnique.resolves({
-        assignment: { isJudgeResultVisible: true }
-      })
+      db.assignment.findUnique.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves({ isGroupLeader: false })
+      db.assignmentRecord.findUnique.resolves(null)
       db.assignmentProblem.findMany.resolves(mockAssignmentProblems)
       db.submission.findMany.resolves(mockSubmissions)
 
@@ -1012,6 +1002,285 @@ describe('SubmissionService', () => {
       expect(result[0].submission?.submissionTime).to.deep.equal(newerDate)
     })
   })
+  describe('membership authorization', () => {
+    const userId = submissions[0].userId
+    const problemId = problems[0].id
+    const detail = {
+      id: submissions[0].id,
+      problemId,
+      userId,
+      userRole: Role.User,
+      contestId: null,
+      assignmentId: ASSIGNMENT_ID
+    }
+    const assignmentList = { problemId, userId, assignmentId: ASSIGNMENT_ID }
+    const contestList = { problemId, userId, contestId: CONTEST_ID }
+
+    beforeEach(() => {
+      db.assignment.findFirst.resolves(mockAssignment)
+      db.assignment.findUnique.resolves(mockAssignment)
+      db.userGroup.findFirst.resolves({ isGroupLeader: false })
+      db.userContest.findFirst.resolves(null)
+      db.userContest.findUnique.resolves({ role: 'Participant' })
+      db.contest.findUnique.resolves(mockContest)
+      db.contest.findFirst.resolves(mockContest)
+      db.assignmentRecord.findUnique.resolves(null)
+      db.contestRecord.findUnique.resolves(null)
+      db.problem.findFirst.resolves(problems[0])
+      db.assignmentProblem.findUnique.resolves({ problem: problems[0] })
+      db.assignmentProblem.findFirst.resolves({ assignment: mockAssignment })
+      db.assignmentProblem.findMany.resolves([{ problemId }])
+      db.contestProblem.findFirst.resolves({})
+      db.submission.findFirst.resolves({
+        ...submissions[0],
+        user: { username: 'user' },
+        submissionResult: []
+      })
+      db.submission.findMany.resolves([])
+      db.submission.count.resolves(0)
+    })
+
+    const assignmentReads = [
+      {
+        name: 'detail',
+        run: (service: SubmissionService) => service.getSubmission(detail)
+      },
+      {
+        name: 'list',
+        run: (service: SubmissionService) =>
+          service.getAssignmentSubmissions(assignmentList)
+      },
+      {
+        name: 'latest',
+        run: (service: SubmissionService) =>
+          service.getLatestAssignmentProblemSubmission(
+            problemId,
+            ASSIGNMENT_ID,
+            userId
+          )
+      },
+      {
+        name: 'summary',
+        run: (service: SubmissionService) =>
+          service.getAssignmentSubmissionSummary(ASSIGNMENT_ID, userId)
+      }
+    ]
+    for (const { name, run } of assignmentReads) {
+      it(`allows assignment ${name} for a member without a record`, async () => {
+        await run(service)
+        expect(db.userGroup.findFirst.firstCall.args[0].where).to.deep.equal({
+          groupId: mockAssignment.groupId,
+          userId
+        })
+        expect(db.assignmentRecord.findUnique.called).to.be.false
+        expect(db.assignmentRecord.upsert.called).to.be.false
+      })
+      it(`denies assignment ${name} for a nonmember with a stale record`, async () => {
+        db.userGroup.findFirst.resolves(null)
+        db.assignmentRecord.findUnique.resolves({ id: 1 })
+        await expect(run(service)).to.be.rejectedWith(ForbiddenAccessException)
+        expect(db.submission.findFirst.called).to.be.false
+        expect(db.submission.findMany.called).to.be.false
+      })
+    }
+
+    it('returns empty data and null summaries, and distinguishes missing submissions', async () => {
+      expect(
+        (await service.getAssignmentSubmissions(assignmentList)).data
+      ).to.deep.equal([])
+      expect(
+        await service.getAssignmentSubmissionSummary(ASSIGNMENT_ID, userId)
+      ).to.deep.equal([{ problemId, submission: null }])
+      db.submission.findFirst.resolves(null)
+      await expect(
+        service.getLatestAssignmentProblemSubmission(
+          problemId,
+          ASSIGNMENT_ID,
+          userId
+        )
+      ).to.be.rejectedWith(NotFoundException, 'Submission')
+    })
+
+    it('rejects an unrelated assignment problem for an authorized member', async () => {
+      db.assignmentProblem.findFirst.resolves(null)
+      await expect(
+        service.getAssignmentSubmissions(assignmentList)
+      ).to.be.rejectedWith(EntityNotExistException, 'AssignmentProblem')
+      expect(db.submission.findMany.called).to.be.false
+    })
+
+    it('denies assignment submission for a nonmember with a stale record', async () => {
+      db.userGroup.findFirst.resolves(null)
+      db.assignmentRecord.findUnique.resolves({ id: 1 })
+      await expect(
+        service.submitToAssignment({
+          ...assignmentList,
+          submissionDto,
+          userIp: USERIP
+        })
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.assignmentRecord.upsert.called).to.be.false
+    })
+
+    for (const name of ['detail', 'list']) {
+      const run = (service: SubmissionService) =>
+        name === 'detail'
+          ? service.getSubmission({
+              ...detail,
+              assignmentId: null,
+              contestId: CONTEST_ID
+            })
+          : service.getContestSubmissions(contestList)
+      it(`allows contest ${name} for a registered user without a record`, async () => {
+        await run(service)
+        expect(db.contestRecord.findUnique.called).to.be.false
+        expect(db.contestRecord.upsert.called).to.be.false
+      })
+      it(`denies contest ${name} for an unregistered user with a stale record`, async () => {
+        db.userContest.findUnique.resolves(null)
+        db.contestRecord.findUnique.resolves({ id: 1 })
+        await expect(run(service)).to.be.rejectedWith(
+          EntityNotExistException,
+          'UserContest'
+        )
+      })
+    }
+
+    for (const userRole of [Role.Admin, Role.SuperAdmin]) {
+      it(`requires membership before the ${userRole} detail exception`, async () => {
+        db.userGroup.findFirst.resolves(null)
+        await expect(
+          service.getSubmission({ ...detail, userRole })
+        ).to.be.rejectedWith(ForbiddenAccessException)
+        db.userContest.findUnique.resolves(null)
+        await expect(
+          service.getSubmission({
+            ...detail,
+            userRole,
+            assignmentId: null,
+            contestId: CONTEST_ID
+          })
+        ).to.be.rejectedWith(EntityNotExistException, 'UserContest')
+      })
+    }
+
+    it('keeps Course leaders limited to their own assignment list', async () => {
+      db.userGroup.findFirst.resolves({ isGroupLeader: true })
+      await service.getAssignmentSubmissions(assignmentList)
+      expect(db.submission.findMany.firstCall.args[0].where.userId).to.equal(
+        userId
+      )
+    })
+
+    it('keeps contest staff access subject to result masking', async () => {
+      db.userContest.findFirst.resolves({ id: 1 })
+      db.userContest.findUnique.resolves(null)
+      db.contest.findUnique.resolves({
+        ...mockContest,
+        isJudgeResultVisible: false
+      })
+      db.submission.findFirst.resolves({
+        ...submissions[0],
+        userId: userId + 1,
+        user: { username: 'other' },
+        submissionResult: []
+      })
+      expect(
+        (
+          await service.getSubmission({
+            ...detail,
+            assignmentId: null,
+            contestId: CONTEST_ID
+          })
+        ).result
+      ).to.equal('Blind')
+      await service.getContestSubmissions(contestList)
+      expect(db.submission.findMany.firstCall.args[0].where.userId).to.be
+        .undefined
+    })
+
+    it('keeps assignment leader access subject to hidden result masking', async () => {
+      db.userGroup.findFirst.resolves({ isGroupLeader: true })
+      db.assignment.findUnique.resolves({
+        ...mockAssignment,
+        isJudgeResultVisible: false
+      })
+      db.submission.findFirst.resolves({
+        ...submissions[0],
+        userId: userId + 1,
+        user: { username: 'other' },
+        submissionResult: [
+          { result: ResultStatus.Accepted, problemTestcase: { isHidden: true } }
+        ]
+      })
+      const result = await service.getSubmission(detail)
+      expect(result.testcaseResult).to.deep.equal([])
+      expect(result.result).to.equal(ResultStatus.ServerError)
+    })
+  })
+
+  describe('record persistence', () => {
+    for (const kind of ['assignment', 'contest'] as const) {
+      for (const hasTestcases of [true, false]) {
+        it(`initializes ${kind} records before ${hasTestcases ? 'publishing' : 'immediate finalization'}`, async () => {
+          const idOptions =
+            kind === 'assignment'
+              ? { assignmentId: ASSIGNMENT_ID }
+              : { contestId: CONTEST_ID }
+          const saved = { ...submissions[0], ...idOptions }
+          db.submission.create.resolves(saved)
+          stub(service, 'getJudgeableTestcases').resolves(
+            hasTestcases ? [{ id: 1, isHidden: false }] : []
+          )
+          stub(service, 'createSubmissionResults').resolves()
+          const publishStub = stub(publish, 'publishJudgeRequestMessage')
+          await service.createSubmission({
+            submissionDto,
+            problem: problems[0],
+            userId: saved.userId,
+            userIp: USERIP,
+            idOptions
+          })
+          const parent =
+            kind === 'assignment'
+              ? db.assignmentRecord.upsert
+              : db.contestRecord.upsert
+          expect(parent.calledOnce).to.be.true
+          expect(parent.calledBefore(db.submission.create)).to.be.true
+          if (kind === 'assignment') {
+            expect(parent.calledBefore(db.assignmentProblemRecord.upsert)).to.be
+              .true
+            expect(
+              db.assignmentProblemRecord.upsert.calledBefore(
+                db.submission.create
+              )
+            ).to.be.true
+          }
+          const afterSave = hasTestcases
+            ? publishStub
+            : (finalization.applyFinalizationEffects as SinonStub)
+          expect(db.submission.create.calledBefore(afterSave)).to.be.true
+          expect(afterSave.calledOnce).to.be.true
+        })
+      }
+    }
+
+    it('does not initialize records when code validation fails', async () => {
+      await expect(
+        service.createSubmission({
+          submissionDto,
+          problem: { ...problems[0], languages: [] },
+          userId: submissions[0].userId,
+          userIp: USERIP,
+          idOptions: { assignmentId: ASSIGNMENT_ID }
+        })
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(db.assignmentRecord.upsert.called).to.be.false
+      expect(db.assignmentProblemRecord.upsert.called).to.be.false
+      expect(db.submission.create.called).to.be.false
+    })
+  })
+
   // TODO: 기획 문의 / 확정 후 Test DB 기반으로 재작성 예정
   // describe('getContestSubmisssion', () => {
   //   it('should return submission', async () => {
