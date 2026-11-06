@@ -6,6 +6,7 @@ metadata:
 data:
   DATABASE_CONNECTION_LIMIT: '225'
   NODEMAILER_FROM: 'Codedang <noreply@codedang.com>'
+  PIN_MAX_ATTEMPTS: '3'
   RABBITMQ_API_URL: 'http://rabbitmq.rabbitmq.svc.cluster.local:15672/api'
   RABBITMQ_DEFAULT_VHOST: 'vh'
   RABBITMQ_HOST: 'rabbitmq.rabbitmq.svc.cluster.local'
