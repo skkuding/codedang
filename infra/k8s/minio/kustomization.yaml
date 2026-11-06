@@ -5,9 +5,8 @@ kind: Kustomization
 namespace: minio
 
 resources:
-  - HTTPRoutes.yaml
+  - httproute.yaml
   - namespace.yaml
-  - silo-console-ingress.yaml
   - silo-pvc.yaml
   - silo-root-credentials.yaml
   - silo-services.yaml

@@ -457,6 +457,7 @@ export class CourseController {
   ) {
     return await this.courseService.deleteCourseQnAComment(
       req.user.id,
+      req.user.role,
       courseId,
       qnaOrder,
       commentOrder

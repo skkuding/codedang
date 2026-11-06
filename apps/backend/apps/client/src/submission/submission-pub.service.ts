@@ -22,7 +22,7 @@ export class SubmissionPublicationService {
    * 2. `isUserTest` 플래그에 따라 다음 중 하나의 채점 요청 객체를 생성
    *    - 사용자 테스트인 경우: `UserTestcaseJudgeRequest` 객체를 생성하며, 사용자 정의 테스트케이스를 포함
    *    - 아닌 경우: 일반 채점 요청인 `JudgeRequest` 객체를 생성
-   * 3. AMQP 프로토콜을 사용하여 지정된 EXCHANGE와 라우팅 키(SUBMISSION_KEY)를 통해 채점 요청 메시지를 발행
+   * 3. AMQP 프로토콜을 사용하여 workload에 맞는 routing key로 채점 요청 메시지를 발행
    *
    * @param {Object} params - 채점 요청 파라미터
    * @param {Snippet[]} params.code - 제출한 코드 스니펫 배열

@@ -1,0 +1,3 @@
+singleBinary:
+  nodeSelector:
+    kubernetes.io/hostname: skkuding-4f-1

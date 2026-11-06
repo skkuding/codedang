@@ -735,6 +735,8 @@ export class ProblemService {
       throw new ForbiddenException('User can only delete problems they created')
     }
 
+    // HOTFIX: Disable attachment deletion to prevent data loss.
+    /*
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
     if (uuidImageFileNames) {
@@ -752,6 +754,7 @@ export class ProblemService {
 
       await Promise.all(deleteFromS3Results)
     }
+    */
 
     return await this.prisma.problem.delete({
       where: { id }

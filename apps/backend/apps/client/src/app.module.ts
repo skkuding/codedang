@@ -10,6 +10,7 @@ import { JwtAuthGuard, JwtAuthModule } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { ClientExceptionFilter } from '@libs/exception'
 import { openTelemetryModuleOption } from '@libs/instrumentation'
+import { InternalModule } from '@libs/internal'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { AnnouncementModule } from './announcement/announcement.module'
@@ -41,6 +42,7 @@ import { WorkbookModule } from './workbook/workbook.module'
       useClass: MailerConfigService
     }),
     PrismaModule,
+    InternalModule,
     AuthModule,
     ContestModule,
     GroupModule,

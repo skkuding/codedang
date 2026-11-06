@@ -29,8 +29,10 @@ spec:
           targetRevision: 6.53.0
           helm:
             releaseName: loki
+            ignoreMissingValueFiles: true
             valueFiles:
               - $codedang/infra/k8s/monitoring/loki/values.yaml
+              - $codedang/infra/k8s/monitoring/loki/values-{{.env}}.yaml
         - repoURL: https://github.com/skkuding/codedang
           targetRevision: '{{.branch}}'
           ref: codedang

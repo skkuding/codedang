@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import {
   AmqpConnection,
   Nack,
@@ -22,9 +23,9 @@ import {
   MESSAGE_PRIORITY_HIGH,
   MESSAGE_PRIORITY_MIDDLE,
   MESSAGE_PRIORITY_LOW,
-  SUBMISSION_KEY,
   SUBMISSION_MESSAGE_TYPE,
-  RUN_SUBMISSION_MESSAGE_TYPE
+  RUN_SUBMISSION_MESSAGE_TYPE,
+  DEFAULT_SUBMISSION_KEY
 } from '@libs/constants'
 
 @Injectable()
@@ -33,7 +34,8 @@ export class JudgeAMQPService {
 
   constructor(
     private readonly amqpConnection: AmqpConnection,
-    private readonly traceService: TraceService
+    private readonly traceService: TraceService,
+    private readonly configService: ConfigService
   ) {}
 
   startSubscription() {
@@ -95,12 +97,17 @@ export class JudgeAMQPService {
     )
     span.setAttributes({ submissionId })
 
-    await this.amqpConnection.publish(EXCHANGE, SUBMISSION_KEY, judgeRequest, {
-      messageId: String(submissionId),
-      persistent: true,
-      type: this.calculateMessageType(isTest, isUserTest),
-      priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge)
-    })
+    await this.amqpConnection.publish(
+      EXCHANGE,
+      this.calculateRoutingKey(isTest, isUserTest, isRejudge),
+      judgeRequest,
+      {
+        messageId: String(submissionId),
+        persistent: true,
+        type: this.calculateMessageType(isTest, isUserTest),
+        priority: this.calculateMessagePriority(isTest, isUserTest, isRejudge)
+      }
+    )
     span.end()
   }
 
@@ -111,6 +118,29 @@ export class JudgeAMQPService {
     if (isTest) return RUN_MESSAGE_TYPE
     if (isUserTest) return USER_TESTCASE_MESSAGE_TYPE
     return JUDGE_MESSAGE_TYPE
+  }
+
+  /**
+   * 채점 workload에 맞는 request queue routing key를 선택합니다.
+   * 새 workload key가 없는 기존 배포에서는 모든 요청을 submission routing
+   * key로 보내 단일 queue 동작을 유지합니다.
+   */
+  private calculateRoutingKey(
+    isTest: boolean,
+    isUserTest: boolean,
+    isRejudge: boolean
+  ) {
+    if (isRejudge) return this.getRoutingKey('REJUDGE_KEY')
+    if (isTest || isUserTest) return this.getRoutingKey('TEST_KEY')
+    return this.getRoutingKey('SUBMISSION_KEY')
+  }
+
+  private getRoutingKey(key: 'SUBMISSION_KEY' | 'TEST_KEY' | 'REJUDGE_KEY') {
+    return (
+      this.configService.get<string>(key) ??
+      this.configService.get<string>('JUDGE_SUBMISSION_ROUTING_KEY') ??
+      DEFAULT_SUBMISSION_KEY
+    )
   }
 
   /**

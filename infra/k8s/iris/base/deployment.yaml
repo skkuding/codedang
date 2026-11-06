@@ -23,6 +23,10 @@ spec:
       containers:
         - name: iris
           image: ghcr.io/skkuding/codedang-iris
+          ports:
+            - name: pprof
+              containerPort: 6060
+              protocol: TCP
           resources:
             limits:
               cpu: 1
@@ -57,6 +61,8 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: 'deployment.environment.name=$(APP_ENV)'
       volumes:
         - name: cgroup
           hostPath:
