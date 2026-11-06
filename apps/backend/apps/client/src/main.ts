@@ -48,6 +48,7 @@ const bootstrap = async () => {
     app.setGlobalPrefix('api')
   }
 
+  app.enableShutdownHooks()
   await app.listen(4000)
 }
 
