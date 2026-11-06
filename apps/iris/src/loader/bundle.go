@@ -21,7 +21,13 @@ type BundleSource interface {
 
 // InstallBundle handles a cache miss for one selected bundle. cacheRoot may be
 // a local directory or a mounted PV. The returned directory contains TC files.
-// Existing cache entries are not replaced; callers must serialize installations.
+//
+// Installation is idempotent: the destination is derived from the verified
+// bundle checksum, so any completed installation has identical content. If the
+// bundle is already installed, or another installer (e.g. an Iris Pod sharing
+// the same node-local PV) publishes it first, the existing directory is
+// returned instead of an error. Concurrent installers may still download the
+// same bundle more than once. Existing entries are never replaced.
 // Cache hits, GC, locking and manifest fetching are outside this function.
 func InstallBundle(ctx context.Context, cacheRoot string, source BundleSource, manifest Manifest, bundleID string) (string, error) {
 	if err := ctx.Err(); err != nil {
@@ -46,10 +52,10 @@ func InstallBundle(ctx context.Context, cacheRoot string, source BundleSource, m
 	digest := strings.TrimPrefix(bundle.Checksum, "sha256:")
 	parent := filepath.Join(cacheRoot, "sha256", digest[:2])
 	destination := filepath.Join(parent, digest)
-	if _, err := os.Lstat(destination); err == nil {
-		return "", fmt.Errorf("bundle install: %s: %w", destination, fs.ErrExist)
-	} else if !errors.Is(err, fs.ErrNotExist) {
-		return "", fmt.Errorf("inspect cache destination: %w", err)
+	if installed, err := isInstalledBundle(destination); err != nil {
+		return "", err
+	} else if installed {
+		return destination, nil
 	}
 	if err := os.MkdirAll(parent, 0750); err != nil {
 		return "", fmt.Errorf("create cache directory: %w", err)
@@ -89,9 +95,35 @@ func InstallBundle(ctx context.Context, cacheRoot string, source BundleSource, m
 		return "", err
 	}
 	if err := os.Rename(payload, destination); err != nil {
-		return "", fmt.Errorf("publish bundle cache: %w", err)
+		// Renaming onto a non-empty directory fails with EEXIST or ENOTEMPTY,
+		// both of which match fs.ErrExist. Another installer won the race; its
+		// content is identical, so use it. The staging copy is removed by defer.
+		if !errors.Is(err, fs.ErrExist) {
+			return "", fmt.Errorf("publish bundle cache: %w", err)
+		}
+		if installed, inspectErr := isInstalledBundle(destination); inspectErr != nil {
+			return "", inspectErr
+		} else if !installed {
+			return "", fmt.Errorf("publish bundle cache: %w", err)
+		}
 	}
 	return destination, nil
+}
+
+// isInstalledBundle reports whether destination holds a published bundle.
+// Only a directory counts; any other entry at that path is an error.
+func isInstalledBundle(destination string) (bool, error) {
+	info, err := os.Lstat(destination)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("inspect cache destination: %w", err)
+	}
+	if !info.IsDir() {
+		return false, fmt.Errorf("cache path %q is not a directory", destination)
+	}
+	return true, nil
 }
 
 func downloadBundle(ctx context.Context, source BundleSource, bundle ManifestBundle, archive string) error {
