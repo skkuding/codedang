@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
 import { cn } from '@/libs/utils'
-import ArrowDownIcon from '@/public/icons/arrow-down.svg'
+import ArrowBottomIcon from '@/public/icons/arrow-bottom.svg'
 import type { CourseNoticeListItem } from '@/types/type'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -114,7 +114,7 @@ export function CourseNoticeTable({ courseId }: CourseNoticeTableProps) {
                 className="text-color-neutral-50 w-30 border-line flex h-[46px] items-center justify-center gap-2 rounded-full border bg-white text-sm font-medium leading-[22.4px] tracking-[-0.48px] outline-none"
               >
                 <span>{orderLabel}</span>
-                <ArrowDownIcon className="size-4" />
+                <ArrowBottomIcon className="text-color-neutral-80 size-4" />
               </button>
             </DropdownMenuTrigger>
 

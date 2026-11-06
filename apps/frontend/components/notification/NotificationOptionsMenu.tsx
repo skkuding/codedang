@@ -26,7 +26,7 @@ export function NotificationOptionsMenu({
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger disabled={isLoading}>
-        <MoreIcon width={24} height={24} />
+        <MoreIcon className="text-color-neutral-80 size-6" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -51,7 +51,7 @@ export function NotificationOptionsMenu({
             isEditor && '!bg-slate-700 !text-gray-300 hover:!bg-slate-800'
           )}
         >
-          <SettingsIcon width={13} height={12} />
+          <SettingsIcon className="text-color-neutral-80 size-3" />
           <Link onClick={() => setIsOpen(false)} href="/settings">
             Notification settings
           </Link>
