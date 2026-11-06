@@ -61,11 +61,13 @@ export class WhitelistService {
     )
 
     // 새 whitelist에 새로운 학번이 추가 됐거나 같은 학번인 학생의 이름이 다르면 추가
-    const whitelistToAdd = newWhitelist.filter(
-      ({ studentId, studentName }) =>
-        !currentStudentsById.has(studentId) ||
-        currentStudentsById.get(studentId) !== studentName
-    )
+    const whitelistToAdd = [...newStudentsById]
+      .filter(
+        ([studentId, studentName]) =>
+          !currentStudentsById.has(studentId) ||
+          currentStudentsById.get(studentId) !== studentName
+      )
+      .map(([studentId, studentName]) => ({ studentId, studentName }))
 
     const whitelistToDelete = currentWhitelist.filter(
       ({ studentId, studentName }) =>
@@ -589,7 +591,7 @@ export class GroupService {
                 }))
               })
             }
-            
+
             await tx.assignmentRecord.createMany({
               data: [{ assignmentId: newAssignment.id, userId }]
             })

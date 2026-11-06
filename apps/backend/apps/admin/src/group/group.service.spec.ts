@@ -678,6 +678,33 @@ describe('WhitelistService', () => {
   })
 
   describe('updateWhitelist', () => {
+    it('should use the last name once for duplicate student IDs', async () => {
+      const groupId = 1
+      const tx = {
+        groupWhitelist: {
+          findMany: stub().resolves([]),
+          deleteMany: stub().resolves({ count: 0 }),
+          createMany: stub().resolves({ count: 1 })
+        }
+      }
+
+      await service.updateWhitelist(
+        groupId,
+        [
+          { studentId: '20250001', studentName: 'First name' },
+          { studentId: '20250001', studentName: 'Last name' }
+        ],
+        tx as unknown as Prisma.TransactionClient
+      )
+
+      expect(
+        tx.groupWhitelist.createMany.calledOnceWithExactly({
+          data: [{ groupId, studentId: '20250001', studentName: 'Last name' }]
+        })
+      ).to.be.true
+      expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
+    })
+
     it('should add, delete, and rename students', async () => {
       const groupId = faker.number.int()
       const currentWhitelist = [
