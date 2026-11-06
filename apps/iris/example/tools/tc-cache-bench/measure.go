@@ -110,7 +110,7 @@ func measure(ctx context.Context, suite []dataset, cacheRoot string, source load
 	fmt.Fprintln(os.Stderr, "Benchmark cache (retained):", dir)
 	result := &report{GoVersion: runtime.Version(), Platform: runtime.GOOS + "/" + runtime.GOARCH, StartedAt: time.Now().UTC().Format(time.RFC3339), CacheDirectory: dir, Notes: []string{
 		"Sequential cold/warm pairs; cold means empty TC cache, not cold OS/MinIO caches.",
-		"Timer covers GetVersionedTestcase including manifest fetch, download, checksum, extraction and file reads; excludes source initialization, validation of results and compilation/judging.",
+		"Timer covers GetVersionedTestcase including manifest lookup (remote on cold, local on warm), download, checksum, extraction and file reads; excludes source initialization, validation of results and compilation/judging.",
 		"Counts are successful logical object opens and body bytes read, not HTTP attempts, headers or wire traffic. SDK retries are not separately counted.",
 		"Cache files are retained. Synthetic local measurements do not predict production S3 latency.",
 	}}
@@ -129,7 +129,8 @@ func measure(ctx context.Context, suite []dataset, cacheRoot string, source load
 			if coldHash != warmHash {
 				return nil, fmt.Errorf("%s: cached content differs", d.Name)
 			}
-			if cold.Traffic.ObjectOpens != 3 || cold.Traffic.BundleOpens != 2 || cold.Traffic.BundleBodyBytes != d.BundleBytes || warm.Traffic.ObjectOpens != 1 || warm.Traffic.BundleOpens != 0 || cold.Traffic.BodyBytes-cold.Traffic.BundleBodyBytes != warm.Traffic.BodyBytes {
+			// Warm requests read the manifest and bundles locally: no remote opens.
+			if cold.Traffic.ObjectOpens != 3 || cold.Traffic.BundleOpens != 2 || cold.Traffic.BundleBodyBytes != d.BundleBytes || warm.Traffic.ObjectOpens != 0 || warm.Traffic.BodyBytes != 0 {
 				return nil, fmt.Errorf("%s: unexpected cold/warm object traffic", d.Name)
 			}
 			item.Pairs = append(item.Pairs, pair{Trial: trial, Cold: cold, Warm: warm})

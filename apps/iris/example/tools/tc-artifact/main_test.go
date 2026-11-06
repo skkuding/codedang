@@ -40,10 +40,11 @@ func TestGeneratedFixturesLoadAndReuseCache(t *testing.T) {
 		ids    []int
 		reads  int
 	}{
+		// Only the first request fetches the manifest; later ones read it locally.
 		{testcase.PUBLIC_ONLY, []int{1001}, 2},
-		{testcase.ALL, []int{1001, 1002}, 4},
-		{testcase.HIDDEN_ONLY, []int{1002}, 5},
-		{testcase.ALL, []int{1001, 1002}, 6},
+		{testcase.ALL, []int{1001, 1002}, 3},
+		{testcase.HIDDEN_ONLY, []int{1002}, 3},
+		{testcase.ALL, []int{1001, 1002}, 3},
 	} {
 		got, err := testcase.GetVersionedTestcase(context.Background(), cache, source, "poc-test", key, step.filter)
 		if err != nil {

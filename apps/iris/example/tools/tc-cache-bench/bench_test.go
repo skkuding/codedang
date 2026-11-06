@@ -62,7 +62,7 @@ func TestMeasureRealLoaderColdWarmPairs(t *testing.T) {
 			t.Fatal("expected two trials")
 		}
 		for _, pair := range item.Pairs {
-			if pair.Cold.Traffic.BundleOpens != 2 || pair.Warm.Traffic.BundleOpens != 0 || pair.Warm.Traffic.BodyBytes == 0 {
+			if pair.Cold.Traffic.BundleOpens != 2 || pair.Warm.Traffic.ObjectOpens != 0 || pair.Warm.Traffic.BodyBytes != 0 {
 				t.Fatalf("wrong traffic: %+v", pair)
 			}
 		}

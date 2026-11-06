@@ -13,7 +13,8 @@ import (
 )
 
 // GetVersionedTestcase resolves the requested manifest, then reads cached TC
-// bundles. Only bundles are cached: each call still fetches the manifest.
+// bundles. Both the manifest and bundles are cached under cacheRoot, so a warm
+// request makes no remote request.
 func GetVersionedTestcase(ctx context.Context, cacheRoot string, source loader.BundleSource, testcaseSetID, manifestKey string, filter TestcaseFilterCode) (Testcase, error) {
 	if strings.TrimSpace(cacheRoot) == "" {
 		return Testcase{}, fmt.Errorf("testcase cache root must not be empty")
@@ -21,7 +22,7 @@ func GetVersionedTestcase(ctx context.Context, cacheRoot string, source loader.B
 	if filter != ALL && filter != PUBLIC_ONLY && filter != HIDDEN_ONLY {
 		return Testcase{}, fmt.Errorf("unknown testcase filter %d", filter)
 	}
-	manifest, err := loader.LoadManifest(ctx, source, manifestKey, testcaseSetID)
+	manifest, err := loadManifest(ctx, cacheRoot, source, manifestKey, testcaseSetID)
 	if err != nil {
 		return Testcase{}, err
 	}
