@@ -201,6 +201,8 @@ describe('GroupService', () => {
   let cache: Cache
 
   beforeEach(async () => {
+    whitelistServiceMock.updateWhitelist.resetHistory()
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
@@ -234,7 +236,7 @@ describe('GroupService', () => {
       expect(res).to.deep.equal(group)
 
       expect(
-        whitelistServiceMock.updateWhitelist.calledWith(
+        whitelistServiceMock.updateWhitelist.calledOnceWithExactly(
           group.id,
           courseInput.studentWhitelist,
           db
@@ -347,7 +349,7 @@ describe('GroupService', () => {
       expect(res).to.deep.equal(updated)
 
       expect(
-        whitelistServiceMock.updateWhitelist.calledWith(
+        whitelistServiceMock.updateWhitelist.calledOnceWithExactly(
           groupId,
           courseInput.studentWhitelist,
           db
@@ -476,7 +478,7 @@ describe('GroupService', () => {
         duplicateInput.classNum
       )
       expect(
-        whitelistServiceMock.updateWhitelist.calledWith(
+        whitelistServiceMock.updateWhitelist.calledOnceWithExactly(
           groupWithAssignment.id,
           duplicateInput.studentWhitelist,
           db
