@@ -97,6 +97,7 @@ export class WhitelistService {
     }
   }
 
+  // Legacy code. Planned on removing once standalone whitelist editing UI is removed
   async createWhitelist(groupId: number, studentIds: [string]) {
     const whitelistData = [...new Set(studentIds)].map((studentId) => ({
       groupId,
@@ -523,105 +524,108 @@ export class GroupService {
     duplicatedCourseInfo.classNum = input.classNum
 
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        const duplicatedCourse = await tx.group.create({
-          data: {
-            groupName: originCourse.groupName,
-            groupType: originCourse.groupType,
-            config: originCourse.config ?? {
-              showOnList: true,
-              allowJoinFromSearch: true,
-              allowJoinWithURL: true,
-              requireApprovalBeforeJoin: false
-            },
-            courseInfo: {
-              create: duplicatedCourseInfo
-            }
-          },
-          select: {
-            id: true,
-            groupName: true,
-            groupType: true,
-            config: true,
-            courseInfo: true
-          }
-        })
-
-        await this.whitelistService.updateWhitelist(
-          duplicatedCourse.id,
-          input.studentWhitelist,
-          tx
-        )
-
-        await tx.userGroup.create({
-          data: {
-            user: { connect: { id: userId } },
-            group: { connect: { id: duplicatedCourse.id } },
-            isGroupLeader: true
-          }
-        })
-
-        const now = new Date()
-
-        const results = await Promise.all(
-          originCourse.assignment.map(async (assignment) => {
-            const isVisible =
-              assignment.startTime <= now && now <= assignment.endTime
-
-            // prettier-ignore
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id: originId, createTime, updateTime, groupId: oldGroupId, assignmentProblem, ...assignmentData } = assignment
-
-            const newAssignment = await tx.assignment.create({
-              data: {
-                ...assignmentData,
-                createdById: userId,
-                groupId: duplicatedCourse.id,
-                isVisible
+      return await this.prisma.$transaction(
+        async (tx) => {
+          const duplicatedCourse = await tx.group.create({
+            data: {
+              groupName: originCourse.groupName,
+              groupType: originCourse.groupType,
+              config: originCourse.config ?? {
+                showOnList: true,
+                allowJoinFromSearch: true,
+                allowJoinWithURL: true,
+                requireApprovalBeforeJoin: false
+              },
+              courseInfo: {
+                create: duplicatedCourseInfo
               }
-            })
-
-            if (assignmentProblem && assignmentProblem.length > 0) {
-              await tx.assignmentProblem.createMany({
-                data: assignmentProblem.map((ap) => ({
-                  order: ap.order,
-                  assignmentId: newAssignment.id,
-                  problemId: ap.problemId,
-                  score: ap.score
-                }))
-              })
-            }
-
-            await tx.assignmentRecord.createMany({
-              data: [{ assignmentId: newAssignment.id, userId }]
-            })
-
-            if (assignmentProblem && assignmentProblem.length > 0) {
-              await tx.assignmentProblemRecord.createMany({
-                data: assignmentProblem.map((ap) => ({
-                  assignmentId: newAssignment.id,
-                  userId,
-                  problemId: ap.problemId
-                }))
-              })
-            }
-
-            return {
-              originId,
-              newId: newAssignment.id
+            },
+            select: {
+              id: true,
+              groupName: true,
+              groupType: true,
+              config: true,
+              courseInfo: true
             }
           })
-        )
 
-        const originAssignments = results.map((r) => r.originId)
-        const copiedAssignments = results.map((r) => r.newId)
+          await this.whitelistService.updateWhitelist(
+            duplicatedCourse.id,
+            input.studentWhitelist,
+            tx
+          )
 
-        return {
-          duplicatedCourse,
-          originAssignments,
-          copiedAssignments
-        }
-      })
+          await tx.userGroup.create({
+            data: {
+              user: { connect: { id: userId } },
+              group: { connect: { id: duplicatedCourse.id } },
+              isGroupLeader: true
+            }
+          })
+
+          const now = new Date()
+
+          const results = await Promise.all(
+            originCourse.assignment.map(async (assignment) => {
+              const isVisible =
+                assignment.startTime <= now && now <= assignment.endTime
+
+              // prettier-ignore
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { id: originId, createTime, updateTime, groupId: oldGroupId, assignmentProblem, ...assignmentData } = assignment
+
+              const newAssignment = await tx.assignment.create({
+                data: {
+                  ...assignmentData,
+                  createdById: userId,
+                  groupId: duplicatedCourse.id,
+                  isVisible
+                }
+              })
+
+              if (assignmentProblem && assignmentProblem.length > 0) {
+                await tx.assignmentProblem.createMany({
+                  data: assignmentProblem.map((ap) => ({
+                    order: ap.order,
+                    assignmentId: newAssignment.id,
+                    problemId: ap.problemId,
+                    score: ap.score
+                  }))
+                })
+              }
+
+              await tx.assignmentRecord.createMany({
+                data: [{ assignmentId: newAssignment.id, userId }]
+              })
+
+              if (assignmentProblem && assignmentProblem.length > 0) {
+                await tx.assignmentProblemRecord.createMany({
+                  data: assignmentProblem.map((ap) => ({
+                    assignmentId: newAssignment.id,
+                    userId,
+                    problemId: ap.problemId
+                  }))
+                })
+              }
+
+              return {
+                originId,
+                newId: newAssignment.id
+              }
+            })
+          )
+
+          const originAssignments = results.map((r) => r.originId)
+          const copiedAssignments = results.map((r) => r.newId)
+
+          return {
+            duplicatedCourse,
+            originAssignments,
+            copiedAssignments
+          }
+        },
+        { timeout: 30_000 }
+      )
     } catch (error) {
       throw new UnprocessableDataException(error.message)
     }
