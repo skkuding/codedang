@@ -705,6 +705,61 @@ describe('WhitelistService', () => {
       expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
     })
 
+    it('should trim and deduplicate IDs while preserving leading zeros', async () => {
+      const tx = {
+        groupWhitelist: {
+          findMany: stub().resolves([
+            { studentId: '001', studentName: 'Existing student' }
+          ]),
+          deleteMany: stub().resolves({ count: 0 }),
+          createMany: stub().resolves({ count: 1 })
+        }
+      }
+
+      await service.updateWhitelist(
+        1,
+        [
+          { studentId: ' 001 ', studentName: 'Existing student' },
+          { studentId: ' 002 ', studentName: 'First name' },
+          { studentId: '\t002\n', studentName: 'Last name' }
+        ],
+        tx as unknown as Prisma.TransactionClient
+      )
+
+      expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
+      expect(
+        tx.groupWhitelist.createMany.calledOnceWithExactly({
+          data: [{ groupId: 1, studentId: '002', studentName: 'Last name' }]
+        })
+      ).to.be.true
+    })
+
+    for (const studentId of ['', ' \t\n ']) {
+      it(`should reject an empty ID ${JSON.stringify(studentId)} before DB changes`, async () => {
+        const tx = {
+          groupWhitelist: {
+            findMany: stub().resolves([]),
+            deleteMany: stub(),
+            createMany: stub()
+          }
+        }
+
+        await expect(
+          service.updateWhitelist(
+            1,
+            [{ studentId, studentName: 'Student' }],
+            tx as unknown as Prisma.TransactionClient
+          )
+        ).to.be.rejectedWith(
+          UnprocessableDataException,
+          'Student ID cannot be empty'
+        )
+        expect(tx.groupWhitelist.findMany.notCalled).to.be.true
+        expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
+        expect(tx.groupWhitelist.createMany.notCalled).to.be.true
+      })
+    }
+
     it('should add, delete, and rename students', async () => {
       const groupId = faker.number.int()
       const currentWhitelist = [

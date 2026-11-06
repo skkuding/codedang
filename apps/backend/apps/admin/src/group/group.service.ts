@@ -42,6 +42,15 @@ export class WhitelistService {
     newWhitelist: StudentWhitelistInput[],
     tx: Prisma.TransactionClient
   ) {
+    const newStudentsById = new Map<string, string>()
+    for (const { studentId, studentName } of newWhitelist) {
+      const normalizedStudentId = studentId.trim()
+      if (!normalizedStudentId) {
+        throw new UnprocessableDataException('Student ID cannot be empty')
+      }
+      newStudentsById.set(normalizedStudentId, studentName)
+    }
+
     const currentWhitelist = await tx.groupWhitelist.findMany({
       where: { groupId },
       select: {
@@ -55,9 +64,6 @@ export class WhitelistService {
         studentId,
         studentName
       ])
-    )
-    const newStudentsById = new Map(
-      newWhitelist.map(({ studentId, studentName }) => [studentId, studentName])
     )
 
     // 새 whitelist에 새로운 학번이 추가 됐거나 같은 학번인 학생의 이름이 다르면 추가
