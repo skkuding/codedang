@@ -141,19 +141,40 @@ func TestGetTestcase_DatabaseError(t *testing.T) {
 
 func TestGetTestcase_Invalid_TestcaseFilter(t *testing.T) {
 	s3Err := errors.New("S3 failed")
-	var calls []string
-	manager := &testcaseManager{
-		s3reader: stubObjectReader{get: func(key string) ([]loader.ElementOut, error) {
-			calls = append(calls, "s3")
-			require.Equal(t, "42", key)
-			return nil, s3Err
-		}},
-	}
 
-	got, err := manager.GetTestcase(context.Background(), "42", TestcaseFilterCode(3))
+	t.Run("s3 success", func(t *testing.T) {
+		var calls []string
+		manager := &testcaseManager{
+			s3reader: stubObjectReader{get: func(key string) ([]loader.ElementOut, error) {
+				calls = append(calls, "s3")
+				require.Equal(t, "42", key)
+				return []loader.ElementOut{{Id: 99}}, nil
+			}},
+		}
 
-	require.NotErrorIs(t, err, s3Err)
-	require.EqualError(t, err, "invalid TestcaseFilter: 3")
-	require.Equal(t, Testcase{}, got)
-	require.Equal(t, []string{"s3"}, calls)
+		got, err := manager.GetTestcase(context.Background(), "42", TestcaseFilterCode(3))
+
+		require.NotErrorIs(t, err, s3Err)
+		require.EqualError(t, err, "invalid TestcaseFilter: 3")
+		require.Equal(t, Testcase{}, got)
+		require.Equal(t, []string{"s3"}, calls)
+	})
+
+	t.Run("s3 fallback", func(t *testing.T) {
+		var calls []string
+		manager := &testcaseManager{
+			s3reader: stubObjectReader{get: func(key string) ([]loader.ElementOut, error) {
+				calls = append(calls, "s3")
+				require.Equal(t, "42", key)
+				return nil, s3Err
+			}},
+		}
+
+		got, err := manager.GetTestcase(context.Background(), "42", TestcaseFilterCode(3))
+
+		require.NotErrorIs(t, err, s3Err)
+		require.EqualError(t, err, "invalid TestcaseFilter: 3")
+		require.Equal(t, Testcase{}, got)
+		require.Equal(t, []string{"s3"}, calls)
+	})
 }

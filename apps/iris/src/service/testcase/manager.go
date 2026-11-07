@@ -108,6 +108,8 @@ func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, tes
 		predicate = func(element loader.ElementOut) bool { return !element.Hidden }
 	case HIDDEN_ONLY:
 		predicate = func(element loader.ElementOut) bool { return element.Hidden }
+	default:
+		return Testcase{}, fmt.Errorf("invalid TestcaseFilter: %d", testcaseFilter)
 	}
 
 	if predicate != nil {
