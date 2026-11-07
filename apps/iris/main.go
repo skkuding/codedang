@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
 	"runtime"
 	"strconv"
 	"time"
@@ -12,7 +13,7 @@ import (
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/connector"
-	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/apps/iris/src/connector/mq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
 	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
@@ -25,9 +26,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox/judger"
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
+	"github.com/skkuding/codedang/packages/go/common/mq/rabbitmq"
 	"go.opentelemetry.io/otel"
-
-	_ "net/http/pprof"
 )
 
 type Env string
@@ -54,6 +54,12 @@ func main() {
 
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
+
+	messageTimeout, err := mq.MessageTimeoutFromEnv()
+	if err != nil {
+		logProvider.Log(logger.WARN, fmt.Sprintf("invalid %s: %v; using default", mq.MessageTimeoutEnv, err))
+		messageTimeout = time.Duration(mq.DefaultMessageTimeoutMS) * time.Millisecond
+	}
 
 	ctx := context.Background()
 	if env == "stage" {
@@ -147,8 +153,12 @@ func main() {
 	logProvider.Log(logger.INFO, "Server Started")
 
 	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
+	tlsConfig := rabbitmq.TLSConfig{
+		Enabled: utils.Getenv("RABBITMQ_SSL", "") == "true",
+		CAPath:  "/etc/codedang/certs/ca.crt",
+	}
 	var uri string
-	if utils.Getenv("RABBITMQ_SSL", "") == "true" {
+	if tlsConfig.Enabled {
 		uri = "amqps://"
 	} else {
 		uri = "amqp://"
@@ -164,17 +174,20 @@ func main() {
 		connector.RABBIT_MQ,
 		connector.Providers{Router: routeProvider, Logger: logProvider},
 		rabbitmq.ConsumerConfig{
+			TLS:            tlsConfig,
 			AmqpURI:        uri,
 			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
 			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
 			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
 		},
 		rabbitmq.ProducerConfig{
+			TLS:            tlsConfig,
 			AmqpURI:        uri,
 			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
 			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
 			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
 		},
+		rabbitmq.ConnectorConfig{MessageTimeout: messageTimeout},
 	).Connect(context.Background())
 
 	select {}

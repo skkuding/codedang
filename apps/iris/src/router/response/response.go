@@ -4,14 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/common/taskerror"
+	commonmq "github.com/skkuding/codedang/packages/go/common/mq"
 )
 
-type Response struct {
-	Message []byte
-	Type    constants.MessageType
-}
+type Response = commonmq.Response
 
 func toolResult(err error) (taskerror.ResultCode, string) {
 	if err == nil {

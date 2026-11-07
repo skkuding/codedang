@@ -3,7 +3,7 @@ package connector
 import (
 	"fmt"
 
-	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/apps/iris/src/connector/mq"
 	"github.com/skkuding/codedang/apps/iris/src/router"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
@@ -25,25 +25,7 @@ const (
 func Factory(c Module, p Providers, args ...any) Connector {
 	switch c {
 	case RABBIT_MQ:
-		consumerConfig, ok := args[0].(rabbitmq.ConsumerConfig)
-		if !ok {
-			p.Logger.Panic(fmt.Sprintf("Invalid consumer config: %v", consumerConfig))
-		}
-		consumer, err := rabbitmq.NewConsumer(consumerConfig, p.Logger)
-		if err != nil {
-			p.Logger.Panic(fmt.Sprintf("Failed to create consumer: %v", err))
-		}
-
-		producerConfig, ok := args[1].(rabbitmq.ProducerConfig)
-		if !ok {
-			p.Logger.Panic(fmt.Sprintf("Invalid producer config: %v", producerConfig))
-		}
-		producer, err := rabbitmq.NewProducer(producerConfig, p.Logger)
-		if err != nil {
-			p.Logger.Panic(fmt.Sprintf("Failed to create producer: %v", err))
-		}
-
-		return rabbitmq.NewConnector(consumer, producer, p.Router, p.Logger)
+		return mq.NewConnector(p.Router, p.Logger, args...)
 	case HTTP:
 		p.Logger.Panic("HTTP connector need to be implemented")
 	case FILE:
