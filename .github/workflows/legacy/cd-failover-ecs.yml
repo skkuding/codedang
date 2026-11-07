@@ -48,7 +48,7 @@ jobs:
 
           - service: plag
             file: apps/plag/Dockerfile
-            context: apps/plag
+            context: .
             target: ''
             ecr_repo_name: codedang-plag
             build_args: |

@@ -3,8 +3,9 @@ ARG app_env=production
 
 FROM golang:1.27.3 AS builder
 
-COPY . /build
-WORKDIR /build
+COPY packages/go/common /build/packages/go/common
+COPY apps/plag /build/apps/plag
+WORKDIR /build/apps/plag
 
 RUN go build
 
@@ -41,8 +42,8 @@ RUN curl -L "https://github.com/jplag/JPlag/releases/download/v6.2.0/jplag-6.2.0
 
 RUN chmod 750 /app/sandbox/jplag.jar
 
-COPY --from=builder /build/plag .
+COPY --from=builder /build/apps/plag/plag .
 
-COPY ./entrypoint.sh .
+COPY apps/plag/entrypoint.sh .
 ENV JAVA_PATH /usr/bin/
 ENTRYPOINT ["./entrypoint.sh"]
