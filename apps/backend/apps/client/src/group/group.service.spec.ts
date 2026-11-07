@@ -7,9 +7,12 @@ import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'
 import * as sinon from 'sinon'
+import { invitationCodeKey, studentRetryKey } from '@libs/cache'
+import { STUDENT_RETRY_EXPIRE_TIME } from '@libs/constants'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import {
   PrismaService,
@@ -275,6 +278,85 @@ describe('GroupService', () => {
           isJoined: true
         })
     })
+
+    const whitelistCases = [
+      {
+        description: 'join when the submitted ID matches the listed account ID',
+        accountStudentId: '2024000000',
+        submittedStudentId: '2024000000',
+        shouldJoin: true
+      },
+      {
+        description:
+          'reject an incorrect ID even when the account ID is listed',
+        accountStudentId: '2024000000',
+        submittedStudentId: '2024999999',
+        shouldJoin: false
+      },
+      {
+        description:
+          'reject another listed student ID when the account ID is unlisted',
+        accountStudentId: '2024000001',
+        submittedStudentId: '2024000000',
+        shouldJoin: false
+      },
+      {
+        description: 'reject a matching account ID that is not listed',
+        accountStudentId: '2024000001',
+        submittedStudentId: '2024000001',
+        shouldJoin: false
+      }
+    ]
+
+    for (const testCase of whitelistCases) {
+      it(`should ${testCase.description}`, async () => {
+        groupId = await createTestGroup()
+        await transaction.user.update({
+          where: { id: userId },
+          data: { studentId: testCase.accountStudentId }
+        })
+        await transaction.groupWhitelist.create({
+          data: { groupId, studentId: '2024000000' }
+        })
+
+        const getCache = sandbox.stub(cache, 'get')
+        getCache.withArgs(invitationCodeKey('invitationCode')).resolves(groupId)
+        getCache.withArgs(studentRetryKey(userId, groupId)).resolves(1)
+        const setCache = sandbox.spy(cache, 'set')
+
+        const result = service.joinGroupById(
+          userId,
+          groupId,
+          'invitationCode',
+          testCase.submittedStudentId
+        )
+
+        if (testCase.shouldJoin) {
+          expect((await result).isJoined).to.equal(true)
+          expect(setCache.called).to.equal(false)
+        } else {
+          await expect(result).to.be.rejectedWith(
+            ForbiddenAccessException,
+            'Whitelist violation'
+          )
+          expect(
+            setCache.calledOnceWithExactly(
+              studentRetryKey(userId, groupId),
+              2,
+              STUDENT_RETRY_EXPIRE_TIME
+            )
+          ).to.equal(true)
+        }
+
+        const membership = await transaction.userGroup.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_groupId: { userId, groupId }
+          }
+        })
+        expect(membership !== null).to.equal(testCase.shouldJoin)
+      })
+    }
 
     it('should throw ConflictFoundException when user is already group memeber', async () => {
       groupId = await createTestGroup()

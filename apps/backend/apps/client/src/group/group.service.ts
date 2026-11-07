@@ -439,7 +439,7 @@ export class GroupService {
           }
         })
 
-        if (!isUserWhitelisted) {
+        if (studentId !== user.studentId || !isUserWhitelisted) {
           const newUserRequestCount = joinRequestCount + 1
           await this.updateRetryCount(userId, groupId, newUserRequestCount)
 
