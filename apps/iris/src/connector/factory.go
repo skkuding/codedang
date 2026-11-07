@@ -22,10 +22,10 @@ const (
 	CONSOLE   Module = "Console"
 )
 
-func Factory(c Module, p Providers, args ...any) Connector {
+func Factory(c Module, p Providers) Connector {
 	switch c {
 	case RABBIT_MQ:
-		return mq.NewConnector(p.Router, p.Logger, args...)
+		return mq.NewConnector(p.Router, p.Logger)
 	case HTTP:
 		p.Logger.Panic("HTTP connector need to be implemented")
 	case FILE:
