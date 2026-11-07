@@ -22,9 +22,18 @@ type TestcaseManager interface {
 	TestcaseWriter
 }
 
+type testcaseDatabase interface {
+	Get(context.Context, string, loader.ElementType) ([]loader.ElementOut, error)
+	Save(context.Context, []loader.ElementIn) error
+}
+
+type testcaseObjectReader interface {
+	Get(string) ([]loader.ElementOut, error)
+}
+
 type testcaseManager struct {
-	database *loader.Postgres
-	s3reader *loader.S3reader
+	database testcaseDatabase
+	s3reader testcaseObjectReader
 	logger   logger.Logger
 }
 
