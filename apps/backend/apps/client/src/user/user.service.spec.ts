@@ -12,12 +12,16 @@ import { Exception } from 'handlebars'
 import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
-import { emailAuthenticationPinCacheKey } from '@libs/cache'
+import {
+  emailAuthenticationAttemptCacheKey,
+  emailAuthenticationPinCacheKey
+} from '@libs/cache'
 import {
   ConflictFoundException,
   DuplicateFoundException,
   EntityNotExistException,
   InvalidJwtTokenException,
+  TooManyRequestsException,
   UnidentifiedException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -81,10 +85,12 @@ const usernameDto = {
 const mailerMock = {
   sendMail: stub()
 }
+const redisEvalStub = stub()
 const cacheMock = {
   get: stub().resolves(PASSWORD_RESET_PIN),
   set: stub(),
-  del: stub()
+  del: stub(),
+  stores: [{ store: { getClient: async () => ({ eval: redisEvalStub }) } }]
 }
 const db = {
   user: {
@@ -117,6 +123,9 @@ describe('UserService', () => {
   let jwtAuthService: JwtAuthService
 
   beforeEach(async () => {
+    redisEvalStub.reset()
+    redisEvalStub.resolves(1)
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
@@ -157,6 +166,46 @@ describe('UserService', () => {
       await expect(service.getUsernameByEmail({ email })).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('sendUsernameByEmail', () => {
+    const response = { username: 'sent to your email if registered' }
+    let sendUsernameSpy: SinonStub
+    beforeEach(() => {
+      sendUsernameSpy = stub(emailService, 'sendUsername').resolves()
+    })
+
+    it('send username to the registered email', async () => {
+      db.user.findUnique.resolves(user)
+
+      expect(
+        await service.sendUsernameByEmail(emailAuthJwtPayload)
+      ).to.be.deep.equal(response)
+      await new Promise(setImmediate)
+      expect(sendUsernameSpy.calledOnceWith(user.email, user.username)).to.be
+        .true
+    })
+
+    it('respond the same without sending email if not registered', async () => {
+      db.user.findUnique.resolves(null)
+
+      expect(
+        await service.sendUsernameByEmail(emailAuthJwtPayload)
+      ).to.be.deep.equal(response)
+      await new Promise(setImmediate)
+      expect(sendUsernameSpy.called).to.be.false
+    })
+
+    it('respond the same without sending email if limit exceeded', async () => {
+      db.user.findUnique.resolves(user)
+      redisEvalStub.resolves(4)
+
+      expect(
+        await service.sendUsernameByEmail(emailAuthJwtPayload)
+      ).to.be.deep.equal(response)
+      await new Promise(setImmediate)
+      expect(sendUsernameSpy.called).to.be.false
     })
   })
 
@@ -243,10 +292,20 @@ describe('UserService', () => {
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
+
+    it('should not create pin and send email if limit exceeded', async () => {
+      db.user.findUnique.resolves(null)
+      redisEvalStub.resolves(2)
+
+      await expect(
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      expect(createPinAndSendEmailSpy.called).to.be.false
+    })
   })
 
   describe('sendPinForPasswordReset', () => {
-    let createPinAndSendEmailSpy: SinonSpy
+    let createPinAndSendEmailSpy: SinonStub
     beforeEach(() => {
       createPinAndSendEmailSpy = stub(service, 'createPinAndSendEmail')
     })
@@ -255,16 +314,40 @@ describe('UserService', () => {
       db.user.findUnique.resolves(user)
 
       await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      await new Promise(setImmediate)
       expect(createPinAndSendEmailSpy.calledOnce).to.be.true
     })
 
-    it('should not create pin and send email', async () => {
+    it('respond the same without sending email if not registered', async () => {
       db.user.findUnique.resolves(null)
+
+      expect(
+        await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      ).to.equal('Email authentication pin is sent to your email address')
+      await new Promise(setImmediate)
+      expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should not look up user if limit exceeded', async () => {
+      db.user.findUnique.resetHistory()
+      redisEvalStub.resolves(2)
 
       await expect(
         service.sendPinForPasswordReset(emailAuthJwtPayload)
-      ).to.be.rejectedWith(UnidentifiedException)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      await new Promise(setImmediate)
+      expect(db.user.findUnique.called).to.be.false
       expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should not reject if sending email fails', async () => {
+      db.user.findUnique.resolves(user)
+      createPinAndSendEmailSpy.rejects(new Error('smtp error'))
+
+      expect(
+        await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      ).to.equal('Email authentication pin is sent to your email address')
+      await new Promise(setImmediate)
     })
   })
 
@@ -286,6 +369,20 @@ describe('UserService', () => {
       )
       expect(createPinRandomlySpy.called).to.be.true
       expect(sendEmailAuthenticationPinSpy.called).to.be.true
+    })
+
+    it('reset attempts and save pin before sending email', async () => {
+      cacheMock.del.resetHistory()
+      cacheMock.set.resetHistory()
+
+      await service.createPinAndSendEmail(EMAIL_ADDRESS)
+
+      expect(cacheMock.del.firstCall.firstArg).to.equal(
+        emailAuthenticationAttemptCacheKey(EMAIL_ADDRESS)
+      )
+      expect(cacheMock.del.calledBefore(cacheMock.set)).to.be.true
+      expect(cacheMock.set.calledBefore(sendEmailAuthenticationPinSpy)).to.be
+        .true
     })
   })
 
@@ -409,6 +506,54 @@ describe('UserService', () => {
           email: EMAIL_ADDRESS
         })
       ).to.be.rejectedWith(UnidentifiedException)
+    })
+
+    it('should not include input pin in the error message', async () => {
+      await expect(
+        service.verifyPinAndIssueJwt({
+          pin: 'wrongPin',
+          email: EMAIL_ADDRESS
+        })
+      ).to.be.rejectedWith('Incorrect Pin')
+    })
+
+    it('should keep pin until attempts run out', async () => {
+      cacheMock.del.resetHistory()
+      redisEvalStub.resolves(2)
+
+      await expect(
+        service.verifyPinAndIssueJwt({
+          pin: 'wrongPin',
+          email: EMAIL_ADDRESS
+        })
+      ).to.be.rejectedWith(UnidentifiedException)
+      expect(cacheMock.del.called).to.be.false
+    })
+
+    it('should delete pin when the last attempt fails', async () => {
+      cacheMock.del.resetHistory()
+      redisEvalStub.resolves(3)
+
+      await expect(
+        service.verifyPinAndIssueJwt({
+          pin: 'wrongPin',
+          email: EMAIL_ADDRESS
+        })
+      ).to.be.rejectedWith(UnidentifiedException)
+      expect(cacheMock.del.calledOnceWith(PASSWORD_RESET_PIN_KEY)).to.be.true
+    })
+
+    it('should reject correct pin after attempts run out', async () => {
+      cacheMock.get.resetHistory()
+      redisEvalStub.resolves(4)
+
+      await expect(
+        service.verifyPinAndIssueJwt({
+          pin: PASSWORD_RESET_PIN,
+          email: EMAIL_ADDRESS
+        })
+      ).to.be.rejectedWith(UnidentifiedException)
+      expect(cacheMock.get.called).to.be.false
     })
   })
 

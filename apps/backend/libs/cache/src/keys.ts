@@ -4,6 +4,12 @@ export const refreshTokenCacheKey = (userId: number, refreshToken: string) =>
 export const emailAuthenticationPinCacheKey = (email: string) =>
   `email:${email}:email-auth`
 
+export const emailAuthenticationAttemptCacheKey = (email: string) =>
+  `email:${email}:email-auth:attempt`
+
+export const emailSendCountCacheKey = (email: string, scope: string) =>
+  `email:${email.toLowerCase()}:send-count:${scope}`
+
 export const joinGroupCacheKey = (groupId: number) => `group:${groupId}`
 
 export const invitationCodeKey = (code: string) => `invite:${code}`

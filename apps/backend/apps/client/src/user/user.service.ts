@@ -2,6 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, type JwtVerifyOptions } from '@nestjs/jwt'
+import type KeyvRedis from '@keyv/redis'
 import type { Provider, User, UserProfile } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { hash } from 'argon2'
@@ -10,13 +11,18 @@ import { randomInt } from 'crypto'
 import type { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
-import { emailAuthenticationPinCacheKey } from '@libs/cache'
+import {
+  emailAuthenticationAttemptCacheKey,
+  emailAuthenticationPinCacheKey,
+  emailSendCountCacheKey
+} from '@libs/cache'
 import { EMAIL_AUTH_EXPIRE_TIME, ARGON2_HASH_OPTION } from '@libs/constants'
 import {
   ConflictFoundException,
   DuplicateFoundException,
   EntityNotExistException,
   InvalidJwtTokenException,
+  TooManyRequestsException,
   UnidentifiedException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -36,6 +42,23 @@ import type {
   EmailAuthJwtPayload,
   EmailAuthJwtObject
 } from './interface/jwt.interface'
+
+const PIN_SENT_MESSAGE =
+  'Email authentication pin is sent to your email address'
+const USERNAME_SENT_MESSAGE = 'sent to your email if registered'
+
+const PIN_MAX_ATTEMPTS = 3
+const HOUR_IN_MS = 60 * 60 * 1000
+const PIN_SEND_LIMITS = [
+  { scope: 'pin:cooldown', limit: 1, windowMs: 60 * 1000 },
+  { scope: 'pin:hour', limit: 5, windowMs: HOUR_IN_MS },
+  { scope: 'pin:day', limit: 10, windowMs: 24 * HOUR_IN_MS }
+]
+const USERNAME_SEND_LIMIT = {
+  scope: 'username:hour',
+  limit: 3,
+  windowMs: HOUR_IN_MS
+}
 
 @Injectable()
 export class UserService {
@@ -76,6 +99,25 @@ export class UserService {
 
     this.logger.debug(username, 'getUsernameByEmail')
     return username
+  }
+
+  async sendUsernameByEmail({ email }: UserEmailDto) {
+    const { scope, limit, windowMs } = USERNAME_SEND_LIMIT
+    const count = await this.increaseCount(
+      emailSendCountCacheKey(email, scope),
+      windowMs
+    )
+
+    if (count <= limit) {
+      this.runInBackground('sendUsernameByEmail', async () => {
+        const user = await this.getUserCredentialByEmail(email)
+        if (user) {
+          await this.emailService.sendUsername(user.email, user.username)
+        }
+      })
+    }
+
+    return { username: USERNAME_SENT_MESSAGE }
   }
 
   /**
@@ -134,18 +176,22 @@ export class UserService {
    * @param {string} email 이메일 주소
    * @throws {DuplicateFoundException} 기존에 존재하는 이메일 주소면 예외 발생
    * @throws {UnprocessableDataException} @skku.edu로 끝나지 않는 메일이면 예외 발생
+   * @throws {TooManyRequestsException} pin 전송 한도를 초과하면 예외 발생
    * @return {Promise<string>} pin번호 전송 성공 메시지
    */
   async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+    if (!email.endsWith('@skku.edu')) {
+      this.logger.debug('invalid email domain', { email })
+      throw new UnprocessableDataException('Only @skku.edu emails are allowed')
+    }
+
+    // Count before the duplicate check so account existence cannot be probed without limit.
+    await this.enforcePinSendLimit(email)
+
     const duplicatedUser = await this.getUserCredentialByEmail(email)
     if (duplicatedUser) {
       this.logger.debug('email duplicated')
       throw new DuplicateFoundException('Email')
-    }
-
-    if (!email.endsWith('@skku.edu')) {
-      this.logger.debug('invalid email domain', { email })
-      throw new UnprocessableDataException('Only @skku.edu emails are allowed')
     }
 
     return this.createPinAndSendEmail(email)
@@ -155,17 +201,52 @@ export class UserService {
    * 비밀번호 재설정을 위한 pin번호를 사용자 이메일로 전송합니다.
    *
    * @param {string} email 사용자 이메일 주소
-   * @throws {UnidentifiedException} DB에 이메일 주소와 일치하는 사용자가 없으면 예외를 발생시킵니다.
+   * @throws {TooManyRequestsException} pin 전송 한도를 초과하면 예외를 발생시킵니다.
    * @returns {Promise<string>} pin 번호 전송 성공 메시지
    */
   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
-    const user = await this.getUserCredentialByEmail(email)
-    if (!user) {
-      this.logger.debug('no registered email')
-      throw new UnidentifiedException(`Email ${email}`)
-    }
+    await this.enforcePinSendLimit(email)
 
-    return this.createPinAndSendEmail(user.email)
+    this.runInBackground('sendPinForPasswordReset', async () => {
+      const user = await this.getUserCredentialByEmail(email)
+      if (user) {
+        await this.createPinAndSendEmail(user.email)
+      }
+    })
+
+    return PIN_SENT_MESSAGE
+  }
+
+  private async enforcePinSendLimit(email: string) {
+    for (const { scope, limit, windowMs } of PIN_SEND_LIMITS) {
+      const count = await this.increaseCount(
+        emailSendCountCacheKey(email, scope),
+        windowMs
+      )
+      if (count > limit) {
+        throw new TooManyRequestsException()
+      }
+    }
+  }
+
+  private async increaseCount(key: string, ttl: number): Promise<number> {
+    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
+    const client = await store.getClient()
+    const count = await client.eval(
+      `local count = redis.call('INCR', KEYS[1])
+       if count == 1 then redis.call('PEXPIRE', KEYS[1], ARGV[1]) end
+       return count`,
+      {
+        keys: [key],
+        arguments: [String(ttl)]
+      }
+    )
+    return count as number
+  }
+
+  // Detached so response time does not reveal whether the account exists.
+  private runInBackground(context: string, task: () => Promise<void>) {
+    void task().catch((error) => this.logger.error(error, context))
   }
 
   /**
@@ -191,15 +272,16 @@ export class UserService {
   async createPinAndSendEmail(email: string): Promise<string> {
     const pin = this.createPinRandomly(6)
 
-    await this.emailService.sendEmailAuthenticationPin(email, pin)
-
+    await this.cacheManager.del(emailAuthenticationAttemptCacheKey(email))
     await this.setPinInCache(
       emailAuthenticationPinCacheKey(email),
       pin,
       1000 * EMAIL_AUTH_EXPIRE_TIME
     )
 
-    return 'Email authentication pin is sent to your email address'
+    await this.emailService.sendEmailAuthenticationPin(email, pin)
+
+    return PIN_SENT_MESSAGE
   }
 
   /**
@@ -330,11 +412,21 @@ export class UserService {
    * @returns {boolean} pin번호가 검증되었음을 의미하는 true를 반환합니다.
    */
   async verifyPin(pin: string, email: string): Promise<boolean> | never {
-    const storedResetPin = await this.getPinFromCache(
-      emailAuthenticationPinCacheKey(email)
+    const pinCacheKey = emailAuthenticationPinCacheKey(email)
+    // Count before comparing so concurrent requests cannot exceed the limit.
+    const attempts = await this.increaseCount(
+      emailAuthenticationAttemptCacheKey(email),
+      1000 * EMAIL_AUTH_EXPIRE_TIME
     )
+    const storedResetPin =
+      attempts <= PIN_MAX_ATTEMPTS
+        ? await this.getPinFromCache(pinCacheKey)
+        : undefined
 
     if (!storedResetPin || pin !== storedResetPin) {
+      if (attempts >= PIN_MAX_ATTEMPTS) {
+        await this.deletePinFromCache(pinCacheKey)
+      }
       this.logger.debug(
         {
           inputPin: pin,
@@ -342,7 +434,7 @@ export class UserService {
         },
         'verifyPin - input is different from stored one'
       )
-      throw new UnidentifiedException(`Pin ${pin}`)
+      throw new UnidentifiedException('Pin')
     }
     return true
   }

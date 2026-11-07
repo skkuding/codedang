@@ -50,8 +50,14 @@ export class AuthService {
   ) {}
 
   async issueJwtTokens(loginUserDto: LoginUserDto, isSocialUser?: boolean) {
-    const user = await this.userService.getUserCredential(loginUserDto.username)
+    const user = await this.userService
+      .getUserCredential(loginUserDto.username)
+      .catch((error) => {
+        if (error instanceof EntityNotExistException) return null
+        throw error
+      })
     if (!user) {
+      await this.jwtAuthService.verifyAgainstDummy(loginUserDto.password)
       throw new UnidentifiedException('username or password')
     }
 
