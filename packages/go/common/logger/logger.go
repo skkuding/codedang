@@ -2,9 +2,17 @@ package logger
 
 import "context"
 
+type Level string
+
+const (
+	DEBUG Level = "Debug"
+	INFO  Level = "Info"
+	WARN  Level = "Warn"
+	ERROR Level = "Error"
+)
+
 type Logger interface {
-	Debug(ctx context.Context, msg string)
-	Info(ctx context.Context, msg string)
-	Error(ctx context.Context, msg string)
+	Log(level Level, msg string)
+	LogWithContext(level Level, msg string, ctx context.Context)
 	Panic(msg string)
 }
