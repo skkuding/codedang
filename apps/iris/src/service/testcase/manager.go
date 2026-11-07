@@ -104,6 +104,7 @@ func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, tes
 	var predicate func(element loader.ElementOut) bool
 
 	switch testcaseFilter {
+	case ALL:
 	case PUBLIC_ONLY:
 		predicate = func(element loader.ElementOut) bool { return !element.Hidden }
 	case HIDDEN_ONLY:
