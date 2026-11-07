@@ -89,6 +89,7 @@ jobs:
               - 'codecov.yml'
               - 'apps/iris/**'
             plag:
+              - 'packages/go/common/**'
               - *ci_workflow_path
               - 'apps/plag/**'
             runner_backend:
@@ -478,7 +479,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/plag/go.mod
-          cache-dependency-path: apps/plag/go.sum
+          cache-dependency-path: |
+            apps/plag/go.sum
+            packages/go/common/go.sum
 
       - name: Vet (Go)
         run: go vet ./...
