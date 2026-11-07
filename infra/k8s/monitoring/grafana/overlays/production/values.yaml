@@ -189,6 +189,13 @@ dashboards:
       datasource:
         - name: DS_PROMETHEUS
           value: Prometheus
+    # cert-manager - https://grafana.com/grafana/dashboards/20340
+    cert-manager:
+      gnetId: 20340
+      revision: 1
+      datasource:
+        - name: DS_PROMETHEUS
+          value: Prometheus
   # ── AWS CloudWatch (monitoringartist) ─────────
   aws-dashboards:
     # AWS RDS - https://grafana.com/grafana/dashboards/707
