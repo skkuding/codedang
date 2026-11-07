@@ -12,7 +12,6 @@ import type { Request } from 'express'
 import { ExtractJwt } from 'passport-jwt'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
 import {
-  emailAuthenticationAttemptCacheKey,
   emailAuthenticationPinCacheKey,
   emailSendCountCacheKey
 } from '@libs/cache'
@@ -26,6 +25,7 @@ import {
   UnidentifiedException,
   UnprocessableDataException
 } from '@libs/exception'
+import { runInBackground } from '@libs/logger'
 import { PrismaService } from '@libs/prisma'
 import type { OAuthTokenPayload } from '@client/auth/interface/social-user.interface'
 import { EmailService } from '@client/email/email.service'
@@ -47,18 +47,34 @@ const PIN_SENT_MESSAGE =
   'Email authentication pin is sent to your email address'
 const USERNAME_SENT_MESSAGE = 'sent to your email if registered'
 
-const PIN_MAX_ATTEMPTS = 3
 const HOUR_IN_MS = 60 * 60 * 1000
-const PIN_SEND_LIMITS = [
-  { scope: 'pin:cooldown', limit: 1, windowMs: 60 * 1000 },
-  { scope: 'pin:hour', limit: 5, windowMs: HOUR_IN_MS },
-  { scope: 'pin:day', limit: 10, windowMs: 24 * HOUR_IN_MS }
-]
-const USERNAME_SEND_LIMIT = {
-  scope: 'username:hour',
-  limit: 3,
-  windowMs: HOUR_IN_MS
-}
+const DEFAULT_PIN_MAX_ATTEMPTS = 3
+const DEFAULT_PIN_SEND_COOLDOWN_SECONDS = 60
+const DEFAULT_PIN_SEND_HOURLY_LIMIT = 5
+const DEFAULT_PIN_SEND_DAILY_LIMIT = 10
+const DEFAULT_USERNAME_SEND_HOURLY_LIMIT = 3
+
+const INCREASE_COUNT_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then redis.call('PEXPIRE', KEYS[1], ARGV[1]) end
+return count
+`
+const SAVE_PIN_SCRIPT = `
+redis.call('DEL', KEYS[1])
+redis.call('HSET', KEYS[1], 'pin', ARGV[1], 'attempts', 0)
+redis.call('PEXPIRE', KEYS[1], ARGV[2])
+return 1
+`
+// Lookup, counting, and deletion run as one script so a newly saved pin cannot be removed by a stale attempt.
+const VERIFY_PIN_SCRIPT = `
+local pin = redis.call('HGET', KEYS[1], 'pin')
+if not pin then return 0 end
+local attempts = redis.call('HINCRBY', KEYS[1], 'attempts', 1)
+local maxAttempts = tonumber(ARGV[2])
+if attempts <= maxAttempts and pin == ARGV[1] then return 1 end
+if attempts >= maxAttempts then redis.call('DEL', KEYS[1]) end
+return 0
+`
 
 @Injectable()
 export class UserService {
@@ -102,19 +118,25 @@ export class UserService {
   }
 
   async sendUsernameByEmail({ email }: UserEmailDto) {
-    const { scope, limit, windowMs } = USERNAME_SEND_LIMIT
     const count = await this.increaseCount(
-      emailSendCountCacheKey(email, scope),
-      windowMs
+      emailSendCountCacheKey(email, 'username:hour'),
+      HOUR_IN_MS
+    )
+    const limit = this.getPositiveIntConfig(
+      'EMAIL_AUTH_USERNAME_SEND_HOURLY_LIMIT',
+      DEFAULT_USERNAME_SEND_HOURLY_LIMIT
     )
 
     if (count <= limit) {
-      this.runInBackground('sendUsernameByEmail', async () => {
-        const user = await this.getUserCredentialByEmail(email)
-        if (user) {
-          await this.emailService.sendUsername(user.email, user.username)
-        }
-      })
+      runInBackground(
+        async () => {
+          const user = await this.getUserCredentialByEmail(email)
+          if (user) {
+            await this.emailService.sendUsername(user.email, user.username)
+          }
+        },
+        (error) => this.logger.error(error, 'sendUsernameByEmail')
+      )
     }
 
     return { username: USERNAME_SENT_MESSAGE }
@@ -207,18 +229,51 @@ export class UserService {
   async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
     await this.enforcePinSendLimit(email)
 
-    this.runInBackground('sendPinForPasswordReset', async () => {
-      const user = await this.getUserCredentialByEmail(email)
-      if (user) {
-        await this.createPinAndSendEmail(user.email)
-      }
-    })
+    // Detached so response time does not reveal whether the account exists.
+    runInBackground(
+      async () => {
+        const user = await this.getUserCredentialByEmail(email)
+        if (user) {
+          await this.createPinAndSendEmail(user.email)
+        }
+      },
+      (error) => this.logger.error(error, 'sendPinForPasswordReset')
+    )
 
     return PIN_SENT_MESSAGE
   }
 
   private async enforcePinSendLimit(email: string) {
-    for (const { scope, limit, windowMs } of PIN_SEND_LIMITS) {
+    const limits = [
+      {
+        scope: 'pin:cooldown',
+        limit: 1,
+        windowMs:
+          1000 *
+          this.getPositiveIntConfig(
+            'EMAIL_AUTH_PIN_SEND_COOLDOWN_SECONDS',
+            DEFAULT_PIN_SEND_COOLDOWN_SECONDS
+          )
+      },
+      {
+        scope: 'pin:hour',
+        limit: this.getPositiveIntConfig(
+          'EMAIL_AUTH_PIN_SEND_HOURLY_LIMIT',
+          DEFAULT_PIN_SEND_HOURLY_LIMIT
+        ),
+        windowMs: HOUR_IN_MS
+      },
+      {
+        scope: 'pin:day',
+        limit: this.getPositiveIntConfig(
+          'EMAIL_AUTH_PIN_SEND_DAILY_LIMIT',
+          DEFAULT_PIN_SEND_DAILY_LIMIT
+        ),
+        windowMs: 24 * HOUR_IN_MS
+      }
+    ]
+
+    for (const { scope, limit, windowMs } of limits) {
       const count = await this.increaseCount(
         emailSendCountCacheKey(email, scope),
         windowMs
@@ -230,23 +285,26 @@ export class UserService {
   }
 
   private async increaseCount(key: string, ttl: number): Promise<number> {
-    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
-    const client = await store.getClient()
-    const count = await client.eval(
-      `local count = redis.call('INCR', KEYS[1])
-       if count == 1 then redis.call('PEXPIRE', KEYS[1], ARGV[1]) end
-       return count`,
-      {
-        keys: [key],
-        arguments: [String(ttl)]
-      }
-    )
-    return count as number
+    return (await this.evalRedisScript(
+      INCREASE_COUNT_SCRIPT,
+      [key],
+      [String(ttl)]
+    )) as number
   }
 
-  // Detached so response time does not reveal whether the account exists.
-  private runInBackground(context: string, task: () => Promise<void>) {
-    void task().catch((error) => this.logger.error(error, context))
+  private async evalRedisScript(
+    script: string,
+    keys: string[],
+    args: string[]
+  ) {
+    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
+    const client = await store.getClient()
+    return await client.eval(script, { keys, arguments: args })
+  }
+
+  private getPositiveIntConfig(key: string, defaultValue: number): number {
+    const value = Number(this.config.get(key))
+    return Number.isInteger(value) && value > 0 ? value : defaultValue
   }
 
   /**
@@ -272,11 +330,10 @@ export class UserService {
   async createPinAndSendEmail(email: string): Promise<string> {
     const pin = this.createPinRandomly(6)
 
-    await this.cacheManager.del(emailAuthenticationAttemptCacheKey(email))
-    await this.setPinInCache(
-      emailAuthenticationPinCacheKey(email),
-      pin,
-      1000 * EMAIL_AUTH_EXPIRE_TIME
+    await this.evalRedisScript(
+      SAVE_PIN_SCRIPT,
+      [emailAuthenticationPinCacheKey(email)],
+      [pin, String(1000 * EMAIL_AUTH_EXPIRE_TIME)]
     )
 
     await this.emailService.sendEmailAuthenticationPin(email, pin)
@@ -412,43 +469,28 @@ export class UserService {
    * @returns {boolean} pin번호가 검증되었음을 의미하는 true를 반환합니다.
    */
   async verifyPin(pin: string, email: string): Promise<boolean> | never {
-    const pinCacheKey = emailAuthenticationPinCacheKey(email)
-    // Count before comparing so concurrent requests cannot exceed the limit.
-    const attempts = await this.increaseCount(
-      emailAuthenticationAttemptCacheKey(email),
-      1000 * EMAIL_AUTH_EXPIRE_TIME
+    const isVerified = await this.evalRedisScript(
+      VERIFY_PIN_SCRIPT,
+      [emailAuthenticationPinCacheKey(email)],
+      [
+        pin,
+        String(
+          this.getPositiveIntConfig(
+            'PIN_MAX_ATTEMPTS',
+            DEFAULT_PIN_MAX_ATTEMPTS
+          )
+        )
+      ]
     )
-    const storedResetPin =
-      attempts <= PIN_MAX_ATTEMPTS
-        ? await this.getPinFromCache(pinCacheKey)
-        : undefined
 
-    if (!storedResetPin || pin !== storedResetPin) {
-      if (attempts >= PIN_MAX_ATTEMPTS) {
-        await this.deletePinFromCache(pinCacheKey)
-      }
+    if (isVerified !== 1) {
       this.logger.debug(
-        {
-          inputPin: pin,
-          storedPin: storedResetPin
-        },
+        { inputPin: pin },
         'verifyPin - input is different from stored one'
       )
       throw new UnidentifiedException('Pin')
     }
     return true
-  }
-
-  /**
-   * 캐시 key를 이용해 저장된 pin번호를 조회합니다.
-   *
-   * @param {string} key 캐시에 저장된 pin번호를 찾기 위한 key값
-   * @returns 캐시에 저장된 pin번호를 반환합니다.
-   */
-  async getPinFromCache(key: string) {
-    const storedPin = await this.cacheManager.get<string>(key)
-    this.logger.debug({ key, value: storedPin }, 'getPinFromCache')
-    return storedPin
   }
 
   /**
@@ -459,18 +501,6 @@ export class UserService {
   async deletePinFromCache(key: string) {
     await this.cacheManager.del(key)
     this.logger.debug({ key }, 'deletePinFromCache')
-  }
-
-  /**
-   * 사용자 식별을 위해 이메일 주소를 key, pin번호를 value로 하여 유효 시간(TTL) 5분 동안 서버에 캐시(cache)합니다.
-   *
-   * @param {string} key 사용자 식별을 위한 key값 (이메일 주소)
-   * @param {string} value 캐시하는 value값 (pin 번호)
-   * @param {number} ttl 인증이 유효한 시간 (TTL) : 5분
-   */
-  async setPinInCache(key: string, value: string, ttl: number) {
-    await this.cacheManager.set(key, value, ttl)
-    this.logger.debug({ key, value, ttl }, 'setPinInCache')
   }
 
   /**

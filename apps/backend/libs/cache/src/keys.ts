@@ -2,10 +2,7 @@ export const refreshTokenCacheKey = (userId: number, refreshToken: string) =>
   `user:${userId}:${refreshToken}`
 
 export const emailAuthenticationPinCacheKey = (email: string) =>
-  `email:${email}:email-auth`
-
-export const emailAuthenticationAttemptCacheKey = (email: string) =>
-  `email:${email}:email-auth:attempt`
+  `email:${email}:email-auth-pin`
 
 export const emailSendCountCacheKey = (email: string, scope: string) =>
   `email:${email.toLowerCase()}:send-count:${scope}`

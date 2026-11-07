@@ -12,10 +12,7 @@ import { Exception } from 'handlebars'
 import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
-import {
-  emailAuthenticationAttemptCacheKey,
-  emailAuthenticationPinCacheKey
-} from '@libs/cache'
+import { emailAuthenticationPinCacheKey } from '@libs/cache'
 import {
   ConflictFoundException,
   DuplicateFoundException,
@@ -121,6 +118,7 @@ describe('UserService', () => {
   let emailService: EmailService
   let jwtService: JwtService
   let jwtAuthService: JwtAuthService
+  let configService: ConfigService
 
   beforeEach(async () => {
     redisEvalStub.reset()
@@ -144,6 +142,7 @@ describe('UserService', () => {
     emailService = module.get<EmailService>(EmailService)
     jwtService = module.get<JwtService>(JwtService)
     jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
+    configService = module.get<ConfigService>(ConfigService)
   })
 
   it('should be defined', () => {
@@ -302,6 +301,19 @@ describe('UserService', () => {
       ).to.be.rejectedWith(TooManyRequestsException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
+
+    it('should use send limits from config', async () => {
+      db.user.findUnique.resolves(null)
+      const configGet = stub(configService, 'get') as SinonStub
+      configGet.withArgs('EMAIL_AUTH_PIN_SEND_COOLDOWN_SECONDS').returns('30')
+      configGet.withArgs('EMAIL_AUTH_PIN_SEND_HOURLY_LIMIT').returns('1')
+      redisEvalStub.onSecondCall().resolves(2)
+
+      await expect(
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      expect(redisEvalStub.firstCall.args[1].arguments).to.deep.equal(['30000'])
+    })
   })
 
   describe('sendPinForPasswordReset', () => {
@@ -371,17 +383,13 @@ describe('UserService', () => {
       expect(sendEmailAuthenticationPinSpy.called).to.be.true
     })
 
-    it('reset attempts and save pin before sending email', async () => {
-      cacheMock.del.resetHistory()
-      cacheMock.set.resetHistory()
-
+    it('save pin before sending email', async () => {
       await service.createPinAndSendEmail(EMAIL_ADDRESS)
 
-      expect(cacheMock.del.firstCall.firstArg).to.equal(
-        emailAuthenticationAttemptCacheKey(EMAIL_ADDRESS)
-      )
-      expect(cacheMock.del.calledBefore(cacheMock.set)).to.be.true
-      expect(cacheMock.set.calledBefore(sendEmailAuthenticationPinSpy)).to.be
+      const { keys, arguments: args } = redisEvalStub.firstCall.args[1]
+      expect(keys).to.deep.equal([PASSWORD_RESET_PIN_KEY])
+      expect(args[0]).to.equal(sendEmailAuthenticationPinSpy.firstCall.args[1])
+      expect(redisEvalStub.calledBefore(sendEmailAuthenticationPinSpy)).to.be
         .true
     })
   })
@@ -488,18 +496,8 @@ describe('UserService', () => {
     })
 
     it('should fail verification with invalid pin', async () => {
-      service.getPinFromCache = stub()
-        .onFirstCall()
-        .resolves('')
-        .onSecondCall()
-        .resolves('invalid_token')
+      redisEvalStub.resolves(0)
 
-      await expect(
-        service.verifyPinAndIssueJwt({
-          pin: PASSWORD_RESET_PIN,
-          email: EMAIL_ADDRESS
-        })
-      ).to.be.rejectedWith(UnidentifiedException)
       await expect(
         service.verifyPinAndIssueJwt({
           pin: PASSWORD_RESET_PIN,
@@ -509,6 +507,8 @@ describe('UserService', () => {
     })
 
     it('should not include input pin in the error message', async () => {
+      redisEvalStub.resolves(0)
+
       await expect(
         service.verifyPinAndIssueJwt({
           pin: 'wrongPin',
@@ -517,53 +517,41 @@ describe('UserService', () => {
       ).to.be.rejectedWith('Incorrect Pin')
     })
 
-    it('should keep pin until attempts run out', async () => {
-      cacheMock.del.resetHistory()
-      redisEvalStub.resolves(2)
+    it('should verify pin with the default max attempts', async () => {
+      await service.verifyPinAndIssueJwt({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
 
-      await expect(
-        service.verifyPinAndIssueJwt({
-          pin: 'wrongPin',
-          email: EMAIL_ADDRESS
-        })
-      ).to.be.rejectedWith(UnidentifiedException)
-      expect(cacheMock.del.called).to.be.false
+      const { keys, arguments: args } = redisEvalStub.firstCall.args[1]
+      expect(keys).to.deep.equal([PASSWORD_RESET_PIN_KEY])
+      expect(args).to.deep.equal([PASSWORD_RESET_PIN, '3'])
     })
 
-    it('should delete pin when the last attempt fails', async () => {
-      cacheMock.del.resetHistory()
-      redisEvalStub.resolves(3)
+    it('should use PIN_MAX_ATTEMPTS from config', async () => {
+      ;(stub(configService, 'get') as SinonStub)
+        .withArgs('PIN_MAX_ATTEMPTS')
+        .returns('5')
 
-      await expect(
-        service.verifyPinAndIssueJwt({
-          pin: 'wrongPin',
-          email: EMAIL_ADDRESS
-        })
-      ).to.be.rejectedWith(UnidentifiedException)
-      expect(cacheMock.del.calledOnceWith(PASSWORD_RESET_PIN_KEY)).to.be.true
+      await service.verifyPinAndIssueJwt({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
+
+      expect(redisEvalStub.firstCall.args[1].arguments[1]).to.equal('5')
     })
 
-    it('should reject correct pin after attempts run out', async () => {
-      cacheMock.get.resetHistory()
-      redisEvalStub.resolves(4)
+    it('should fall back to the default for invalid PIN_MAX_ATTEMPTS', async () => {
+      ;(stub(configService, 'get') as SinonStub)
+        .withArgs('PIN_MAX_ATTEMPTS')
+        .returns('0')
 
-      await expect(
-        service.verifyPinAndIssueJwt({
-          pin: PASSWORD_RESET_PIN,
-          email: EMAIL_ADDRESS
-        })
-      ).to.be.rejectedWith(UnidentifiedException)
-      expect(cacheMock.get.called).to.be.false
-    })
-  })
+      await service.verifyPinAndIssueJwt({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
 
-  describe('getPinFromCache', () => {
-    it('get pin from cache', async () => {
-      cacheMock.get.resetHistory()
-
-      const ret = await service.getPinFromCache(PASSWORD_RESET_PIN_KEY)
-      expect(ret).to.equal(PASSWORD_RESET_PIN)
-      expect(cacheMock.get.calledOnce).to.be.true
+      expect(redisEvalStub.firstCall.args[1].arguments[1]).to.equal('3')
     })
   })
 
