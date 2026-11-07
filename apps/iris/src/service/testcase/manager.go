@@ -93,6 +93,8 @@ func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, tes
 			data, err = t.database.Get(ctx, problemId, loader.PUBLIC_ONLY)
 		case HIDDEN_ONLY:
 			data, err = t.database.Get(ctx, problemId, loader.HIDDEN_ONLY)
+		default:
+			return Testcase{}, fmt.Errorf("invalid TestcaseFilter: %d", testcaseFilter)
 		}
 		if err != nil {
 			return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
