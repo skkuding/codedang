@@ -156,7 +156,7 @@ WHERE problem_id = $1 AND is_outdated = false`
 	default:
 		return nil, fmt.Errorf("invalid element type: %d", eType)
 	}
-	query = query + "ORDER BY is_hidden_testcase, id"
+	query = query + " ORDER BY is_hidden_testcase, id"
 
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.get.start problem_id=%s element_type=%d", key, eType))
