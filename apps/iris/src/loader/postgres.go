@@ -137,20 +137,35 @@ func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
 	return nil
 }
 
-func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
-	const selectQuery = `
-  SELECT id, input, output, is_hidden_testcase
-  FROM public.problem_testcase
-  WHERE problem_id = $1 AND is_outdated = false
-  `
-	start := time.Now()
-	p.logger.Log(logger.INFO, fmt.Sprintf("sql.get.start problem_id=%s", key))
+func (p *Postgres) Get(ctx context.Context, key string, eType ElementType) ([]ElementOut, error) {
+	const base = `SELECT id, input, output, is_hidden_testcase
+FROM public.problem_testcase
+WHERE problem_id = $1 AND is_outdated = false`
 
-	rows, err := p.client.QueryContext(ctx, selectQuery, key)
+	var (
+		query string
+		args  = []any{key}
+	)
+	switch eType {
+	case ALL:
+		query = base
+	case HIDDEN_ONLY:
+		query = base + " AND is_hidden_testcase = true"
+	case PUBLIC_ONLY:
+		query = base + " AND is_hidden_testcase = false"
+	default:
+		return nil, fmt.Errorf("invalid element type: %d", eType)
+	}
+	query = query + "ORDER BY is_hidden_testcase, id"
+
+	start := time.Now()
+	p.logger.Log(logger.INFO, fmt.Sprintf("sql.get.start problem_id=%s element_type=%d", key, eType))
+
+	rows, err := p.client.QueryContext(ctx, query, args...)
 	if err != nil {
 		p.logger.Log(
 			logger.ERROR,
-			fmt.Sprintf("sql.get.failed stage=query problem_id=%s err=%v", key, err),
+			fmt.Sprintf("sql.get.failed stage=query problem_id=%s element_type=%d err=%v", key, eType, err),
 		)
 		return nil, fmt.Errorf("failed to get key: %w", err)
 	}
@@ -163,9 +178,9 @@ func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
 		var id int
 		var input string
 		var output string
-		var isHiddenTestcase bool
+		var hidden bool
 
-		if err := rows.Scan(&id, &input, &output, &isHiddenTestcase); err != nil {
+		if err := rows.Scan(&id, &input, &output, &hidden); err != nil {
 			p.logger.Log(
 				logger.ERROR,
 				fmt.Sprintf("sql.get.failed stage=scan problem_id=%s err=%v", key, err),
@@ -177,7 +192,7 @@ func (p *Postgres) Get(ctx context.Context, key string) ([]ElementOut, error) {
 			Id:     id,
 			In:     input,
 			Out:    output,
-			Hidden: isHiddenTestcase,
+			Hidden: hidden,
 		})
 	}
 	if err := rows.Err(); err != nil {

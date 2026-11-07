@@ -77,7 +77,14 @@ func (t *testcaseManager) SaveTestcase(ctx context.Context, problemId string, hi
 func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error) {
 	data, err := t.s3reader.Get(problemId)
 	if err != nil {
-		data, err = t.database.Get(ctx, problemId)
+		switch testcaseFilter {
+		case ALL:
+			data, err = t.database.Get(ctx, problemId, loader.ALL)
+		case PUBLIC_ONLY:
+			data, err = t.database.Get(ctx, problemId, loader.PUBLIC_ONLY)
+		case HIDDEN_ONLY:
+			data, err = t.database.Get(ctx, problemId, loader.HIDDEN_ONLY)
+		}
 		if err != nil {
 			return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
 		}
