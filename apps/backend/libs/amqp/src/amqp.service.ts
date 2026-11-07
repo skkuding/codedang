@@ -48,6 +48,11 @@ export class JudgeAMQPService {
       try {
         // 메시지 타입에 따라 적절한 핸들러로 라우팅
         const type = raw.properties?.type
+        // progress 메시지는 progress 서버(apps/progress)가 처리
+        // 에러 없이 return하면 ack되므로 백엔드는 무시
+        if (type === 'progress') {
+          return
+        }
         const handlerMap = this.getMessageHandlerMap()
 
         const handler = handlerMap[type]
