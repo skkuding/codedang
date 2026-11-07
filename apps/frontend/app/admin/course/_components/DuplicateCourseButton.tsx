@@ -140,7 +140,8 @@ export function DuplicateCourseButton({
         input: {
           classNum: Number(classNum),
           courseNum,
-          semester
+          semester,
+          studentWhitelist: []
         }
       }
     })

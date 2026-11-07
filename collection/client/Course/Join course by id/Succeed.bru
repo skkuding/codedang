@@ -6,7 +6,7 @@ meta {
 
 post {
   url: {{baseUrl}}/course/2/join?invitation
-  body: none
+  body: json
   auth: none
 }
 
@@ -14,10 +14,16 @@ params:query {
   invitation: 
 }
 
+body:json {
+  {
+    "studentId": "2024100001"
+  }
+}
+
 assert {
   res.status: eq 201
   res("userGroupData").userId: isNumber
-  res("userGroupData").groupId: eq 4
+  res("userGroupData").groupId: eq 2
   res("userGroupData").isGroupLeader: eq false
   res("userGroupData").createTime: isString
   res("userGroupData").updateTime: isString
@@ -33,7 +39,7 @@ script:pre-request {
   const authorization = bru.getVar("jwtToken");
   try {
     await axios.delete(
-      baseUrl + "/group/2/leave",
+      baseUrl + "/course/2/leave",
       { headers: { authorization } }
     )
   } catch (error) {}
@@ -44,6 +50,7 @@ docs {
   ---
   - URL param으로 전달된 `groupId`에 해당하는 Group에 가입합니다.
   - URL Query로 `invitation` 초대 코드를 전달할 수 있습니다.
+  - JSON body로 학생이 입력한 `studentId`를 전달합니다.
   - 가입된 Group의 정보를 반환합니다.
   - Instructor가 학번 whitelist를 설정한 경우 초대 코드가 있어도 못 들어갈 수 있습니다.
 }
