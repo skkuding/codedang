@@ -145,7 +145,7 @@ export class FileService {
    * MINIO_ENDPOINT_URL is required only when accessing MINIO (stage, local).
    * Otherwise the default S3 endpoint is used.
    */
-  private getFileUrl(filename: string) {
+  getFileUrl(filename: string) {
     const cdnUrl = this.config.get<string>('MEDIA_CDN_URL')
     if (cdnUrl) {
       return `${cdnUrl.replace(/\/+$/, '')}/${filename}`

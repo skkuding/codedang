@@ -13,6 +13,7 @@ import { ProblemResolver } from './resolvers/problem.resolver'
 import { IntScoreScalar } from './scalar/int-score.scalar'
 import {
   FileService,
+  ProblemAttachmentService,
   ProblemService,
   TagService,
   TestcaseService
@@ -31,6 +32,7 @@ import {
     ProblemService,
     TestcaseService,
     FileService,
+    ProblemAttachmentService,
     TagService
   ],
   exports: [IntScoreScalar, ProblemService]
