@@ -17,7 +17,10 @@ import {
 } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { AdminExceptionFilter, apolloErrorFormatter } from '@libs/exception'
-import { openTelemetryModuleOption } from '@libs/instrumentation'
+import {
+  InstrumentationModule,
+  openTelemetryModuleOption
+} from '@libs/instrumentation'
 import { AdminInternalModule } from '@libs/internal'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
@@ -89,6 +92,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot(openTelemetryModuleOption),
+    InstrumentationModule,
     EventEmitterModule.forRoot()
   ],
   controllers: [AdminController],
