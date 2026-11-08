@@ -1,6 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer'
 import { HttpService } from '@nestjs/axios'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ConflictException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, type TestingModule } from '@nestjs/testing'
@@ -11,6 +12,7 @@ import { expect } from 'chai'
 import type Sinon from 'sinon'
 import { stub } from 'sinon'
 import { JwtAuthService } from '@libs/auth'
+import { refreshTokenCacheKey } from '@libs/cache'
 import {
   InvalidJwtTokenException,
   UnidentifiedException
@@ -24,9 +26,11 @@ describe('AuthService', () => {
   let service
   let jwtAuthService: JwtAuthService
   let cache: Cache
+  let evalStub: Sinon.SinonStub
   let createJwtTokensSpy: Sinon.SinonStub
   const ACCESS_TOKEN = 'access_token'
   const REFRESH_TOKEN = 'refresh_token'
+  const NEW_REFRESH_TOKEN = 'new_refresh_token'
   const VALID_PASSWORD = 'password'
   const user: User = {
     id: 1,
@@ -49,6 +53,7 @@ describe('AuthService', () => {
   }
 
   beforeEach(async () => {
+    evalStub = stub()
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -60,14 +65,15 @@ describe('AuthService', () => {
         },
         { provide: PrismaService, useValue: {} },
         { provide: ConfigService, useValue: {} },
-        { provide: JwtService, useValue: {} },
+        { provide: JwtService, useValue: { signAsync: async () => '' } },
         { provide: HttpService, useValue: { axiosRef: stub() } },
         { provide: MailerService, useValue: {} },
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
             set: () => [],
-            get: () => []
+            del: () => [],
+            stores: [{ store: { getClient: async () => ({ eval: evalStub }) } }]
           })
         }
       ]
@@ -132,9 +138,15 @@ describe('AuthService', () => {
     let verifyJwtTokenSpy: Sinon.SinonStub
 
     beforeEach(() => {
+      createJwtTokensSpy.resolves({
+        accessToken: ACCESS_TOKEN,
+        refreshToken: NEW_REFRESH_TOKEN
+      })
       verifyJwtTokenSpy = stub(service, 'verifyJwtToken').resolves({
         userId,
         username,
+        userRole: 'User',
+        tokenType: 'refresh',
         iat: undefined,
         exp: undefined,
         iss: undefined
@@ -143,32 +155,36 @@ describe('AuthService', () => {
 
     it('should return new access token and refresh token when the given refresh token is valid', async () => {
       //given
-      const isValidRefreshTokenSpy = stub(
-        service,
-        'isValidRefreshToken'
-      ).resolves(true)
+      evalStub.resolves(1)
 
       //when
       const result = await service.updateJwtTokens(refreshToken)
 
       //then
       expect(verifyJwtTokenSpy.calledWith(refreshToken)).to.be.true
-      expect(isValidRefreshTokenSpy.calledWith(refreshToken, userId)).to.be.true
+      expect(evalStub.calledOnce).to.be.true
+      expect(evalStub.firstCall.args[1].keys).to.deep.equal([
+        refreshTokenCacheKey(userId, refreshToken),
+        `${refreshTokenCacheKey(userId, refreshToken)}:consumed`
+      ])
       expect(createJwtTokensSpy.calledOnce).to.be.true
-      expect(createJwtTokensSpy.calledWith(userId, username)).to.be.true
+      expect(createJwtTokensSpy.calledWithExactly(userId, username, 'User')).to
+        .be.true
+      expect(createJwtTokensSpy.calledBefore(evalStub)).to.be.true
       expect(result).to.deep.equal({
         accessToken: ACCESS_TOKEN,
-        refreshToken: REFRESH_TOKEN
+        refreshToken: NEW_REFRESH_TOKEN
       })
     })
 
     it('should throw InvalidJwtTokenException when the given refresh token is invalid', async () => {
       //given
       const invalidToken = REFRESH_TOKEN
-      const isValidRefreshTokenSpy = stub(
+      evalStub.resolves(0)
+      const deleteRefreshTokenSpy = stub(
         service,
-        'isValidRefreshToken'
-      ).resolves(false)
+        'deleteRefreshToken'
+      ).resolves()
 
       //when
       await expect(service.updateJwtTokens(invalidToken)).to.be.rejectedWith(
@@ -177,40 +193,128 @@ describe('AuthService', () => {
 
       //then
       expect(verifyJwtTokenSpy.calledWith(invalidToken)).to.be.true
-      expect(isValidRefreshTokenSpy.calledWith(invalidToken, userId)).to.be.true
+      expect(evalStub.calledOnce).to.be.true
+      expect(createJwtTokensSpy.calledOnce).to.be.true
+      expect(deleteRefreshTokenSpy.calledOnceWith(userId, NEW_REFRESH_TOKEN)).to
+        .be.true
+    })
+
+    it('preserves the invalid-token error when replacement cleanup fails', async () => {
+      evalStub.resolves(0)
+      const deleteRefreshTokenSpy = stub(service, 'deleteRefreshToken').rejects(
+        new Error('Redis delete failed')
+      )
+
+      await expect(service.updateJwtTokens(refreshToken)).to.be.rejectedWith(
+        InvalidJwtTokenException
+      )
+
+      expect(deleteRefreshTokenSpy.calledOnceWith(userId, NEW_REFRESH_TOKEN)).to
+        .be.true
+    })
+
+    it('reports a recently consumed token as a conflict', async () => {
+      evalStub.resolves(2)
+      const deleteRefreshTokenSpy = stub(
+        service,
+        'deleteRefreshToken'
+      ).resolves()
+
+      await expect(service.updateJwtTokens(refreshToken)).to.be.rejectedWith(
+        ConflictException
+      )
+
+      expect(deleteRefreshTokenSpy.calledOnceWith(userId, NEW_REFRESH_TOKEN)).to
+        .be.true
+    })
+
+    it('keeps the original refresh token when replacement creation fails', async () => {
+      createJwtTokensSpy.rejects(new Error('cache write failed'))
+
+      await expect(service.updateJwtTokens(refreshToken)).to.be.rejectedWith(
+        'cache write failed'
+      )
+
+      expect(evalStub.called).to.be.false
+    })
+
+    it('removes the unused replacement when token consumption fails', async () => {
+      evalStub.rejects(new Error('Redis read failed'))
+      const deleteRefreshTokenSpy = stub(
+        service,
+        'deleteRefreshToken'
+      ).resolves()
+
+      await expect(service.updateJwtTokens(refreshToken)).to.be.rejectedWith(
+        'Redis read failed'
+      )
+
+      expect(deleteRefreshTokenSpy.calledOnceWith(userId, NEW_REFRESH_TOKEN)).to
+        .be.true
+    })
+
+    it('should reject an access token on the reissue endpoint', async () => {
+      verifyJwtTokenSpy.resolves({
+        userId,
+        username,
+        userRole: 'User',
+        tokenType: 'access'
+      })
+      await expect(service.updateJwtTokens(ACCESS_TOKEN)).to.be.rejectedWith(
+        InvalidJwtTokenException
+      )
+
+      expect(evalStub.called).to.be.false
+      expect(createJwtTokensSpy.called).to.be.false
     })
   })
 
-  describe('isValidRefreshToken', () => {
-    it("should return true when the given refresh token match with the user's cached refresh token", async () => {
-      //given
-      stub(cache, 'get').resolves(1)
+  describe('consumeRefreshToken', () => {
+    it('distinguishes consumed, recently consumed, and missing tokens', async () => {
+      evalStub.onFirstCall().resolves(1)
+      evalStub.onSecondCall().resolves(2)
+      evalStub.onThirdCall().resolves(0)
 
-      //when
-      const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)
-
-      //then
-      expect(result).to.equal(true)
+      expect(
+        await service.consumeRefreshToken(REFRESH_TOKEN, user.id)
+      ).to.equal('consumed')
+      expect(
+        await service.consumeRefreshToken(REFRESH_TOKEN, user.id)
+      ).to.equal('recently-consumed')
+      expect(
+        await service.consumeRefreshToken(REFRESH_TOKEN, user.id)
+      ).to.equal('missing')
     })
-    it("should return false when the given refresh token does not match with the user's cached refresh token", async () => {
-      //given
-      stub(cache, 'get').resolves('invalid value')
+  })
 
-      //when
-      const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)
+  describe('createJwtTokens', () => {
+    it('signs access and refresh tokens with distinct token types', async () => {
+      createJwtTokensSpy.restore()
+      const jwtService = service['jwtService'] as JwtService
+      const signAsyncSpy = stub(jwtService, 'signAsync')
+      signAsyncSpy.onFirstCall().resolves(ACCESS_TOKEN)
+      signAsyncSpy.onSecondCall().resolves(REFRESH_TOKEN)
+      signAsyncSpy.onThirdCall().resolves(ACCESS_TOKEN)
+      signAsyncSpy.onCall(3).resolves(NEW_REFRESH_TOKEN)
+      const setSpy = stub(cache, 'set').resolves(1)
 
-      //then
-      expect(result).to.equal(false)
-    })
-    it("should return false when the user's refresh token does not exist in the cache", async () => {
-      //given
-      stub(cache, 'get').resolves(null)
+      await service.createJwtTokens(user.id, user.username, user.role)
+      await service.createJwtTokens(user.id, user.username, user.role)
 
-      //when
-      const result = await service.isValidRefreshToken(REFRESH_TOKEN, user.id)
-
-      //then
-      expect(result).to.equal(false)
+      expect(signAsyncSpy.firstCall.args[0]).to.include({
+        userId: user.id,
+        tokenType: 'access'
+      })
+      expect(signAsyncSpy.secondCall.args[0]).to.include({
+        userId: user.id,
+        tokenType: 'refresh'
+      })
+      const firstJwtId = signAsyncSpy.secondCall.args[1]?.jwtid
+      const secondJwtId = signAsyncSpy.getCall(3).args[1]?.jwtid
+      expect(firstJwtId).to.be.a('string')
+      expect(secondJwtId).to.be.a('string')
+      expect(secondJwtId).not.to.equal(firstJwtId)
+      expect(setSpy.calledTwice).to.be.true
     })
   })
 })

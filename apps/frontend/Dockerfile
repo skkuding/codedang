@@ -4,7 +4,7 @@
 ARG BASEURL="https://codedang.com/api"
 ARG GQL_BASEURL="https://codedang.com/graphql"
 ARG RUNNER_BASEURL="wss://run.codedang.com/run"
-ARG ADMIN_REST_URL="https://stage.codedang.com/admin-api"
+ARG ADMIN_REST_URL="https://codedang.com/admin-api"
 
 FROM node:22.23.4-alpine AS base
 

@@ -893,9 +893,10 @@ export class TestcaseService {
    * 특정 문제에 해당하는 테스트케이스들을 반환합니다.
    * problem의 isSampleUploadedByZip과 isHiddenUploadedByZip에 따라 각 유형의 테스트케이스의 IO 포함 여부를 판단합니다.
    * @param problemId - 문제 ID
+   * @param includeIO - GraphQL 요청에 input 또는 output이 포함됐는지 여부
    * @returns 조건에 부합하는 테스트케이스들의 배열
    */
-  async getProblemTestcases(problemId: number) {
+  async getProblemTestcases(problemId: number, includeIO = true) {
     const problem = await this.prisma.problem.findUnique({
       where: { id: problemId },
       select: { isHiddenUploadedByZip: true, isSampleUploadedByZip: true }
@@ -917,7 +918,7 @@ export class TestcaseService {
           isHidden: true,
           scoreWeightDenominator: true,
           scoreWeightNumerator: true,
-          ...(problem.isHiddenUploadedByZip
+          ...(!includeIO || problem.isHiddenUploadedByZip
             ? {}
             : { input: true, output: true })
         },
@@ -937,7 +938,7 @@ export class TestcaseService {
           isHidden: true,
           scoreWeightDenominator: true,
           scoreWeightNumerator: true,
-          ...(problem.isSampleUploadedByZip
+          ...(!includeIO || problem.isSampleUploadedByZip
             ? {}
             : { input: true, output: true })
         },
