@@ -14,8 +14,9 @@ spec:
       labels:
         app: silo-shadow
     spec:
+      # Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
       nodeSelector:
-        kubernetes.io/hostname: skkuding-3
+        kubernetes.io/hostname: skkuding-1
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
