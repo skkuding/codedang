@@ -22,6 +22,11 @@ type CheckManager interface {
 		problemId string,
 		language string,
 	) (CheckInput, error)
+	GetAssignmentsCheckInput(
+		assignmentIds []string,
+		problemId string,
+		language string,
+	)
 	GetContestCheckInput(
 		contestId string,
 		problemId string,
@@ -71,6 +76,16 @@ func (c *checkManager) GetAssignmentCheckInput(
 ) (CheckInput, error) { // 문제 아이디, 과제 아이디를 바탕으로 submission을 가져와 jplag 실행을 준비합니다.
 	return getCheckInput(
 		c.database.GetAllCodesFromAssignment(problemId, language, assignmentId),
+	)
+}
+
+func (c *checkManager) GetAssignmentsCheckInput(
+	assignmentIds []string,
+	problemId string,
+	language string,
+) (CheckInput, error) {
+	return getCheckInput(
+		c.database.GetAllCodesFromAssignments(problemId, language, assignmentIds),
 	)
 }
 
