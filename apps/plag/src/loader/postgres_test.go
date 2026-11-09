@@ -98,7 +98,7 @@ func TestParseDatabaseURL(t *testing.T) {
 }
 
 func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
-	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
+	const query = `SELECT DISTINCT ON (user_id, assignment_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
 		FROM public.submission
 		WHERE problem_id = $1 AND language = $2 AND assignment_id = ANY($3::INT4[])
 		ORDER BY user_id, update_time DESC;`
@@ -117,6 +117,7 @@ func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
 		rowCount     int
 		firstID      any
 		firstCode    string
+		secondUserID int
 		template     string
 		queryErr     error
 		baseCodeErr  error
@@ -178,6 +179,15 @@ func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
 			name: "invalid nested template JSON", rowCount: 2, firstID: 10, firstCode: code,
 			template: `["invalid"]`, wantErr: "failed to get data: outer json unmarshal:",
 		},
+		{
+			name:         "same user across different assignments",
+			rowCount:     2,
+			firstID:      10,
+			firstCode:    code,
+			secondUserID: 100,
+			template:     template,
+			wantBaseCode: "# base\n",
+		},
 	}
 
 	for _, tt := range tests {
@@ -192,7 +202,17 @@ func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
 					rows.AddRow(tt.firstID, 100, tt.firstCode, wantCodes[0].CreateTime)
 				}
 				if tt.rowCount > 1 {
-					rows.AddRow(20, 200, `[{"text":"print(2)\n"}]`, wantCodes[1].CreateTime)
+					userID := 200
+					if tt.secondUserID != 0 {
+						userID = tt.secondUserID
+					}
+
+					rows.AddRow(
+						20,
+						userID,
+						`[{"text":"print(2)\n"}]`,
+						wantCodes[1].CreateTime,
+					)
 				}
 				expect.WillReturnRows(rows).RowsWillBeClosed()
 			}
@@ -218,7 +238,14 @@ func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
 			}
 			require.NoError(t, err)
 			require.Equal(t, tt.wantBaseCode, baseCode)
-			require.Equal(t, wantCodes, codes)
+
+			expectedCodes := append([]Element(nil), wantCodes...)
+
+			if tt.secondUserID != 0 {
+				expectedCodes[1].UserId = tt.secondUserID
+			}
+
+			require.Equal(t, expectedCodes, codes)
 		})
 	}
 }
