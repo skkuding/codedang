@@ -130,9 +130,7 @@ jobs:
 
   build-frontend:
     name: Build and Push Image (Frontend)
-    # Stage cluster (where the ARC runners live) is down; use GitHub-hosted.
-    # Restore `arc-runner` when the stage cluster is back.
-    runs-on: ubuntu-latest
+    runs-on: arc-runner
 
     steps:
       - name: Setup Docker Buildx
