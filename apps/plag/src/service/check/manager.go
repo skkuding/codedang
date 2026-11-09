@@ -26,7 +26,7 @@ type CheckManager interface {
 		assignmentIds []string,
 		problemId string,
 		language string,
-	)
+	) (CheckInput, error)
 	GetContestCheckInput(
 		contestId string,
 		problemId string,
