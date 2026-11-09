@@ -28,6 +28,7 @@ type Request struct {
 	EnableMerging      bool   `json:"enableMerging"`
 	UseJplagClustering bool   `json:"useJplagClustering"`
 	AssignmentId       *int   `json:"assignmentId,omitempty"`
+	AssignmentIds      *[]int `json:"assignmentIds,omitempty"`
 	ContestId          *int   `json:"contestId,omitempty"`
 	WorkbookId         *int   `json:"workbookId,omitempty"`
 }
@@ -385,31 +386,63 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChRe
 	)
 	defer childSpan.End()
 
-	isAssignmentRequest := req.AssignmentId != nil
-	isContestRequest := req.ContestId != nil
-	isWorkbookRequest := req.WorkbookId != nil
+	var method requestMethod
+
+	if req.AssignmentId != nil {
+		method |= methodAssignment
+	}
+	if req.AssignmentIds != nil {
+		method |= methodAssignments
+	}
+	if req.ContestId != nil {
+		method |= methodContest
+	}
+	if req.WorkbookId != nil {
+		method |= methodWorkbook
+	}
 
 	var res check.CheckInput
 	var err error
-	if isAssignmentRequest && !isContestRequest && !isWorkbookRequest {
+
+	switch method {
+	case methodAssignment:
 		res, err = c.check.GetAssignmentCheckInput(
 			fmt.Sprint(*req.AssignmentId),
 			fmt.Sprint(req.ProblemId),
 			req.Language,
 		)
-	} else if !isAssignmentRequest && isContestRequest && !isWorkbookRequest {
+	case methodAssignments:
+		if len(*req.AssignmentIds) == 0 {
+			out <- result.ChResult{
+				Err: fmt.Errorf("assignmentIds must not be empty"),
+			}
+			return
+		}
+
+		assignmentIds := make([]string, len(*req.AssignmentIds))
+
+		for i, id := range *req.AssignmentIds {
+			assignmentIds[i] = strconv.Itoa(id)
+		}
+
+		res, err = c.check.GetAssignmentsCheckInput(
+			assignmentIds,
+			fmt.Sprint(req.ProblemId),
+			req.Language,
+		)
+	case methodContest:
 		res, err = c.check.GetContestCheckInput(
 			fmt.Sprint(*req.ContestId),
 			fmt.Sprint(req.ProblemId),
 			req.Language,
 		)
-	} else if !isAssignmentRequest && !isContestRequest && isWorkbookRequest {
+	case methodWorkbook:
 		res, err = c.check.GetWorkbookCheckInput(
 			fmt.Sprint(*req.WorkbookId),
 			fmt.Sprint(req.ProblemId),
 			req.Language,
 		)
-	} else {
+	default:
 		out <- result.ChResult{Err: fmt.Errorf("cannot inference dependent of problem")}
 		return
 	}
