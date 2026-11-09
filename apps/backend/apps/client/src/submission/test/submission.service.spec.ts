@@ -1046,45 +1046,57 @@ describe('SubmissionService', () => {
       db.submission.count.resolves(0)
     })
 
-    const assignmentReads = [
-      {
-        name: 'detail',
-        run: (service: SubmissionService) => service.getSubmission(detail)
-      },
-      {
-        name: 'list',
-        run: (service: SubmissionService) =>
-          service.getAssignmentSubmissions(assignmentList)
-      },
-      {
-        name: 'latest',
-        run: (service: SubmissionService) =>
+    const reads = [
+      ['assignment detail', () => service.getSubmission(detail)],
+      [
+        'assignment list',
+        () => service.getAssignmentSubmissions(assignmentList)
+      ],
+      [
+        'assignment latest',
+        () =>
           service.getLatestAssignmentProblemSubmission(
             problemId,
             ASSIGNMENT_ID,
             userId
           )
-      },
-      {
-        name: 'summary',
-        run: (service: SubmissionService) =>
-          service.getAssignmentSubmissionSummary(ASSIGNMENT_ID, userId)
-      }
-    ]
-    for (const { name, run } of assignmentReads) {
-      it(`allows assignment ${name} for a member without a record`, async () => {
-        await run(service)
-        expect(db.userGroup.findFirst.firstCall.args[0].where).to.deep.equal({
-          groupId: mockAssignment.groupId,
-          userId
-        })
-        expect(db.assignmentRecord.findUnique.called).to.be.false
-        expect(db.assignmentRecord.upsert.called).to.be.false
+      ],
+      [
+        'assignment summary',
+        () => service.getAssignmentSubmissionSummary(ASSIGNMENT_ID, userId)
+      ],
+      [
+        'contest detail',
+        () =>
+          service.getSubmission({
+            ...detail,
+            assignmentId: null,
+            contestId: CONTEST_ID
+          })
+      ],
+      ['contest list', () => service.getContestSubmissions(contestList)]
+    ] as const
+    for (const [name, run] of reads) {
+      const isAssignment = name.startsWith('assignment')
+      const record = isAssignment ? db.assignmentRecord : db.contestRecord
+      it(`allows ${name} without a record`, async () => {
+        await run()
+        expect(record.findUnique.called).to.be.false
+        expect(record.upsert.called).to.be.false
+        if (isAssignment) {
+          expect(db.userGroup.findFirst.firstCall.args[0].where).to.deep.equal({
+            groupId: mockAssignment.groupId,
+            userId
+          })
+        }
       })
-      it(`denies assignment ${name} for a nonmember with a stale record`, async () => {
+      it(`denies ${name} with a stale record but no membership`, async () => {
         db.userGroup.findFirst.resolves(null)
-        db.assignmentRecord.findUnique.resolves({ id: 1 })
-        await expect(run(service)).to.be.rejectedWith(ForbiddenAccessException)
+        db.userContest.findUnique.resolves(null)
+        record.findUnique.resolves({ id: 1 })
+        await expect(run()).to.be.rejectedWith(
+          isAssignment ? ForbiddenAccessException : EntityNotExistException
+        )
         expect(db.submission.findFirst.called).to.be.false
         expect(db.submission.findMany.called).to.be.false
       })
@@ -1127,30 +1139,6 @@ describe('SubmissionService', () => {
       ).to.be.rejectedWith(ForbiddenAccessException)
       expect(db.assignmentRecord.upsert.called).to.be.false
     })
-
-    for (const name of ['detail', 'list']) {
-      const run = (service: SubmissionService) =>
-        name === 'detail'
-          ? service.getSubmission({
-              ...detail,
-              assignmentId: null,
-              contestId: CONTEST_ID
-            })
-          : service.getContestSubmissions(contestList)
-      it(`allows contest ${name} for a registered user without a record`, async () => {
-        await run(service)
-        expect(db.contestRecord.findUnique.called).to.be.false
-        expect(db.contestRecord.upsert.called).to.be.false
-      })
-      it(`denies contest ${name} for an unregistered user with a stale record`, async () => {
-        db.userContest.findUnique.resolves(null)
-        db.contestRecord.findUnique.resolves({ id: 1 })
-        await expect(run(service)).to.be.rejectedWith(
-          EntityNotExistException,
-          'UserContest'
-        )
-      })
-    }
 
     for (const userRole of [Role.Admin, Role.SuperAdmin]) {
       it(`requires membership before the ${userRole} detail exception`, async () => {
@@ -1238,53 +1226,19 @@ describe('SubmissionService', () => {
       db.userContest.findUnique.resolves({ role: ContestRole.Participant })
     })
 
-    for (const role of [
-      ContestRole.Admin,
-      ContestRole.Manager,
-      ContestRole.Reviewer
-    ]) {
+    const cases = [
+      { kind: 'assignment', role: ContestRole.Participant },
+      ...Object.values(ContestRole).map((role) => ({ kind: 'contest', role }))
+    ]
+    for (const { kind, role } of cases) {
       for (const hasTestcases of [true, false]) {
-        it(`does not create ranking records for ${role} before ${hasTestcases ? 'publishing' : 'immediate finalization'}`, async () => {
-          const saved = { ...submissions[0], contestId: CONTEST_ID }
-          db.userContest.findFirst.resolves({ id: 1 })
-          db.userContest.findUnique.resolves({ role })
-          db.contest.findFirst.resolves(mockContest)
-          db.contestProblem.findUnique.resolves({ problem: problems[0] })
-          db.submission.create.resolves(saved)
-          stub(service, 'getJudgeableTestcases').resolves(
-            hasTestcases ? [{ id: 1, isHidden: false }] : []
-          )
-          stub(service, 'createSubmissionResults').resolves()
-          const publishStub = stub(publish, 'publishJudgeRequestMessage')
-
-          const result = await service.submitToContest({
-            submissionDto,
-            problemId: problems[0].id,
-            contestId: CONTEST_ID,
-            userId: saved.userId,
-            userIp: USERIP
-          })
-
-          expect(result).to.equal(saved)
-          expect(db.contestRecord.upsert.called).to.be.false
-          expect(db.submission.create.calledOnce).to.be.true
-          const afterSave = hasTestcases
-            ? publishStub
-            : (finalization.applyFinalizationEffects as SinonStub)
-          expect(db.submission.create.calledBefore(afterSave)).to.be.true
-          expect(afterSave.calledOnce).to.be.true
-        })
-      }
-    }
-
-    for (const kind of ['assignment', 'contest'] as const) {
-      for (const hasTestcases of [true, false]) {
-        it(`initializes ${kind} records before ${hasTestcases ? 'publishing' : 'immediate finalization'}`, async () => {
+        it(`persists ${kind} submission for ${role} with testcases=${hasTestcases}`, async () => {
           const idOptions =
             kind === 'assignment'
               ? { assignmentId: ASSIGNMENT_ID }
               : { contestId: CONTEST_ID }
           const saved = { ...submissions[0], ...idOptions }
+          db.userContest.findUnique.resolves({ role })
           db.submission.create.resolves(saved)
           stub(service, 'getJudgeableTestcases').resolves(
             hasTestcases ? [{ id: 1, isHidden: false }] : []
@@ -1302,8 +1256,11 @@ describe('SubmissionService', () => {
             kind === 'assignment'
               ? db.assignmentRecord.upsert
               : db.contestRecord.upsert
-          expect(parent.calledOnce).to.be.true
-          expect(parent.calledBefore(db.submission.create)).to.be.true
+          const needsRecord =
+            kind === 'assignment' || role === ContestRole.Participant
+          expect(parent.callCount).to.equal(needsRecord ? 1 : 0)
+          if (needsRecord)
+            expect(parent.calledBefore(db.submission.create)).to.be.true
           if (kind === 'assignment') {
             expect(parent.calledBefore(db.assignmentProblemRecord.upsert)).to.be
               .true
@@ -1316,6 +1273,7 @@ describe('SubmissionService', () => {
           const afterSave = hasTestcases
             ? publishStub
             : (finalization.applyFinalizationEffects as SinonStub)
+          expect(db.submission.create.calledOnce).to.be.true
           expect(db.submission.create.calledBefore(afterSave)).to.be.true
           expect(afterSave.calledOnce).to.be.true
         })
