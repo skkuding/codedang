@@ -2,7 +2,7 @@ import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import type { AuthenticatedRequest } from '@libs/auth'
 import { CheckRequest } from '@admin/@generated'
 import { CheckResolver } from './check.resolver'
-import type { CheckService } from './check.service'
+import { CheckService } from './check.service'
 import {
   CreatePlagiarismCheckInput,
   CreatePlagiarismTargetsInput
