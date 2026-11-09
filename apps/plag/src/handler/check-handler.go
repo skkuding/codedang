@@ -388,10 +388,7 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChRe
 
 	var method requestMethod
 
-	if req.AssignmentId != nil {
-		method |= methodAssignment
-	}
-	if req.AssignmentIds != nil {
+	if req.AssignmentIds != nil && len(*req.AssignmentIds) > 0 {
 		method |= methodAssignments
 	}
 	if req.ContestId != nil {
@@ -401,24 +398,16 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChRe
 		method |= methodWorkbook
 	}
 
+	if method == 0 && req.AssignmentIds != nil {
+		out <- result.ChResult{Err: fmt.Errorf("assignmentIds must not be empty")}
+		return
+	}
+
 	var res check.CheckInput
 	var err error
 
 	switch method {
-	case methodAssignment:
-		res, err = c.check.GetAssignmentCheckInput(
-			fmt.Sprint(*req.AssignmentId),
-			fmt.Sprint(req.ProblemId),
-			req.Language,
-		)
 	case methodAssignments:
-		if len(*req.AssignmentIds) == 0 {
-			out <- result.ChResult{
-				Err: fmt.Errorf("assignmentIds must not be empty"),
-			}
-			return
-		}
-
 		assignmentIds := make([]string, len(*req.AssignmentIds))
 
 		for i, id := range *req.AssignmentIds {
