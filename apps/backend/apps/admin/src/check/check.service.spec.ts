@@ -30,8 +30,15 @@ describe('CheckService assignment arrays', () => {
     const prisma = {
       assignment: { findMany: stub().resolves([{ id: 10 }, { id: 11 }]) },
       checkRequest: { findMany: stub(), create: stub() },
-      submission: { findMany: stub() }
+      submission: { findMany: stub() },
+      $queryRaw: stub().callsFake((_query: unknown, ids: number[]) =>
+        Promise.resolve(ids.map((id) => ({ id })))
+      ),
+      $transaction: stub()
     }
+    prisma.$transaction.callsFake(
+      (callback: (tx: typeof prisma) => Promise<unknown>) => callback(prisma)
+    )
     const publish = { publishCheckRequestMessage: stub().resolves() }
     const service = new CheckService(
       prisma as unknown as PrismaService,
@@ -145,6 +152,58 @@ describe('CheckService assignment arrays', () => {
         assignmentIds: [10, 11]
       })
     ).to.be.rejectedWith(EntityNotExistException)
+  })
+
+  it('locks target assignments inside the transaction that creates the request', async () => {
+    const { service, prisma } = createService()
+    stub(service, 'validateRequest').resolves()
+    prisma.checkRequest.create.resolves({ id: 1 })
+    await service.checkProblem({
+      userId: 1,
+      checkInput,
+      problemId: 1,
+      idOptions: { assignmentIds: [10, 11, 10] }
+    })
+    expect(prisma.$transaction.calledOnce).to.equal(true)
+    expect(prisma.$queryRaw.firstCall.args[0].join('')).to.include(
+      'FOR KEY SHARE'
+    )
+    expect(prisma.$queryRaw.firstCall.args[1]).to.deep.equal([10, 11])
+    expect(prisma.$queryRaw.calledBefore(prisma.checkRequest.create)).to.equal(
+      true
+    )
+  })
+
+  it('does not create a request when a target assignment was deleted', async () => {
+    const { service, prisma, publish } = createService()
+    stub(service, 'validateRequest').resolves()
+    prisma.$queryRaw.resolves([{ id: 10 }])
+    await expect(
+      service.checkProblem({
+        userId: 1,
+        checkInput,
+        problemId: 1,
+        idOptions: { assignmentIds: [10, 11] }
+      })
+    ).to.be.rejectedWith(EntityNotExistException)
+    expect(prisma.checkRequest.create.called).to.equal(false)
+    expect(publish.publishCheckRequestMessage.called).to.equal(false)
+  })
+
+  it('does not lock assignments for contest requests', async () => {
+    const { service, prisma } = createService()
+    stub(service, 'validateRequest').resolves()
+    prisma.checkRequest.create.resolves({ id: 1 })
+    await service.checkProblem({
+      userId: 1,
+      checkInput,
+      problemId: 1,
+      idOptions: { contestId: 3 }
+    })
+    expect(prisma.$queryRaw.called).to.equal(false)
+    expect(
+      prisma.checkRequest.create.firstCall.args[0].data.assignmentIds
+    ).to.deep.equal([])
   })
 
   it('rejects empty targets before creating a request', async () => {

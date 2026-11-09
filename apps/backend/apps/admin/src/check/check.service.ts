@@ -287,6 +287,7 @@ export class CheckService {
    * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - Prisma에 요청을 기록할 수 없을 때
+   * @throws {EntityNotExistException} 대상 과제가 그 사이 삭제되었을 때 발생합니다.
    * @throws Publish 과정에서 오류가 발생할 수 있습니다.
    */
   @Span()
@@ -314,19 +315,35 @@ export class CheckService {
     const { language, enableMerging, useJplagClustering, minTokens } =
       checkInput
 
+    const assignmentIds = [...new Set(idOptions.assignmentIds ?? [])]
+
     try {
-      const check = await this.prisma.checkRequest.create({
-        data: {
-          problemId,
-          result: CheckResultStatus.Pending,
-          userId,
-          language,
-          enableMerging,
-          useJplagClustering,
-          minTokens,
-          ...idOptions,
-          assignmentIds: [...new Set(idOptions.assignmentIds ?? [])]
+      const check = await this.prisma.$transaction(async (tx) => {
+        // 요청이 저장될 때까지 대상 과제가 삭제되지 않도록 잠급니다.
+        if (assignmentIds.length > 0) {
+          const assignments = await tx.$queryRaw<{ id: number }[]>`
+            SELECT id FROM public.assignment
+            WHERE id = ANY(${assignmentIds}::int[])
+            FOR KEY SHARE`
+
+          if (assignments.length !== assignmentIds.length) {
+            throw new EntityNotExistException('Assignment')
+          }
         }
+
+        return await tx.checkRequest.create({
+          data: {
+            problemId,
+            result: CheckResultStatus.Pending,
+            userId,
+            language,
+            enableMerging,
+            useJplagClustering,
+            minTokens,
+            ...idOptions,
+            assignmentIds
+          }
+        })
       })
 
       await this.publish.publishCheckRequestMessage({
