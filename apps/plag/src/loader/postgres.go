@@ -152,7 +152,7 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 }
 
 func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, assignmentId string) (string, []Element, error) {
-	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(code, '[]'::jsonb), create_time
+	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
                 FROM public.submission
                 WHERE problem_id = $1 AND language = $2 AND assignment_id = $3
                 ORDER BY user_id, update_time DESC;`
@@ -180,7 +180,7 @@ func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, 
 }
 
 func (p *Postgres) GetAllCodesFromAssignments(problemId string, language string, assignmentId []string) (string, []Element, error) {
-	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(code, '[]'::jsonb), create_time
+	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
                 FROM public.submission
                 WHERE problem_id = $1 AND language = $2 AND assignment_id = ANY($3::INT4[])
                 ORDER BY user_id, update_time DESC;`

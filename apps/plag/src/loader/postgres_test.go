@@ -98,7 +98,7 @@ func TestParseDatabaseURL(t *testing.T) {
 }
 
 func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
-	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(code, '[]'::jsonb), create_time
+	const query = `SELECT DISTINCT ON (user_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
 		FROM public.submission
 		WHERE problem_id = $1 AND language = $2 AND assignment_id = ANY($3::INT4[])
 		ORDER BY user_id, update_time DESC;`
