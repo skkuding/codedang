@@ -347,6 +347,8 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		}
 	}
 
+	comps, clus = check.ExcludeSameUserResults(comps, clus, chIn.Elements)
+
 	if err := c.check.SaveResult(
 		id,
 		comps,
@@ -388,7 +390,20 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChRe
 
 	var method requestMethod
 
-	if req.AssignmentIds != nil && len(*req.AssignmentIds) > 0 {
+	var targetAssignmentIds []int
+	if req.AssignmentIds != nil {
+		targetAssignmentIds = *req.AssignmentIds
+	}
+	// 이전 버전 백엔드가 보냈거나 배포 중 큐에 남아 있는 단일 과제 메시지를 처리합니다.
+	if req.AssignmentId != nil {
+		if len(targetAssignmentIds) > 0 {
+			out <- result.ChResult{Err: fmt.Errorf("cannot inference dependent of problem")}
+			return
+		}
+		targetAssignmentIds = []int{*req.AssignmentId}
+	}
+
+	if len(targetAssignmentIds) > 0 {
 		method |= methodAssignments
 	}
 	if req.ContestId != nil {
@@ -408,9 +423,9 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChRe
 
 	switch method {
 	case methodAssignments:
-		assignmentIds := make([]string, len(*req.AssignmentIds))
+		assignmentIds := make([]string, len(targetAssignmentIds))
 
-		for i, id := range *req.AssignmentIds {
+		for i, id := range targetAssignmentIds {
 			assignmentIds[i] = strconv.Itoa(id)
 		}
 

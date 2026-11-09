@@ -57,7 +57,7 @@ func runGetCheckInput(t *testing.T, manager check.CheckManager, req Request) res
 }
 
 func TestCheckHandlerGetCheckInput(t *testing.T) {
-	contestID, workbookID := 34, 56
+	contestID, workbookID, legacyAssignmentID := 34, 56, 7
 	assignmentIDs := []int{12, 3, 45}
 	singleAssignmentIDs := []int{12}
 	wantInput := check.CheckInput{
@@ -76,6 +76,7 @@ func TestCheckHandlerGetCheckInput(t *testing.T) {
 	}{
 		{name: "single assignment", method: "assignments", req: Request{AssignmentIds: &singleAssignmentIDs}, ids: []string{"12"}},
 		{name: "assignments", method: "assignments", req: Request{AssignmentIds: &assignmentIDs}, ids: []string{"12", "3", "45"}},
+		{name: "legacy single assignment", method: "assignments", req: Request{AssignmentId: &legacyAssignmentID}, ids: []string{"7"}},
 		{name: "contest", method: "contest", req: Request{ContestId: &contestID}, ids: []string{"34"}},
 		{name: "workbook", method: "workbook", req: Request{WorkbookId: &workbookID}, ids: []string{"56"}},
 	}
@@ -116,7 +117,7 @@ func TestCheckHandlerGetCheckInput(t *testing.T) {
 }
 
 func TestCheckHandlerGetCheckInput_InvalidRequest(t *testing.T) {
-	contestID, workbookID := 34, 56
+	contestID, workbookID, legacyAssignmentID := 34, 56, 7
 	assignmentIDs := []int{12, 3}
 	emptyIDs := []int{}
 	var nilIDs []int
@@ -133,6 +134,8 @@ func TestCheckHandlerGetCheckInput_InvalidRequest(t *testing.T) {
 		{name: "assignments and workbook", req: Request{AssignmentIds: &assignmentIDs, WorkbookId: &workbookID}, wantErr: ambiguous},
 		{name: "contest and workbook", req: Request{ContestId: &contestID, WorkbookId: &workbookID}, wantErr: ambiguous},
 		{name: "all sources", req: Request{AssignmentIds: &assignmentIDs, ContestId: &contestID, WorkbookId: &workbookID}, wantErr: ambiguous},
+		{name: "legacy and array assignments", req: Request{AssignmentId: &legacyAssignmentID, AssignmentIds: &assignmentIDs}, wantErr: ambiguous},
+		{name: "legacy assignment and contest", req: Request{AssignmentId: &legacyAssignmentID, ContestId: &contestID}, wantErr: ambiguous},
 	}
 
 	for _, tt := range tests {
@@ -158,6 +161,7 @@ func TestCheckHandlerGetCheckInput_ArrayMessages(t *testing.T) {
 		method  string
 		ids     []string
 	}{
+		{"legacy single assignment", `{"assignmentId":12,"contestId":null,"workbookId":null}`, "assignments", []string{"12"}},
 		{"single assignment", `{"assignmentIds":[12]}`, "assignments", []string{"12"}},
 		{"multiple assignments", `{"assignmentIds":[12,34]}`, "assignments", []string{"12", "34"}},
 		{"contest with empty array", `{"assignmentIds":[],"contestId":34}`, "contest", []string{"34"}},
