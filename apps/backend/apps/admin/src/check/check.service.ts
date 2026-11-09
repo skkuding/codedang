@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -135,7 +136,9 @@ export class CheckService {
     problemId: number
     targets: { assignmentId: number; groupId: number }[]
   }) {
-    if (targets.length === 0) return
+    if (targets.length === 0) {
+      throw new BadRequestException('At least one assignment is required')
+    }
 
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
       where: {
@@ -216,7 +219,7 @@ export class CheckService {
       checkInput,
       problemId,
       idOptions: {
-        assignmentId
+        assignmentIds: [assignmentId]
       }
     })
   }
@@ -281,7 +284,6 @@ export class CheckService {
     problemId: number
     idOptions: {
       contestId?: number
-      assignmentId?: number
       assignmentIds?: number[]
       workbookId?: number
     }
@@ -304,7 +306,8 @@ export class CheckService {
           enableMerging,
           useJplagClustering,
           minTokens,
-          ...idOptions
+          ...idOptions,
+          assignmentIds: [...new Set(idOptions.assignmentIds ?? [])]
         }
       })
 
@@ -320,6 +323,31 @@ export class CheckService {
     }
   }
 
+  private async getCheckRequestScope(
+    groupId: number,
+    where: Prisma.CheckRequestWhereInput
+  ): Promise<Prisma.CheckRequestWhereInput> {
+    const assignments = await this.prisma.assignment.findMany({
+      where: { groupId },
+      select: { id: true }
+    })
+    const assignmentIds = assignments.map(({ id }) => id)
+    const requests = await this.prisma.checkRequest.findMany({
+      where: { AND: [where, { assignmentIds: { hasSome: assignmentIds } }] },
+      select: { id: true, assignmentIds: true }
+    })
+    const allowedIds = new Set(assignmentIds)
+    return {
+      id: {
+        in: requests
+          .filter((request) =>
+            request.assignmentIds.every((id) => allowedIds.has(id))
+          )
+          .map(({ id }) => id)
+      }
+    }
+  }
+
   @Span()
   async getCheckRequests({
     problemId,
@@ -330,17 +358,19 @@ export class CheckService {
     assignmentId: number
     groupId: number
   }) {
+    const scope = await this.getCheckRequestScope(groupId, {
+      problemId,
+      assignmentIds: { has: assignmentId }
+    })
     return await this.prisma.checkRequest.findMany({
       where: {
         problemId,
-        assignment: {
-          id: assignmentId,
-          groupId
-        }
+        AND: [scope, { assignmentIds: { has: assignmentId } }]
       },
       select: {
         id: true,
         userId: true,
+        assignmentIds: true,
         language: true,
         enableMerging: true,
         minTokens: true,
@@ -379,12 +409,13 @@ export class CheckService {
     take: number
     cursor: number | null
   }) {
+    const scope = await this.getCheckRequestScope(groupId, {
+      id: checkId
+    })
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         id: checkId,
-        assignment: {
-          groupId
-        }
+        AND: [scope]
       },
       select: {
         result: true
@@ -485,10 +516,14 @@ export class CheckService {
     cursor: number | null
   }) {
     await this.validateAssignment({ assignmentId, problemId, groupId })
+    const scope = await this.getCheckRequestScope(groupId, {
+      problemId,
+      assignmentIds: { has: assignmentId }
+    })
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         problemId,
-        assignmentId
+        AND: [scope, { assignmentIds: { has: assignmentId } }]
       },
       select: {
         id: true
@@ -526,18 +561,13 @@ export class CheckService {
     groupId: number
     clusterId: number
   }) {
+    const scope = await this.getCheckRequestScope(groupId, {
+      CheckResult: { some: { clusterId } }
+    })
     const cluster = await this.prisma.plagiarismCluster.findFirst({
       where: {
         id: clusterId,
-        SubmissionCluster: {
-          every: {
-            submission: {
-              assignment: {
-                groupId
-              }
-            }
-          }
-        }
+        CheckResult: { some: { request: scope } }
       },
       select: {
         id: true,
@@ -590,14 +620,13 @@ export class CheckService {
     groupId: number
     resultId: number
   }) {
+    const scope = await this.getCheckRequestScope(groupId, {
+      CheckResult: { some: { id: resultId } }
+    })
     const result = await this.prisma.checkResult.findFirst({
       where: {
         id: resultId,
-        request: {
-          assignment: {
-            groupId
-          }
-        }
+        request: scope
       },
       select: {
         requestId: true,

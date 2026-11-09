@@ -6,8 +6,7 @@ export class CheckRequestMsg {
   enableMerging: boolean
   useJplagClustering: boolean
   minTokens: number
-  assignmentId: number | null
-  assignmentIds: number[] | null
+  assignmentIds: number[]
   contestId: number | null
   workbookId: number | null
 
@@ -17,7 +16,6 @@ export class CheckRequestMsg {
     minTokens: number,
     enableMerging = false,
     useJplagClustering = true,
-    assignmentId?: number,
     assignmentIds?: number[],
     contestId?: number,
     workbookId?: number
@@ -27,8 +25,7 @@ export class CheckRequestMsg {
     this.minTokens = minTokens
     this.enableMerging = enableMerging
     this.useJplagClustering = useJplagClustering
-    this.assignmentId = assignmentId !== undefined ? assignmentId : null
-    this.assignmentIds = assignmentIds !== undefined ? assignmentIds : null
+    this.assignmentIds = assignmentIds ?? []
     this.contestId = contestId !== undefined ? contestId : null
     this.workbookId = workbookId !== undefined ? workbookId : null
   }

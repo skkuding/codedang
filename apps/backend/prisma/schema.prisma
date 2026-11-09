@@ -447,7 +447,6 @@ model Assignment {
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
   testSubmission    TestSubmission[]
-  CheckRequest      CheckRequest[]
   courseQnA         CourseQnA[]
 
   @@index([groupId, week])
@@ -858,8 +857,7 @@ model CheckRequest {
   enableMerging      Boolean           @map("enable_merging")
   minTokens          Int               @map("min_tokens")
   useJplagClustering Boolean           @map("use_jplag_clustering")
-  assignment         Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId       Int?              @map("assignment_id")
+  assignmentIds      Int[]             @default([]) @map("assignment_ids")
   contest            Contest?          @relation(fields: [contestId], references: [id], onDelete: Cascade)
   contestId          Int?              @map("contest_id")
   workbook           Workbook?         @relation(fields: [workbookId], references: [id])

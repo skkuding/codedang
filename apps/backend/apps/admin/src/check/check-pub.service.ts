@@ -22,7 +22,7 @@ export class CheckPublicationService {
       check.minTokens,
       check.enableMerging,
       check.useJplagClustering,
-      check.assignmentId ? check.assignmentId : undefined,
+      check.assignmentIds,
       check.contestId ? check.contestId : undefined,
       check.workbookId ? check.workbookId : undefined
     )

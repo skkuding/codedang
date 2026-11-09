@@ -1,15 +1,13 @@
 import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
 import type { AuthenticatedRequest } from '@libs/auth'
 import { CheckRequest } from '@admin/@generated'
-import { CheckResolver } from './check.resolver'
 import { CheckService } from './check.service'
 import {
   CreatePlagiarismCheckInput,
   CreatePlagiarismTargetsInput
 } from './model/create-check.input'
 
-// This Resolver is for Temporary.
-@Resolver(() => CheckResolver)
+@Resolver(() => CheckRequest)
 export class CheckAdminResolver {
   constructor(private readonly checkService: CheckService) {}
 
