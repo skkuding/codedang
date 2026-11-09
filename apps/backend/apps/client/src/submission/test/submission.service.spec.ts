@@ -205,9 +205,9 @@ describe('SubmissionService', () => {
 
   afterEach(() => {
     for (const model of Object.values(db)) {
-      if (typeof model === 'object') {
-        for (const method of Object.values(model)) {
-          if ('reset' in method) method.reset()
+      if (model && typeof model === 'object') {
+        for (const method of Object.values(model) as SinonStub[]) {
+          method.reset()
         }
       }
     }
@@ -1210,12 +1210,20 @@ describe('SubmissionService', () => {
         userId: userId + 1,
         user: { username: 'other' },
         submissionResult: [
-          { result: ResultStatus.Accepted, problemTestcase: { isHidden: true } }
+          {
+            result: ResultStatus.Accepted,
+            problemTestcase: { isHidden: false }
+          },
+          {
+            result: ResultStatus.WrongAnswer,
+            problemTestcase: { isHidden: true }
+          }
         ]
       })
       const result = await service.getSubmission(detail)
-      expect(result.testcaseResult).to.deep.equal([])
-      expect(result.result).to.equal(ResultStatus.ServerError)
+      expect(result.testcaseResult).to.have.lengthOf(1)
+      expect(result.testcaseResult[0].problemTestcase.isHidden).to.be.false
+      expect(result.result).to.equal(ResultStatus.Accepted)
     })
   })
 
