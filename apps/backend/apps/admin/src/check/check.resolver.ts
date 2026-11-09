@@ -1,11 +1,6 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseGroupLeaderGuard } from '@libs/auth'
-import {
-  CursorValidationPipe,
-  GroupIDPipe,
-  GroupIDsPipe,
-  RequiredIntPipe
-} from '@libs/pipe'
+import { CursorValidationPipe, GroupIDPipe, RequiredIntPipe } from '@libs/pipe'
 import { CheckRequest } from '@admin/@generated'
 import { CheckService } from './check.service'
 import {
@@ -77,20 +72,6 @@ export class CheckResolver {
       groupId
     })
   }
-
-  /** */
-  @Mutation(() => CheckRequest)
-  async checkAssignmentsSubmissions(
-    @Context('req') req: AuthenticatedRequest,
-    @Args('input', {
-      nullable: false,
-      type: () => CreatePlagiarismCheckInput
-    })
-    checkInput: CreatePlagiarismCheckInput,
-    @Args('problemId', { type: () => Int }) problemId: number,
-    @Args('assignmentIds', { type: () => [Int] }) assignmentIds: number[],
-    @Args('groupIds', { type: () => [Int] }, GroupIDsPipe) groupId: number[]
-  ) {}
 
   /**
    * 완료된 표절 검사 요청의 결과를 조회합니다.
