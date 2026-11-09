@@ -1,4 +1,5 @@
-import { Args, Int, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql'
+import type { AuthenticatedRequest } from '@libs/auth'
 import { CheckRequest } from '@admin/@generated'
 import { CheckResolver } from './check.resolver'
 import type { CheckService } from './check.service'
@@ -14,6 +15,7 @@ export class CheckAdminResolver {
 
   @Mutation(() => CheckRequest)
   async checkAssignmentsSubmissions(
+    @Context('req') req: AuthenticatedRequest,
     @Args('input', {
       nullable: false,
       type: () => CreatePlagiarismCheckInput
@@ -24,6 +26,13 @@ export class CheckAdminResolver {
       nullable: false,
       type: () => [CreatePlagiarismTargetsInput]
     })
-    targetsInput: CreatePlagiarismTargetsInput[]
-  ) {}
+    targets: CreatePlagiarismTargetsInput[]
+  ) {
+    return await this.checkService.checkAssignmentsProblem({
+      user: req.user,
+      checkInput,
+      problemId,
+      targets
+    })
+  }
 }
