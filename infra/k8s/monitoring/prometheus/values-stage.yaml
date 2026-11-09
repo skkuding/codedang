@@ -21,6 +21,9 @@ defaultRules:
 prometheus:
   prometheusSpec:
     retention: 90d
+    # Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+    nodeSelector:
+      kubernetes.io/hostname: skkuding-1
     enableRemoteWriteReceiver: true
     storageSpec:
       volumeClaimTemplate:
