@@ -16,7 +16,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
 import { Match } from './model/check-result.dto'
-import { CreatePlagiarismCheckInput } from './model/create-check.input'
+import {
+  CreatePlagiarismCheckInput,
+  type CreatePlagiarismTargetsInput
+} from './model/create-check.input'
 
 @Injectable()
 export class CheckService {
@@ -114,17 +117,74 @@ export class CheckService {
   }
 
   /**
+   * 표절검사가 가능한 그룹과 과제 페어인지 확인합니다.
    *
+   * @param {number} problemId
+   * @param {{ assignmentId: number; groupId: number }} targets
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - Assignment가 주어진 group에 존재하지 않을 때
+   * - 주어진 아이디의 AssignmentProblem가 존재하지 않을 때
+   * - AssignmentDueTime이 존재하지 않을 때
+   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * - 과제의 dueTime이 지나기 전일 때
    */
   async validateAssignments({
-    assignmentIds,
     problemId,
-    groupIds
+    targets
   }: {
-    assignmentIds: number[]
     problemId: number
-    groupIds: number[]
-  }) {}
+    targets: { assignmentId: number; groupId: number }[]
+  }) {
+    if (targets.length === 0) return
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: {
+        problemId,
+        OR: targets.map(({ assignmentId, groupId }) => ({
+          assignmentId,
+          assignment: {
+            groupId
+          }
+        }))
+      },
+      select: {
+        assignmentId: true,
+        assignment: {
+          select: {
+            groupId: true,
+            dueTime: true
+          }
+        }
+      }
+    })
+
+    const assignmentMap = new Map(
+      assignmentProblems.map((ap) => [
+        `${ap.assignmentId}:${ap.assignment.groupId}`,
+        ap.assignment.dueTime
+      ])
+    )
+
+    const now = Date.now()
+
+    for (const { assignmentId, groupId } of targets) {
+      const key = `${assignmentId}:${groupId}`
+
+      if (!assignmentMap.has(key)) {
+        throw new EntityNotExistException('AssignmentProblem')
+      }
+
+      const dueTime = assignmentMap.get(key)
+
+      if (!dueTime) {
+        throw new EntityNotExistException('AssignmentDueTime')
+      }
+
+      if (dueTime.getTime() > now) {
+        throw new ForbiddenException('Before the Due Time has passed yet.')
+      }
+    }
+  }
 
   /**
    * 한 assignment의 problem에 대해 표절 검사를 요청합니다.
@@ -175,17 +235,26 @@ export class CheckService {
   async checkAssignmentsProblem({
     user,
     checkInput,
-    assignmentIds,
     problemId,
-    groupIds
+    targets
   }: {
     user: AuthenticatedUser
     checkInput: CreatePlagiarismCheckInput
-    assignmentIds: number[]
     problemId: number
-    groupIds: number[]
+    targets: CreatePlagiarismTargetsInput[]
   }) {
-    await this.validateAssignments({ assignmentIds, problemId, groupIds })
+    await this.validateAssignments({ problemId, targets })
+
+    const assignmentIds = targets.map((v) => v.assignmentId)
+
+    return await this.checkProblem({
+      userId: user.id,
+      checkInput,
+      problemId,
+      idOptions: {
+        assignmentIds
+      }
+    })
   }
 
   /**
@@ -213,6 +282,7 @@ export class CheckService {
     idOptions: {
       contestId?: number
       assignmentId?: number
+      assignmentIds?: number[]
       workbookId?: number
     }
   }) {
