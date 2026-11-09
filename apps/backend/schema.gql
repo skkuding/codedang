@@ -66,7 +66,6 @@ type AnnouncementWithProblemOrder {
 }
 
 type Assignment {
-  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -103,7 +102,6 @@ type AssignmentAvgAggregate {
 }
 
 type AssignmentCount {
-  CheckRequest: Int!
   assignmentProblem: Int!
   assignmentRecord: Int!
   courseQnA: Int!
@@ -459,7 +457,6 @@ type AssignmentSumAggregate {
 
 """assignmentWithParticipants"""
 type AssignmentWithParticipants {
-  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -490,7 +487,6 @@ type AssignmentWithParticipants {
 }
 
 type AssignmentWithScores {
-  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
@@ -530,8 +526,7 @@ type AssignmentsGroupedByStatus {
 type CheckRequest {
   CheckResult: [CheckResult!]
   _count: CheckRequestCount!
-  assignment: Assignment
-  assignmentId: Int
+  assignmentIds: [Int!]
   contest: Contest
   contestId: Int
   createTime: DateTime!
@@ -550,7 +545,7 @@ type CheckRequest {
 }
 
 type CheckRequestAvgAggregate {
-  assignmentId: Float
+  assignmentIds: Float
   contestId: Float
   id: Float
   minTokens: Float
@@ -565,7 +560,7 @@ type CheckRequestCount {
 
 type CheckRequestCountAggregate {
   _all: Int!
-  assignmentId: Int!
+  assignmentIds: Int!
   contestId: Int!
   createTime: Int!
   enableMerging: Int!
@@ -580,7 +575,6 @@ type CheckRequestCountAggregate {
 }
 
 type CheckRequestMaxAggregate {
-  assignmentId: Int
   contestId: Int
   createTime: DateTime
   enableMerging: Boolean
@@ -595,7 +589,6 @@ type CheckRequestMaxAggregate {
 }
 
 type CheckRequestMinAggregate {
-  assignmentId: Int
   contestId: Int
   createTime: DateTime
   enableMerging: Boolean
@@ -610,7 +603,7 @@ type CheckRequestMinAggregate {
 }
 
 type CheckRequestSumAggregate {
-  assignmentId: Int
+  assignmentIds: [Int!]
   contestId: Int
   id: Int
   minTokens: Int
@@ -1964,6 +1957,11 @@ input CreatePlagiarismCheckInput {
   useJplagClustering: Boolean! = true
 }
 
+input CreatePlagiarismTargetsInput {
+  assignmentId: Int!
+  groupId: Int!
+}
+
 input CreateProblemInput {
   description: String!
   difficulty: Level!
@@ -2350,6 +2348,7 @@ type Match {
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
+  checkAssignmentsSubmissions(input: CreatePlagiarismCheckInput!, problemId: Int!, targets: [CreatePlagiarismTargetsInput!]!): CheckRequest!
   cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
