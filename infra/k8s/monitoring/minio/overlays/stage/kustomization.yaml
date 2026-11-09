@@ -12,3 +12,7 @@ patches:
     target:
       kind: Tenant
       name: minio
+  - path: tenant-image.yaml
+    target:
+      kind: Tenant
+      name: minio
