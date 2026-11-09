@@ -183,7 +183,7 @@ func (p *Postgres) GetAllCodesFromAssignments(problemId string, language string,
 	const query = `SELECT DISTINCT ON (user_id, assignment_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
                 FROM public.submission
                 WHERE problem_id = $1 AND language = $2 AND assignment_id = ANY($3::INT4[])
-                ORDER BY user_id, update_time DESC;`
+                ORDER BY user_id, assignment_id, update_time DESC;`
 
 	rows, err := p.client.Query(query, problemId, language, pq.Array(assignmentId))
 	if err != nil {

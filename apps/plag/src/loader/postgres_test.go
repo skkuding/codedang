@@ -101,7 +101,7 @@ func TestPostgresGetAllCodesFromAssignments(t *testing.T) {
 	const query = `SELECT DISTINCT ON (user_id, assignment_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
 		FROM public.submission
 		WHERE problem_id = $1 AND language = $2 AND assignment_id = ANY($3::INT4[])
-		ORDER BY user_id, update_time DESC;`
+		ORDER BY user_id, assignment_id, update_time DESC;`
 	const baseCodeQuery = `SELECT COALESCE(to_jsonb(template), '[]'::jsonb) FROM public.problem WHERE id = $1`
 	const code = `[{"text":"print("},{"text":"1)\n"}]`
 	const template = `["[{\"language\":\"Java\",\"code\":[{\"text\":\"ignored\"}]},{\"language\":\"Python3\",\"code\":[{\"text\":\"# base\"},{\"text\":\"\\n\"}]}]"]`
