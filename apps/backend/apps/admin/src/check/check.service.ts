@@ -319,7 +319,6 @@ export class CheckService {
 
     try {
       const check = await this.prisma.$transaction(async (tx) => {
-        // 요청이 저장될 때까지 대상 과제가 삭제되지 않도록 잠급니다.
         if (assignmentIds.length > 0) {
           const assignments = await tx.$queryRaw<{ id: number }[]>`
             SELECT id FROM public.assignment
