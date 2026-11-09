@@ -36,31 +36,42 @@ export class CheckService {
    *
    * @param {number} problemId
    * @param {Language} language
+   * @param {number[]} assignmentIds 검사 대상 과제 아이디 목록
+   * @param {number} contestId 검사 대상 대회 아이디
+   * @param {number} workbookId 검사 대상 워크북 아이디
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 유저 간의 중복이 없을 때, 제출물의 수가 1개 이하인 경우
+   * - 검사 대상에 제출한 서로 다른 유저가 2명 미만인 경우
    */
   @Span()
   async validateRequest({
     problemId,
-    language
+    language,
+    assignmentIds,
+    contestId,
+    workbookId
   }: {
     problemId: number
     language: Language
+    assignmentIds?: number[]
+    contestId?: number
+    workbookId?: number
   }) {
     const submissions = await this.prisma.submission.findMany({
       where: {
         problemId,
-        language
+        language,
+        userId: { not: null },
+        assignmentId: assignmentIds?.length ? { in: assignmentIds } : undefined,
+        contestId,
+        workbookId
       },
       select: {
         userId: true
-      }
+      },
+      distinct: ['userId']
     })
 
-    const uniqueUserSubmissions = submissions.filter(
-      (value, index, self) => value !== null && self.indexOf(value) === index
-    )
-    if (uniqueUserSubmissions.length < 2) {
+    if (submissions.length < 2) {
       throw new EntityNotExistException('There are not enough submissions')
     }
   }
@@ -126,9 +137,10 @@ export class CheckService {
    * - Assignment가 주어진 group에 존재하지 않을 때
    * - 주어진 아이디의 AssignmentProblem가 존재하지 않을 때
    * - AssignmentDueTime이 존재하지 않을 때
-   * @throws {NotFoundException} 아래와 같은 경우 발생합니다.
+   * @throws {ForbiddenException} 아래와 같은 경우 발생합니다.
    * - 과제의 dueTime이 지나기 전일 때
    */
+  @Span()
   async validateAssignments({
     problemId,
     targets
@@ -233,6 +245,7 @@ export class CheckService {
    * @param {number[]} assignmentIds 과제 아이디
    * @param {number} problemId 문제 아이디
    * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
+   * @throws {ForbiddenException} 요청자가 Admin 또는 SuperAdmin이 아닐 때 발생합니다.
    */
   @Span()
   async checkAssignmentsProblem({
@@ -246,6 +259,10 @@ export class CheckService {
     problemId: number
     targets: CreatePlagiarismTargetsInput[]
   }) {
+    if (!user.isAdmin() && !user.isSuperAdmin()) {
+      throw new ForbiddenException('Only admins can request this check')
+    }
+
     await this.validateAssignments({ problemId, targets })
 
     const assignmentIds = targets.map((v) => v.assignmentId)
@@ -290,7 +307,8 @@ export class CheckService {
   }) {
     await this.validateRequest({
       problemId,
-      language: checkInput.language
+      language: checkInput.language,
+      ...idOptions
     })
 
     const { language, enableMerging, useJplagClustering, minTokens } =

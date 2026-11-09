@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException } from '@nestjs/common'
 import {
   CheckResultStatus,
   Language,
@@ -9,12 +9,15 @@ import { expect } from 'chai'
 import { stub } from 'sinon'
 import type { CheckAMQPService } from '@libs/amqp'
 import { AuthenticatedUser } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
 import { CheckService } from './check.service'
 
 const admin = new AuthenticatedUser(1, 'admin', Role.Admin)
 const leader = new AuthenticatedUser(2, 'leader', Role.User)
+const manager = new AuthenticatedUser(3, 'manager', Role.Manager)
+const superAdmin = new AuthenticatedUser(4, 'superAdmin', Role.SuperAdmin)
 const checkInput = {
   language: Language.Python3,
   minTokens: 12,
@@ -26,7 +29,8 @@ describe('CheckService assignment arrays', () => {
   const createService = () => {
     const prisma = {
       assignment: { findMany: stub().resolves([{ id: 10 }, { id: 11 }]) },
-      checkRequest: { findMany: stub(), create: stub() }
+      checkRequest: { findMany: stub(), create: stub() },
+      submission: { findMany: stub() }
     }
     const publish = { publishCheckRequestMessage: stub().resolves() }
     const service = new CheckService(
@@ -78,6 +82,69 @@ describe('CheckService assignment arrays', () => {
     expect(
       prisma.checkRequest.create.firstCall.args[0].data.assignmentIds
     ).to.deep.equal([10, 11])
+  })
+
+  for (const [role, user] of [
+    ['User', leader],
+    ['Manager', manager]
+  ] as const) {
+    it(`forbids ${role} from requesting a multi-assignment check`, async () => {
+      const { service, prisma } = createService()
+      const validateAssignments = stub(
+        service,
+        'validateAssignments'
+      ).resolves()
+      await expect(
+        service.checkAssignmentsProblem({
+          user,
+          checkInput,
+          problemId: 1,
+          targets: [{ assignmentId: 10, groupId: 1 }]
+        })
+      ).to.be.rejectedWith(ForbiddenException)
+      expect(validateAssignments.called).to.equal(false)
+      expect(prisma.checkRequest.create.called).to.equal(false)
+    })
+  }
+
+  it('allows SuperAdmin to request a multi-assignment check', async () => {
+    const { service, prisma } = createService()
+    stub(service, 'validateAssignments').resolves()
+    stub(service, 'validateRequest').resolves()
+    prisma.checkRequest.create.resolves({ id: 1 })
+    await service.checkAssignmentsProblem({
+      user: superAdmin,
+      checkInput,
+      problemId: 1,
+      targets: [{ assignmentId: 10, groupId: 1 }]
+    })
+    expect(prisma.checkRequest.create.calledOnce).to.equal(true)
+  })
+
+  it('counts distinct users only within the requested assignments', async () => {
+    const { service, prisma } = createService()
+    prisma.submission.findMany.resolves([{ userId: 1 }, { userId: 2 }])
+    await service.validateRequest({
+      problemId: 1,
+      language: Language.Python3,
+      assignmentIds: [10, 11]
+    })
+    const args = prisma.submission.findMany.firstCall.args[0]
+    expect(args.where.assignmentId).to.deep.equal({ in: [10, 11] })
+    expect(args.where.userId).to.deep.equal({ not: null })
+    expect(args.distinct).to.deep.equal(['userId'])
+  })
+
+  it('rejects a request when fewer than two users submitted', async () => {
+    const { service, prisma } = createService()
+    prisma.submission.findMany.resolves([{ userId: 1 }])
+    await expect(
+      service.validateRequest({
+        problemId: 1,
+        language: Language.Python3,
+        assignmentIds: [10, 11]
+      })
+    ).to.be.rejectedWith(EntityNotExistException)
   })
 
   it('rejects empty targets before creating a request', async () => {
