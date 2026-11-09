@@ -114,6 +114,19 @@ export class CheckService {
   }
 
   /**
+   *
+   */
+  async validateAssignments({
+    assignmentIds,
+    problemId,
+    groupIds
+  }: {
+    assignmentIds: number[]
+    problemId: number
+    groupIds: number[]
+  }) {}
+
+  /**
    * 한 assignment의 problem에 대해 표절 검사를 요청합니다.
    *
    * @param {number} userId 검사를 요청한 유저의 아이디
@@ -146,6 +159,33 @@ export class CheckService {
         assignmentId
       }
     })
+  }
+
+  /**
+   * 여러 assignment에 대해 한 Problem에 대해 표절 검사를 요청합니다.
+   * 모든 assignment에 대해 해당 problem이 존재하는지 먼저 검사합니다.
+   *
+   * @param {number} userId 검사를 요청한 유저의 아이디
+   * @param {CreatePlagiarismCheckInput} checkInput 표절 검사 설정
+   * @param {number[]} assignmentIds 과제 아이디
+   * @param {number} problemId 문제 아이디
+   * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
+   */
+  @Span()
+  async checkAssignmentsProblem({
+    user,
+    checkInput,
+    assignmentIds,
+    problemId,
+    groupIds
+  }: {
+    user: AuthenticatedUser
+    checkInput: CreatePlagiarismCheckInput
+    assignmentIds: number[]
+    problemId: number
+    groupIds: number[]
+  }) {
+    await this.validateAssignments({ assignmentIds, problemId, groupIds })
   }
 
   /**
