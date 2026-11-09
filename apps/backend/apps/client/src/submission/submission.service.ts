@@ -512,12 +512,19 @@ export class SubmissionService {
         })
       }
       if (contestId && userId) {
-        await prisma.contestRecord.upsert({
+        const registration = await prisma.userContest.findUnique({
           // eslint-disable-next-line @typescript-eslint/naming-convention
-          where: { contestId_userId: { contestId, userId } },
-          create: { contestId, userId },
-          update: { userId }
+          where: { userId_contestId: { userId, contestId } },
+          select: { role: true }
         })
+        if (registration?.role === ContestRole.Participant) {
+          await prisma.contestRecord.upsert({
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            where: { contestId_userId: { contestId, userId } },
+            create: { contestId, userId },
+            update: { userId }
+          })
+        }
       }
       return prisma.submission.create({ data })
     })

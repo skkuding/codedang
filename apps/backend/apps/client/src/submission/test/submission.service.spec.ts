@@ -5,7 +5,13 @@ import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import type { Contest, User, Assignment } from '@prisma/client'
-import { Language, Prisma, ResultStatus, Role } from '@prisma/client'
+import {
+  ContestRole,
+  Language,
+  Prisma,
+  ResultStatus,
+  Role
+} from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
@@ -1228,6 +1234,49 @@ describe('SubmissionService', () => {
   })
 
   describe('record persistence', () => {
+    beforeEach(() => {
+      db.userContest.findUnique.resolves({ role: ContestRole.Participant })
+    })
+
+    for (const role of [
+      ContestRole.Admin,
+      ContestRole.Manager,
+      ContestRole.Reviewer
+    ]) {
+      for (const hasTestcases of [true, false]) {
+        it(`does not create ranking records for ${role} before ${hasTestcases ? 'publishing' : 'immediate finalization'}`, async () => {
+          const saved = { ...submissions[0], contestId: CONTEST_ID }
+          db.userContest.findFirst.resolves({ id: 1 })
+          db.userContest.findUnique.resolves({ role })
+          db.contest.findFirst.resolves(mockContest)
+          db.contestProblem.findUnique.resolves({ problem: problems[0] })
+          db.submission.create.resolves(saved)
+          stub(service, 'getJudgeableTestcases').resolves(
+            hasTestcases ? [{ id: 1, isHidden: false }] : []
+          )
+          stub(service, 'createSubmissionResults').resolves()
+          const publishStub = stub(publish, 'publishJudgeRequestMessage')
+
+          const result = await service.submitToContest({
+            submissionDto,
+            problemId: problems[0].id,
+            contestId: CONTEST_ID,
+            userId: saved.userId,
+            userIp: USERIP
+          })
+
+          expect(result).to.equal(saved)
+          expect(db.contestRecord.upsert.called).to.be.false
+          expect(db.submission.create.calledOnce).to.be.true
+          const afterSave = hasTestcases
+            ? publishStub
+            : (finalization.applyFinalizationEffects as SinonStub)
+          expect(db.submission.create.calledBefore(afterSave)).to.be.true
+          expect(afterSave.calledOnce).to.be.true
+        })
+      }
+    }
+
     for (const kind of ['assignment', 'contest'] as const) {
       for (const hasTestcases of [true, false]) {
         it(`initializes ${kind} records before ${hasTestcases ? 'publishing' : 'immediate finalization'}`, async () => {
