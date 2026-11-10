@@ -17,8 +17,12 @@ export default async function ContestFinishedPage(
   }>()
   const status = getStatusWithStartEnd(contest.startTime, contest.endTime)
 
-  if (status !== 'finished') {
+  if (status === 'upcoming') {
     redirect(`/contest/${contestId}/problem`)
+  }
+
+  if (status === 'ongoing') {
+    redirect(`/contest/${contestId}/problem/${problemId}`)
   }
 
   return (
