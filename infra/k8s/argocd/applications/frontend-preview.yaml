@@ -40,7 +40,7 @@ spec:
           # kustomization.yaml is ignored if recurse is true
           recurse: false
         kustomize:
-          namespace: 'frontend-preview' # reuse TLS certificate secret in the same namespace
+          namespace: 'frontend-preview' # all previews share this namespace; namePrefix keeps resources distinct
           namePrefix: 'preview-{{.number}}-' # some resources must start with alphabetic character
           commonLabels:
             app: 'preview-{{.number}}-frontend'
@@ -57,19 +57,6 @@ spec:
                 - op: replace
                   path: /data/NEXTAUTH_URL
                   value: 'https://{{.number}}.preview.codedang.com/next-auth/api/auth'
-            - target:
-                kind: Ingress
-                name: frontend-ingress
-              patch: |-
-                - op: replace
-                  path: /spec/tls/0/hosts/0
-                  value: '*.preview.codedang.com'
-                - op: replace
-                  path: /spec/tls/0/secretName
-                  value: frontend-preview-tls
-                - op: replace
-                  path: /spec/rules/0/host
-                  value: '{{.number}}.preview.codedang.com'
             - target:
                 kind: HTTPRoute
                 name: frontend-httproute
