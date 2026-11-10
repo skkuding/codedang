@@ -5,6 +5,7 @@ import {
   Injectable,
   NotAcceptableException
 } from '@nestjs/common'
+import type KeyvRedis from '@keyv/redis'
 import {
   GroupType,
   Role,
@@ -420,7 +421,6 @@ export class GroupService {
       if (whitelistExists) {
         const joinRequestCount = await this.getUserRetryCount(userId, groupId)
 
-        // 15분 이내 3회 이상 재시도 시 요청을 거부합니다.
         if (joinRequestCount >= 3) {
           throw new ForbiddenAccessException('Join request count exceed')
         }
@@ -440,8 +440,11 @@ export class GroupService {
         })
 
         if (studentId !== user.studentId || !isUserWhitelisted) {
-          const newUserRequestCount = joinRequestCount + 1
-          await this.updateRetryCount(userId, groupId, newUserRequestCount)
+          const count = await this.incrementRetryCount(userId, groupId)
+
+          if (count === -1) {
+            throw new ForbiddenAccessException('Join request count exceed')
+          }
 
           throw new ForbiddenAccessException('Whitelist violation')
         }
@@ -530,12 +533,35 @@ export class GroupService {
     return count || 0
   }
 
-  async updateRetryCount(userId: number, courseId: number, count: number) {
-    await this.cacheManager.set<number>(
-      studentRetryKey(userId, courseId),
-      count,
-      STUDENT_RETRY_EXPIRE_TIME
+  async incrementRetryCount(userId: number, courseId: number) {
+    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
+    const client = await store.getClient()
+
+    const key = studentRetryKey(courseId, userId)
+
+    const result = await client.eval(
+      `
+      local count = tonumber(redis.call('GET', KEYS[1]) or '0')
+
+      if count >= 3 then
+        return -1
+      end
+
+      count = redis.call('INCR', KEYS[1])
+
+      if count == 1 then
+        redis.call('PEXPIRE', KEYS[1], ARGV[1])
+      end
+
+      return count
+      `,
+      {
+        keys: [key],
+        arguments: [String(STUDENT_RETRY_EXPIRE_TIME)]
+      }
     )
+
+    return Number(result)
   }
 
   /**
