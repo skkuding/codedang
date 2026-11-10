@@ -2,10 +2,6 @@ package check
 
 import "github.com/skkuding/codedang/apps/plag/src/loader"
 
-// ExcludeSameUserResults removes results that only compare a student with
-// themself. A student can have one submission per assignment in a
-// multi-assignment check, and those submissions must not be reported as
-// plagiarism. Clusters that still include another student are kept as is.
 func ExcludeSameUserResults(
 	comparisons []ComparisonWithID,
 	clusters []ClusterWithID,
