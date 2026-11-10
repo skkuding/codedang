@@ -287,7 +287,7 @@ export class CheckService {
    * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - Prisma에 요청을 기록할 수 없을 때
-   * @throws {EntityNotExistException} 대상 과제가 그 사이 삭제되었을 때 발생합니다.
+   * @throws {EntityNotExistException} 대상 과제가 존재하지 않을 때 발생합니다.
    * @throws Publish 과정에서 오류가 발생할 수 있습니다.
    */
   @Span()
@@ -315,34 +315,27 @@ export class CheckService {
     const { language, enableMerging, useJplagClustering, minTokens } =
       checkInput
 
-    const assignmentIds = [...new Set(idOptions.assignmentIds ?? [])]
+    const { assignmentIds = [], contestId, workbookId } = idOptions
 
     try {
-      const check = await this.prisma.$transaction(async (tx) => {
-        if (assignmentIds.length > 0) {
-          const assignments = await tx.$queryRaw<{ id: number }[]>`
-            SELECT id FROM public.assignment
-            WHERE id = ANY(${assignmentIds}::int[])
-            FOR KEY SHARE`
-
-          if (assignments.length !== assignmentIds.length) {
-            throw new EntityNotExistException('Assignment')
+      const check = await this.prisma.checkRequest.create({
+        data: {
+          problemId,
+          result: CheckResultStatus.Pending,
+          userId,
+          language,
+          enableMerging,
+          useJplagClustering,
+          minTokens,
+          contestId,
+          workbookId,
+          assignments: {
+            create: [...new Set(assignmentIds)].map((assignmentId) => ({
+              assignmentId
+            }))
           }
-        }
-
-        return await tx.checkRequest.create({
-          data: {
-            problemId,
-            result: CheckResultStatus.Pending,
-            userId,
-            language,
-            enableMerging,
-            useJplagClustering,
-            minTokens,
-            ...idOptions,
-            assignmentIds
-          }
-        })
+        },
+        include: { assignments: true }
       })
 
       await this.publish.publishCheckRequestMessage({
@@ -351,34 +344,22 @@ export class CheckService {
       return check
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (
+          error.code === 'P2003' &&
+          error.meta?.constraint ===
+            'check_request_assignment_assignment_id_fkey'
+        ) {
+          throw new EntityNotExistException('Assignment')
+        }
         throw new UnprocessableDataException('Failed to create check record')
       }
       throw error
     }
   }
 
-  private async getCheckRequestScope(
-    groupId: number,
-    where: Prisma.CheckRequestWhereInput
-  ): Promise<Prisma.CheckRequestWhereInput> {
-    const assignments = await this.prisma.assignment.findMany({
-      where: { groupId },
-      select: { id: true }
-    })
-    const assignmentIds = assignments.map(({ id }) => id)
-    const requests = await this.prisma.checkRequest.findMany({
-      where: { AND: [where, { assignmentIds: { hasSome: assignmentIds } }] },
-      select: { id: true, assignmentIds: true }
-    })
-    const allowedIds = new Set(assignmentIds)
+  private checkRequestScope(groupId: number): Prisma.CheckRequestWhereInput {
     return {
-      id: {
-        in: requests
-          .filter((request) =>
-            request.assignmentIds.every((id) => allowedIds.has(id))
-          )
-          .map(({ id }) => id)
-      }
+      assignments: { some: {}, every: { assignment: { groupId } } }
     }
   }
 
@@ -392,19 +373,18 @@ export class CheckService {
     assignmentId: number
     groupId: number
   }) {
-    const scope = await this.getCheckRequestScope(groupId, {
-      problemId,
-      assignmentIds: { has: assignmentId }
-    })
     return await this.prisma.checkRequest.findMany({
       where: {
         problemId,
-        AND: [scope, { assignmentIds: { has: assignmentId } }]
+        AND: [
+          this.checkRequestScope(groupId),
+          { assignments: { some: { assignmentId } } }
+        ]
       },
       select: {
         id: true,
         userId: true,
-        assignmentIds: true,
+        assignments: { select: { assignmentId: true } },
         language: true,
         enableMerging: true,
         minTokens: true,
@@ -443,13 +423,10 @@ export class CheckService {
     take: number
     cursor: number | null
   }) {
-    const scope = await this.getCheckRequestScope(groupId, {
-      id: checkId
-    })
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         id: checkId,
-        AND: [scope]
+        ...this.checkRequestScope(groupId)
       },
       select: {
         result: true
@@ -550,14 +527,13 @@ export class CheckService {
     cursor: number | null
   }) {
     await this.validateAssignment({ assignmentId, problemId, groupId })
-    const scope = await this.getCheckRequestScope(groupId, {
-      problemId,
-      assignmentIds: { has: assignmentId }
-    })
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         problemId,
-        AND: [scope, { assignmentIds: { has: assignmentId } }]
+        AND: [
+          this.checkRequestScope(groupId),
+          { assignments: { some: { assignmentId } } }
+        ]
       },
       select: {
         id: true
@@ -595,13 +571,10 @@ export class CheckService {
     groupId: number
     clusterId: number
   }) {
-    const scope = await this.getCheckRequestScope(groupId, {
-      CheckResult: { some: { clusterId } }
-    })
     const cluster = await this.prisma.plagiarismCluster.findFirst({
       where: {
         id: clusterId,
-        CheckResult: { some: { request: scope } }
+        CheckResult: { some: { request: this.checkRequestScope(groupId) } }
       },
       select: {
         id: true,
@@ -654,13 +627,10 @@ export class CheckService {
     groupId: number
     resultId: number
   }) {
-    const scope = await this.getCheckRequestScope(groupId, {
-      CheckResult: { some: { id: resultId } }
-    })
     const result = await this.prisma.checkResult.findFirst({
       where: {
         id: resultId,
-        request: scope
+        request: this.checkRequestScope(groupId)
       },
       select: {
         requestId: true,
