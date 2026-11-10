@@ -15,25 +15,28 @@ import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
+import { coursesMockData } from './section_mock'
 
 export function GroupTable() {
   const client = useApolloClient()
 
   const [semesters, setSemesters] = useState<string[]>([])
 
-  const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
-  const courses = useMemo(
-    () =>
-      data.getCoursesUserLead.map((course) => ({
-        id: Number(course.id),
-        title: course.groupName,
-        code: course.courseInfo?.courseNum ?? '',
-        classNum: course.courseInfo?.classNum ?? null,
-        semester: course.courseInfo?.semester ?? '',
-        studentCount: course.memberNum
-      })),
-    [data.getCoursesUserLead]
-  )
+  // const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
+  // const courses = useMemo(
+  //   () =>
+  //     data.getCoursesUserLead.map((course) => ({
+  //       id: Number(course.id),
+  //       title: course.groupName,
+  //       code: course.courseInfo?.courseNum ?? '',
+  //       classNum: course.courseInfo?.classNum ?? null,
+  //       semester: course.courseInfo?.semester ?? '',
+  //       studentCount: course.memberNum
+  //     })),
+  //   [data.getCoursesUserLead]
+  // )
+
+  const courses = coursesMockData
 
   useEffect(() => {
     const uniqueSemesters = Array.from(
