@@ -1,16 +1,19 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common'
-import {
-  CheckResultStatus,
-  Language,
-  Role,
-  type CheckRequest
-} from '@prisma/client'
+import { Test } from '@nestjs/testing'
+import { CheckResultStatus, Language, Prisma, Role } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import type { CheckAMQPService } from '@libs/amqp'
 import { AuthenticatedUser } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
-import type { PrismaService } from '@libs/prisma'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
+import {
+  PrismaService,
+  PrismaTestService,
+  type FlatTransactionClient
+} from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
 import { CheckService } from './check.service'
 
@@ -25,33 +28,34 @@ const checkInput = {
   useJplagClustering: true
 }
 
-describe('CheckService assignment arrays', () => {
+describe('CheckService assignment targets', () => {
   const createService = () => {
     const prisma = {
       assignment: { findMany: stub().resolves([{ id: 10 }, { id: 11 }]) },
       checkRequest: { findMany: stub(), create: stub() },
-      submission: { findMany: stub() },
-      $queryRaw: stub().callsFake((_query: unknown, ids: number[]) =>
-        Promise.resolve(ids.map((id) => ({ id })))
-      ),
-      $transaction: stub()
+      submission: { findMany: stub() }
     }
-    prisma.$transaction.callsFake(
-      (callback: (tx: typeof prisma) => Promise<unknown>) => callback(prisma)
-    )
     const publish = { publishCheckRequestMessage: stub().resolves() }
     const service = new CheckService(
       prisma as unknown as PrismaService,
       publish as unknown as CheckPublicationService
     )
-    return { service, prisma, publish }
+    const savedAssignmentIds = () =>
+      prisma.checkRequest.create.firstCall.args[0].data.assignments.create.map(
+        ({ assignmentId }: { assignmentId: number }) => assignmentId
+      )
+    return { service, prisma, publish, savedAssignmentIds }
   }
 
-  it('stores a single assignment as an array and publishes the saved record', async () => {
-    const { service, prisma, publish } = createService()
+  it('links a single assignment and publishes the saved record', async () => {
+    const { service, prisma, publish, savedAssignmentIds } = createService()
     stub(service, 'validateAssignment').resolves()
     stub(service, 'validateRequest').resolves()
-    const record = { id: 1, assignmentIds: [10], ...checkInput }
+    const record = {
+      id: 1,
+      assignments: [{ checkRequestId: 1, assignmentId: 10 }],
+      ...checkInput
+    }
     prisma.checkRequest.create.resolves(record)
     await service.checkAssignmentProblem({
       user: leader,
@@ -60,9 +64,7 @@ describe('CheckService assignment arrays', () => {
       problemId: 1,
       groupId: 1
     })
-    expect(
-      prisma.checkRequest.create.firstCall.args[0].data.assignmentIds
-    ).to.deep.equal([10])
+    expect(savedAssignmentIds()).to.deep.equal([10])
     expect(
       prisma.checkRequest.create.firstCall.args[0].data
     ).not.to.have.property('assignmentId')
@@ -72,7 +74,7 @@ describe('CheckService assignment arrays', () => {
   })
 
   it('deduplicates multiple assignment IDs before saving', async () => {
-    const { service, prisma } = createService()
+    const { service, prisma, savedAssignmentIds } = createService()
     stub(service, 'validateAssignments').resolves()
     stub(service, 'validateRequest').resolves()
     prisma.checkRequest.create.resolves({ id: 1 })
@@ -86,9 +88,7 @@ describe('CheckService assignment arrays', () => {
         { assignmentId: 10, groupId: 1 }
       ]
     })
-    expect(
-      prisma.checkRequest.create.firstCall.args[0].data.assignmentIds
-    ).to.deep.equal([10, 11])
+    expect(savedAssignmentIds()).to.deep.equal([10, 11])
   })
 
   for (const [role, user] of [
@@ -154,30 +154,18 @@ describe('CheckService assignment arrays', () => {
     ).to.be.rejectedWith(EntityNotExistException)
   })
 
-  it('locks target assignments inside the transaction that creates the request', async () => {
-    const { service, prisma } = createService()
-    stub(service, 'validateRequest').resolves()
-    prisma.checkRequest.create.resolves({ id: 1 })
-    await service.checkProblem({
-      userId: 1,
-      checkInput,
-      problemId: 1,
-      idOptions: { assignmentIds: [10, 11, 10] }
-    })
-    expect(prisma.$transaction.calledOnce).to.equal(true)
-    expect(prisma.$queryRaw.firstCall.args[0].join('')).to.include(
-      'FOR KEY SHARE'
-    )
-    expect(prisma.$queryRaw.firstCall.args[1]).to.deep.equal([10, 11])
-    expect(prisma.$queryRaw.calledBefore(prisma.checkRequest.create)).to.equal(
-      true
-    )
-  })
-
-  it('does not create a request when a target assignment was deleted', async () => {
+  it('does not publish a request when a target assignment does not exist', async () => {
     const { service, prisma, publish } = createService()
     stub(service, 'validateRequest').resolves()
-    prisma.$queryRaw.resolves([{ id: 10 }])
+    prisma.checkRequest.create.rejects(
+      new Prisma.PrismaClientKnownRequestError('Foreign key violation', {
+        code: 'P2003',
+        clientVersion: Prisma.prismaVersion.client,
+        meta: {
+          constraint: 'check_request_assignment_assignment_id_fkey'
+        }
+      })
+    )
     await expect(
       service.checkProblem({
         userId: 1,
@@ -186,12 +174,11 @@ describe('CheckService assignment arrays', () => {
         idOptions: { assignmentIds: [10, 11] }
       })
     ).to.be.rejectedWith(EntityNotExistException)
-    expect(prisma.checkRequest.create.called).to.equal(false)
     expect(publish.publishCheckRequestMessage.called).to.equal(false)
   })
 
-  it('does not lock assignments for contest requests', async () => {
-    const { service, prisma } = createService()
+  it('links no assignments for contest requests', async () => {
+    const { service, prisma, savedAssignmentIds } = createService()
     stub(service, 'validateRequest').resolves()
     prisma.checkRequest.create.resolves({ id: 1 })
     await service.checkProblem({
@@ -200,10 +187,7 @@ describe('CheckService assignment arrays', () => {
       problemId: 1,
       idOptions: { contestId: 3 }
     })
-    expect(prisma.$queryRaw.called).to.equal(false)
-    expect(
-      prisma.checkRequest.create.firstCall.args[0].data.assignmentIds
-    ).to.deep.equal([])
+    expect(savedAssignmentIds()).to.deep.equal([])
   })
 
   it('rejects empty targets before creating a request', async () => {
@@ -218,39 +202,112 @@ describe('CheckService assignment arrays', () => {
     ).to.be.rejectedWith(BadRequestException)
     expect(prisma.checkRequest.create.called).to.equal(false)
   })
+})
 
-  it('excludes cross-group and deleted targets from the requested group scope', async () => {
-    const { service, prisma } = createService()
-    prisma.checkRequest.findMany.onFirstCall().resolves([
-      { id: 1, assignmentIds: [10] },
-      { id: 2, assignmentIds: [10, 11] },
-      { id: 3, assignmentIds: [10, 99] }
-    ])
-    prisma.checkRequest.findMany.onSecondCall().resolves([])
-    await service.getCheckRequests({
+describe('CheckService group scope', () => {
+  let groupOneAssignment: number
+  let groupTwoAssignment: number
+  let service: CheckService
+  let prisma: PrismaTestService
+  let transaction: FlatTransactionClient
+
+  before(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        CheckService,
+        PrismaTestService,
+        { provide: PrismaService, useExisting: PrismaTestService },
+        {
+          provide: CheckPublicationService,
+          useValue: { publishCheckRequestMessage: stub().resolves() }
+        }
+      ]
+    }).compile()
+    service = module.get(CheckService)
+    prisma = module.get(PrismaTestService)
+    const firstAssignmentOf = async (groupId: number) =>
+      (await prisma.assignment.findFirstOrThrow({ where: { groupId } })).id
+    groupOneAssignment = await firstAssignmentOf(1)
+    groupTwoAssignment = await firstAssignmentOf(2)
+  })
+
+  beforeEach(async () => {
+    transaction = await prisma.$begin()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(service as any).prisma = transaction
+    stub(service, 'validateRequest').resolves()
+  })
+
+  afterEach(async () => {
+    await transaction.$rollback()
+    ;(service.validateRequest as unknown as { restore: () => void }).restore()
+  })
+
+  after(async () => {
+    await prisma.$disconnect()
+  })
+
+  const request = (assignmentIds: number[], problemId = 1) =>
+    service.checkProblem({
+      userId: 1,
+      checkInput,
+      problemId,
+      idOptions: { assignmentIds }
+    })
+
+  it('hides a request that spans another group', async () => {
+    const own = await request([groupOneAssignment])
+    const crossGroup = await request([groupOneAssignment, groupTwoAssignment])
+    const visible = await service.getCheckRequests({
       problemId: 1,
-      assignmentId: 10,
+      assignmentId: groupOneAssignment,
       groupId: 1
     })
-    expect(
-      prisma.checkRequest.findMany.secondCall.args[0].where.AND[0]
-    ).to.deep.equal({ id: { in: [1, 2] } })
+    expect(visible.map(({ id }) => id))
+      .to.include(own.id)
+      .and.not.include(crossGroup.id)
+  })
+
+  it('rejects an assignment that does not exist', async () => {
+    await expect(request([groupOneAssignment, 999999])).to.be.rejectedWith(
+      EntityNotExistException
+    )
+  })
+
+  it('does not report a missing problem as a missing assignment', async () => {
+    await expect(request([groupOneAssignment], 999999)).to.be.rejectedWith(
+      UnprocessableDataException
+    )
+  })
+
+  it('deletes every request that includes a deleted assignment', async () => {
+    const untouched = await request([groupOneAssignment])
+    const spanning = await request([groupOneAssignment, groupTwoAssignment])
+    await transaction.assignment.delete({ where: { id: groupTwoAssignment } })
+    const remaining = await transaction.checkRequest.findMany({
+      where: { id: { in: [untouched.id, spanning.id] } },
+      select: { id: true }
+    })
+    expect(remaining.map(({ id }) => id)).to.deep.equal([untouched.id])
   })
 })
 
-describe('CheckPublicationService assignment arrays', () => {
+describe('CheckPublicationService assignment targets', () => {
   for (const assignmentIds of [[10], [10, 11], []]) {
     it(`publishes ${JSON.stringify(assignmentIds)} without a legacy assignmentId`, async () => {
       const publishCheckRequestMessage = stub().resolves()
       const service = new CheckPublicationService({
         publishCheckRequestMessage
       } as unknown as CheckAMQPService)
-      const check: CheckRequest = {
+      const check = {
         id: 1,
         problemId: 1,
         userId: 1,
         ...checkInput,
-        assignmentIds,
+        assignments: assignmentIds.map((assignmentId) => ({
+          checkRequestId: 1,
+          assignmentId
+        })),
         contestId: assignmentIds.length === 0 ? 3 : null,
         workbookId: null,
         createTime: new Date(),
