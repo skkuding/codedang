@@ -58,6 +58,12 @@ export function FindUserId() {
   }
 
   const resetPassword = async () => {
+    const isValid = await trigger('email')
+
+    if (!isValid || sentEmail) {
+      return
+    }
+
     const { email } = getValues()
     setFormData({
       email,
@@ -66,11 +72,6 @@ export function FindUserId() {
         'email-auth': ''
       }
     })
-    await trigger('email')
-
-    if (errors.email || sentEmail) {
-      return
-    }
 
     try {
       await safeFetcher.post('email-auth/send-email/password-reset', {
@@ -83,8 +84,7 @@ export function FindUserId() {
       setWrongEmail(email)
       if (isHttpError(error) && error.response.status === 401) {
         setEmailError('Email authentication pin is sent to your email address')
-      }
-      if (isHttpError(error) && error.response.status === 429) {
+      } else if (isHttpError(error) && error.response.status === 429) {
         setEmailError(
           `Too many requests. Please try again later.\n(Once per 60 seconds / 5 per hour / 10 per day)`
         )
