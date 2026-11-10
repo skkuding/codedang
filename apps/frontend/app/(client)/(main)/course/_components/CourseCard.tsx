@@ -51,9 +51,9 @@ export function CourseCard({ course }: CourseCardProps) {
         <div className="text-head6_m_24 line-clamp-2 h-[62px]">
           {course.groupName}
         </div>
-        <div className="flex flex-col gap-[6px] pt-4">
+        <div className="flex flex-col justify-start gap-[6px] pt-4">
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <CalendarGrayIcon className="text-color-cool-neutral-60 size-6" />
+            <CalendarGrayIcon className="text-color-cool-neutral-60 size-[19px]" />
             <span className="text-color-cool-neutral-40 text-body3_r_16">
               {course.courseInfo.semester}
             </span>
