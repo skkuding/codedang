@@ -47,7 +47,8 @@ prometheus:
 
   route:
     main:
-      enabled: true
+      # 공개 노출 제거: 인증 수단이 없어서 외부에서 누구나 접근 가능함
+      enabled: false
       apiVersion: gateway.networking.k8s.io/v1
       kind: HTTPRoute
       hostnames:
