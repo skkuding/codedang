@@ -52,7 +52,7 @@ export function FindUserId() {
         setWrongEmail(email)
       }
     } catch {
-      setEmailError('No account confirmed with this email')
+      setEmailError('Request failed. Please try again.')
       setWrongEmail(email)
     }
   }
