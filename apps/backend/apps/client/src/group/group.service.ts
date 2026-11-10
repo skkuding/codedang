@@ -21,6 +21,7 @@ import {
 } from '@libs/cache'
 import {
   JOIN_GROUP_REQUEST_EXPIRE_TIME,
+  MAX_STUDENT_RETRY_COUNT,
   STUDENT_RETRY_EXPIRE_TIME
 } from '@libs/constants'
 import {
@@ -421,7 +422,7 @@ export class GroupService {
       if (whitelistExists) {
         const joinRequestCount = await this.getUserRetryCount(userId, groupId)
 
-        if (joinRequestCount >= 3) {
+        if (joinRequestCount >= MAX_STUDENT_RETRY_COUNT) {
           throw new ForbiddenAccessException('Join request count exceed')
         }
 
@@ -526,24 +527,39 @@ export class GroupService {
     })
   }
 
-  async getUserRetryCount(userId: number, courseId: number) {
-    const count = await this.cacheManager.get<number>(
-      studentRetryKey(userId, courseId)
-    )
-    return count || 0
+  private async getRedisClient() {
+    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
+    return await store.getClient()
   }
 
-  async incrementRetryCount(userId: number, courseId: number) {
-    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
-    const client = await store.getClient()
+  async getUserRetryCount(userId: number, courseId: number) {
+    const client = await this.getRedisClient()
+    const count = Number(await client.get(studentRetryKey(courseId, userId)))
+    return Number.isInteger(count) && count > 0 ? count : 0
+  }
 
-    const key = studentRetryKey(courseId, userId)
+  /**
+   * 재시도 횟수를 원자적으로 1 증가시킵니다.
+   *
+   * @returns 증가된 재시도 횟수. 이미 최대 횟수에 도달했다면 -1
+   *
+   * @remarks
+   * - 첫 실패 시점부터 `STUDENT_RETRY_EXPIRE_TIME` 동안 유지되며, 이후 실패로 만료 시간이 연장되지 않습니다.
+   */
+  async incrementRetryCount(userId: number, courseId: number) {
+    const client = await this.getRedisClient()
 
     const result = await client.eval(
       `
-      local count = tonumber(redis.call('GET', KEYS[1]) or '0')
+      local raw = redis.call('GET', KEYS[1])
+      local count = tonumber(raw)
 
-      if count >= 3 then
+      if raw and not count then
+        redis.call('DEL', KEYS[1])
+        count = 0
+      end
+
+      if (count or 0) >= tonumber(ARGV[2]) then
         return -1
       end
 
@@ -556,8 +572,11 @@ export class GroupService {
       return count
       `,
       {
-        keys: [key],
-        arguments: [String(STUDENT_RETRY_EXPIRE_TIME)]
+        keys: [studentRetryKey(courseId, userId)],
+        arguments: [
+          String(STUDENT_RETRY_EXPIRE_TIME),
+          String(MAX_STUDENT_RETRY_COUNT)
+        ]
       }
     )
 
