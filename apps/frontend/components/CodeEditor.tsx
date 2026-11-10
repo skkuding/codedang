@@ -138,6 +138,14 @@ const copyPasteHandler = () => {
     cut(event) {
       toast.error('Copying and pasting is not allowed')
       event.preventDefault()
+    },
+    drop(event) {
+      toast.error('Copying and pasting is not allowed')
+      event.preventDefault()
+    },
+    dragstart(event) {
+      toast.error('Copying and pasting is not allowed')
+      event.preventDefault()
     }
   })
 }

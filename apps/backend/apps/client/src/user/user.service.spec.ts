@@ -18,6 +18,7 @@ import {
   DuplicateFoundException,
   EntityNotExistException,
   InvalidJwtTokenException,
+  TooManyRequestsException,
   UnidentifiedException,
   UnprocessableDataException
 } from '@libs/exception'
@@ -81,10 +82,12 @@ const usernameDto = {
 const mailerMock = {
   sendMail: stub()
 }
+const redisEvalStub = stub()
 const cacheMock = {
   get: stub().resolves(PASSWORD_RESET_PIN),
   set: stub(),
-  del: stub()
+  del: stub(),
+  stores: [{ store: { getClient: async () => ({ eval: redisEvalStub }) } }]
 }
 const db = {
   user: {
@@ -115,8 +118,12 @@ describe('UserService', () => {
   let emailService: EmailService
   let jwtService: JwtService
   let jwtAuthService: JwtAuthService
+  let configService: ConfigService
 
   beforeEach(async () => {
+    redisEvalStub.reset()
+    redisEvalStub.resolves(1)
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
@@ -135,6 +142,7 @@ describe('UserService', () => {
     emailService = module.get<EmailService>(EmailService)
     jwtService = module.get<JwtService>(JwtService)
     jwtAuthService = module.get<JwtAuthService>(JwtAuthService)
+    configService = module.get<ConfigService>(ConfigService)
   })
 
   it('should be defined', () => {
@@ -157,6 +165,46 @@ describe('UserService', () => {
       await expect(service.getUsernameByEmail({ email })).to.be.rejectedWith(
         EntityNotExistException
       )
+    })
+  })
+
+  describe('sendUsernameByEmail', () => {
+    const response = { username: 'sent to your email if registered' }
+    let sendUsernameSpy: SinonStub
+    beforeEach(() => {
+      sendUsernameSpy = stub(emailService, 'sendUsername').resolves()
+    })
+
+    it('send username to the registered email', async () => {
+      db.user.findUnique.resolves(user)
+
+      expect(
+        await service.sendUsernameByEmail(emailAuthJwtPayload)
+      ).to.be.deep.equal(response)
+      await new Promise(setImmediate)
+      expect(sendUsernameSpy.calledOnceWith(user.email, user.username)).to.be
+        .true
+    })
+
+    it('respond the same without sending email if not registered', async () => {
+      db.user.findUnique.resolves(null)
+
+      expect(
+        await service.sendUsernameByEmail(emailAuthJwtPayload)
+      ).to.be.deep.equal(response)
+      await new Promise(setImmediate)
+      expect(sendUsernameSpy.called).to.be.false
+    })
+
+    it('respond the same without sending email if limit exceeded', async () => {
+      db.user.findUnique.resolves(user)
+      redisEvalStub.resolves(4)
+
+      expect(
+        await service.sendUsernameByEmail(emailAuthJwtPayload)
+      ).to.be.deep.equal(response)
+      await new Promise(setImmediate)
+      expect(sendUsernameSpy.called).to.be.false
     })
   })
 
@@ -243,10 +291,33 @@ describe('UserService', () => {
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
+
+    it('should not create pin and send email if limit exceeded', async () => {
+      db.user.findUnique.resolves(null)
+      redisEvalStub.resolves(2)
+
+      await expect(
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should use send limits from config', async () => {
+      db.user.findUnique.resolves(null)
+      const configGet = stub(configService, 'get') as SinonStub
+      configGet.withArgs('EMAIL_AUTH_PIN_SEND_COOLDOWN_SECONDS').returns('30')
+      configGet.withArgs('EMAIL_AUTH_PIN_SEND_HOURLY_LIMIT').returns('1')
+      redisEvalStub.onSecondCall().resolves(2)
+
+      await expect(
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      expect(redisEvalStub.firstCall.args[1].arguments).to.deep.equal(['30000'])
+    })
   })
 
   describe('sendPinForPasswordReset', () => {
-    let createPinAndSendEmailSpy: SinonSpy
+    let createPinAndSendEmailSpy: SinonStub
     beforeEach(() => {
       createPinAndSendEmailSpy = stub(service, 'createPinAndSendEmail')
     })
@@ -255,16 +326,40 @@ describe('UserService', () => {
       db.user.findUnique.resolves(user)
 
       await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      await new Promise(setImmediate)
       expect(createPinAndSendEmailSpy.calledOnce).to.be.true
     })
 
-    it('should not create pin and send email', async () => {
+    it('respond the same without sending email if not registered', async () => {
       db.user.findUnique.resolves(null)
+
+      expect(
+        await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      ).to.equal('Email authentication pin is sent to your email address')
+      await new Promise(setImmediate)
+      expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should not look up user if limit exceeded', async () => {
+      db.user.findUnique.resetHistory()
+      redisEvalStub.resolves(2)
 
       await expect(
         service.sendPinForPasswordReset(emailAuthJwtPayload)
-      ).to.be.rejectedWith(UnidentifiedException)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      await new Promise(setImmediate)
+      expect(db.user.findUnique.called).to.be.false
       expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should not reject if sending email fails', async () => {
+      db.user.findUnique.resolves(user)
+      createPinAndSendEmailSpy.rejects(new Error('smtp error'))
+
+      expect(
+        await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      ).to.equal('Email authentication pin is sent to your email address')
+      await new Promise(setImmediate)
     })
   })
 
@@ -286,6 +381,16 @@ describe('UserService', () => {
       )
       expect(createPinRandomlySpy.called).to.be.true
       expect(sendEmailAuthenticationPinSpy.called).to.be.true
+    })
+
+    it('save pin before sending email', async () => {
+      await service.createPinAndSendEmail(EMAIL_ADDRESS)
+
+      const { keys, arguments: args } = redisEvalStub.firstCall.args[1]
+      expect(keys).to.deep.equal([PASSWORD_RESET_PIN_KEY])
+      expect(args[0]).to.equal(sendEmailAuthenticationPinSpy.firstCall.args[1])
+      expect(redisEvalStub.calledBefore(sendEmailAuthenticationPinSpy)).to.be
+        .true
     })
   })
 
@@ -391,18 +496,8 @@ describe('UserService', () => {
     })
 
     it('should fail verification with invalid pin', async () => {
-      service.getPinFromCache = stub()
-        .onFirstCall()
-        .resolves('')
-        .onSecondCall()
-        .resolves('invalid_token')
+      redisEvalStub.resolves(0)
 
-      await expect(
-        service.verifyPinAndIssueJwt({
-          pin: PASSWORD_RESET_PIN,
-          email: EMAIL_ADDRESS
-        })
-      ).to.be.rejectedWith(UnidentifiedException)
       await expect(
         service.verifyPinAndIssueJwt({
           pin: PASSWORD_RESET_PIN,
@@ -410,15 +505,53 @@ describe('UserService', () => {
         })
       ).to.be.rejectedWith(UnidentifiedException)
     })
-  })
 
-  describe('getPinFromCache', () => {
-    it('get pin from cache', async () => {
-      cacheMock.get.resetHistory()
+    it('should not include input pin in the error message', async () => {
+      redisEvalStub.resolves(0)
 
-      const ret = await service.getPinFromCache(PASSWORD_RESET_PIN_KEY)
-      expect(ret).to.equal(PASSWORD_RESET_PIN)
-      expect(cacheMock.get.calledOnce).to.be.true
+      await expect(
+        service.verifyPinAndIssueJwt({
+          pin: 'wrongPin',
+          email: EMAIL_ADDRESS
+        })
+      ).to.be.rejectedWith('Incorrect Pin')
+    })
+
+    it('should verify pin with the default max attempts', async () => {
+      await service.verifyPinAndIssueJwt({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
+
+      const { keys, arguments: args } = redisEvalStub.firstCall.args[1]
+      expect(keys).to.deep.equal([PASSWORD_RESET_PIN_KEY])
+      expect(args).to.deep.equal([PASSWORD_RESET_PIN, '3'])
+    })
+
+    it('should use PIN_MAX_ATTEMPTS from config', async () => {
+      ;(stub(configService, 'get') as SinonStub)
+        .withArgs('PIN_MAX_ATTEMPTS')
+        .returns('5')
+
+      await service.verifyPinAndIssueJwt({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
+
+      expect(redisEvalStub.firstCall.args[1].arguments[1]).to.equal('5')
+    })
+
+    it('should fall back to the default for invalid PIN_MAX_ATTEMPTS', async () => {
+      ;(stub(configService, 'get') as SinonStub)
+        .withArgs('PIN_MAX_ATTEMPTS')
+        .returns('0')
+
+      await service.verifyPinAndIssueJwt({
+        pin: PASSWORD_RESET_PIN,
+        email: EMAIL_ADDRESS
+      })
+
+      expect(redisEvalStub.firstCall.args[1].arguments[1]).to.equal('3')
     })
   })
 
