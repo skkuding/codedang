@@ -53,13 +53,17 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
         <div className="flex flex-col justify-start gap-[6px] pt-4">
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <CalendarGrayIcon className="text-color-cool-neutral-60 size-[19px]" />
+            <span className="flex w-6 shrink-0 justify-center">
+              <CalendarGrayIcon className="text-color-cool-neutral-60 size-[19px]" />
+            </span>
             <span className="text-color-cool-neutral-40 text-body3_r_16">
               {course.courseInfo.semester}
             </span>
           </div>
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <PersonFillIcon className="text-color-cool-neutral-60 h-6" />
+            <span className="flex w-6 shrink-0 justify-center">
+              <PersonFillIcon className="text-color-cool-neutral-60 h-6" />
+            </span>
             <span className="text-color-cool-neutral-40 text-body3_r_16">
               Prof. {course.courseInfo.professor}
             </span>

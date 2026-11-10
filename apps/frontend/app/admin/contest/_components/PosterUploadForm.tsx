@@ -95,17 +95,15 @@ export function PosterUploadForm({
           <div className="text-center text-[11px] font-normal">Loading...</div>
         ) : (
           <div className="flex shrink-0 rounded-xl">
-            {field.value ? (
-              <Image
-                src={field.value}
-                alt="Contest Poster"
-                width={234}
-                height={312}
-                className="h-[312px] w-[234px] object-contain"
-              />
-            ) : (
-              <ImageUploadIcon className="h-[312px] w-[234px] object-contain text-[#333333]" />
-            )}
+            field.value ? (
+            <Image
+              src={field.value}
+              alt="Contest Poster"
+              width={234}
+              height={312}
+              className="h-[312px] w-[234px] object-contain"
+            />
+            ) : null
           </div>
         )}
         {!field.value && !isLoading && (

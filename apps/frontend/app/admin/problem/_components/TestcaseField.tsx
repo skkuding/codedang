@@ -634,7 +634,11 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             hasZipUploaded.sample
                           }
                         >
-                          <TrashcanIcon width={18} height={18} />
+                          <TrashcanIcon
+                            width={18}
+                            height={18}
+                            className="text-white"
+                          />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Delete
                           </span>
@@ -733,7 +737,11 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                         className="bg-flowkit-red flex w-[109px] cursor-pointer items-center justify-center rounded-[1000px] px-[22px] py-[10px]"
                         disabled={blockEdit}
                       >
-                        <TrashcanIcon width={18} height={18} />
+                        <TrashcanIcon
+                          width={18}
+                          height={18}
+                          className="text-white"
+                        />
                         <span className="ml-[6px] flex items-center text-center text-white">
                           Delete
                         </span>
@@ -758,7 +766,11 @@ export const TestcaseField = forwardRef<TestcaseFieldRef, TestcaseFieldProps>(
                             hasZipUploaded.hidden
                           }
                         >
-                          <TrashcanIcon width={18} height={18} />
+                          <TrashcanIcon
+                            width={18}
+                            height={18}
+                            className="text-white"
+                          />
                           <span className="ml-[6px] flex items-center text-center text-white">
                             Delete
                           </span>
