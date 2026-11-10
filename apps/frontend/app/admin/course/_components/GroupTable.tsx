@@ -15,7 +15,11 @@ import { columns } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
-import { coursesMockData } from './section_mock'
+import {
+  coursesMockData,
+  mockColumns,
+  type CourseTableRow
+} from './section_mock'
 
 export function GroupTable() {
   const client = useApolloClient()
@@ -57,7 +61,11 @@ export function GroupTable() {
 
   return (
     <div>
-      <DataTableRoot data={courses} columns={columns}>
+      <DataTableRoot
+        data={courses}
+        columns={mockColumns}
+        getSubRows={(row) => row.subRows}
+      >
         <div className="flex justify-between">
           <div className="flex gap-2">
             <DataTableSearchBar columndId="title" className="rounded-full" />
