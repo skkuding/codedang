@@ -184,49 +184,58 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
         </TableHeader>
         <TableBody className="[&_td]:border-[#80808040]">
           {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
-                onClick={() => {
-                  onRowClick?.(table, row)
-                  const href = getHref?.(row.original)
-                  if (href) {
-                    router.push(href)
-                  }
-                }}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const isSelectColumn = cell.column.id === 'select'
+            table.getRowModel().rows.map((row) => {
+              const isSection = row.original.type === 'section'
+              return (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
+                  onClick={() => {
+                    if (!isSection) {
+                      return
+                    }
+                    onRowClick?.(table, row)
+                    const href = getHref?.(row.original)
+                    if (href) {
+                      router.push(href)
+                    }
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const isSelectColumn = cell.column.id === 'select'
 
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        bodyStyleMap[size],
-                        isSelectColumn
-                          ? 'w-[1%] whitespace-nowrap p-0'
-                          : 'md:p-4'
-                      )}
-                    >
-                      <div
+                    return (
+                      <TableCell
+                        key={cell.id}
                         className={cn(
-                          'flex justify-center whitespace-nowrap',
-                          isSelectColumn && 'w-14',
-                          bodyStyle[cell.column.id]
+                          bodyStyleMap[size],
+                          isSelectColumn
+                            ? 'w-[1%] whitespace-nowrap p-0'
+                            : 'md:p-4'
                         )}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </div>
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            ))
+                        <div
+                          className={cn(
+                            'flex justify-center whitespace-nowrap',
+                            isSelectColumn && 'w-14',
+                            bodyStyle[cell.column.id]
+                          )}
+                          style={{
+                            paddingLeft: `${row.depth * 38}px`
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </div>
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })
           ) : (
             <TableRow>
               <TableCell

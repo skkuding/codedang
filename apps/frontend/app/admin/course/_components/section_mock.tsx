@@ -2,7 +2,7 @@ import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableCo
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { DataTableCourse } from './Columns'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 
 export interface CourseTableRow {
   id: number
@@ -108,14 +108,21 @@ export const mockColumns: ColumnDef<CourseTableRow>[] = [
       <DataTableColumnHeader column={column} title="Code" />
     ),
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {row.getCanExpand() && (
           <button
             type="button"
-            onClick={row.getToggleExpandedHandler()}
+            onClick={(e) => {
+              e.stopPropagation()
+              row.toggleExpanded()
+            }}
             aria-label={row.getIsExpanded() ? 'Collapse' : 'Expand'}
           >
-            {row.getIsExpanded() ? '⌄' : '›'}
+            {row.getIsExpanded() ? (
+              <ChevronDown className="size-4" />
+            ) : (
+              <ChevronRight className="size-4" />
+            )}
           </button>
         )}
         {row.original.type === 'section'
@@ -130,7 +137,13 @@ export const mockColumns: ColumnDef<CourseTableRow>[] = [
       <DataTableColumnHeader column={column} title="Section" />
     ),
     cell: ({ row }) =>
-      row.original.type === 'master' ? 'Master' : row.original.classNum,
+      row.original.type === 'master' ? (
+        <div className="bg-primary rounded-full px-4 py-[6px] text-white">
+          Master
+        </div>
+      ) : (
+        row.original.classNum
+      ),
     enableSorting: false
   },
   {
