@@ -4,7 +4,7 @@ import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
 
@@ -20,6 +20,8 @@ export function FindUserId() {
   const [wrongEmail, setWrongEmail] = useState<string>('')
   const [idSent, setIdSent] = useState<boolean>(false)
   const [sentEmail, setSentEmail] = useState<boolean>(false)
+  const [resetPending, setResetPending] = useState(false)
+  const resetInFlight = useRef(false)
   const [inputFocused, setInputFocused] = useState<boolean>(false)
   const { nextModal, setFormData } = useRecoverAccountModalStore(
     (state) => state
@@ -58,22 +60,29 @@ export function FindUserId() {
   }
 
   const resetPassword = async () => {
-    const isValid = await trigger('email')
-
-    if (!isValid || sentEmail) {
+    if (resetInFlight.current || sentEmail) {
       return
     }
-
-    const { email } = getValues()
-    setFormData({
-      email,
-      verificationCode: '',
-      headers: {
-        'email-auth': ''
-      }
-    })
+    resetInFlight.current = true
+    setResetPending(true)
+    let email = ''
 
     try {
+      const isValid = await trigger('email')
+
+      if (!isValid) {
+        return
+      }
+
+      email = getValues('email')
+      setFormData({
+        email,
+        verificationCode: '',
+        headers: {
+          'email-auth': ''
+        }
+      })
+
       await safeFetcher.post('email-auth/send-email/password-reset', {
         json: { email }
       })
@@ -91,6 +100,9 @@ export function FindUserId() {
       } else {
         setEmailError('Something went wrong!')
       }
+    } finally {
+      resetInFlight.current = false
+      setResetPending(false)
     }
   }
 
@@ -160,6 +172,7 @@ export function FindUserId() {
           <Button
             type="button"
             onClick={resetPassword}
+            disabled={resetPending || sentEmail}
             className={cn(
               'border-primary text-primary border bg-white font-semibold hover:bg-blue-100'
             )}
