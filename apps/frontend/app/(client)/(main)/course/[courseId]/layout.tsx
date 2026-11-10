@@ -27,20 +27,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         />
       </div>
       <div className="mt-14 flex h-full w-full max-w-[1440px] flex-col lg:mt-0">
-        {/* Mobile Navigation */}
-        {!isQnaCreatePage && (
-          <div className="lg:hidden">
-            <CourseSidebar courseId={courseId as string} />
-          </div>
-        )}
-
         <div className="flex flex-row">
-          {/* Desktop Sidebar */}
-          {!isQnaCreatePage && (
-            <div className="hidden lg:block">
-              <CourseSidebar courseId={courseId as string} />
-            </div>
-          )}
+          {!isQnaCreatePage && <CourseSidebar courseId={courseId as string} />}
           <article className="w-full">
             <div>{children}</div>
           </article>
