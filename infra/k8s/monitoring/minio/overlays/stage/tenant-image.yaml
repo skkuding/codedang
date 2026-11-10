@@ -1,9 +1,8 @@
 # Upstream MinIO community images were removed from Docker Hub and quay.io.
-# Stage runs the maintained Silo fork instead, pinned to the same digest as the
-# application object store (infra/k8s/minio/silo-statefulset.yaml).
+# Stage runs the maintained Silo fork instead.
 # The operator refuses online image changes while a Tenant is unhealthy, so a
 # broken Tenant may need its StatefulSet image patched directly once during
 # recovery.
 - op: add
   path: /spec/image
-  value: docker.io/pgsty/silo@sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac
+  value: docker.io/pgsty/silo:RELEASE.2026-08-06T00-00-00Z
