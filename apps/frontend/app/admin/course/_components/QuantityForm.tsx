@@ -1,4 +1,5 @@
 import { MinusIcon, PlusIcon } from 'lucide-react'
+import { useEffect } from 'react'
 
 interface QuantityFormProps {
   value: number
@@ -13,6 +14,16 @@ export function QuantityForm({
   minValue = 0,
   onChange
 }: QuantityFormProps) {
+  useEffect(() => {
+    if (minValue > maxValue) {
+      console.warn('QuantityInput: Invalid range.')
+    }
+
+    if (value < minValue || value > maxValue) {
+      console.warn('QuantityInput: Value is out of range.')
+    }
+  }, [value, minValue, maxValue])
+
   const decrease = () => {
     onChange(Math.max(minValue, Math.min(maxValue, value - 1)))
   }
