@@ -222,7 +222,10 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                             bodyStyle[cell.column.id]
                           )}
                           style={{
-                            left: `${row.depth * 24}px`
+                            left:
+                              cell.column.id === 'select'
+                                ? `${row.depth * 38}px`
+                                : `${row.depth * 19}px`
                           }}
                         >
                           {flexRender(
