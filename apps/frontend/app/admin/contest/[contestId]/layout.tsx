@@ -27,11 +27,10 @@ export default async function Layout({
   const { contestId } = await params
   const roles = await fetchContestRoles()
 
-  const hasPermission = roles.some(
-    (r) =>
-      r.contestId === Number(contestId) &&
-      (r.role === ContestRole.Admin || r.role === ContestRole.Manager)
-  )
+  const targetContest = roles.find((r) => r.contestId === Number(contestId))
+  const hasPermission =
+    targetContest?.role === ContestRole.Admin ||
+    targetContest?.role === ContestRole.Manager
 
   if (!hasPermission) {
     return <ContestAccessDenied />

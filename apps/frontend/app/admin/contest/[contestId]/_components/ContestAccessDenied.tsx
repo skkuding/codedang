@@ -6,13 +6,13 @@ import { toast } from 'sonner'
 
 export function ContestAccessDenied() {
   const router = useRouter()
-  const done = useRef(false)
+  const hasRedirected = useRef(false)
 
   useEffect(() => {
-    if (done.current) {
+    if (hasRedirected.current) {
       return
     }
-    done.current = true
+    hasRedirected.current = true
     router.replace('/admin/contest')
     setTimeout(() => {
       toast.error('You do not have access to this contest.')
