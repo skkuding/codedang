@@ -128,7 +128,7 @@ export function ValidatorPage() {
       {!validatorFile ? (
         <label
           className={cn(
-            'flex h-28 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200',
+            'flex h-28 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 focus-within:ring-2',
             permissions.isReadOnly
               ? 'cursor-not-allowed bg-gray-50 opacity-50'
               : 'hover:border-primary cursor-pointer'
@@ -140,7 +140,7 @@ export function ValidatorPage() {
           </p>
           <input
             type="file"
-            className="hidden"
+            className="sr-only"
             disabled={permissions.isReadOnly}
             onChange={handleFileSelect}
           />

@@ -109,7 +109,7 @@ export function SolutionPage() {
 
         <label
           className={cn(
-            'flex h-32 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200',
+            'flex h-32 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 focus-within:ring-2',
             permissions.isReadOnly
               ? 'cursor-not-allowed bg-gray-50 opacity-50'
               : 'hover:border-primary cursor-pointer'
@@ -122,7 +122,7 @@ export function SolutionPage() {
           <input
             ref={fileInputRef}
             type="file"
-            className="hidden"
+            className="sr-only"
             disabled={permissions.isReadOnly}
             onChange={handleFileSelect}
           />
