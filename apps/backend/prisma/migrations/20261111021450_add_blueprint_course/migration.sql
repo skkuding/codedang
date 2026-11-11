@@ -110,3 +110,11 @@ ADD CONSTRAINT blueprint_assignment_check_week_positive CHECK (week >= 1);
 ALTER TABLE "public"."check_request"
 ADD CONSTRAINT check_request_single_target
 CHECK (num_nonnulls(assignment_id, contest_id, workbook_id, blueprint_assignment_id) = 1) NOT VALID;
+
+-- Add Constraint
+-- Section(blueprint_course_id가 있는 강좌)은 분반 번호가 필수입니다.
+-- UNIQUE(blueprint_course_id, class_num)는 class_num이 NULL이면 중복을 막지 못하므로 함께 둡니다.
+-- 일반 강좌(blueprint_course_id IS NULL)는 기존처럼 class_num NULL을 허용합니다.
+ALTER TABLE "public"."course_info"
+ADD CONSTRAINT course_info_section_class_num_required
+CHECK (blueprint_course_id IS NULL OR class_num IS NOT NULL);
