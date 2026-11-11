@@ -28,6 +28,9 @@ import { NodeSDK } from '@opentelemetry/sdk-node'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
+import { randomUUID } from 'node:crypto'
+
+const serviceInstanceIdAttribute = 'service.instance.id'
 
 /**
  * Instrumentation는 OpenTelemetry SDK를 초기화하고 설정하는 클래스입니다.
@@ -79,7 +82,10 @@ class Instrumentation {
     ]
 
     Instrumentation.sdk = new NodeSDK({
-      resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),
+      resource: resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: serviceName,
+        [serviceInstanceIdAttribute]: randomUUID()
+      }),
       resourceDetectors: [
         processDetector,
         hostDetector,
@@ -108,8 +114,6 @@ class Instrumentation {
     }
   }
 }
-
-process.on('SIGTERM', () => Instrumentation.shutdown())
 
 export default Instrumentation
 
