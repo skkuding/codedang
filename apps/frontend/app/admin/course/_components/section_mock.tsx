@@ -113,7 +113,7 @@ export const mockColumns: ColumnDef<CourseTableRow>[] = [
           {row.getCanExpand() && (
             <button
               type="button"
-              className="flex size-4 items-center justify-center"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full hover:bg-neutral-200/60"
               onClick={(e) => {
                 e.stopPropagation()
                 row.toggleExpanded()
