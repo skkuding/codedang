@@ -142,7 +142,8 @@ const mockAssignment: Assignment = {
   week: 1,
   autoFinalizeScore: false,
   isFinalScoreVisible: true,
-  isExercise: false
+  isExercise: false,
+  blueprintAssignmentId: null
 }
 const USERIP = '127.0.0.1'
 

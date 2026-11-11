@@ -33,7 +33,8 @@ const assignment: Assignment = {
   week: 1,
   autoFinalizeScore: false,
   isFinalScoreVisible: false,
-  isExercise: false
+  isExercise: false,
+  blueprintAssignmentId: null
 }
 
 const assignmentInfo = {

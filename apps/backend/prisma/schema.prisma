@@ -89,6 +89,8 @@ model User {
   polygonCollaborations    PolygonCollaborator[]    @relation("PolygonCollaborator")
   polygonApprovalRequests  PolygonApprovalRequest[] @relation("PolygonApprovalRequester")
   polygonReviewedApprovals PolygonApprovalRequest[] @relation("PolygonApprovalReviewer")
+  blueprintCourse          BlueprintCourse[]
+  blueprintAssignment      BlueprintAssignment[]
 
   @@map("user")
 }
@@ -188,7 +190,36 @@ model CourseInfo {
   phoneNum  String? @map("phone_num")
   week      Int     @default(16) //양수만 허용됨
 
+  // Section이면 소속 Blueprint, 일반 강좌면 null
+  blueprintCourse   BlueprintCourse? @relation(fields: [blueprintCourseId], references: [id], onDelete: Restrict)
+  blueprintCourseId Int?             @map("blueprint_course_id")
+
+  @@unique([blueprintCourseId, classNum])
   @@map("course_info")
+}
+
+model BlueprintCourse {
+  id          Int      @id @default(autoincrement())
+  courseTitle String   @map("course_title")
+  courseNum   String   @map("course_num")
+  semester    String
+  week        Int      @default(16)
+  professor   String
+  email       String?
+  website     String?
+  office      String?
+  phoneNum    String?  @map("phone_num")
+  // 교수 (Blueprint 권한 판단 기준)
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?     @map("created_by_id")
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+
+  courseInfo          CourseInfo[]
+  blueprintAssignment BlueprintAssignment[]
+
+  @@index([createdById])
+  @@map("blueprint_course")
 }
 
 model Notice {
@@ -306,6 +337,8 @@ model Problem {
   testSubmission TestSubmission[]
 
   CheckRequest CheckRequest[]
+
+  blueprintAssignmentProblem BlueprintAssignmentProblem[]
 
   @@map("problem")
 }
@@ -443,6 +476,10 @@ model Assignment {
   isFinalScoreVisible  Boolean   @default(false) @map("is_final_score_visible") // 이 Assignment에 포함된 문제의 최종 점수를 사용자에게 보여줄지 말지 결정합니다.
   isExercise           Boolean   @default(false) @map("is_exercise")
 
+  // Blueprint 과제의 사본이면 원본, 일반 과제면 null
+  blueprintAssignment   BlueprintAssignment? @relation(fields: [blueprintAssignmentId], references: [id], onDelete: Restrict)
+  blueprintAssignmentId Int?                 @map("blueprint_assignment_id")
+
   assignmentProblem AssignmentProblem[]
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
@@ -450,8 +487,50 @@ model Assignment {
   CheckRequest      CheckRequest[]
   courseQnA         CourseQnA[]
 
+  @@unique([blueprintAssignmentId, groupId])
   @@index([groupId, week])
   @@map("assignment")
+}
+
+model BlueprintAssignment {
+  id                   Int             @id @default(autoincrement())
+  blueprintCourse      BlueprintCourse @relation(fields: [blueprintCourseId], references: [id], onDelete: Cascade)
+  blueprintCourseId    Int             @map("blueprint_course_id")
+  createdBy            User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById          Int?            @map("created_by_id")
+  week                 Int             @default(1)
+  title                String
+  description          String
+  isVisible            Boolean         @default(true) @map("is_visible")
+  isRankVisible        Boolean         @default(true) @map("is_rank_visible")
+  isJudgeResultVisible Boolean         @default(true) @map("is_judge_result_visible")
+  enableCopyPaste      Boolean         @default(true) @map("enable_copy_paste")
+  autoFinalizeScore    Boolean         @default(false) @map("auto_finalize_score")
+  isExercise           Boolean         @default(false) @map("is_exercise")
+  createTime           DateTime        @default(now()) @map("create_time")
+  updateTime           DateTime        @updatedAt @map("update_time")
+
+  blueprintAssignmentProblem BlueprintAssignmentProblem[]
+  assignment                 Assignment[]
+  checkRequest               CheckRequest[]
+
+  @@index([blueprintCourseId, week])
+  @@map("blueprint_assignment")
+}
+
+model BlueprintAssignmentProblem {
+  blueprintAssignment   BlueprintAssignment @relation(fields: [blueprintAssignmentId], references: [id], onDelete: Cascade)
+  blueprintAssignmentId Int                 @map("blueprint_assignment_id")
+  problem               Problem             @relation(fields: [problemId], references: [id], onDelete: Restrict)
+  problemId             Int                 @map("problem_id")
+  order                 Int
+  // 각 문제의 점수 (비율 아님)
+  score                 Int                 @default(0)
+  createTime            DateTime            @default(now()) @map("create_time")
+  updateTime            DateTime            @updatedAt @map("update_time")
+
+  @@id([blueprintAssignmentId, problemId])
+  @@map("blueprint_assignment_problem")
 }
 
 model AssignmentProblem {
@@ -847,27 +926,31 @@ model TestSubmission {
 }
 
 model CheckRequest {
-  id                 Int               @id @default(autoincrement())
+  id                    Int                  @id @default(autoincrement())
   // 검사 결과는 S3에 저장되며 checkId가 폴더명이 됩니다
   // 따라서 S3 경로는 저장하지 않습니다
-  problem            Problem           @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId          Int               @map("problem_id")
-  user               User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId             Int?              @map("user_id")
-  language           Language
-  enableMerging      Boolean           @map("enable_merging")
-  minTokens          Int               @map("min_tokens")
-  useJplagClustering Boolean           @map("use_jplag_clustering")
-  assignment         Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId       Int?              @map("assignment_id")
-  contest            Contest?          @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId          Int?              @map("contest_id")
-  workbook           Workbook?         @relation(fields: [workbookId], references: [id])
-  workbookId         Int?              @map("workbook_id")
-  createTime         DateTime          @default(now()) @map("create_time")
-  result             CheckResultStatus
-  CheckResult        CheckResult[]
+  problem               Problem              @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId             Int                  @map("problem_id")
+  user                  User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId                Int?                 @map("user_id")
+  language              Language
+  enableMerging         Boolean              @map("enable_merging")
+  minTokens             Int                  @map("min_tokens")
+  useJplagClustering    Boolean              @map("use_jplag_clustering")
+  assignment            Assignment?          @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId          Int?                 @map("assignment_id")
+  contest               Contest?             @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId             Int?                 @map("contest_id")
+  workbook              Workbook?            @relation(fields: [workbookId], references: [id])
+  workbookId            Int?                 @map("workbook_id")
+  // Blueprint 통합 표절 검사 (여러 Section의 사본 제출을 모아 검사)
+  blueprintAssignment   BlueprintAssignment? @relation(fields: [blueprintAssignmentId], references: [id], onDelete: Cascade)
+  blueprintAssignmentId Int?                 @map("blueprint_assignment_id")
+  createTime            DateTime             @default(now()) @map("create_time")
+  result                CheckResultStatus
+  CheckResult           CheckResult[]
 
+  @@index([blueprintAssignmentId, problemId])
   @@map("check_request")
 }
 
@@ -996,25 +1079,25 @@ model PushSubscription {
 }
 
 model CourseQnA {
-  id          Int         @id @default(autoincrement())
-  order       Int
-  createdById Int?        @map("created_by_id")
-  groupId     Int         @map("group_id")
-  problemId   Int?        @map("problem_id")
-  assignmentId Int?       @map("assignment_id")
-  title       String
-  content     String
-  category    QnACategory @default(General)
-  isResolved  Boolean     @default(false) @map("is_resolved")
-  isPrivate   Boolean     @default(false) @map("is_private")
-  createTime  DateTime    @default(now()) @map("create_time")
-  readBy      Int[]       @map("read_by")
+  id           Int         @id @default(autoincrement())
+  order        Int
+  createdById  Int?        @map("created_by_id")
+  groupId      Int         @map("group_id")
+  problemId    Int?        @map("problem_id")
+  assignmentId Int?        @map("assignment_id")
+  title        String
+  content      String
+  category     QnACategory @default(General)
+  isResolved   Boolean     @default(false) @map("is_resolved")
+  isPrivate    Boolean     @default(false) @map("is_private")
+  createTime   DateTime    @default(now()) @map("create_time")
+  readBy       Int[]       @map("read_by")
 
-  createdBy User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
-  group     Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  problem   Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
-  assignment Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
-  comments  CourseQnAComment[]
+  createdBy  User?              @relation("CreatedByUserCourseQnA", fields: [createdById], references: [id], onDelete: SetNull)
+  group      Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  problem    Problem?           @relation("ProblemToCourseQnA", fields: [problemId], references: [id], onDelete: Cascade)
+  assignment Assignment?        @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  comments   CourseQnAComment[]
 
   @@unique([groupId, order])
   @@map("course_qna")
