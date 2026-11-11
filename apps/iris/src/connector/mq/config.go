@@ -50,16 +50,16 @@ func configFromEnv(logProvider logger.Logger) (rabbitmq.ConsumerConfig, rabbitmq
 		utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_VHOST", logProvider)
 
 	return rabbitmq.ConsumerConfig{
-		TLS:            tlsConfig,
-		AmqpURI:        uri,
-		ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
-		QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
-		Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
-	}, rabbitmq.ProducerConfig{
-		TLS:            tlsConfig,
-		AmqpURI:        uri,
-		ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
-		ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
-		RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
-	}, rabbitmq.ConnectorConfig{MessageTimeout: messageTimeout}
+			TLS:            tlsConfig,
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
+		}, rabbitmq.ProducerConfig{
+			TLS:            tlsConfig,
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
+			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
+		}, rabbitmq.ConnectorConfig{MessageTimeout: messageTimeout}
 }

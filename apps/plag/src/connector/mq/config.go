@@ -50,16 +50,16 @@ func configFromEnv(logProvider logger.Logger) (rabbitmq.ConsumerConfig, rabbitmq
 		utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_VHOST", logProvider)
 
 	return rabbitmq.ConsumerConfig{
-		TLS:            tlsConfig,
-		AmqpURI:        uri,
-		ConnectionName: utils.MustGetenvOrElseThrow("CHECK_CONSUMER_CONNECTION_NAME", logProvider),
-		QueueName:      utils.MustGetenvOrElseThrow("CHECK_QUEUE_NAME", logProvider),
-		Ctag:           utils.MustGetenvOrElseThrow("CHECK_TAG", logProvider),
-	}, rabbitmq.ProducerConfig{
-		TLS:            tlsConfig,
-		AmqpURI:        uri,
-		ConnectionName: utils.MustGetenvOrElseThrow("CHECK_PRODUCER_CONNECTION_NAME", logProvider),
-		ExchangeName:   utils.MustGetenvOrElseThrow("CHECK_EXCHANGE_NAME", logProvider),
-		RoutingKey:     utils.MustGetenvOrElseThrow("CHECK_RESULT_ROUTING_KEY", logProvider),
-	}, rabbitmq.ConnectorConfig{MessageTimeout: messageTimeout}
+			TLS:            tlsConfig,
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("CHECK_CONSUMER_CONNECTION_NAME", logProvider),
+			QueueName:      utils.MustGetenvOrElseThrow("CHECK_QUEUE_NAME", logProvider),
+			Ctag:           utils.MustGetenvOrElseThrow("CHECK_TAG", logProvider),
+		}, rabbitmq.ProducerConfig{
+			TLS:            tlsConfig,
+			AmqpURI:        uri,
+			ConnectionName: utils.MustGetenvOrElseThrow("CHECK_PRODUCER_CONNECTION_NAME", logProvider),
+			ExchangeName:   utils.MustGetenvOrElseThrow("CHECK_EXCHANGE_NAME", logProvider),
+			RoutingKey:     utils.MustGetenvOrElseThrow("CHECK_RESULT_ROUTING_KEY", logProvider),
+		}, rabbitmq.ConnectorConfig{MessageTimeout: messageTimeout}
 }
