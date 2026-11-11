@@ -16,6 +16,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
+  CourseService,
   GroupService,
   InvitationService,
   WhitelistService
@@ -201,7 +202,8 @@ describe('GroupService', () => {
   let cache: Cache
 
   beforeEach(async () => {
-    whitelistServiceMock.updateWhitelist.resetHistory()
+    whitelistServiceMock.updateWhitelist.reset()
+    whitelistServiceMock.updateWhitelist.resolves()
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -242,6 +244,17 @@ describe('GroupService', () => {
           db
         )
       ).to.be.true
+    })
+
+    it('should convert whitelist failures into an input error', async () => {
+      db.user.findUnique.resolves(user)
+      whitelistServiceMock.updateWhitelist.rejects(
+        new Error('Invalid whitelist')
+      )
+
+      await expect(
+        service.createCourse(courseInput, userReq)
+      ).to.be.rejectedWith(UnprocessableDataException, 'Invalid whitelist')
     })
 
     it('should throw error when user does not have can create course', async () => {
@@ -341,6 +354,17 @@ describe('GroupService', () => {
   })
 
   describe('updateCourse', () => {
+    it('should convert whitelist failures into an input error', async () => {
+      db.group.update.resolves(group)
+      whitelistServiceMock.updateWhitelist.rejects(
+        new Error('Invalid whitelist')
+      )
+
+      await expect(
+        service.updateCourse(groupId, courseInput)
+      ).to.be.rejectedWith(UnprocessableDataException, 'Invalid whitelist')
+    })
+
     const updated = { ...group, groupName: 'Updated' }
     it('should return updated group', async () => {
       db.group.update.resolves(updated)
@@ -415,6 +439,44 @@ describe('GroupService', () => {
         UnprocessableDataException,
         'Invalid groupId for a course'
       )
+    })
+
+    it('should convert whitelist failures during duplication into an input error', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({ ...group, assignment: [] })
+      db.group.create.resolves(group)
+      whitelistServiceMock.updateWhitelist.rejects(
+        new Error('Invalid whitelist')
+      )
+
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(UnprocessableDataException, 'Invalid whitelist')
+    })
+
+    it('should use default configuration when the original configuration is null', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({
+        ...group,
+        config: null,
+        assignment: []
+      })
+      db.group.create.resolves(group)
+
+      const result = await service.duplicateCourse(
+        groupId,
+        userId,
+        duplicateInput
+      )
+
+      expect(db.group.create.lastCall.args[0].data.config).to.deep.equal({
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
+      })
+      expect(result.originAssignments).to.deep.equal([])
+      expect(result.copiedAssignments).to.deep.equal([])
     })
 
     it('should duplicate course successfully', async () => {
@@ -856,6 +918,19 @@ describe('WhitelistService', () => {
       ).to.be.true
     })
 
+    it('should rethrow unexpected database errors unchanged', async () => {
+      const error = new Error('Database unavailable')
+      db.groupWhitelist.deleteMany.resolves({ count: 0 })
+      db.groupWhitelist.createMany.rejects(error)
+
+      const caught = await service.createWhitelist(1, ['20250001']).then(
+        () => undefined,
+        (reason) => reason
+      )
+
+      expect(caught).to.equal(error)
+    })
+
     it('should throw an error if there are duplicate student IDs', async () => {
       const groupId = faker.number.int()
       const studentIds: [string] = [faker.string.numeric()]
@@ -895,6 +970,22 @@ describe('WhitelistService', () => {
           where: { groupId }
         })
       ).to.be.true
+    })
+  })
+})
+
+describe('CourseService', () => {
+  it('should reject a QnA lookup when the course has no matching question', async () => {
+    const prisma = { courseQnA: { findUnique: stub().resolves(null) } }
+    const service = new CourseService(prisma as unknown as PrismaService)
+
+    await expect(service.getCourseQnA(1, 2)).to.be.rejectedWith(
+      EntityNotExistException,
+      'CourseQnA'
+    )
+    expect(prisma.courseQnA.findUnique.firstCall.args[0].where).to.deep.equal({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      groupId_order: { groupId: 1, order: 2 }
     })
   })
 })
