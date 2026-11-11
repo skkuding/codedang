@@ -187,7 +187,9 @@ export function ValidatorPage() {
         {!permissions.isReadOnly && (
           <Button
             type="button"
-            disabled={!validatorFile || status === 'Running'}
+            disabled={
+              !validatorFile || status === 'Pending' || status === 'Running'
+            }
             onClick={handleRunValidation}
           >
             입력 검증 실행
