@@ -109,25 +109,27 @@ export const mockColumns: ColumnDef<CourseTableRow>[] = [
     ),
     cell: ({ row }) => (
       <div className="flex items-center gap-3">
-        {row.getCanExpand() && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              row.toggleExpanded()
-            }}
-            aria-label={row.getIsExpanded() ? 'Collapse' : 'Expand'}
-          >
-            {row.getIsExpanded() ? (
-              <ChevronDown className="size-4" />
-            ) : (
-              <ChevronRight className="size-4" />
-            )}
-          </button>
-        )}
-        {row.original.type === 'section'
-          ? `${row.original.code}-${row.original.classNum}`
-          : row.original.code}
+        <div className="flex size-4 shrink-0 items-center justify-center">
+          {row.getCanExpand() && (
+            <button
+              type="button"
+              className="flex size-4 items-center justify-center"
+              onClick={(e) => {
+                e.stopPropagation()
+                row.toggleExpanded()
+              }}
+              aria-label={row.getIsExpanded() ? 'Collapse' : 'Expand'}
+            >
+              {row.getIsExpanded() ? (
+                <ChevronDown className="size-4" />
+              ) : (
+                <ChevronRight className="size-4" />
+              )}
+            </button>
+          )}
+        </div>
+
+        {row.original.code}
       </div>
     )
   },

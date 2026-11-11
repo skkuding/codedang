@@ -217,12 +217,12 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                       >
                         <div
                           className={cn(
-                            'flex justify-center whitespace-nowrap',
+                            'relative flex justify-center whitespace-nowrap',
                             isSelectColumn && 'w-14',
                             bodyStyle[cell.column.id]
                           )}
                           style={{
-                            paddingLeft: `${row.depth * 38}px`
+                            left: `${row.depth * 24}px`
                           }}
                         >
                           {flexRender(
