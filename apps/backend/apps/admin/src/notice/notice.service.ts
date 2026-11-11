@@ -23,9 +23,12 @@ export class NoticeService {
         ...createNoticeInput
       }
     })
-    this.eventEmitter.emit('notice.created', {
-      noticeId: noticeCreated.id
-    })
+
+    if (noticeCreated.isVisible) {
+      this.eventEmitter.emit('notice.created', {
+        noticeId: noticeCreated.id
+      })
+    }
 
     return noticeCreated
   }
@@ -50,12 +53,20 @@ export class NoticeService {
    * @returns {Notice} 업데이트 된 notice 객체 반환
    */
   async updateNotice(noticeId: number, updateNoticeInput: UpdateNoticeInput) {
-    return await this.prisma.notice.update({
+    const noticeUpdated = await this.prisma.notice.update({
       where: {
         id: noticeId
       },
       data: updateNoticeInput
     })
+
+    if (updateNoticeInput.isVisible === true && noticeUpdated.isVisible) {
+      this.eventEmitter.emit('notice.created', {
+        noticeId: noticeUpdated.id
+      })
+    }
+
+    return noticeUpdated
   }
 
   /**

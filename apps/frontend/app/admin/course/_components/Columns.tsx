@@ -70,6 +70,9 @@ export const columns: ColumnDef<DataTableCourse>[] = [
           <p className="text-body2_m_14">{yearSeason}</p>
         </div>
       )
+    },
+    filterFn: (row, columnId, filterValues: string[]) => {
+      return filterValues.includes(row.getValue(columnId))
     }
   },
   {
