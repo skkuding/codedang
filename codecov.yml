@@ -14,6 +14,16 @@ coverage:
           - iris
         target: auto
         informational: true
+      common:
+        flags:
+          - common
+        target: auto
+        informational: true
+      plag:
+        flags:
+          - plag
+        target: auto
+        informational: true
     patch:
       default: off
       backend:
@@ -26,6 +36,16 @@ coverage:
           - iris
         target: auto
         informational: true
+      common:
+        flags:
+          - common
+        target: auto
+        informational: true
+      plag:
+        flags:
+          - plag
+        target: auto
+        informational: true
 
 flags:
   backend:
@@ -34,3 +54,9 @@ flags:
   iris:
     paths:
       - apps/iris/
+  common:
+    paths:
+      - packages/go/common/
+  plag:
+    paths:
+      - apps/plag/

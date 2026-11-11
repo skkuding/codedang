@@ -21,8 +21,8 @@ func MessageTimeoutFromEnv() (time.Duration, error) {
 	if raw == "" {
 		return time.Duration(DefaultMessageTimeoutMS) * time.Millisecond, nil
 	}
-	milliseconds, err := strconv.Atoi(raw)
-	if err != nil || milliseconds <= 0 {
+	milliseconds, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil || milliseconds <= 0 || milliseconds > (1<<63-1)/int64(time.Millisecond) {
 		return 0, fmt.Errorf("must be a positive integer")
 	}
 	return time.Duration(milliseconds) * time.Millisecond, nil

@@ -26,11 +26,13 @@ func TestMessageTimeoutFromEnv(t *testing.T) {
 		assert.Equal(t, 1234*time.Millisecond, timeout)
 	})
 
-	t.Run("rejects a non-positive value", func(t *testing.T) {
-		t.Setenv(MessageTimeoutEnv, "0")
-		_, err := MessageTimeoutFromEnv()
-		assert.EqualError(t, err, "must be a positive integer")
-	})
+	for _, value := range []string{"0", "-1", "bad", "9223372036854775807"} {
+		t.Run("rejects "+value, func(t *testing.T) {
+			t.Setenv(MessageTimeoutEnv, value)
+			_, err := MessageTimeoutFromEnv()
+			assert.EqualError(t, err, "must be a positive integer")
+		})
+	}
 }
 
 type configTestLogger struct{ warnings int }
