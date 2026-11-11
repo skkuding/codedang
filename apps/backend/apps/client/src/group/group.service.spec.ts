@@ -576,3 +576,42 @@ describe('GroupService', () => {
     })
   })
 })
+
+describe('GroupService join retry race', () => {
+  it('should reject joining when the retry limit is reached after the initial check', async () => {
+    const userId = 7
+    const groupId = 3
+    const prisma = {
+      group: {
+        findUniqueOrThrow: sinon.stub().resolves({
+          config: { requireApprovalBeforeJoin: false }
+        })
+      },
+      userGroup: { findUnique: sinon.stub().resolves(null) },
+      groupWhitelist: {
+        findFirst: sinon.stub().resolves({ studentId: '2024000000' })
+      },
+      user: {
+        findUniqueOrThrow: sinon.stub().resolves({ studentId: '2024000000' })
+      }
+    }
+    const cache = { get: sinon.stub().resolves(groupId) }
+    const service = new GroupService(
+      prisma as unknown as PrismaService,
+      cache as unknown as Cache
+    )
+    const retryCount = sinon
+      .stub(service, 'getUserRetryCount')
+      .resolves(MAX_STUDENT_RETRY_COUNT - 1)
+    const increment = sinon.stub(service, 'incrementRetryCount').resolves(-1)
+    const createMembership = sinon.stub(service, 'createUserGroup')
+
+    await expect(
+      service.joinGroupById(userId, groupId, 'invitationCode', '2024999999')
+    ).to.be.rejectedWith(ForbiddenAccessException, 'Join request count exceed')
+
+    expect(retryCount.calledOnceWithExactly(userId, groupId)).to.be.true
+    expect(increment.calledOnceWithExactly(userId, groupId)).to.be.true
+    expect(createMembership.notCalled).to.be.true
+  })
+})
