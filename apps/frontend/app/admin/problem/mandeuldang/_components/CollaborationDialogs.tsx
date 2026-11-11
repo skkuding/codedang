@@ -9,7 +9,7 @@ import {
   AlertDialogTitle
 } from '@/components/shadcn/alert-dialog'
 import { cn } from '@/libs/utils'
-import InfoBlueIcon from '@/public/icons/icon-info-blue.svg'
+import InfoIcon from '@/public/icons/info.svg'
 import {
   COLLABORATOR_ROLES,
   type CollaboratorRole,
@@ -42,12 +42,7 @@ export function CollaborationDialogs({
         )}
       >
         <AlertDialogHeader className="gap-2 space-y-0 text-left">
-          {/* SVGR 빌드가 viewBox를 제거해 CSS 크기만으로는 아이콘이 커지지 않으므로 명시한다 */}
-          <InfoBlueIcon
-            aria-hidden="true"
-            viewBox="0 0 16 17"
-            className="size-9"
-          />
+          <InfoIcon aria-hidden="true" className="text-primary size-9" />
           <div className="flex flex-col gap-3">
             <AlertDialogTitle className="text-head5_sb_24">
               {pendingAction?.type === 'delete'
