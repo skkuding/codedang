@@ -123,6 +123,15 @@
         "tsConfigPath": "libs/storage/tsconfig.lib.json"
       }
     },
+    "attachment": {
+      "type": "library",
+      "root": "libs/attachment",
+      "entryFile": "index",
+      "sourceRoot": "libs/attachment/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/attachment/tsconfig.lib.json"
+      }
+    },
     "amqp": {
       "type": "library",
       "root": "libs/amqp",

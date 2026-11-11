@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import type { Readable } from 'stream'
+import { buildMediaUrl } from '@libs/attachment'
 import { MAX_FILE_SIZE, MAX_IMAGE_SIZE } from '@libs/constants'
 import {
   UnprocessableDataException,
@@ -140,21 +141,9 @@ export class FileService {
 
   /**
    * Returns the public URL of a media object.
-   *
-   * MEDIA_CDN_URL (e.g. https://media.codedang.com) takes precedence when set.
-   * MINIO_ENDPOINT_URL is required only when accessing MINIO (stage, local).
-   * Otherwise the default S3 endpoint is used.
+   * URL resolution rules are defined in `buildMediaUrl` (@libs/attachment).
    */
   getFileUrl(filename: string) {
-    const cdnUrl = this.config.get<string>('MEDIA_CDN_URL')
-    if (cdnUrl) {
-      return `${cdnUrl.replace(/\/+$/, '')}/${filename}`
-    }
-
-    const endpoint = this.config.get<string>('MINIO_ENDPOINT_URL')
-    const bucket = this.config.get<string>('MEDIA_BUCKET_NAME')
-    return endpoint
-      ? `${endpoint}/${bucket}/${filename}`
-      : `https://${bucket}.s3.ap-northeast-2.amazonaws.com/${filename}`
+    return buildMediaUrl(this.config, filename)
   }
 }

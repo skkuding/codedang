@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { AttachmentModule } from '@libs/attachment'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@libs/storage'
 import { ProblemController } from './controllers/problem.controller'
@@ -20,7 +21,7 @@ import {
 } from './services'
 
 @Module({
-  imports: [StorageModule, ConfigModule, RolesModule],
+  imports: [StorageModule, ConfigModule, RolesModule, AttachmentModule],
   controllers: [ProblemController],
   providers: [
     ProblemResolver,
