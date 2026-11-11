@@ -155,7 +155,7 @@ export function TestcaseUploadModal({
           type="button"
           disabled={disabled}
         >
-          <UploadIcon width={20} height={20} />
+          <UploadIcon width={20} height={20} className="text-black" />
         </button>
       }
     >
