@@ -2,19 +2,19 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CollaborationPage, type Collaborator } from './CollaborationPage'
 
-vi.mock('@/public/icons/info-gray.svg', () => ({
+vi.mock('@/public/icons/warning.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 
-vi.mock('@/public/icons/icon-info-blue.svg', () => ({
+vi.mock('@/public/icons/info.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 
-vi.mock('@/public/icons/asterisk-gray.svg', () => ({
+vi.mock('@/public/icons/asterisk.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 
-vi.mock('@/public/icons/trashcan2-gray.svg', () => ({
+vi.mock('@/public/icons/trashcan.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 

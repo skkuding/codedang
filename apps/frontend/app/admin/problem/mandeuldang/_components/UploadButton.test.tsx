@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { UploadButton } from './UploadButton'
 
-vi.mock('@/public/icons/file_gray.svg', () => ({
+vi.mock('@/public/icons/file-fill.svg', () => ({
   default: (props: React.SVGProps<SVGSVGElement>) => <svg {...props} />
 }))
 

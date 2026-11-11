@@ -5,8 +5,8 @@ import {
   TabsList,
   TabsTrigger
 } from '@/components/shadcn/tabs'
-import InfoGrayIcon from '@/public/icons/info-gray.svg'
-import TrashIcon from '@/public/icons/trashcan2-gray.svg'
+import TrashIcon from '@/public/icons/trashcan.svg'
+import WarningIcon from '@/public/icons/warning.svg'
 import Image from 'next/image'
 import type { ReactNode } from 'react'
 import type {
@@ -112,8 +112,10 @@ function EmptyCollaborators({ tab }: { tab: CollaborationTab }) {
 
   return (
     <div className="bg-color-neutral-99 flex flex-col items-center justify-center gap-2 rounded-xl px-6 py-[60px] text-center">
-      {/* SVGR 빌드가 viewBox를 제거해 CSS 크기만으로는 아이콘이 줄지 않으므로 명시한다 */}
-      <InfoGrayIcon aria-hidden="true" viewBox="0 0 30 30" className="size-6" />
+      <WarningIcon
+        aria-hidden="true"
+        className="text-color-neutral-80 size-6"
+      />
       <p className="text-body1_m_16 text-color-cool-neutral-50">
         <span>
           {isParticipantsTab

@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { cn } from '@/libs/utils'
-import AsteriskGrayIcon from '@/public/icons/asterisk-gray.svg'
+import AsteriskIcon from '@/public/icons/asterisk.svg'
 import type { FormEvent } from 'react'
 import type { CollaboratorRole } from '../_libs/collaboration'
 import { CollaborationRoleSelect } from './CollaborationRoleSelect'
@@ -100,7 +100,7 @@ export function CollaborationInviteForm({
           </div>
         </div>
         <p className="text-body4_r_14 text-color-cool-neutral-60 flex items-center">
-          <AsteriskGrayIcon aria-hidden="true" className="size-5 shrink-0" />
+          <AsteriskIcon aria-hidden="true" className="size-5 shrink-0" />
           초대 즉시 Approved 처리되어 ‘활성화된 참여자’에 바로 들어갑니다.
         </p>
       </div>
