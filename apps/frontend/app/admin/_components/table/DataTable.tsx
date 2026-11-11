@@ -185,16 +185,12 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
         <TableBody className="[&_td]:border-[#80808040]">
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => {
-              const isSection = row.original.type === 'section'
               return (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
                   onClick={() => {
-                    if (!isSection) {
-                      return
-                    }
                     onRowClick?.(table, row)
                     const href = getHref?.(row.original)
                     if (href) {
