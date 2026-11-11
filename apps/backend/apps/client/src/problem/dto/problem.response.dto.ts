@@ -5,8 +5,8 @@ import type {
   Tag,
   UpdateHistory
 } from '@prisma/client'
-import type { JsonValue } from '@prisma/client/runtime/library'
 import { Exclude, Expose } from 'class-transformer'
+import type { JsonValue } from '@libs/prisma-runtime'
 
 export class ProblemResponseDto {
   id: number

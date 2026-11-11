@@ -64,11 +64,21 @@ if [ "$DEVCONTAINER" = "1" ] && ! grep -q "source /usr/share/bash-completion/com
 fi
 
 # Apply database migration
+migration_succeeded=false
 for _ in {1..5}; do
-  pnpm --filter="@codedang/backend" exec prisma migrate dev && break # break if migration succeed
+  if pnpm --filter="@codedang/backend" exec prisma migrate dev; then
+    migration_succeeded=true
+    break
+  fi
   echo -e '\n⚠️ Failed to migrate. Waiting for db to be ready...\n'
   sleep 5
 done
+if [ "$migration_succeeded" != true ]; then
+  echo 'Database migration failed.' >&2
+  exit 1
+fi
+pnpm --filter="@codedang/backend" exec prisma generate
+pnpm --filter="@codedang/backend" exec prisma db seed
 
 # Initialize MinIO
 pnpm run init:storage

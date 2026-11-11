@@ -1,5 +1,4 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -7,6 +6,7 @@ import {
   EntityNotExistException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { PrismaClientKnownRequestError } from '@libs/prisma-runtime'
 import { exampleProblemTags, exampleTag } from '../mock/mock'
 import { TagService } from './tag.service'
 

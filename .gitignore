@@ -156,3 +156,6 @@ coverage
 .claude/settings.local.json
 **/CLAUDE**
 CLAUDE.*
+
+# Generated Prisma Client
+/apps/backend/libs/prisma/src/generated/

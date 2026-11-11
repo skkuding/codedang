@@ -1,8 +1,10 @@
-import type { OnModuleInit } from '@nestjs/common'
+import type { OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { Prisma } from '@prisma/client'
 import { PrismaClient } from '@prisma/client'
+import type { Pool } from 'pg'
+import { createPrismaPool, observePoolErrors } from './prisma-pool'
 
 export type Paginator<T> = {
   skip?: number
@@ -11,23 +13,26 @@ export type Paginator<T> = {
 
 @Injectable()
 export class PrismaService
-  extends PrismaClient<Prisma.PrismaClientOptions, Prisma.LogLevel>
-  implements OnModuleInit
+  extends PrismaClient<
+    Prisma.PrismaClientOptions & {
+      log: { emit: 'event'; level: Prisma.LogLevel }[]
+    }
+  >
+  implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name)
-  constructor(private config: ConfigService) {
-    const databaseUrl = config.get<string>('DATABASE_URL')
-    const connectionLimit = config.get<string>('DATABASE_CONNECTION_LIMIT')
+  private readonly pgPool: Pool
+  private cleanupPromise?: Promise<void>
+  private readonly stopPoolErrors: () => void
+
+  constructor(config: ConfigService) {
+    const { pool, adapter } = createPrismaPool(
+      config.get<string>('DATABASE_URL'),
+      config.get<string>('DATABASE_CONNECTION_LIMIT')
+    )
 
     super({
-      datasources: {
-        db: {
-          url:
-            databaseUrl && connectionLimit
-              ? `${databaseUrl}${databaseUrl.includes('?') ? '&' : '?'}connection_limit=${connectionLimit}`
-              : databaseUrl
-        }
-      },
+      adapter,
       log: [
         {
           emit: 'event',
@@ -47,6 +52,8 @@ export class PrismaService
         }
       ]
     })
+    this.pgPool = pool
+    this.stopPoolErrors = observePoolErrors(pool, this.logger)
   }
 
   async onModuleInit() {
@@ -63,7 +70,28 @@ export class PrismaService
       this.logger.debug(event, 'SQL Query')
     })
 
-    await this.$connect()
+    try {
+      await this.$connect()
+    } catch (error) {
+      await this.onModuleDestroy()
+      throw error
+    }
+  }
+
+  onModuleDestroy() {
+    return (this.cleanupPromise ??= this.closePool())
+  }
+
+  private async closePool() {
+    try {
+      await this.$disconnect()
+    } finally {
+      try {
+        await this.pgPool.end()
+      } finally {
+        this.stopPoolErrors()
+      }
+    }
   }
 
   // Use explicit type to avoid Prisma query argument type error
