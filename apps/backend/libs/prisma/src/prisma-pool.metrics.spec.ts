@@ -1,31 +1,13 @@
-import { metrics } from '@opentelemetry/api'
-import {
-  AggregationTemporality,
-  InMemoryMetricExporter,
-  MeterProvider,
-  PeriodicExportingMetricReader
-} from '@opentelemetry/sdk-metrics'
 import { expect } from 'chai'
 import type { Pool } from 'pg'
-import { spy, stub } from 'sinon'
+import { createSandbox, spy } from 'sinon'
+import { createMetricFixture } from './metric-test.fixture'
 import { registerPoolMetrics } from './prisma-pool.metrics'
 
 describe('Prisma pool OpenTelemetry metrics', () => {
   it('exports live pool state and removes the observation callback at shutdown', async () => {
-    const exporter = new InMemoryMetricExporter(
-      AggregationTemporality.CUMULATIVE
-    )
-    const provider = new MeterProvider({
-      readers: [
-        new PeriodicExportingMetricReader({
-          exporter,
-          exportIntervalMillis: 60_000
-        })
-      ]
-    })
-    const getMeter = stub(metrics, 'getMeter').returns(
-      provider.getMeter('test')
-    )
+    const sandbox = createSandbox()
+    const { exporter, provider } = createMetricFixture(sandbox)
     const state = { totalCount: 3, idleCount: 1, waitingCount: 2 }
     const observedPool = {
       get totalCount() {
@@ -89,7 +71,7 @@ describe('Prisma pool OpenTelemetry metrics', () => {
       expect(reads.get.called).to.equal(false)
     } finally {
       stop()
-      getMeter.restore()
+      sandbox.restore()
       await provider.shutdown()
     }
   })
