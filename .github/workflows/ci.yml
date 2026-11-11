@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 7667)
-Total output lines: 927
-
 name: CI
 
 on:
@@ -299,7 +296,371 @@ jobs:
   build-backend-client:
     name: Build Backend (client)
     needs: detect-changes
-    if: needs['detect-changes'].outputs.backend_cli…2667 tokens truncated…&& context.eventName === 'merge_group' && context.ref?.includes('gh-readonly-queue')) {
+    if: needs['detect-changes'].outputs.backend_client == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Generate Prisma Client
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Build
+        run: pnpm --filter="@codedang/backend" build client
+
+  build-backend-admin:
+    name: Build Backend (admin)
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.backend_admin == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Generate Prisma Client
+        run: pnpm --filter="@codedang/backend" exec prisma generate
+
+      - name: Build
+        run: pnpm --filter="@codedang/backend" build admin
+
+  test-backend:
+    name: Test Backend
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.backend_test == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      MINIO_ENDPOINT_URL: http://localhost:9000
+      TESTCASE_BUCKET_NAME: test-bucket
+      CHECK_RESULT_BUCKET_NAME: codedang-plag-checks
+      MEDIA_BUCKET_NAME: image-bucket
+      AWS_ACCESS_KEY_ID: abc123
+      AWS_SECRET_ACCESS_KEY: xyz123456
+      REDIS_HOST: localhost
+      REDIS_PORT: 6380
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_DB: skkuding
+      minio:
+        # NOTE: GitHub Actions service containers do not support custom commands.
+        # This image from Bitnami includes the command to run MinIO.
+        # https://stackoverflow.com/questions/60849745/how-can-i-run-a-command-in-github-action-service-containers
+        # NOTE: Bitnami images for community-tier users are restricted to the latest tag.
+        # https://github.com/bitnami/charts/issues/35164
+        # NOTE: due to instability of Bitnami image, switch to lazybit's image
+        # https://stackoverflow.com/questions/64031598/creating-a-minios3-container-inside-a-github-actions-yml-file
+        image: lazybit/minio:latest
+        ports:
+          - 9000:9000
+          - 9001:9001
+        env:
+          MINIO_ROOT_USER: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_ROOT_PASSWORD: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          MINIO_BROWSER: 'off'
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Check Prisma Migration
+        run: |
+          pnpm --filter="@codedang/backend" exec prisma migrate diff \
+            --from-migrations ./prisma/migrations \
+            --to-schema-datamodel ./prisma/schema.prisma \
+            --shadow-database-url ${{ env.DATABASE_URL }} \
+            --exit-code ||
+          (echo "::error::Prisma migration is not up to date." \
+          "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
+
+      - name: Migrate Prisma
+        run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
+
+      - name: Initialize MinIO
+        run: pnpm run init:storage
+        env:
+          MINIO_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          MINIO_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Test with coverage
+        run: pnpm --filter="@codedang/backend" test:coverage
+
+      - name: Normalize Backend coverage paths
+        run: |
+          report=apps/backend/coverage/lcov.info
+          if ! grep -q '^SF:' "$report"; then
+            echo '::error::Backend coverage report contains no source files'
+            exit 1
+          fi
+          sed -i 's|^SF:|SF:apps/backend/|' "$report"
+
+      - name: Upload Backend coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/backend/coverage/lcov.info
+          flags: backend
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
+
+  test-iris:
+    name: Test Iris
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.iris == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/iris/go.mod
+          cache-dependency-path: |
+            apps/iris/go.sum
+            packages/go/common/go.sum
+
+      - name: Vet shared Go packages
+        run: go vet ./...
+        working-directory: ./packages/go/common
+
+      - name: Test shared Go packages with coverage
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
+        working-directory: ./packages/go/common
+
+      - name: Upload shared Go coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: packages/go/common/coverage.out
+          flags: common
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
+
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/iris
+
+      - name: Test (Go)
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
+        working-directory: ./apps/iris
+
+      - name: Upload Iris coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/iris/coverage.out
+          flags: iris
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
+
+  test-plag:
+    name: Test Plag
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.plag == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/plag/go.mod
+          cache-dependency-path: |
+            apps/plag/go.sum
+            packages/go/common/go.sum
+
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/plag
+
+      - name: Test (Go)
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
+        working-directory: ./apps/plag
+
+      - name: Upload Plag coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/plag/coverage.out
+          flags: plag
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
+
+  test-runner-backend:
+    name: Test Runner Backend
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.runner_backend == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/runner/backend/go.mod
+          cache-dependency-path: apps/runner/backend/go.sum
+
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/runner/backend
+
+      - name: Test (Go)
+        run: go test ./...
+        working-directory: ./apps/runner/backend
+
+  test-runner-pod-manager:
+    name: Test Runner Pod Manager
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.runner_pod_manager == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/runner/pod-manager/go.mod
+          cache-dependency-path: apps/runner/pod-manager/go.sum
+
+      - name: Vet (Go)
+        run: go vet ./...
+        working-directory: ./apps/runner/pod-manager
+
+      - name: Test (Go)
+        run: go test ./...
+        working-directory: ./apps/runner/pod-manager
+
+  test-x509-distrust-go:
+    name: Test x509 Distrust (Go)
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.x509_distrust == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tests/x509-distrust/go.mod
+
+      - name: Test offline chains
+        run: go test ./...
+        working-directory: ./tests/x509-distrust
+
+  test-x509-distrust-node:
+    name: Test x509 Distrust (Node ${{ matrix.node-version }})
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.x509_distrust == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['22.23.4', '24.22.1', '26.12.1']
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Test offline fixtures
+        run: node --test tests/x509-distrust/node.test.mjs
+
+  # TODO: write smoke test for backend
+  # e.g) start backend server and check if it responds to requests
+  #
+  # ```
+  # pnpm --filter="@codedang/backend" start &
+  #
+  # for i in {1..10}
+  # do
+  #   curl -s http://localhost:3000/health && exit 0
+  #   sleep 2
+  # done
+  # echo "Server did not respond to health check."
+  # exit 1
+  # ```
+
+  # ===========================================================================
+  # Frontend
+  # ===========================================================================
+
+  build-frontend:
+    name: Build Frontend
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.frontend == 'true'
+    runs-on: arc-runner
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect PR number
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let prNumber = '';
+
+            // pull_request
+            if (context.eventName === 'pull_request') {
+              prNumber = String(context.payload.pull_request.number);
+            }
+
+            // merge_group
+            if (!prNumber && context.eventName === 'merge_group' && context.ref?.includes('gh-readonly-queue')) {
               const m = context.ref.match(/pr-(\d+)-/);
               if (m) prNumber = m[1];
             }
