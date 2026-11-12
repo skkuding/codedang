@@ -1,9 +1,3 @@
-import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
-import { Checkbox } from '@/components/shadcn/checkbox'
-import { cn } from '@/libs/utils'
-import type { ColumnDef } from '@tanstack/react-table'
-import { ChevronDown, ChevronRight } from 'lucide-react'
-
 export interface CourseTableRow {
   id: number
   type: 'master' | 'section'
