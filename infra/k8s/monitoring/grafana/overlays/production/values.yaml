@@ -189,6 +189,13 @@ dashboards:
       datasource:
         - name: DS_PROMETHEUS
           value: Prometheus
+    # Blackbox Exporter (HTTP prober) - https://grafana.com/grafana/dashboards/13659
+    blackbox-exporter:
+      gnetId: 13659
+      revision: 1
+      datasource:
+        - name: DS_PROMETHEUS
+          value: Prometheus
   # ── AWS CloudWatch (monitoringartist) ─────────
   aws-dashboards:
     # AWS RDS - https://grafana.com/grafana/dashboards/707
