@@ -4,7 +4,7 @@ import { cn, fetcher, isHttpError, safeFetcher } from '@/libs/utils'
 import { useAuthModalStore } from '@/stores/authModal'
 import { useRecoverAccountModalStore } from '@/stores/recoverAccountModal'
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as v from 'valibot'
 
@@ -16,10 +16,12 @@ const schema = v.object({
 })
 
 export function FindUserId() {
-  const [userId, setUserId] = useState<string>('')
   const [emailError, setEmailError] = useState<string>('')
   const [wrongEmail, setWrongEmail] = useState<string>('')
+  const [idSent, setIdSent] = useState<boolean>(false)
   const [sentEmail, setSentEmail] = useState<boolean>(false)
+  const [resetPending, setResetPending] = useState(false)
+  const resetInFlight = useRef(false)
   const [inputFocused, setInputFocused] = useState<boolean>(false)
   const { nextModal, setFormData } = useRecoverAccountModalStore(
     (state) => state
@@ -31,7 +33,7 @@ export function FindUserId() {
     register,
     trigger,
     getValues,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<FindUserIdInput>({
     resolver: valibotResolver(schema)
   })
@@ -39,40 +41,43 @@ export function FindUserId() {
   const onSubmit = async (data: FindUserIdInput) => {
     const { email } = data
     try {
-      const data: { username: string } = await fetcher
+      await fetcher
         .get('user/email', {
           searchParams: { email }
         })
         .json()
-      if (data.username) {
-        setUserId(data.username)
-        setEmailError('')
-      } else {
-        setEmailError('No account confirmed with this email')
-        setWrongEmail(email)
-      }
+      setEmailError('')
+      setIdSent(true)
     } catch {
-      setEmailError('No account confirmed with this email')
+      setEmailError('Request failed. Please try again.')
       setWrongEmail(email)
     }
   }
 
   const resetPassword = async () => {
-    const { email } = getValues()
-    setFormData({
-      email,
-      verificationCode: '',
-      headers: {
-        'email-auth': ''
-      }
-    })
-    await trigger('email')
-
-    if (errors.email || sentEmail) {
+    if (resetInFlight.current || sentEmail) {
       return
     }
+    resetInFlight.current = true
+    setResetPending(true)
+    let email = ''
 
     try {
+      const isValid = await trigger('email')
+
+      if (!isValid) {
+        return
+      }
+
+      email = getValues('email')
+      setFormData({
+        email,
+        verificationCode: '',
+        headers: {
+          'email-auth': ''
+        }
+      })
+
       await safeFetcher.post('email-auth/send-email/password-reset', {
         json: { email }
       })
@@ -80,11 +85,19 @@ export function FindUserId() {
       setEmailError('')
       nextModal()
     } catch (error) {
+      setWrongEmail(email)
       if (isHttpError(error) && error.response.status === 401) {
         setEmailError('Email authentication pin is sent to your email address')
+      } else if (isHttpError(error) && error.response.status === 429) {
+        setEmailError(
+          `Too many requests. Please try again later.\n(Once per 60 seconds / 5 per hour / 10 per day)`
+        )
       } else {
         setEmailError('Something went wrong!')
       }
+    } finally {
+      resetInFlight.current = false
+      setResetPending(false)
     }
   }
 
@@ -113,24 +126,28 @@ export function FindUserId() {
             })}
             onFocus={() => setInputFocused(true)}
             onBlur={() => trigger('email')}
-            disabled={Boolean(userId)}
+            disabled={idSent}
           />
           {errors.email && (
             <p className="text-xs text-red-500">{errors.email?.message}</p>
           )}
           {emailError && getValues('email') === wrongEmail && (
-            <p className="text-xs text-red-500">{emailError}</p>
+            <p className="whitespace-pre-line text-xs text-red-500">
+              {emailError}
+            </p>
           )}
-          {userId && (
+          {idSent && (
             <p className="mt-4 text-center text-sm text-gray-700">
               Your user ID is{' '}
-              <span className="text-primary font-bold">{userId}</span>
+              <span className="text-primary font-bold">
+                sent to your email if registered
+              </span>
             </p>
           )}
         </div>
 
         <div className="flex flex-col gap-2">
-          {userId ? (
+          {idSent ? (
             <Button
               onClick={() => showSignIn()}
               type="button"
@@ -139,20 +156,21 @@ export function FindUserId() {
               Log in
             </Button>
           ) : (
-            <Button type="submit" className="font-semibold">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="font-semibold"
+            >
               Find Your User ID
             </Button>
           )}
           <Button
             type="button"
             onClick={resetPassword}
+            disabled={resetPending || sentEmail}
             className={cn(
-              'border bg-white font-semibold',
-              userId
-                ? 'border-primary text-primary hover:bg-blue-100'
-                : 'border-gray-300 text-gray-300'
+              'border-primary text-primary border bg-white font-semibold hover:bg-blue-100'
             )}
-            disabled={!userId}
           >
             Reset Password
           </Button>
