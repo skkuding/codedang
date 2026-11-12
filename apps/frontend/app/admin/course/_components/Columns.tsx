@@ -134,8 +134,8 @@ export const columns: ColumnDef<CourseTableRow>[] = [
       <DataTableColumnHeader column={column} title="Code" />
     ),
     cell: ({ row }) => (
-      <div className="flex items-center gap-3">
-        <div className="flex size-4 shrink-0 items-center justify-center">
+      <div className="text-body2_m_14 flex items-center justify-start gap-[32px]">
+        <div className="flex size-4 shrink-0 items-center justify-start">
           {row.getCanExpand() && (
             <button
               type="button"
@@ -147,9 +147,9 @@ export const columns: ColumnDef<CourseTableRow>[] = [
               aria-label={row.getIsExpanded() ? 'Collapse' : 'Expand'}
             >
               {row.getIsExpanded() ? (
-                <ChevronDown className="size-4" />
+                <ChevronDown className="size-5" />
               ) : (
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-5" />
               )}
             </button>
           )}

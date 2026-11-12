@@ -208,14 +208,16 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                           bodyStyleMap[size],
                           isSelectColumn
                             ? 'w-[1%] whitespace-nowrap p-0'
-                            : 'md:p-4'
+                            : 'md:p-4',
+                          cell.column.id === 'code' && 'pl-0 md:pl-0'
                         )}
                       >
                         <div
                           className={cn(
                             'relative flex justify-center whitespace-nowrap',
                             isSelectColumn && 'w-14',
-                            bodyStyle[cell.column.id]
+                            bodyStyle[cell.column.id],
+                            cell.column.id === 'code' && 'justify-start'
                           )}
                           style={{
                             left:
