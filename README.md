@@ -1,27 +1,55 @@
-# Codedang
+# TC Local Caching PoC
 
-[![CI](https://github.com/skkuding/next/actions/workflows/ci.yml/badge.svg)](https://github.com/skkuding/next/actions/workflows/ci.yml)
-[![Backend coverage](https://codecov.io/gh/skkuding/codedang/branch/main/graph/badge.svg?flag=backend)](https://app.codecov.io/gh/skkuding/codedang)
-[![Iris coverage](https://codecov.io/gh/skkuding/codedang/branch/main/graph/badge.svg?flag=iris)](https://app.codecov.io/gh/skkuding/codedang)
-[![Contributors](https://img.shields.io/github/contributors/skkuding/codedang)](https://github.com/skkuding/codedang/graphs/contributors)
-[![MIT License](https://img.shields.io/github/license/skkuding/next)](https://github.com/skkuding/next/blob/main/LICENSE)
+Silo holds the canonical testcase bytes. The seeder packages each directory under
+`fixtures/` into an immutable `bundles/<version>.tar.gz` object. Conditional
+uploads refuse to replace an existing version. The seeder also writes
+`/pins/pins.json` with each version and the SHA-256 of its compressed bundle.
+The client uses that file as a stand-in for the version and checksum pinned to a
+submission.
 
-> 아직 개발 중인 repo입니다. This repo is currently under development.
+The Go manager fetches the exact Silo key, verifies the compressed checksum,
+then checks the manifest and every file while unpacking on the cache filesystem.
+A rename makes the complete artifact visible. On a hit, it opens all requested
+`.in` and `.out` files before GC can evict the entry. A Unix
+`SOCK_SEQPACKET` socket passes the read-only FDs via `SCM_RIGHTS`. The client
+reads the files from those FDs, and the manager may unlink the cache paths as
+soon as the complete set is open.
 
-Codedang은 스꾸딩(skkuding) 팀에서 만들고 관리하는 성균관대학교 Online Judge 시스템입니다.
-학생들이 코딩을 입문하는 진입장벽을 낮추고 실력을 더 수월하게 올리게끔 돕는 것을 목표로 합니다.
-컴파일러 설치나 에디터 설정 같은 복잡한 절차 없이 Codedang 내에서 구현, 실행, 채점까지 가능하기 때문에, 인터넷만 가능한 환경이면 초심자도 쉽게 접근할 수 있습니다.
+## Run with Docker Compose
 
-## Contact 📞
+```sh
+docker compose up --build -d --wait
+docker compose run --rm client read -version sum-v1 -cases 1,2
+docker compose run --rm client read -version sum-v2
+docker compose exec -T manager /tc-cache stats
+```
 
-[카카오톡 채널](https://skkuding.dev/contact)을 이용해주세요.
+The demo clients mount the socket and pins only. Silo and the manager use the
+Compose network. Silo data persists in `silo-data`; the manager has a separate
+16 MiB tmpfs for the cache. The `cache-volume` container keeps that filesystem
+mounted across manager container restarts. Taking the whole stack down discards
+the cache. The default 6 MiB/3 MiB high/low watermarks make GC reproducible.
 
-## Documentation 🔍
+The manager serializes cold installs to avoid overcommitting disk space and
+shares each version's load result among concurrent callers. Cache admission uses
+the actual filesystem usage and available space, including allocation retained by
+open, unlinked files. When eviction cannot make enough space, the request returns
+`resource_exhausted`. On restart the manager removes abandoned staging paths
+and verifies committed entries before serving them.
 
-문서 웹페이지를 참고해주세요. https://docs.codedang.com
+## Verify
 
-> 문서 저장소: [skkuding/docs](https://github.com/skkuding/docs)
+```sh
+docker compose run --build --rm verify
+```
 
-## Contributing Guide 👏
+The verification service uses the real Silo API and a dedicated test tmpfs.
+It checks independent clients reading after eviction, a 260-FD response, a failed
+checksum followed by a retry, FD cleanup on incomplete transfer and exhaustion,
+and Manager restart while readers still hold unlinked files. It also verifies
+that closing the last FD releases space and lets a blocked version load.
 
-[CONTRIBUTING.md](CONTRIBUTING.md)에서 확인할 수 있습니다.
+This prototype covers the cache-through manager and test clients. It uses local
+Compose credentials and a tmpfs to exercise Linux filesystem semantics. The
+submission database, Iris integration, cache-aside comparison and Kubernetes PV
+validation are later stages.
