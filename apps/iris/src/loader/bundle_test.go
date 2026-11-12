@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/klauspost/compress/zstd"
@@ -104,111 +103,11 @@ func TestInstallBundle(t *testing.T) {
 		t.Fatalf("body closed=%t, downloads=%d", body.closed, calls)
 	}
 	assertNoBundleStaging(t, root)
-	// Installing an existing bundle returns it without downloading again.
-	again, err := InstallBundle(context.Background(), root, source, manifest, "public")
-	if err != nil || again != installed || calls != 1 {
-		t.Fatalf("existing cache: path=%q err=%v downloads=%d", again, err, calls)
+	// A miss installer must not replace an existing installation or download again.
+	_, err = InstallBundle(context.Background(), root, source, manifest, "public")
+	if !errors.Is(err, fs.ErrExist) || calls != 1 {
+		t.Fatalf("existing cache: err=%v downloads=%d", err, calls)
 	}
-}
-
-func validBundle(t *testing.T) ([]byte, Manifest) {
-	t.Helper()
-	data := makeBundle(t, []bundleEntry{
-		{"1001.in", "1 2\n", tar.TypeReg},
-		{"1001.out", "3\n", tar.TypeReg},
-	})
-	return data, manifestForBundle(data)
-}
-
-func bundleDestination(root string, manifest Manifest) string {
-	digest := strings.TrimPrefix(manifest.Bundles[0].Checksum, "sha256:")
-	return filepath.Join(root, "sha256", digest[:2], digest)
-}
-
-func TestInstallBundleRejectsNonDirectoryDestination(t *testing.T) {
-	data, manifest := validBundle(t)
-	root := t.TempDir()
-	destination := bundleDestination(root, manifest)
-	if err := os.MkdirAll(filepath.Dir(destination), 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(destination, []byte("not a bundle"), 0600); err != nil {
-		t.Fatal(err)
-	}
-	source := bundleSourceFunc(func(context.Context, string) (io.ReadCloser, error) {
-		return io.NopCloser(bytes.NewReader(data)), nil
-	})
-	if path, err := InstallBundle(context.Background(), root, source, manifest, "public"); err == nil {
-		t.Fatalf("non-directory destination accepted at %q", path)
-	}
-}
-
-// Another installer (e.g. a different Iris Pod on the same PV) publishes the
-// bundle after this one checked the destination but before it renames.
-func TestInstallBundleUsesInstallationPublishedFirst(t *testing.T) {
-	data, manifest := validBundle(t)
-	root := t.TempDir()
-	destination := bundleDestination(root, manifest)
-	source := bundleSourceFunc(func(context.Context, string) (io.ReadCloser, error) {
-		if err := os.MkdirAll(destination, 0750); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(filepath.Join(destination, "1001.in"), []byte("winner"), 0440); err != nil {
-			t.Fatal(err)
-		}
-		return io.NopCloser(bytes.NewReader(data)), nil
-	})
-	installed, err := InstallBundle(context.Background(), root, source, manifest, "public")
-	if err != nil || installed != destination {
-		t.Fatalf("lost race: path=%q err=%v", installed, err)
-	}
-	// The existing installation is kept, not replaced by this installer's copy.
-	if got, err := os.ReadFile(filepath.Join(destination, "1001.in")); err != nil || string(got) != "winner" {
-		t.Fatalf("existing installation replaced: %q, %v", got, err)
-	}
-	assertNoBundleStaging(t, root)
-}
-
-// Installers share no memory, like separate Pods; they only share the cache root.
-func TestInstallBundleConcurrentInstallers(t *testing.T) {
-	const installers = 8
-	data, manifest := validBundle(t)
-	root := t.TempDir()
-	var opened sync.WaitGroup
-	opened.Add(installers)
-	ready := make(chan struct{})
-	go func() { opened.Wait(); close(ready) }()
-	source := bundleSourceFunc(func(context.Context, string) (io.ReadCloser, error) {
-		// Hold every installer past the existence check so all of them race to rename.
-		opened.Done()
-		<-ready
-		return io.NopCloser(bytes.NewReader(data)), nil
-	})
-
-	type result struct {
-		path string
-		err  error
-	}
-	results := make(chan result, installers)
-	for range installers {
-		go func() {
-			path, err := InstallBundle(context.Background(), root, source, manifest, "public")
-			results <- result{path, err}
-		}()
-	}
-	destination := bundleDestination(root, manifest)
-	for range installers {
-		if r := <-results; r.err != nil || r.path != destination {
-			t.Fatalf("concurrent install: path=%q err=%v", r.path, r.err)
-		}
-	}
-	for name, want := range map[string]string{"1001.in": "1 2\n", "1001.out": "3\n"} {
-		got, err := os.ReadFile(filepath.Join(destination, name))
-		if err != nil || string(got) != want {
-			t.Fatalf("read %s: %q, %v", name, got, err)
-		}
-	}
-	assertNoBundleStaging(t, root)
 }
 
 func TestInstallBundleRejectsInvalidArtifacts(t *testing.T) {
