@@ -193,25 +193,6 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               const isLastSection =
                 isSection && (!rows[index + 1] || rows[index + 1]?.depth === 0)
 
-<<<<<<< HEAD
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          bodyStyleMap[size],
-                          isSelectColumn
-                            ? 'w-[1%] whitespace-nowrap p-0'
-                            : 'md:p-4',
-                          cell.column.id === 'code' && 'pl-0 md:pl-0'
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'relative flex justify-center whitespace-nowrap',
-                            isSelectColumn && 'w-14',
-                            bodyStyle[cell.column.id],
-                            cell.column.id === 'code' && 'justify-start'
-=======
               return (
                 <Fragment key={row.id}>
                   <TableRow
@@ -238,15 +219,13 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                               ? 'w-[1%] whitespace-nowrap p-0'
                               : 'md:p-4',
                             cell.column.id === 'code' && 'pl-0 md:pl-0'
->>>>>>> d995fb546 (feat(fe): add create section component)
                           )}
                         >
                           <div
                             className={cn(
                               'relative flex justify-center whitespace-nowrap',
                               isSelectColumn && 'w-14',
-                              bodyStyle[cell.column.id],
-                              cell.column.id === 'code' && 'justify-start'
+                              bodyStyle[cell.column.id]
                             )}
                             style={{
                               left:
