@@ -19,13 +19,6 @@ const manifestCacheDir = "manifests"
 
 // loadManifest returns the manifest for manifestKey, reading the local copy
 // under cacheRoot before the remote source.
-//
-// Versioned manifest keys are never overwritten, so a validated local copy is
-// equivalent to the remote object. Local copies are parsed and validated on
-// every read. An unreadable or invalid copy is discarded and fetched again; a
-// valid copy whose testcaseSetId differs from the request fails without a
-// remote lookup, since the same immutable key would return the same manifest.
-// Failing to store the local copy does not fail the request.
 func loadManifest(ctx context.Context, cacheRoot string, source loader.BundleSource, manifestKey, testcaseSetID string) (*loader.Manifest, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
