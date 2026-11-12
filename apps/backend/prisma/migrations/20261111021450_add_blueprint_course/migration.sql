@@ -2,9 +2,6 @@
 ALTER TABLE "public"."assignment" ADD COLUMN     "blueprint_assignment_id" INTEGER;
 
 -- AlterTable
-ALTER TABLE "public"."check_request" ADD COLUMN     "blueprint_assignment_id" INTEGER;
-
--- AlterTable
 ALTER TABLE "public"."course_info" ADD COLUMN     "blueprint_course_id" INTEGER;
 
 -- CreateTable
@@ -68,9 +65,6 @@ CREATE INDEX "blueprint_assignment_blueprint_course_id_week_idx" ON "public"."bl
 CREATE UNIQUE INDEX "assignment_blueprint_assignment_id_group_id_key" ON "public"."assignment"("blueprint_assignment_id", "group_id");
 
 -- CreateIndex
-CREATE INDEX "check_request_blueprint_assignment_id_problem_id_idx" ON "public"."check_request"("blueprint_assignment_id", "problem_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "course_info_blueprint_course_id_class_num_key" ON "public"."course_info"("blueprint_course_id", "class_num");
 
 -- AddForeignKey
@@ -94,22 +88,10 @@ ALTER TABLE "public"."blueprint_assignment_problem" ADD CONSTRAINT "blueprint_as
 -- AddForeignKey
 ALTER TABLE "public"."blueprint_assignment_problem" ADD CONSTRAINT "blueprint_assignment_problem_problem_id_fkey" FOREIGN KEY ("problem_id") REFERENCES "public"."problem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- AddForeignKey
-ALTER TABLE "public"."check_request" ADD CONSTRAINT "check_request_blueprint_assignment_id_fkey" FOREIGN KEY ("blueprint_assignment_id") REFERENCES "public"."blueprint_assignment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
 
 -- Add Constraint
 ALTER TABLE "public"."blueprint_assignment"
 ADD CONSTRAINT blueprint_assignment_check_week_positive CHECK (week >= 1);
-
--- Add Constraint
--- 검사 대상(assignment, contest, workbook, blueprint_assignment)은 정확히 하나여야 합니다.
--- NOT VALID: 새로 들어오거나 수정되는 row부터 검사합니다.
--- 운영 DB에 위반 row가 없음을 확인한 뒤 별도 migration에서 VALIDATE 합니다.
---   SELECT id FROM check_request WHERE num_nonnulls(assignment_id, contest_id, workbook_id) <> 1;
-ALTER TABLE "public"."check_request"
-ADD CONSTRAINT check_request_single_target
-CHECK (num_nonnulls(assignment_id, contest_id, workbook_id, blueprint_assignment_id) = 1) NOT VALID;
 
 -- Add Constraint
 -- Section(blueprint_course_id가 있는 강좌)은 분반 번호가 필수입니다.
