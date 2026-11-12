@@ -156,7 +156,3 @@ coverage
 .claude/settings.local.json
 **/CLAUDE**
 CLAUDE.*
-
-/tc-cache
-/verify
-!fixtures/**/*.out
