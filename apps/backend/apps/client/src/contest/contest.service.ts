@@ -76,7 +76,7 @@ export class ContestService {
 
     const contests = await this.prisma.contest.findMany({
       where: searchFilter,
-      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }, { id: 'asc ' }],
+      orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }, { id: 'asc' }],
       select: contestSelectOption
     })
 
