@@ -225,7 +225,8 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                             className={cn(
                               'relative flex justify-center whitespace-nowrap',
                               isSelectColumn && 'w-14',
-                              bodyStyle[cell.column.id]
+                              bodyStyle[cell.column.id],
+                              cell.column.id === 'code' && 'justify-start'
                             )}
                             style={{
                               left:
