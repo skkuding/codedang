@@ -29,7 +29,7 @@ export const coursesMockData: CourseTableRow[] = [
         studentCount: 12
       },
       {
-        id: 12,
+        id: 3,
         type: 'section',
         title: '전자회로1',
         code: 'CHS1330',

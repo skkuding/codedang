@@ -15,7 +15,6 @@ import { toast } from 'sonner'
 import { useDataTable } from '../../_components/table/context'
 import { courseSchema } from '../_libs/schema'
 import { CourseFormFields } from './CourseFormFields'
-import type { CourseTableRow } from './section_mock'
 
 interface UpdateCourseButtonProps {
   onSuccess?: () => void
@@ -72,7 +71,6 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
   })
 
   const handleUpdateButtonClick = async () => {
-    // const selectedRow = table.getSelectedRowModel().rows[0]
     if (!selectedRow) {
       return
     }
@@ -134,7 +132,6 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     const local = String(data.emailLocal || '').trim()
     const domain = String(data.emailDomain || '').trim()
     data.email = local || domain ? `${local}@${domain}` : ''
-    // const selectedRow = table.getSelectedRowModel().rows[0]
     const updatePromise = updateCourse({
       variables: {
         groupId: Number(selectedRow.original.id),
@@ -178,7 +175,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         <ScrollArea className="h-full w-full pr-[16px]">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(handleUpdateSubmit)}>
-              <CourseFormFields />
+              <CourseFormFields isSection={selectedRow?.depth === 1} />
               <div className="mb-[50px] mt-[20px] flex gap-2">
                 <Button
                   type="button"
