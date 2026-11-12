@@ -18,6 +18,7 @@ import {
 import { CacheConfigService } from '@libs/cache'
 import { AdminExceptionFilter, apolloErrorFormatter } from '@libs/exception'
 import { openTelemetryModuleOption } from '@libs/instrumentation'
+import { AdminInternalModule } from '@libs/internal'
 import { LoggingPlugin, pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
 import { StorageModule } from '@libs/storage'
@@ -39,12 +40,17 @@ import { WorkbookModule } from './workbook/workbook.module'
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
-      sortSchema: true,
-      introspection: true,
-      formatError: apolloErrorFormatter
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        autoSchemaFile: 'schema.gql',
+        sortSchema: true,
+        introspection: true,
+        formatError: apolloErrorFormatter,
+        playground: configService.get<string>('APP_ENV') !== 'production'
+      }),
+      inject: [ConfigService]
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
@@ -67,6 +73,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     JwtAuthModule,
     RolesModule,
     PrismaModule,
+    AdminInternalModule,
     ContestModule,
     AssignmentModule,
     WorkbookModule,

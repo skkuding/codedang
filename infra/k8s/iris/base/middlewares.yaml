@@ -1,0 +1,68 @@
+# Path rewrites that turn the external pprof API into kube-apiserver
+# pods/proxy requests. The port is always injected as 6060; users cannot
+# select an upstream port or namespace.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pprof-pod-rewrite
+  namespace: iris
+spec:
+  replacePathRegex:
+    # Conservative Kubernetes pod name, then the remaining pprof path.
+    regex: ^/pod/([a-z0-9]([-a-z0-9.]*[a-z0-9])?)/(.*)$
+    replacement: /api/v1/namespaces/iris/pods/$1:6060/proxy/$3
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pprof-pods-rewrite
+  namespace: iris
+spec:
+  replacePath:
+    path: /api/v1/namespaces/iris/pods
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pprof-pods-accept
+  namespace: iris
+spec:
+  headers:
+    customRequestHeaders:
+      Accept: 'application/json;as=Table;g=meta.k8s.io;v=v1,application/json'
+---
+# Authenticates the operator before any request reaches kube-apiserver.
+# The referenced Secret is created by a SealedSecret in each overlay and must
+# contain an htpasswd entry under the `users` key.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pprof-basicauth
+  namespace: iris
+spec:
+  basicAuth:
+    secret: pprof-basicauth
+    realm: codedang-pprof
+    # Do not forward the Authorization header to the kube-apiserver.
+    removeHeader: true
+---
+# Guardrails for expensive profile capture. Tune after measuring overhead.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pprof-ratelimit
+  namespace: iris
+spec:
+  rateLimit:
+    average: 20
+    burst: 10
+    period: 1m
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: pprof-inflight
+  namespace: iris
+spec:
+  inFlightReq:
+    amount: 3

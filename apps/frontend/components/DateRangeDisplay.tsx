@@ -12,7 +12,7 @@ export function DateRangeDisplay({
 }: DateRangeDisplayProps) {
   return (
     <div className="flex items-center gap-2 text-sm font-normal">
-      <CalendarIcon width={14} />
+      <CalendarIcon width={14} className="text-primary" />
       <p>{formatDateRange(startTime, endTime)}</p>
     </div>
   )

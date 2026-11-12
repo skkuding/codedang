@@ -30,11 +30,10 @@ tempo:
         forcepathstyle: true
       wal:
         path: /var/tempo/wal
-  structuredConfig:
-    ingester:
-      max_block_bytes: 104857600
-      max_block_duration: 10m
-      complete_block_timeout: 15m
+  queryFrontend:
+    metrics:
+      # Tempo defaults TraceQL metrics queries to 3h, unlike the 168h allowed for trace search
+      max_duration: 168h
   overrides:
     defaults:
       metrics_generator:
@@ -45,6 +44,9 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/api/v1/write
+    processor:
+      local_blocks:
+        flush_to_storage: true
 
 distributor:
   replicas: 1

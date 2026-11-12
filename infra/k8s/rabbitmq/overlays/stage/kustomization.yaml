@@ -6,7 +6,8 @@ resources:
   - ../../cert-manager
 
 patches:
-  - path: HTTPRoutes.yaml
+  - path: rabbitmq-node.yaml
+  - path: httproute.yaml
     target:
       kind: HTTPRoute
       name: rabbitmq-console-httproute

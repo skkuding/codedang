@@ -26,6 +26,7 @@ export default function CourseDetailLayout({
 
   const courseNum = currentCourse?.courseInfo?.courseNum
   const classNum = currentCourse?.courseInfo?.classNum
+  const courseSemester = currentCourse?.courseInfo?.semester
 
   const courseCode = courseNum ? `${courseNum}-${classNum}` : courseId
   const courseTitle =
@@ -74,11 +75,7 @@ export default function CourseDetailLayout({
     <div className="flex w-full flex-col">
       <div className="pb-[71px] pl-[86px] pr-[106px] pt-[80px]">
         <h1 className="text-head3_sb_28">{activeTabName}</h1>
-        <p className="text-body1_m_16 text-color-neutral-50">
-          {activeTabName === 'HOME'
-            ? `[${courseCode}] ${courseTitle}`
-            : tabs.find((tab) => tab.title === activeTabName)?.description}
-        </p>
+        <p className="text-body1_m_16 text-color-neutral-50">{`[${courseCode}] ${courseTitle} ㆍ ${courseSemester}`}</p>
 
         <div className="mx-auto my-10 w-full">
           <div className="w-full">

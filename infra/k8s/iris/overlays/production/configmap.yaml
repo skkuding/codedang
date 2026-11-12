@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iris-env
+data:
+  APP_ENV: 'production'
+  DATABASE_CONNECTION_LIMIT: '1'

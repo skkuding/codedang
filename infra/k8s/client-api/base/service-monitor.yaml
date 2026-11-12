@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: client-api-prisma
+  namespace: client-api
+  labels:
+    release: prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - client-api
+  selector:
+    matchLabels:
+      app: client-api
+  endpoints:
+    - port: http
+      path: /api/internal/prisma
+      interval: 30s

@@ -1,0 +1,35 @@
+# metrics-server for the kubeadm stage cluster (k3s ships it built in; kubeadm does not).
+# Provides `kubectl top` and the resource metrics API used by HPA.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metrics-server-stage
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '-3'
+  labels:
+    app.kubernetes.io/environment: 'stage'
+spec:
+  project: default
+  source:
+    repoURL: https://kubernetes-sigs.github.io/metrics-server/
+    chart: metrics-server
+    # metrics-server v0.9.0, same as production's k3s
+    targetRevision: 3.14.0
+    helm:
+      releaseName: metrics-server
+      valuesObject:
+        args:
+          # kubeadm kubelets serve self-signed certificates (not signed by the cluster CA),
+          # so metrics-server cannot verify them.
+          - --kubelet-insecure-tls
+  destination:
+    namespace: kube-system
+    name: stage
+  syncPolicy:
+    automated:
+      # Prune disabled: requires manual review before removing resources
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

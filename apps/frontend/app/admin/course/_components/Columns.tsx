@@ -7,6 +7,7 @@ export interface DataTableCourse {
   id: number
   title: string
   code: string
+  classNum: number | null
   semester: string
   studentCount: number
 }
@@ -44,6 +45,14 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     ),
     cell: ({ row }) => row.getValue('code')
   },
+  {
+    accessorKey: 'classNum',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Section" />
+    ),
+    cell: ({ row }) => row.getValue('classNum') ?? '-',
+    enableSorting: false
+  },
 
   {
     accessorKey: 'semester',
@@ -61,6 +70,9 @@ export const columns: ColumnDef<DataTableCourse>[] = [
           <p className="text-body2_m_14">{yearSeason}</p>
         </div>
       )
+    },
+    filterFn: (row, columnId, filterValues: string[]) => {
+      return filterValues.includes(row.getValue(columnId))
     }
   },
   {

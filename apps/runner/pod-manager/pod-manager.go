@@ -24,9 +24,9 @@ import (
 )
 
 const (
-	RunnerImageTag         = "RUNNER_IMAGE_TAG"
-	RunnerNamespace        = "runner"
-	SharedLeaseTTLSeconds  = 200
+	RunnerImageTag          = "RUNNER_IMAGE_TAG"
+	RunnerNamespace         = "runner"
+	SharedLeaseTTLSeconds   = 200
 	GlobalPoolReservationID = "__global__"
 )
 
@@ -857,12 +857,12 @@ func (pm *PodManager) reconcileRunnerSharedState() {
 			desiredState = RunnerStateIdle
 		}
 
-			record := RunnerStateRecord{
-				PodName:     pod.Name,
-				NodePoolID:  pod.Labels["runner-node-pool"],
-				PodIP:       pod.Status.PodIP,
-				State:       desiredState,
-				OwnerPod:    existing.OwnerPod,
+		record := RunnerStateRecord{
+			PodName:     pod.Name,
+			NodePoolID:  pod.Labels["runner-node-pool"],
+			PodIP:       pod.Status.PodIP,
+			State:       desiredState,
+			OwnerPod:    existing.OwnerPod,
 			OwnerPodUID: existing.OwnerPodUID,
 			LeaseToken:  existing.LeaseToken,
 			UpdatedAt:   time.Now(),
@@ -918,12 +918,12 @@ func (pm *PodManager) reapOrphanLeases() {
 		}
 
 		if pm.isPodReady(pod) {
-				record := RunnerStateRecord{
-					PodName:     pod.Name,
-					NodePoolID:  pod.Labels["runner-node-pool"],
-					PodIP:       pod.Status.PodIP,
-					State:       RunnerStateIdle,
-					OwnerPod:    "",
+			record := RunnerStateRecord{
+				PodName:     pod.Name,
+				NodePoolID:  pod.Labels["runner-node-pool"],
+				PodIP:       pod.Status.PodIP,
+				State:       RunnerStateIdle,
+				OwnerPod:    "",
 				OwnerPodUID: "",
 				LeaseToken:  "",
 				UpdatedAt:   time.Now(),

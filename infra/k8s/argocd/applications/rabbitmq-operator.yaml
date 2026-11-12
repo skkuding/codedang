@@ -24,6 +24,19 @@ spec:
         repoURL: https://github.com/rabbitmq/cluster-operator
         targetRevision: v2.19.1
         path: config/installation
+        kustomize:
+          patches:
+            # Both operator installations render Namespace/rabbitmq-system.
+            # Keep this label identical to the topology operator's patch so
+            # whichever app applies the Namespace last does not drop it;
+            # trust-manager distributes rabbitmq-ca-cert by this label.
+            - target:
+                kind: Namespace
+                name: rabbitmq-system
+              patch: |-
+                - op: add
+                  path: /metadata/labels/trust.codedang.com~1rabbitmq
+                  value: 'true'
       destination:
         namespace: rabbitmq-system
         name: '{{.env}}'

@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-production
+  namespace: argocd
+  labels:
+    app.kubernetes.io/environment: production
+spec:
+  project: default
+  sources:
+    - repoURL: https://community-charts.github.io/helm-charts
+      chart: n8n
+      targetRevision: '1.23.0'
+      helm:
+        releaseName: n8n
+        valueFiles:
+          - $codedang/infra/k8s/n8n/values.yaml
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: release
+      ref: codedang
+    - repoURL: https://github.com/skkuding/codedang
+      targetRevision: release
+      path: infra/k8s/n8n
+  destination:
+    name: production
+    namespace: n8n
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground

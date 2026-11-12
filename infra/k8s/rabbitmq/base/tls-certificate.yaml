@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: '2'
 spec:
-  secretName: rabbitmq-server-certs
+  secretName: rabbitmq-server-cert-secret
   issuerRef:
     name: rabbitmq-intermediate-ca-issuer
     kind: ClusterIssuer

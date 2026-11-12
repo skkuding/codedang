@@ -1,0 +1,54 @@
+{
+  "name": "Notion Markdown Backup",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 3 * * *"
+            }
+          ]
+        }
+      },
+      "id": "89f42ad4-f8e5-4870-b16f-4c3a7dbfd902",
+      "name": "Daily at 03:00 KST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "command": "node --enable-source-maps /opt/n8n-provisioning/notion-backup.mjs"
+      },
+      "id": "04457142-0fe9-49b4-860e-2e664f0b6295",
+      "name": "Export Markdown, S3 Snapshot, and Push",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [520, 300]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily at 03:00 KST": {
+      "main": [
+        [
+          {
+            "node": "Export Markdown, S3 Snapshot, and Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Seoul"
+  },
+  "versionId": "311969aa-053e-4b19-b6ad-29016463fd25",
+  "id": "notionBackupV1",
+  "tags": []
+}

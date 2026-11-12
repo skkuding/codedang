@@ -1,0 +1,4 @@
+alloy:
+  extraEnv:
+    - name: ALLOY_ENVIRONMENT
+      value: production

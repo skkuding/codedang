@@ -7,11 +7,12 @@ resources:
   - redis-secret.yaml
 
 patches:
+  - path: redis-node.yaml
   - path: configmap.yaml
     target:
       kind: ConfigMap
       name: pod-manager-env
-  - path: HTTPRoutes.yaml
+  - path: httproute.yaml
     target:
       kind: HTTPRoute
       name: runner-httproute

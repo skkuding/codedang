@@ -1,0 +1,33 @@
+# This collector only pulls pprof profiles from Iris Pods.
+# The River config lives in config.alloy, injected via the
+# ApplicationSet helm.fileParameters.
+crds:
+  create: false
+
+controller:
+  type: deployment
+  replicas: 1
+
+rbac:
+  namespaces:
+    - iris
+  rules:
+    - apiGroups: ['']
+      resources: ['pods']
+      verbs: ['get', 'list', 'watch']
+  clusterRules: []
+
+alloy:
+  enableReporting: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: prometheus

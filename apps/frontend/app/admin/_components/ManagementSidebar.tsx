@@ -8,13 +8,13 @@ import {
 } from '@/components/Icons'
 import { Separator } from '@/components/shadcn/separator'
 import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
+import { hasContestAdminRole } from '@/libs/contestRole'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import PenIcon from '@/public/icons/pen.svg'
 import codedangIcon from '@/public/logos/codedang-editor.svg'
 import codedangWithTextIcon from '@/public/logos/codedang-with-text.svg'
 import type { User } from '@/types/type'
 import { useQuery } from '@apollo/client'
-import { ContestRole, type UserContest } from '@generated/graphql'
 import { motion } from 'framer-motion'
 import type { Route } from 'next'
 import type { Session } from 'next-auth'
@@ -119,7 +119,6 @@ interface ManagementSidebarProps {
 export function ManagementSidebar({ session }: ManagementSidebarProps) {
   const [isMainSidebarExpanded, setIsMainSidebarExpanded] = useState(true)
   const [isAnimationComplete, setIsAnimationComplete] = useState(true)
-  const [isCourseSidebarOpened, setIsCourseSidebarOpened] = useState(false)
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [userPermissions, setUserPermissions] = useState({
     canCreateCourse: false,
@@ -147,17 +146,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
 
     async function fetchContestRoles() {
       try {
-        const response: UserContest[] = await safeFetcherWithAuth
-          .get('contest/role')
-          .json()
-
-        const hasPermission = response.some((userContest) => {
-          return (
-            userContest.role !== ContestRole.Participant &&
-            userContest.role !== ContestRole.Reviewer
-          )
-        })
-        setHasAnyPermissionOnContest(hasPermission)
+        setHasAnyPermissionOnContest(await hasContestAdminRole())
       } catch (error) {
         console.error('Error fetching contest roles:', error)
       }
@@ -200,8 +189,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
     const hasCourse = Boolean(id)
 
     setSelectedCourseId(id)
-    setIsCourseSidebarOpened(hasCourse)
-
     if (hasCourse) {
       setIsMainSidebarExpanded(false)
     }
@@ -262,26 +249,9 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                     : pathname.startsWith(item.path)
                 }
                 isExpanded={isMainSidebarExpanded}
-                onClick={(e) => {
-                  const isCourseItem = item.path === '/admin/course'
-                  const isOnCourseDetail =
-                    pathname.startsWith('/admin/course/') &&
-                    isCourseSidebarOpened
-
-                  if (isCourseItem && isOnCourseDetail) {
-                    if (!isMainSidebarExpanded) {
-                      setIsMainSidebarExpanded(true)
-                    }
-                    e.preventDefault()
-                    return
-                  }
-
+                onClick={() => {
                   if (!isMainSidebarExpanded) {
                     setIsMainSidebarExpanded(true)
-                  }
-
-                  if (!isCourseItem) {
-                    setIsCourseSidebarOpened(false)
                   }
                 }}
               />
@@ -299,7 +269,6 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
                       <Link
                         key={course.id}
                         href={`/admin/course/${course.id}`}
-                        onClick={() => setIsCourseSidebarOpened(true)}
                         className={cn(
                           'overflow-hidden text-ellipsis text-xs transition-colors',
                           params.courseId === course.id.toString()

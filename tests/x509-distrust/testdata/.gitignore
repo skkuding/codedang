@@ -1,0 +1,6 @@
+# Public certificate fixtures only. Never add private key material here.
+# The repository-wide `*.pem` rule is meant to keep keys out of Git; these
+# files are the published chains from the eMudhra disclosure site and the
+# Let's Encrypt control chain.
+!chains/*.pem
+!control/*.pem

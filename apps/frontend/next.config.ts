@@ -2,8 +2,10 @@ import bundleAnalyzer from '@next/bundle-analyzer'
 import type { NextConfig } from 'next'
 import path from 'path'
 
+const isAnalyze = process.env.ANALYZE === 'true'
+
 const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true'
+  enabled: isAnalyze
 })
 
 const withPWA = require('@ducanh2912/next-pwa').default({
@@ -29,6 +31,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'media.codedang.com'
+      },
+      {
+        protocol: 'https',
         hostname: 'minio.stage.codedang.com'
       },
       {
@@ -49,7 +55,8 @@ const nextConfig = {
       }
     }
   },
-  webpack(config) {
+
+  webpack(config, { webpack, dev }) {
     const fileLoaderRule = config.module.rules.find((rule: any) =>
       rule.test?.test?.('.svg')
     )
@@ -81,6 +88,13 @@ const nextConfig = {
       exclude: path.resolve(__dirname, 'public/icons'),
       type: 'asset/resource'
     })
+
+    // 개발 상황(pnpm dev)이 아닌 경우 __DEV__=false로 처리
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'globalThis.__DEV__': JSON.stringify(dev)
+      })
+    )
 
     return config
   }
