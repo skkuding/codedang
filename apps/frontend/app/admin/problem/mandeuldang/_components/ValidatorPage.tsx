@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
-import FileGrayIcon from '@/public/icons/file_gray.svg'
-import TrashcanIcon from '@/public/icons/trashcan2-gray.svg'
+import FileGrayIcon from '@/public/icons/file-fill.svg'
+import TrashcanIcon from '@/public/icons/trashcan.svg'
 import UploadIcon from '@/public/icons/upload.svg'
 import { useState } from 'react'
 import type { MandeuldangRole } from '../_libs/permissions'
@@ -148,7 +148,7 @@ export function ValidatorPage() {
       ) : (
         <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
           <div className="flex items-center gap-3">
-            <FileGrayIcon width={20} height={20} />
+            <FileGrayIcon className="text-color-cool-neutral-60 size-6" />
             <div className="flex flex-col">
               <p className="text-sub3_sb_16">{validatorFile.name}</p>
               <p className="text-caption3_r_13 text-color-cool-neutral-60">
@@ -163,7 +163,7 @@ export function ValidatorPage() {
               className="h-fit p-1"
               onClick={handleDeleteValidator}
             >
-              <TrashcanIcon width={18} height={18} />
+              <TrashcanIcon className="text-color-cool-neutral-60 size-5" />
             </Button>
           )}
         </div>
