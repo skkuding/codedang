@@ -41,18 +41,13 @@ export function FindUserId() {
   const onSubmit = async (data: FindUserIdInput) => {
     const { email } = data
     try {
-      const data: { username: string } = await fetcher
+      await fetcher
         .get('user/email', {
           searchParams: { email }
         })
         .json()
-      if (data.username) {
-        setEmailError('')
-        setIdSent(true)
-      } else {
-        setEmailError('No account confirmed with this email')
-        setWrongEmail(email)
-      }
+      setEmailError('')
+      setIdSent(true)
     } catch {
       setEmailError('Request failed. Please try again.')
       setWrongEmail(email)
