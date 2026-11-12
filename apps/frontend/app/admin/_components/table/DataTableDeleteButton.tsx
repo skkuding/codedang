@@ -51,6 +51,9 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   deleteItems
 }: DataTableDeleteButtonProps<TData, TPromise>) {
   const { table } = useDataTable<TData>()
+  const selectedRows = table
+    .getSelectedRowModel()
+    .flatRows.map((row) => row.original)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -59,7 +62,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   ) => {
     event.preventDefault()
 
-    if (table.getSelectedRowModel().rows.length === 0) {
+    if (selectedRows.length === 0) {
       toast.error(`Please select at least one ${target}`)
       return
     }
@@ -69,10 +72,6 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       return
     }
 
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original)
-
     const canDelete = await getCanDelete(selectedRows)
     if (canDelete) {
       setIsDialogOpen(true)
@@ -80,9 +79,8 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   }
 
   const handleDeleteRows = async () => {
-    const selectedRows = table.getSelectedRowModel().rows
     const deletePromises = selectedRows.map((row) =>
-      deleteTarget(row.original.id, extraArg)
+      deleteTarget(row.id, extraArg)
     )
 
     try {

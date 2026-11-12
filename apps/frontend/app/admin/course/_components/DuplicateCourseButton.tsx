@@ -30,8 +30,9 @@ export function DuplicateCourseButton({
 }: DuplicateCourseButtonProps) {
   const { table } = useDataTable<CourseRow>()
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
-  const selectedCount = table.getSelectedRowModel().rows.length
-  const canDuplicate = selectedCount === 1
+  const selectedRows = table.getSelectedRowModel().flatRows
+  const selectedRow = selectedRows[0]
+  const canDuplicate = selectedRows.length === 1 && selectedRow.depth === 1
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [courseNum, setCourseNum] = useState('')
@@ -39,10 +40,6 @@ export function DuplicateCourseButton({
   const [classNum, setClassNum] = useState('')
 
   const handleDuplicateButtonClick = () => {
-    const selectedRows = table.getSelectedRowModel().rows
-    if (selectedRows.length !== 1) {
-      return
-    }
     const selectedCourse = selectedRows[0].original
     setCourseNum(selectedCourse.code ?? '')
     setSemester('')
@@ -111,7 +108,6 @@ export function DuplicateCourseButton({
   }, [])
 
   const handleDuplicateRows = async () => {
-    const selectedRows = table.getSelectedRowModel().rows
     const duplicatePromises = selectedRows.map((row) =>
       duplicateTarget(row.original.id)
     )
