@@ -3,7 +3,7 @@
 import { FetchErrorFallback } from '@/components/FetchErrorFallback'
 import { cn } from '@/libs/utils'
 import CheckIcon from '@/public/icons/check-circle.svg'
-import FileIcon from '@/public/icons/file-thin.svg'
+import FileIcon from '@/public/icons/file.svg'
 import ListBoxIcon from '@/public/icons/list-box.svg'
 import PeopleIcon from '@/public/icons/people.svg'
 import UploadIcon from '@/public/icons/upload.svg'

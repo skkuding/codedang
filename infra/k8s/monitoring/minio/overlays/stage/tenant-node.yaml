@@ -1,0 +1,5 @@
+# Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+- op: add
+  path: /spec/pools/0/nodeSelector
+  value:
+    kubernetes.io/hostname: skkuding-1

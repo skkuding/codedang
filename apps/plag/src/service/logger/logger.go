@@ -67,7 +67,7 @@ func NewLogger(mode Mode, isProduction bool) *logger {
 	// 기존 로거의 Core를 가져와 OTel Core와 Tee로 묶는 Core Wrapper 적용
 	zapLogger = zapLogger.WithOptions(zap.WrapCore(func(originalCore zapcore.Core) zapcore.Core {
 		otelCore := otelzap.NewCore(
-			"IRIS", // 로그의 scope_name에 사용될 이름
+			"github.com/skkuding/codedang/apps/plag/src/service/logger", // 로그의 scope_name에 사용될 이름
 			otelzap.WithLoggerProvider(loggerProvider),
 		)
 		return zapcore.NewTee(originalCore, otelCore)

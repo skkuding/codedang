@@ -4,14 +4,14 @@ import {
   DialogTrigger,
   DialogTitle
 } from '@/components/shadcn/dialog'
-import InfoIcon from '@/public/icons/info-icon.svg'
+import InfoIcon from '@/public/icons/info.svg'
 
 export function LeaderboardModalDialog() {
   return (
     <div className="flex">
       <Dialog>
         <DialogTrigger asChild>
-          <InfoIcon className="cursor-pointer" width={24} />
+          <InfoIcon className="size-6 cursor-pointer text-white" />
         </DialogTrigger>
         <DialogContent
           showDarkOverlay={true}

@@ -12,7 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/shadcn/tooltip'
-import SeeSubmissionIcon from '@/public/icons/see-submission.svg'
+import FileWithArrowIcon from '@/public/icons/file-with-arrow.svg'
 import type { ContestProblem } from '@/types/type'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { ErrorBoundary } from '@suspensive/react'
@@ -50,9 +50,8 @@ export function MySubmission({ problem }: { problem: ContestProblem }) {
         <Tooltip>
           <DialogTrigger asChild>
             <TooltipTrigger asChild>
-              <SeeSubmissionIcon
-                width={20}
-                height={20}
+              <FileWithArrowIcon
+                className="text-color-cool-neutral-50 size-5"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation()
                   setIsTooltipOpen(true)

@@ -606,7 +606,7 @@ export function EditorHeader({
                   'Judging'
                 ) : (
                   <>
-                    <SubmitIcon width={22} /> Submit
+                    <SubmitIcon className="size-6 text-white" /> Submit
                   </>
                 )}
               </Button>

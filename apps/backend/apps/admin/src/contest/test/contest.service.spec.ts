@@ -67,7 +67,7 @@ const contestWithCount = {
   ...contest,
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _count: {
-    contestRecord: 10
+    userContest: 10
   }
 }
 
@@ -225,7 +225,8 @@ const db = {
     findMany: stub(),
     findUnique: stub(),
     delete: stub(),
-    update: stub()
+    update: stub(),
+    count: stub()
   },
   contest: {
     findFirst: stub(),
@@ -466,7 +467,7 @@ describe('ContestService', () => {
       db.submission.groupBy
         .onFirstCall()
         .resolves([{ userId: 1 }, { userId: 2 }])
-      db.contestRecord.count.resolves(3)
+      db.userContest.count.resolves(3)
       // eslint-disable-next-line @typescript-eslint/naming-convention
       db.contestProblem.aggregate.resolves({ _sum: { score: 100 } })
       db.contestRecord.findMany.resolves([contestRecord])
