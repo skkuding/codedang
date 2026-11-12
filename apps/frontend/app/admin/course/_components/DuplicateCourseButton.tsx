@@ -19,6 +19,7 @@ interface DuplicateCourseButtonProps {
 }
 type CourseRow = {
   id: number
+  type: 'master' | 'section'
   title: string
   code: string
   semester: string
@@ -32,7 +33,8 @@ export function DuplicateCourseButton({
   const [duplicateCourse] = useMutation(DUPLICATE_COURSE)
   const selectedRows = table.getSelectedRowModel().flatRows
   const selectedRow = selectedRows[0]
-  const canDuplicate = selectedRows.length === 1 && selectedRow.depth === 1
+  const canDuplicate =
+    selectedRows.length === 1 && selectedRow.original.type === 'section'
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [courseNum, setCourseNum] = useState('')

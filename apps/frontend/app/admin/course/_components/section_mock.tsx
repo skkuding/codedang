@@ -56,5 +56,14 @@ export const bluePrintMockData: BluePrintCourse[] = [
         courseInfo: { classNum: 16 }
       }
     ]
+  },
+  {
+    id: 74,
+    type: 'section',
+    title: '권수린개론',
+    code: 'KSR2026',
+    classNum: 1,
+    semester: '2026 Fall',
+    studentCount: 1
   }
 ]
