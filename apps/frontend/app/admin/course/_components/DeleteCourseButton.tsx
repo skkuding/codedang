@@ -28,7 +28,8 @@ export function DeleteCourseButton({ onSuccess }: DeleteCourseButtonProps) {
       deleteItems={table
         .getSelectedRowModel()
         .flatRows.map(
-          (row) => `${row.getValue('title')} [${row.getValue('code')}]`
+          (row) =>
+            `${row.getValue('title')} [${row.getValue('code')}] - ${row.getValue('classNum') || 'M'}`
         )}
     />
   )
