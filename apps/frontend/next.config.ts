@@ -11,7 +11,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   register: true,
-  disable: isAnalyze || process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === 'development',
   customWorkerDir: 'worker',
   skipWaiting: true,
   workboxOptions: {
@@ -42,9 +42,6 @@ const nextConfig = {
         hostname: '**.cdninstagram.com'
       }
     ]
-  },
-  typescript: {
-    ignoreBuildErrors: isAnalyze
   },
   output: 'standalone',
   eslint: {
