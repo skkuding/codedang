@@ -26,7 +26,7 @@
       "id": 1,
       "type": "table",
       "title": "테이블 목록",
-      "description": "public 스키마의 테이블. 이름을 누르면 오른쪽에 그 테이블이 열린다. rows 는 대략적인 행 수다.",
+      "description": "public 스키마의 테이블과 뷰. 이름을 누르면 오른쪽에 그 테이블이 열린다. rows 는 대략적인 행 수이고, 뷰는 비어 있다.",
       "datasource": {
         "type": "postgres",
         "uid": "postgres"
@@ -47,7 +47,7 @@
           "editorMode": "code",
           "rawQuery": true,
           "format": "table",
-          "rawSql": "SELECT c.relname AS \"table\",\n       GREATEST(c.reltuples, 0)::bigint AS rows\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')\n  AND has_table_privilege(c.oid, 'SELECT')\nORDER BY c.relname"
+          "rawSql": "SELECT c.relname AS \"table\",\n       CASE WHEN c.relkind IN ('r', 'p')\n            THEN GREATEST(c.reltuples, 0)::bigint\n       END AS rows\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\n  AND c.relname !~ '[\"'']'\nORDER BY c.relname"
         }
       ],
       "fieldConfig": {
@@ -217,8 +217,8 @@
           "type": "postgres",
           "uid": "postgres"
         },
-        "query": "SELECT c.relname\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\nORDER BY c.relname",
-        "definition": "SELECT c.relname\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\nORDER BY c.relname",
+        "query": "SELECT c.relname\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\n  AND c.relname !~ '[\"'']'\nORDER BY c.relname",
+        "definition": "SELECT c.relname\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\n  AND c.relname !~ '[\"'']'\nORDER BY c.relname",
         "refresh": 1,
         "sort": 0,
         "multi": false,
@@ -236,8 +236,8 @@
           "type": "postgres",
           "uid": "postgres"
         },
-        "query": "SELECT a.attname\nFROM pg_attribute a\nLEFT JOIN pg_index i ON i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY (i.indkey)\nWHERE a.attrelid = to_regclass(format('public.%I', '$table')) AND a.attnum > 0 AND NOT a.attisdropped\nORDER BY i.indrelid IS NULL, a.attnum",
-        "definition": "SELECT a.attname\nFROM pg_attribute a\nLEFT JOIN pg_index i ON i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY (i.indkey)\nWHERE a.attrelid = to_regclass(format('public.%I', '$table')) AND a.attnum > 0 AND NOT a.attisdropped\nORDER BY i.indrelid IS NULL, a.attnum",
+        "query": "SELECT a.attname\nFROM pg_attribute a\nLEFT JOIN pg_index i ON i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY (i.indkey)\nWHERE a.attrelid = to_regclass(format('public.%I', '$table')) AND a.attnum > 0 AND NOT a.attisdropped\n  AND a.attname !~ '[\"'']'\nORDER BY i.indrelid IS NULL, a.attnum",
+        "definition": "SELECT a.attname\nFROM pg_attribute a\nLEFT JOIN pg_index i ON i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY (i.indkey)\nWHERE a.attrelid = to_regclass(format('public.%I', '$table')) AND a.attnum > 0 AND NOT a.attisdropped\n  AND a.attname !~ '[\"'']'\nORDER BY i.indrelid IS NULL, a.attnum",
         "refresh": 1,
         "sort": 0,
         "multi": false,
