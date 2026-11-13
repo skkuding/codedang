@@ -7,6 +7,8 @@ envFromSecrets:
 
 # PostgreSQL 데이터소스 계정. 원본은 postgres/grafana-ro-credentials 이고
 # reflector 가 grafana-database-credentials 로 복사한다.
+# 비밀번호를 바꾸면 Secret 만 갱신되고 실행 중인 파드의 환경변수는 그대로다.
+# 새 값이 반영된 뒤 grafana 파드를 재시작해야 데이터소스가 새 비밀번호를 쓴다.
 envValueFrom:
   GRAFANA_DB_USER:
     secretKeyRef:
@@ -18,6 +20,10 @@ envValueFrom:
       key: password
 
 replicas: 1
+# 롤아웃 중 두 파드가 겹치면 role 의 CONNECTION LIMIT 5 를 넘을 수 있다.
+# Recreate 로 이전 파드가 내려간 뒤 새 파드를 띄운다.
+deploymentStrategy:
+  type: Recreate
 autoscaling:
   enabled: false
 
