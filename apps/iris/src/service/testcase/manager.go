@@ -30,6 +30,7 @@ type testcaseDatabase interface {
 
 type testcaseObjectReader interface {
 	Get(string) ([]loader.ElementOut, error)
+	loader.BundleSource
 }
 
 type testcaseManager struct {

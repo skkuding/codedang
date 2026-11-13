@@ -3,6 +3,7 @@ package testcase
 import (
 	"context"
 	"errors"
+	"io"
 	"testing"
 
 	"github.com/skkuding/codedang/apps/iris/src/loader"
@@ -15,6 +16,10 @@ type stubObjectReader struct {
 
 func (s stubObjectReader) Get(key string) ([]loader.ElementOut, error) {
 	return s.get(key)
+}
+
+func (stubObjectReader) OpenObject(context.Context, string) (io.ReadCloser, error) {
+	panic("unexpected OpenObject call")
 }
 
 type stubTestcaseDatabase struct {
