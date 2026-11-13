@@ -1,5 +1,6 @@
-# Kustomization for ordering resources to be applied, to ensure that secrets are created prior to tenants.
-# Kustomization has its own ordering logic, so we don't need to worry about the order of resources.
+# Application object storage for stage. The legacy MinIO Tenant was removed
+# after the cutover to Silo; the Silo StatefulSet and the application
+# credentials remain here.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: minio
@@ -12,8 +13,6 @@ resources:
   - silo-services.yaml
   - silo-statefulset.yaml
   - silo-storage-class.yaml
-  - tenant-config.yaml
-  - tenant.yaml
   - users/admin-api.yaml
   - users/client-api.yaml
   - users/iris.yaml
