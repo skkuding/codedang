@@ -52,8 +52,9 @@ const DEFAULT_PIN_MAX_ATTEMPTS = 3
 const DEFAULT_PIN_SEND_COOLDOWN_SECONDS = 60
 const DEFAULT_PIN_SEND_HOURLY_LIMIT = 5
 const DEFAULT_PIN_SEND_DAILY_LIMIT = 10
-const PIN_SEND_DAILY_TOTAL_LIMIT = 30
+const DEFAULT_PIN_SEND_DAILY_TOTAL_LIMIT = 30
 const DEFAULT_USERNAME_SEND_HOURLY_LIMIT = 3
+const DEFAULT_USERNAME_SEND_HOURLY_TOTAL_LIMIT = 10
 
 const INCREASE_COUNT_SCRIPT = `
 local count = redis.call('INCR', KEYS[1])
@@ -128,19 +129,32 @@ export class UserService {
       DEFAULT_USERNAME_SEND_HOURLY_LIMIT
     )
 
-    if (count <= limit) {
-      runInBackground(
-        async () => {
-          const user = await this.getUserCredentialByEmail(email)
-          if (user) {
-            await this.emailService.sendUsername(user.email, user.username)
-          }
-        },
-        (error) => this.logger.error(error, 'sendUsernameByEmail')
-      )
-    } else {
+    if (count > limit) {
       throw new TooManyRequestsException()
     }
+
+    // Caps sends per email across all IPs so that using many IPs cannot multiply username emails.
+    const totalCount = await this.increaseCount(
+      emailSendCountCacheKey(email, 'username:hour:total'),
+      HOUR_IN_MS
+    )
+    const totalLimit = this.getPositiveIntConfig(
+      'EMAIL_AUTH_USERNAME_SEND_HOURLY_TOTAL_LIMIT',
+      DEFAULT_USERNAME_SEND_HOURLY_TOTAL_LIMIT
+    )
+    if (totalCount > totalLimit) {
+      throw new TooManyRequestsException()
+    }
+
+    runInBackground(
+      async () => {
+        const user = await this.getUserCredentialByEmail(email)
+        if (user) {
+          await this.emailService.sendUsername(user.email, user.username)
+        }
+      },
+      (error) => this.logger.error(error, 'sendUsernameByEmail')
+    )
 
     return { username: USERNAME_SENT_MESSAGE }
   }
@@ -285,7 +299,10 @@ export class UserService {
       // Caps sends per email across all IPs so that using many IPs cannot multiply pin guesses.
       {
         scope: 'pin:day:total',
-        limit: PIN_SEND_DAILY_TOTAL_LIMIT,
+        limit: this.getPositiveIntConfig(
+          'EMAIL_AUTH_PIN_SEND_DAILY_TOTAL_LIMIT',
+          DEFAULT_PIN_SEND_DAILY_TOTAL_LIMIT
+        ),
         windowMs: 24 * HOUR_IN_MS
       }
     ]

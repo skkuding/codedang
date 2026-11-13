@@ -212,14 +212,37 @@ describe('UserService', () => {
       expect(sendUsernameSpy.called).to.be.false
     })
 
-    it('should count username emails per email and requester IP', async () => {
+    it('should count username emails per email and requester IP, then per email in total', async () => {
       db.user.findUnique.resolves(user)
 
       await service.sendUsernameByEmail(emailAuthJwtPayload, IP)
 
-      expect(redisEvalStub.firstCall.args[1].keys).to.deep.equal([
-        emailSendCountCacheKey(EMAIL_ADDRESS, `username:hour:${IP}`)
+      const keys = redisEvalStub.getCalls().map((call) => call.args[1].keys[0])
+      expect(keys).to.deep.equal([
+        emailSendCountCacheKey(EMAIL_ADDRESS, `username:hour:${IP}`),
+        emailSendCountCacheKey(EMAIL_ADDRESS, 'username:hour:total')
       ])
+    })
+
+    it('should not count the total limit when the requester IP is limited', async () => {
+      redisEvalStub.resolves(4)
+
+      await expect(
+        service.sendUsernameByEmail(emailAuthJwtPayload, IP)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      expect(redisEvalStub.calledOnce).to.be.true
+    })
+
+    it('should reject when the total limit across IPs is exceeded', async () => {
+      db.user.findUnique.resetHistory()
+      redisEvalStub.onCall(1).resolves(11)
+
+      await expect(
+        service.sendUsernameByEmail(emailAuthJwtPayload, IP)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      await new Promise(setImmediate)
+      expect(db.user.findUnique.called).to.be.false
+      expect(sendUsernameSpy.called).to.be.false
     })
   })
 
