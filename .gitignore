@@ -57,6 +57,7 @@ dist/
 
 # dotenv environment variable files
 .env
+.envrc.local
 .env.development.local
 .env.test.local
 .env.production.local

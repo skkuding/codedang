@@ -1,0 +1,32 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    providers:
+      kubernetesGateway:
+        enabled: true
+      kubernetesCRD:
+        enabled: true
+        # Needed for the iris/kubernetes-apiserver ExternalName Service used by
+        # the pprof TraefikService.
+        allowExternalNameServices: true
+    # Apply HSTS to every router on the HTTPS entrypoint (Gateway listeners on 8443).
+    # Middleware FQDN is <namespace>-<name>@kubernetescrd.
+    ports:
+      websecure:
+        http:
+          middlewares:
+            - kube-system-hsts@kubernetescrd
+    # In-cluster collector is plaintext gRPC. tls: null stops the chart from
+    # also emitting TLS flags, which Traefik v3.6+ rejects next to insecure.
+    tracing:
+      otlp:
+        enabled: true
+        grpc:
+          enabled: true
+          endpoint: simplest-collector.monitoring-otel.svc.cluster.local:4317
+          insecure: true
+          tls: null

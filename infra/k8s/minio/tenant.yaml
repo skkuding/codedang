@@ -34,6 +34,9 @@ spec:
     - servers: 1 # standalone mode (4 or more for distributed mode)
       name: pool-0
       volumesPerServer: 1
+      # Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+      nodeSelector:
+        kubernetes.io/hostname: skkuding-1
       volumeClaimTemplate:
         apiVersion: v1
         kind: PersistentVolumeClaim

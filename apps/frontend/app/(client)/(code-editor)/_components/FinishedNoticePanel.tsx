@@ -1,6 +1,6 @@
 import { Button } from '@/components/shadcn/button'
 import { fetcher } from '@/libs/utils'
-import Exit2Icon from '@/public/icons/exit2.svg'
+import ExitIcon from '@/public/icons/exit.svg'
 import VisitIcon from '@/public/icons/visit.svg'
 import Link from 'next/link'
 
@@ -62,7 +62,7 @@ function VisitProblemButton({ problemId }: VisitProblemButtonProps) {
         type="button"
         className="h-10 shrink-0 gap-[5px] border border-blue-500 bg-blue-100 font-sans text-blue-500 hover:bg-blue-300"
       >
-        <VisitIcon width={20} height={20} />
+        <VisitIcon className="text-primary size-5" />
         Visit Public Problem
       </Button>
     </Link>
@@ -93,7 +93,7 @@ function ExitButton({
         type="button"
         className="ml-4 h-10 shrink-0 gap-[5px] bg-blue-500 font-sans hover:bg-blue-700"
       >
-        <Exit2Icon width={20} height={20} />
+        <ExitIcon className="size-5 text-white" />
         {target === 'contest' ? 'View Leaderboard' : 'Exit'}
       </Button>
     </Link>

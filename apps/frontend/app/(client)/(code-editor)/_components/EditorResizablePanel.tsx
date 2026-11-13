@@ -18,7 +18,7 @@ import {
 } from '@/components/shadcn/tooltip'
 import { fetcherWithAuth } from '@/libs/utils'
 import { cn } from '@/libs/utils'
-import BottomCenterIcon from '@/public/icons/bottom-center.svg'
+import ArrowTopFullIcon from '@/public/icons/arrow-top-full.svg'
 import SyncIcon from '@/public/icons/sync.svg'
 import { useLanguageStore, useCodeStore } from '@/stores/editor'
 import { useSidePanelTabStore } from '@/stores/editorTabs'
@@ -242,7 +242,7 @@ export function EditorMainResizablePanel({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <SyncIcon
-                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto`}
+                          className={`${isFrozen ? '' : 'cursor-pointer'} ml-auto size-6 text-white`}
                           onClick={() => {
                             if (!isFrozen) {
                               triggerRefresh()
@@ -255,7 +255,7 @@ export function EditorMainResizablePanel({
                           side="bottom"
                           className="mt-1 flex h-[29px] w-[145px] items-center justify-center"
                         >
-                          <BottomCenterIcon className="absolute -top-[2px] left-1/2 -translate-x-1/2 transform" />
+                          <ArrowTopFullIcon className="absolute -top-[2px] left-1/2 h-[9px] w-[15px] -translate-x-1/2 transform text-[#121728]" />
                           <p className="text-xs">Leaderboard is frozen</p>
                         </TooltipContent>
                       )}

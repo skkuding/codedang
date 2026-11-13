@@ -1,0 +1,98 @@
+x-silo-env: &silo-env
+  SILO_ENDPOINT: http://silo:9000
+  SILO_BUCKET: tc-artifacts
+  SILO_ACCESS_KEY: tc-local
+  SILO_SECRET_KEY: tc-local-compose-only
+
+x-tc-runtime: &tc-runtime
+  image: tc-local-caching:dev
+  pull_policy: never
+
+services:
+  silo:
+    image: docker.io/pgsty/silo@sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac
+    command: ['server', '/data']
+    environment:
+      MINIO_ROOT_USER: tc-local
+      MINIO_ROOT_PASSWORD: tc-local-compose-only
+      MINIO_UPDATE: 'off'
+      MINIO_BROWSER: 'off'
+    volumes:
+      - silo-data:/data
+
+  seed:
+    <<: *tc-runtime
+    command: ['seed']
+    environment: *silo-env
+    depends_on:
+      silo:
+        condition: service_started
+    volumes:
+      - pins:/pins
+
+  cache-volume:
+    <<: *tc-runtime
+    command: ['hold']
+    network_mode: none
+    volumes:
+      - cache-data:/cache
+
+  manager:
+    image: tc-local-caching:dev
+    build:
+      context: .
+      target: runtime
+    command: ['serve', '-high', '6291456', '-low', '3145728']
+    environment: *silo-env
+    depends_on:
+      cache-volume:
+        condition: service_started
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', '/tc-cache', 'stats']
+      interval: 1s
+      timeout: 1s
+      retries: 15
+    volumes:
+      - cache-data:/cache
+      - socket:/run/tc-cache
+    tmpfs:
+      - /tmp:size=72m
+
+  client:
+    <<: *tc-runtime
+    profiles: ['tools']
+    command: ['read']
+    network_mode: none
+    depends_on:
+      manager:
+        condition: service_healthy
+    volumes:
+      - socket:/run/tc-cache:ro
+      - pins:/pins:ro
+
+  verify:
+    image: tc-local-caching:verify
+    build:
+      context: .
+      target: verify
+    profiles: ['tools']
+    environment: *silo-env
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    tmpfs:
+      - /tmp:size=72m
+      - /test-cache:size=16m
+
+volumes:
+  silo-data:
+  pins:
+  socket:
+  cache-data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: 'size=16m,mode=0700'
