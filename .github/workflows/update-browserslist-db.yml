@@ -1,0 +1,68 @@
+name: Update Browserslist DB
+
+on:
+  schedule:
+    - cron: '0 15 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-browserslist-db
+  cancel-in-progress: false
+
+jobs:
+  update-browserslist-db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
+        with:
+          install: 'no'
+
+      - name: Update caniuse-lite
+        run: |
+          latest=$(pnpm view caniuse-lite version)
+          if grep '^  caniuse-lite@' pnpm-lock.yaml | grep -Fv "  caniuse-lite@${latest}:" > /dev/null; then
+            pnpm -r up caniuse-lite --depth=9999 --no-save --lockfile-only --ignore-scripts
+          fi
+
+          # Check the shared lockfile, including all workspace packages.
+          if grep '^  caniuse-lite@' pnpm-lock.yaml | grep -Fv "  caniuse-lite@${latest}:" > /dev/null; then
+            echo '::error::Outdated caniuse-lite entries remain in pnpm-lock.yaml.'
+            exit 1
+          fi
+
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SKKUDING_BOT_APP_ID }}
+          private-key: ${{ secrets.SKKUDING_BOT_PRIVATE_KEY }}
+
+      - name: Create or update pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          branch: chore/update-browserslist-db
+          add-paths: pnpm-lock.yaml
+          commit-message: 'chore(deps): update Browserslist DB'
+          title: 'chore(deps): update Browserslist DB'
+          body: |
+            Updates caniuse-lite browser data in pnpm-lock.yaml using
+            the official update-browserslist-db tool.
+
+            pnpm may also re-resolve unrelated dependencies while updating the lockfile.
+            Please review dependency changes (especially CodeMirror) before merging.
+
+            Renovate continues to maintain all dependencies and the lockfile.
+            Merge manually after CI passes.
+          labels: dependencies
