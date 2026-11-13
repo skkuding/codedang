@@ -6,7 +6,7 @@ import {
   PopoverTrigger
 } from '@/components/shadcn/popover'
 import { Switch } from '@/components/shadcn/switch'
-import InfoIcon from '@/public/icons/icon-info-blue.svg'
+import InfoIcon from '@/public/icons/info.svg'
 import { useProblemCreationMode } from '../_libs/useProblemCreationMode'
 
 export function ProblemModeToggle() {
@@ -19,7 +19,7 @@ export function ProblemModeToggle() {
       <span className="text-sm text-slate-500">만들당 방식</span>
       <Popover>
         <PopoverTrigger type="button">
-          <InfoIcon width={16} height={16} />
+          <InfoIcon className="text-primary size-4" />
         </PopoverTrigger>
         <PopoverContent className="w-64 text-sm">
           만들당은 문제 본문 작성부터 솔루션 검증, 테스트케이스 생성, 협업자

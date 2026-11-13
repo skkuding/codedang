@@ -23,11 +23,20 @@ type TestcaseManager interface {
 	VersionedTestcaseReader
 }
 
+type testcaseDatabase interface {
+	Get(context.Context, string, loader.ElementType) ([]loader.ElementOut, error)
+	Save(context.Context, []loader.ElementIn) error
+}
+
+type testcaseObjectReader interface {
+	Get(string) ([]loader.ElementOut, error)
+}
+
 type testcaseManager struct {
-	database  *loader.Postgres
-	s3reader  *loader.S3reader
-	logger    logger.Logger
-	cacheRoot string
+	database testcaseDatabase
+	s3reader testcaseObjectReader
+	logger   logger.Logger
+  cacheRoot string
 }
 
 func NewTestcaseManager(
@@ -85,7 +94,16 @@ func (t *testcaseManager) SaveTestcase(ctx context.Context, problemId string, hi
 func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error) {
 	data, err := t.s3reader.Get(problemId)
 	if err != nil {
-		data, err = t.database.Get(ctx, problemId)
+		switch testcaseFilter {
+		case ALL:
+			data, err = t.database.Get(ctx, problemId, loader.ALL)
+		case PUBLIC_ONLY:
+			data, err = t.database.Get(ctx, problemId, loader.PUBLIC_ONLY)
+		case HIDDEN_ONLY:
+			data, err = t.database.Get(ctx, problemId, loader.HIDDEN_ONLY)
+		default:
+			return Testcase{}, fmt.Errorf("invalid TestcaseFilter: %d", testcaseFilter)
+		}
 		if err != nil {
 			return Testcase{}, fmt.Errorf("GetTestcase: %w", err)
 		}
@@ -94,10 +112,13 @@ func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, tes
 	var predicate func(element loader.ElementOut) bool
 
 	switch testcaseFilter {
+	case ALL:
 	case PUBLIC_ONLY:
 		predicate = func(element loader.ElementOut) bool { return !element.Hidden }
 	case HIDDEN_ONLY:
 		predicate = func(element loader.ElementOut) bool { return element.Hidden }
+	default:
+		return Testcase{}, fmt.Errorf("invalid TestcaseFilter: %d", testcaseFilter)
 	}
 
 	if predicate != nil {

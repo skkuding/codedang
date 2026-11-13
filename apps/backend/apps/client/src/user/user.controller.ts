@@ -7,10 +7,15 @@ import {
   Res,
   Controller,
   Delete,
-  Query
+  Query,
+  UnauthorizedException
 } from '@nestjs/common'
 import { Request, type Response } from 'express'
-import { AuthenticatedRequest, AuthNotNeededIfPublic } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  AuthNotNeededIfPublic,
+  UserNullWhenAuthFailedIfPublic
+} from '@libs/auth'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
@@ -73,9 +78,18 @@ export class UserController {
   }
 
   @Get('email')
-  @AuthNotNeededIfPublic()
-  async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
-    return await this.userService.getUsernameByEmail(userEmailDto)
+  @UserNullWhenAuthFailedIfPublic()
+  async getUsernameByEmail(
+    @Req() req: AuthenticatedRequest,
+    @Query() userEmailDto: UserEmailDto
+  ) {
+    if (req.user) {
+      return await this.userService.getUsernameByEmail(userEmailDto)
+    }
+    if (req.headers.authorization) {
+      throw new UnauthorizedException()
+    }
+    return await this.userService.sendUsernameByEmail(userEmailDto)
   }
 
   @Patch('')

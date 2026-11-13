@@ -2,6 +2,8 @@ module github.com/skkuding/codedang/apps/iris
 
 go 1.25.0
 
+toolchain go1.27.3
+
 require (
 	github.com/aws/aws-sdk-go-v2 v1.37.2
 	github.com/aws/aws-sdk-go-v2/config v1.30.3
@@ -31,10 +33,10 @@ require (
 require (
 	github.com/joho/godotenv v1.5.1
 	go.opentelemetry.io/otel/log v0.13.0
-	golang.org/x/sync v0.20.0
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.2 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.2 // indirect

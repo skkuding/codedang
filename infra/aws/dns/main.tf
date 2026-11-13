@@ -37,6 +37,15 @@ import {
   id = "Z02931601ELG5RAXUQ69W"
 }
 
+data "terraform_remote_state" "storage" {
+  backend = "s3"
+  config = {
+    bucket = "codedang-tf-state"
+    key    = "terraform/db.tfstate"
+    region = "ap-northeast-2"
+  }
+}
+
 locals {
   stage_cluster_ip = [
     "115.145.160.238",

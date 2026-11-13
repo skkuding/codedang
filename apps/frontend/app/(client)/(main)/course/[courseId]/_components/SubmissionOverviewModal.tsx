@@ -11,7 +11,7 @@ import type {
 import { ErrorBoundary } from '@suspensive/react'
 import { Suspense, useState } from 'react'
 import { MdOutlineFileOpen } from 'react-icons/md'
-import { ProblemDetailModal } from './ProblemDetailModal'
+import { ProblemDetailModal, hasProblemComment } from './ProblemDetailModal'
 
 interface SubmissionOverviewModalProps {
   problem: ProblemGrade
@@ -30,9 +30,13 @@ export function SubmissionOverviewModal({
     setIsOpen(open)
   }
 
-  return (
+  const hasSubmission = Boolean(
     submissions.find((submission) => submission.problemId === problem.id)
-      ?.submission && (
+      ?.submission
+  )
+
+  return (
+    (hasSubmission || hasProblemComment(problem.problemRecord?.comment)) && (
       <div
         className="flex items-center justify-center"
         onClick={(e) => {
