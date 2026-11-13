@@ -1,6 +1,19 @@
+import { NestFactory } from '@nestjs/core'
+import {
+  GraphQLSchemaBuilderModule,
+  GraphQLSchemaFactory,
+  Query,
+  Resolver
+} from '@nestjs/graphql'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Role } from '@prisma/client'
 import { expect } from 'chai'
+import {
+  getNamedType,
+  isObjectType,
+  type GraphQLObjectType,
+  type GraphQLSchema
+} from 'graphql'
 import { stub } from 'sinon'
 import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
 import { BlueprintCourseResolver } from './blueprint-course.resolver'
@@ -76,5 +89,56 @@ describe('BlueprintCourseResolver', () => {
 
       expect(res).to.equal(createdBlueprintCourse)
     })
+  })
+})
+
+// GraphQL schema requires a Query root type, so add a minimal one for building.
+@Resolver()
+class SchemaRootResolver {
+  @Query(() => Boolean)
+  ping() {
+    return true
+  }
+}
+
+describe('BlueprintCourseResolver GraphQL schema', () => {
+  let schema: GraphQLSchema
+
+  before(async () => {
+    const app = await NestFactory.create(GraphQLSchemaBuilderModule, {
+      logger: false
+    })
+    await app.init()
+    schema = await app
+      .get(GraphQLSchemaFactory)
+      .create([BlueprintCourseResolver, SchemaRootResolver])
+    await app.close()
+  })
+
+  it('should not expose fields that the service does not populate', () => {
+    const mutation = schema.getMutationType() as GraphQLObjectType
+    const returnType = getNamedType(
+      mutation.getFields().createBlueprintCourse.type
+    )
+
+    expect(isObjectType(returnType)).to.be.true
+    const fields = Object.keys((returnType as GraphQLObjectType).getFields())
+    for (const field of [
+      '_count',
+      'createdBy',
+      'courseInfo',
+      'blueprintAssignment'
+    ]) {
+      expect(fields).to.not.include(field)
+    }
+    expect(fields).to.include.members([
+      'id',
+      'courseTitle',
+      'courseNum',
+      'semester',
+      'week',
+      'professor',
+      'createdById'
+    ])
   })
 })

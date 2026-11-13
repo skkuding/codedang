@@ -776,6 +776,22 @@ type BlueprintCourseMinAggregate {
   week: Int
 }
 
+type BlueprintCourseOutput {
+  courseNum: String!
+  courseTitle: String!
+  createTime: DateTime!
+  createdById: Int
+  email: String
+  id: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  semester: String!
+  updateTime: DateTime!
+  website: String
+  week: Int!
+}
+
 type BlueprintCourseSumAggregate {
   createdById: Int
   id: Int
@@ -2615,7 +2631,7 @@ type Mutation {
   cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
-  createBlueprintCourse(input: BlueprintCourseInput!): BlueprintCourse!
+  createBlueprintCourse(input: BlueprintCourseInput!): BlueprintCourseOutput!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
