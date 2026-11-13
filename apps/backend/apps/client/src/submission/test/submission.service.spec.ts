@@ -1046,6 +1046,34 @@ describe('SubmissionService', () => {
       db.submission.count.resolves(0)
     })
 
+    it('rejects assignment detail when the assignment does not exist', async () => {
+      db.assignment.findUnique.resolves(null)
+
+      await expect(service.getSubmission(detail)).to.be.rejectedWith(
+        EntityNotExistException,
+        'Assignment'
+      )
+
+      expect(db.userGroup.findFirst.called).to.be.false
+      expect(db.submission.findFirst.called).to.be.false
+    })
+
+    it('rejects contest detail when the contest does not exist', async () => {
+      db.contest.findUnique.resolves(null)
+
+      await expect(
+        service.getSubmission({
+          ...detail,
+          assignmentId: null,
+          contestId: CONTEST_ID
+        })
+      ).to.be.rejectedWith(EntityNotExistException, 'Contest')
+
+      expect(db.userContest.findUnique.calledOnce).to.be.true
+      expect(db.contest.findUnique.calledOnce).to.be.true
+      expect(db.submission.findFirst.called).to.be.false
+    })
+
     const reads = [
       ['assignment detail', () => service.getSubmission(detail)],
       [
