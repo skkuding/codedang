@@ -14,6 +14,9 @@ spec:
       labels:
         app: postgres
     spec:
+      # Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+      nodeSelector:
+        kubernetes.io/hostname: skkuding-1
       containers:
         - name: postgres
           image: postgres:16.10-alpine

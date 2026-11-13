@@ -1,0 +1,4 @@
+singleBinary:
+  # Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+  nodeSelector:
+    kubernetes.io/hostname: skkuding-1

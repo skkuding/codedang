@@ -8,7 +8,7 @@ import { CREATE_CONTEST_ANNOUNCEMENT } from '@/graphql/contest/mutations'
 import { GET_CONTEST_PROBLEMS } from '@/graphql/problem/queries'
 import { cn } from '@/libs/utils'
 import CheckBoxIcon from '@/public/icons/check-box.svg'
-import IconInfoBlueIcon from '@/public/icons/icon-info-blue.svg'
+import IconInfoBlueIcon from '@/public/icons/info.svg'
 import { useQuery, useMutation } from '@apollo/client'
 import type { CreateAnnouncementInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
@@ -125,7 +125,7 @@ export function CreateContestAnnouncement({
           </p>
         </div>
         <div className="mb-[14px] flex items-center justify-start">
-          <IconInfoBlueIcon width={16} />
+          <IconInfoBlueIcon className="text-primary size-4" />
           <p className="text-primary ml-[2px] text-xs font-normal leading-[16.8px] tracking-[-0.36px]">
             Posted Announcement cannot be edited.
           </p>
