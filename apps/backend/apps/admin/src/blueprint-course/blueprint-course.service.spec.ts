@@ -135,6 +135,26 @@ describe('BlueprintCourseInput', () => {
 
       expect(errors.map((error) => error.property)).to.deep.equal([field])
     })
+
+    for (const blank of ['   ', '\t', '\n ']) {
+      it(`should fail when ${field} is blank (${JSON.stringify(blank)})`, async () => {
+        const errors = await validateInput({ ...input, [field]: blank })
+
+        expect(errors.map((error) => error.property)).to.deep.equal([field])
+        expect(errors[0].constraints).to.have.property('matches')
+      })
+    }
+
+    it(`should pass and keep value when ${field} has surrounding spaces`, async () => {
+      const value = `  ${input[field]}  `
+      const instance = plainToInstance(BlueprintCourseInput, {
+        ...input,
+        [field]: value
+      })
+
+      expect(await validate(instance)).to.be.empty
+      expect(instance[field]).to.equal(value)
+    })
   }
 
   it('should fail when week is less than 1', async () => {

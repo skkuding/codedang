@@ -1,5 +1,15 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
-import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator'
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  Min
+} from 'class-validator'
+
+// 공백이 아닌 문자가 하나 이상 있어야 합니다. 입력값은 trim하지 않습니다.
+const NOT_BLANK = /\S/
 
 /**
  * Blueprint 강좌 생성 입력입니다.
@@ -12,16 +22,19 @@ export class BlueprintCourseInput {
   @Field(() => String, { nullable: false })
   @IsString()
   @IsNotEmpty()
+  @Matches(NOT_BLANK, { message: 'courseTitle must not be blank' })
   courseTitle: string
 
   @Field(() => String, { nullable: false })
   @IsString()
   @IsNotEmpty()
+  @Matches(NOT_BLANK, { message: 'courseNum must not be blank' })
   courseNum: string
 
   @Field(() => String, { nullable: false })
   @IsString()
   @IsNotEmpty()
+  @Matches(NOT_BLANK, { message: 'semester must not be blank' })
   semester: string
 
   @Field(() => Int, { nullable: false })
@@ -32,6 +45,7 @@ export class BlueprintCourseInput {
   @Field(() => String, { nullable: false })
   @IsString()
   @IsNotEmpty()
+  @Matches(NOT_BLANK, { message: 'professor must not be blank' })
   professor: string
 
   @Field(() => String, { nullable: true })
