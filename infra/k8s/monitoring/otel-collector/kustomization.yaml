@@ -5,4 +5,6 @@ namespace: monitoring-otel
 
 resources:
   - namespace.yaml
+  - rbac.yaml
   - otel-collector.yaml
+  - service-monitor.yaml
