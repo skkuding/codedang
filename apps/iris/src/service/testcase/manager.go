@@ -33,10 +33,10 @@ type testcaseObjectReader interface {
 }
 
 type testcaseManager struct {
-	database testcaseDatabase
-	s3reader testcaseObjectReader
-	logger   logger.Logger
-  cacheRoot string
+	database  testcaseDatabase
+	s3reader  testcaseObjectReader
+	logger    logger.Logger
+	cacheRoot string
 }
 
 func NewTestcaseManager(
