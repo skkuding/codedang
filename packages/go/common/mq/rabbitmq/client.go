@@ -9,7 +9,10 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const rabbitMQCAPath = "/etc/codedang/certs/ca.crt"
+type TLSConfig struct {
+	Enabled bool
+	CAPath  string
+}
 
 type Client interface {
 	ChannelOpen(name string) error
@@ -18,17 +21,17 @@ type Client interface {
 	QueueBind(queueName string, bindingKey string, exchangeName string) error
 }
 
-func newAMQPConfig(connectionName string) (amqp.Config, error) {
+func newAMQPConfig(connectionName string, tlsConfig TLSConfig) (amqp.Config, error) {
 	config := amqp.Config{
 		Properties: amqp.NewConnectionProperties(),
 	}
 	config.Properties.SetClientConnectionName(connectionName)
 
-	if os.Getenv("RABBITMQ_SSL") != "true" {
+	if !tlsConfig.Enabled {
 		return config, nil
 	}
 
-	caPEM, err := os.ReadFile(rabbitMQCAPath)
+	caPEM, err := os.ReadFile(tlsConfig.CAPath)
 	if err != nil {
 		return amqp.Config{}, fmt.Errorf("read RabbitMQ CA certificate: %w", err)
 	}

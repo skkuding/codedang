@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
 	"runtime"
 	"strconv"
 	"time"
@@ -11,8 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	instrumentation "github.com/skkuding/codedang/apps/iris/src"
 	"github.com/skkuding/codedang/apps/iris/src/common/constants"
-	"github.com/skkuding/codedang/apps/iris/src/connector"
-	"github.com/skkuding/codedang/apps/iris/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/apps/iris/src/connector/mq"
 	"github.com/skkuding/codedang/apps/iris/src/handler"
 	"github.com/skkuding/codedang/apps/iris/src/handler/generate"
 	"github.com/skkuding/codedang/apps/iris/src/handler/judge"
@@ -26,8 +26,6 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/testcase"
 	"github.com/skkuding/codedang/apps/iris/src/utils"
 	"go.opentelemetry.io/otel"
-
-	_ "net/http/pprof"
 )
 
 type Env string
@@ -146,36 +144,8 @@ func main() {
 
 	logProvider.Log(logger.INFO, "Server Started")
 
-	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
-	var uri string
-	if utils.Getenv("RABBITMQ_SSL", "") == "true" {
-		uri = "amqps://"
-	} else {
-		uri = "amqp://"
-	}
-	uri +=
-		utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_USER", logProvider) + ":" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_PASS", logProvider) + "@" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_HOST", logProvider) + ":" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_PORT", logProvider) + "/" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_VHOST", logProvider)
-
-	go connector.Factory(
-		connector.RABBIT_MQ,
-		connector.Providers{Router: routeProvider, Logger: logProvider},
-		rabbitmq.ConsumerConfig{
-			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_CONNECTION_NAME", logProvider),
-			QueueName:      utils.MustGetenvOrElseThrow("JUDGE_REQUEST_QUEUE_NAME", logProvider),
-			Ctag:           utils.MustGetenvOrElseThrow("JUDGE_REQUEST_CONSUMER_TAG", logProvider),
-		},
-		rabbitmq.ProducerConfig{
-			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("JUDGE_RESULT_PRODUCER_CONNECTION_NAME", logProvider),
-			ExchangeName:   utils.MustGetenvOrElseThrow("JUDGE_RESULT_EXCHANGE_NAME", logProvider),
-			RoutingKey:     utils.MustGetenvOrElseThrow("JUDGE_RESULT_ROUTING_KEY", logProvider),
-		},
-	).Connect(context.Background())
+	mqConnector := mq.NewConnector(routeProvider, logProvider)
+	go mqConnector.Connect(ctx)
 
 	select {}
 }

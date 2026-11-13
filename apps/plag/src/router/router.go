@@ -6,6 +6,7 @@ import (
 
 	instrumentation "github.com/skkuding/codedang/apps/plag/src"
 	"github.com/skkuding/codedang/apps/plag/src/handler"
+	"github.com/skkuding/codedang/apps/plag/src/router/response"
 	"github.com/skkuding/codedang/apps/plag/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -16,8 +17,7 @@ const (
 )
 
 type Router interface {
-	// Route(path string, id string, data []byte, resultChan chan []byte) []byte
-	Route(path string, id string, data []byte, resultChan chan []byte, ctx context.Context)
+	Route(path string, id string, data []byte, resultChan chan<- response.Response, ctx context.Context)
 }
 
 type router struct {
@@ -34,7 +34,21 @@ func NewRouter(
 	return &router{checkHandler, logger, tracer}
 }
 
-func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx context.Context) {
+func (r *router) Route(path string, id string, data []byte, out chan<- response.Response, ctx context.Context) {
+	send := func(result *response.CheckResponse) {
+		select {
+		case out <- response.Response{Message: result.Marshal(), Type: path}:
+		case <-ctx.Done():
+		}
+	}
+	if path == "" {
+		send(response.NewCheckResponse("", nil, fmt.Errorf("type(message property) must not be empty")))
+		return
+	}
+	if id == "" {
+		send(response.NewCheckResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")))
+		return
+	}
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -48,27 +62,31 @@ func (r *router) Route(path string, id string, data []byte, out chan []byte, ctx
 	)
 	defer childSpan.End()
 
-	// var handlerResult json.RawMessage
-	// var err error
-
-	checkChan := make(chan handler.CheckResultMessage)
+	// Handle emits one result; buffering lets it finish after the connector times out.
+	checkChan := make(chan handler.CheckResultMessage, 1)
 	switch path { // 나중에 추가 작업을 지정할 수 있도록 각 메시지 타입을 구분
 	case Check:
 		go r.checkHandler.Handle(id, data, checkChan, newCtx)
 	default:
 		err := fmt.Errorf("invalid request type: %s", path)
 		r.errHandle(err)
-		out <- NewResponse(id, nil, err).Marshal()
+		send(response.NewCheckResponse(id, nil, err))
+		return
 	}
 
-	for result := range checkChan {
-		r.errHandle(result.Err)
-		out <- NewResponse(id, result.Result, result.Err).Marshal()
-		// break
+	for {
+		select {
+		case result, open := <-checkChan:
+			if !open {
+				r.logger.Log(logger.DEBUG, "Router done...")
+				return
+			}
+			r.errHandle(result.Err)
+			send(response.NewCheckResponse(id, result.Result, result.Err))
+		case <-newCtx.Done():
+			return
+		}
 	}
-	// return NewResponse(id, handlerResult, err).Marshal()
-	close(out)
-	r.logger.Log(logger.DEBUG, "Router done...")
 }
 
 func (r *router) errHandle(err error) {
