@@ -131,7 +131,7 @@ export function GeneratorPage() {
               <Button
                 type="button"
                 size="middle"
-                className="rounded-[10px]"
+                className="bg-primary-strong hover:bg-primary-heavy rounded-[10px]"
                 onClick={handleGeneratedInputDownload}
               >
                 <DownloadIcon className="size-4 text-white" />
