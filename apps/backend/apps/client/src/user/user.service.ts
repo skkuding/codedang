@@ -52,6 +52,7 @@ const DEFAULT_PIN_MAX_ATTEMPTS = 3
 const DEFAULT_PIN_SEND_COOLDOWN_SECONDS = 60
 const DEFAULT_PIN_SEND_HOURLY_LIMIT = 5
 const DEFAULT_PIN_SEND_DAILY_LIMIT = 10
+const PIN_SEND_DAILY_TOTAL_LIMIT = 30
 const DEFAULT_USERNAME_SEND_HOURLY_LIMIT = 3
 
 const INCREASE_COUNT_SCRIPT = `
@@ -117,9 +118,9 @@ export class UserService {
     return username
   }
 
-  async sendUsernameByEmail({ email }: UserEmailDto) {
+  async sendUsernameByEmail({ email }: UserEmailDto, ip: string) {
     const count = await this.increaseCount(
-      emailSendCountCacheKey(email, 'username:hour'),
+      emailSendCountCacheKey(email, `username:hour:${ip}`),
       HOUR_IN_MS
     )
     const limit = this.getPositiveIntConfig(
@@ -137,6 +138,8 @@ export class UserService {
         },
         (error) => this.logger.error(error, 'sendUsernameByEmail')
       )
+    } else {
+      throw new TooManyRequestsException()
     }
 
     return { username: USERNAME_SENT_MESSAGE }
@@ -196,19 +199,23 @@ export class UserService {
    * 회원가입시 이메일 주소가 중복되지 않고/형식이 올바른지 체크하고 인증을 위한 pin번호를 전송합니다.
    *
    * @param {string} email 이메일 주소
+   * @param {string} ip 요청자 IP 주소
    * @throws {DuplicateFoundException} 기존에 존재하는 이메일 주소면 예외 발생
    * @throws {UnprocessableDataException} @skku.edu로 끝나지 않는 메일이면 예외 발생
    * @throws {TooManyRequestsException} pin 전송 한도를 초과하면 예외 발생
    * @return {Promise<string>} pin번호 전송 성공 메시지
    */
-  async sendPinForRegisterNewEmail({ email }: UserEmailDto): Promise<string> {
+  async sendPinForRegisterNewEmail(
+    { email }: UserEmailDto,
+    ip: string
+  ): Promise<string> {
     if (!email.endsWith('@skku.edu')) {
       this.logger.debug('invalid email domain', { email })
       throw new UnprocessableDataException('Only @skku.edu emails are allowed')
     }
 
     // Count before the duplicate check so account existence cannot be probed without limit.
-    await this.enforcePinSendLimit(email)
+    await this.enforcePinSendLimit(email, ip)
 
     const duplicatedUser = await this.getUserCredentialByEmail(email)
     if (duplicatedUser) {
@@ -223,11 +230,15 @@ export class UserService {
    * 비밀번호 재설정을 위한 pin번호를 사용자 이메일로 전송합니다.
    *
    * @param {string} email 사용자 이메일 주소
+   * @param {string} ip 요청자 IP 주소
    * @throws {TooManyRequestsException} pin 전송 한도를 초과하면 예외를 발생시킵니다.
    * @returns {Promise<string>} pin 번호 전송 성공 메시지
    */
-  async sendPinForPasswordReset({ email }: UserEmailDto): Promise<string> {
-    await this.enforcePinSendLimit(email)
+  async sendPinForPasswordReset(
+    { email }: UserEmailDto,
+    ip: string
+  ): Promise<string> {
+    await this.enforcePinSendLimit(email, ip)
 
     // Detached so response time does not reveal whether the account exists.
     runInBackground(
@@ -243,10 +254,10 @@ export class UserService {
     return PIN_SENT_MESSAGE
   }
 
-  private async enforcePinSendLimit(email: string) {
+  private async enforcePinSendLimit(email: string, ip: string) {
     const limits = [
       {
-        scope: 'pin:cooldown',
+        scope: `pin:cooldown:${ip}`,
         limit: 1,
         windowMs:
           1000 *
@@ -256,7 +267,7 @@ export class UserService {
           )
       },
       {
-        scope: 'pin:hour',
+        scope: `pin:hour:${ip}`,
         limit: this.getPositiveIntConfig(
           'EMAIL_AUTH_PIN_SEND_HOURLY_LIMIT',
           DEFAULT_PIN_SEND_HOURLY_LIMIT
@@ -264,11 +275,17 @@ export class UserService {
         windowMs: HOUR_IN_MS
       },
       {
-        scope: 'pin:day',
+        scope: `pin:day:${ip}`,
         limit: this.getPositiveIntConfig(
           'EMAIL_AUTH_PIN_SEND_DAILY_LIMIT',
           DEFAULT_PIN_SEND_DAILY_LIMIT
         ),
+        windowMs: 24 * HOUR_IN_MS
+      },
+      // Caps sends per email across all IPs so that using many IPs cannot multiply pin guesses.
+      {
+        scope: 'pin:day:total',
+        limit: PIN_SEND_DAILY_TOTAL_LIMIT,
         windowMs: 24 * HOUR_IN_MS
       }
     ]

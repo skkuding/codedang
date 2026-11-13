@@ -12,7 +12,10 @@ import { Exception } from 'handlebars'
 import { ExtractJwt } from 'passport-jwt'
 import { stub, spy, fake, type SinonStub, type SinonSpy } from 'sinon'
 import { type AuthenticatedRequest, JwtAuthService } from '@libs/auth'
-import { emailAuthenticationPinCacheKey } from '@libs/cache'
+import {
+  emailAuthenticationPinCacheKey,
+  emailSendCountCacheKey
+} from '@libs/cache'
 import {
   ConflictFoundException,
   DuplicateFoundException,
@@ -32,6 +35,7 @@ const ID = 1
 const EMAIL_ADDRESS = 'email@skku.edu'
 const PASSWORD_RESET_PIN = 'thisIsPasswordResetPin'
 const PASSWORD_RESET_PIN_KEY = emailAuthenticationPinCacheKey(EMAIL_ADDRESS)
+const IP = '203.0.113.10'
 const emailAuthJwtPayload = {
   email: EMAIL_ADDRESS
 }
@@ -179,7 +183,7 @@ describe('UserService', () => {
       db.user.findUnique.resolves(user)
 
       expect(
-        await service.sendUsernameByEmail(emailAuthJwtPayload)
+        await service.sendUsernameByEmail(emailAuthJwtPayload, IP)
       ).to.be.deep.equal(response)
       await new Promise(setImmediate)
       expect(sendUsernameSpy.calledOnceWith(user.email, user.username)).to.be
@@ -190,21 +194,32 @@ describe('UserService', () => {
       db.user.findUnique.resolves(null)
 
       expect(
-        await service.sendUsernameByEmail(emailAuthJwtPayload)
+        await service.sendUsernameByEmail(emailAuthJwtPayload, IP)
       ).to.be.deep.equal(response)
       await new Promise(setImmediate)
       expect(sendUsernameSpy.called).to.be.false
     })
 
-    it('respond the same without sending email if limit exceeded', async () => {
-      db.user.findUnique.resolves(user)
+    it('should throw TooManyRequestsException without sending email if limit exceeded', async () => {
+      db.user.findUnique.resetHistory()
       redisEvalStub.resolves(4)
 
-      expect(
-        await service.sendUsernameByEmail(emailAuthJwtPayload)
-      ).to.be.deep.equal(response)
+      await expect(
+        service.sendUsernameByEmail(emailAuthJwtPayload, IP)
+      ).to.be.rejectedWith(TooManyRequestsException)
       await new Promise(setImmediate)
+      expect(db.user.findUnique.called).to.be.false
       expect(sendUsernameSpy.called).to.be.false
+    })
+
+    it('should count username emails per email and requester IP', async () => {
+      db.user.findUnique.resolves(user)
+
+      await service.sendUsernameByEmail(emailAuthJwtPayload, IP)
+
+      expect(redisEvalStub.firstCall.args[1].keys).to.deep.equal([
+        emailSendCountCacheKey(EMAIL_ADDRESS, `username:hour:${IP}`)
+      ])
     })
   })
 
@@ -267,7 +282,7 @@ describe('UserService', () => {
     it('create pin and send email', async () => {
       db.user.findUnique.resolves(null)
 
-      await service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+      await service.sendPinForRegisterNewEmail(emailAuthJwtPayload, IP)
       expect(createPinAndSendEmailSpy.calledOnce).to.be.true
     })
 
@@ -275,7 +290,7 @@ describe('UserService', () => {
       db.user.findUnique.resolves(user)
 
       await expect(
-        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload, IP)
       ).to.be.rejectedWith(DuplicateFoundException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
@@ -287,7 +302,7 @@ describe('UserService', () => {
         email: 'example@example.com'
       }
       await expect(
-        service.sendPinForRegisterNewEmail(wrongEmailAuthJwtPayload)
+        service.sendPinForRegisterNewEmail(wrongEmailAuthJwtPayload, IP)
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
@@ -297,7 +312,7 @@ describe('UserService', () => {
       redisEvalStub.resolves(2)
 
       await expect(
-        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload, IP)
       ).to.be.rejectedWith(TooManyRequestsException)
       expect(createPinAndSendEmailSpy.called).to.be.false
     })
@@ -310,7 +325,7 @@ describe('UserService', () => {
       redisEvalStub.onSecondCall().resolves(2)
 
       await expect(
-        service.sendPinForRegisterNewEmail(emailAuthJwtPayload)
+        service.sendPinForRegisterNewEmail(emailAuthJwtPayload, IP)
       ).to.be.rejectedWith(TooManyRequestsException)
       expect(redisEvalStub.firstCall.args[1].arguments).to.deep.equal(['30000'])
     })
@@ -325,7 +340,7 @@ describe('UserService', () => {
     it('create pin and send email', async () => {
       db.user.findUnique.resolves(user)
 
-      await service.sendPinForPasswordReset(emailAuthJwtPayload)
+      await service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
       await new Promise(setImmediate)
       expect(createPinAndSendEmailSpy.calledOnce).to.be.true
     })
@@ -334,7 +349,7 @@ describe('UserService', () => {
       db.user.findUnique.resolves(null)
 
       expect(
-        await service.sendPinForPasswordReset(emailAuthJwtPayload)
+        await service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
       ).to.equal('Email authentication pin is sent to your email address')
       await new Promise(setImmediate)
       expect(createPinAndSendEmailSpy.called).to.be.false
@@ -345,11 +360,45 @@ describe('UserService', () => {
       redisEvalStub.resolves(2)
 
       await expect(
-        service.sendPinForPasswordReset(emailAuthJwtPayload)
+        service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
       ).to.be.rejectedWith(TooManyRequestsException)
       await new Promise(setImmediate)
       expect(db.user.findUnique.called).to.be.false
       expect(createPinAndSendEmailSpy.called).to.be.false
+    })
+
+    it('should count sends per email and requester IP, then per email in total', async () => {
+      db.user.findUnique.resolves(user)
+
+      await service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
+
+      const keys = redisEvalStub.getCalls().map((call) => call.args[1].keys[0])
+      expect(keys).to.deep.equal([
+        emailSendCountCacheKey(EMAIL_ADDRESS, `pin:cooldown:${IP}`),
+        emailSendCountCacheKey(EMAIL_ADDRESS, `pin:hour:${IP}`),
+        emailSendCountCacheKey(EMAIL_ADDRESS, `pin:day:${IP}`),
+        emailSendCountCacheKey(EMAIL_ADDRESS, 'pin:day:total')
+      ])
+    })
+
+    it('should not count the total limit when the requester IP is limited', async () => {
+      redisEvalStub.resolves(2)
+
+      await expect(
+        service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      expect(redisEvalStub.calledOnce).to.be.true
+    })
+
+    it('should reject when the total limit across IPs is exceeded', async () => {
+      db.user.findUnique.resetHistory()
+      redisEvalStub.onCall(3).resolves(31)
+
+      await expect(
+        service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
+      ).to.be.rejectedWith(TooManyRequestsException)
+      await new Promise(setImmediate)
+      expect(db.user.findUnique.called).to.be.false
     })
 
     it('should not reject if sending email fails', async () => {
@@ -357,7 +406,7 @@ describe('UserService', () => {
       createPinAndSendEmailSpy.rejects(new Error('smtp error'))
 
       expect(
-        await service.sendPinForPasswordReset(emailAuthJwtPayload)
+        await service.sendPinForPasswordReset(emailAuthJwtPayload, IP)
       ).to.equal('Email authentication pin is sent to your email address')
       await new Promise(setImmediate)
     })
