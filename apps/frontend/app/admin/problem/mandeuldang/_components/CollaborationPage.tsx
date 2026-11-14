@@ -1,3 +1,212 @@
-export function CollaborationPage() {
-  return <div>This is Collaboration page</div>
+'use client'
+
+import { useRef, useState } from 'react'
+import {
+  EMAIL_PATTERN,
+  nameFromEmail,
+  type CollaborationTab,
+  type Collaborator,
+  type CollaboratorRole,
+  type PendingCollaborationAction
+} from '../_libs/collaboration'
+import { CollaborationDialogs } from './CollaborationDialogs'
+import { CollaborationInviteForm } from './CollaborationInviteForm'
+import { CollaboratorList } from './CollaboratorList'
+
+export type { Collaborator, CollaboratorRole } from '../_libs/collaboration'
+
+interface CollaborationPageProps {
+  initialRequests?: Collaborator[]
+  initialParticipants?: Collaborator[]
+}
+
+export function CollaborationPage({
+  initialRequests = [],
+  initialParticipants = []
+}: CollaborationPageProps = {}) {
+  const invitationId = useRef(0)
+  const [activeTab, setActiveTab] = useState<CollaborationTab>('requests')
+  const [email, setEmail] = useState('')
+  const [inviteRole, setInviteRole] = useState<CollaboratorRole>('Editor')
+  const [emailError, setEmailError] = useState('')
+  const [requests, setRequests] = useState<Collaborator[]>(initialRequests)
+  const [participants, setParticipants] =
+    useState<Collaborator[]>(initialParticipants)
+  const [pendingAction, setPendingAction] =
+    useState<PendingCollaborationAction | null>(null)
+  // 다이얼로그가 닫히는 동안 내용이 바뀌지 않도록 열림 상태를 pendingAction과 따로 둔다
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const validateEmail = (value: string) => {
+    const normalizedEmail = value.trim().toLowerCase()
+
+    if (!normalizedEmail) {
+      return '이메일을 입력해주세요.'
+    }
+
+    if (!EMAIL_PATTERN.test(normalizedEmail)) {
+      return '유효하지 않은 이메일입니다.'
+    }
+
+    const isAlreadyInvited = [...requests, ...participants].some(
+      ({ email: collaboratorEmail }) =>
+        collaboratorEmail.trim().toLowerCase() === normalizedEmail
+    )
+
+    if (isAlreadyInvited) {
+      return '이미 초대된 참여자입니다.'
+    }
+
+    return ''
+  }
+
+  // 초기 데이터의 id와 겹치지 않는 초대 id를 만든다
+  const createInvitationId = () => {
+    const existingIds = new Set(
+      [...requests, ...participants].map(({ id }) => id)
+    )
+    let id: string
+
+    do {
+      id = `invited-${invitationId.current++}`
+    } while (existingIds.has(id))
+
+    return id
+  }
+
+  const inviteCollaborator = () => {
+    const errorMessage = validateEmail(email)
+
+    if (errorMessage) {
+      setEmailError(errorMessage)
+      return
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+    const invitedCollaborator: Collaborator = {
+      id: createInvitationId(),
+      name: nameFromEmail(normalizedEmail),
+      email: normalizedEmail,
+      role: inviteRole
+    }
+
+    setParticipants((currentParticipants) => [
+      invitedCollaborator,
+      ...currentParticipants
+    ])
+    setEmail('')
+    setEmailError('')
+    setActiveTab('participants')
+  }
+
+  const updateRequestRole = (id: string, role: CollaboratorRole) => {
+    setRequests((currentRequests) =>
+      currentRequests.map((request) =>
+        request.id === id ? { ...request, role } : request
+      )
+    )
+  }
+
+  const rejectRequest = (id: string) => {
+    setRequests((currentRequests) =>
+      currentRequests.filter((request) => request.id !== id)
+    )
+  }
+
+  const approveRequest = (id: string) => {
+    const approvedRequest = requests.find((request) => request.id === id)
+
+    if (!approvedRequest) {
+      return
+    }
+
+    setRequests((currentRequests) =>
+      currentRequests.filter((request) => request.id !== id)
+    )
+    setParticipants((currentParticipants) => [
+      approvedRequest,
+      ...currentParticipants
+    ])
+  }
+
+  const openDialog = (action: PendingCollaborationAction) => {
+    setPendingAction(action)
+    setIsDialogOpen(true)
+  }
+
+  const changePendingRole = (nextRole: CollaboratorRole) => {
+    setPendingAction((currentAction) =>
+      currentAction?.type === 'change-role'
+        ? { ...currentAction, nextRole }
+        : currentAction
+    )
+  }
+
+  const confirmPendingAction = () => {
+    if (!pendingAction) {
+      return
+    }
+
+    if (pendingAction.type === 'delete') {
+      setParticipants((currentParticipants) =>
+        currentParticipants.filter(
+          (participant) => participant.id !== pendingAction.collaborator.id
+        )
+      )
+    } else {
+      setParticipants((currentParticipants) =>
+        currentParticipants.map((participant) =>
+          participant.id === pendingAction.collaborator.id
+            ? { ...participant, role: pendingAction.nextRole }
+            : participant
+        )
+      )
+    }
+
+    setIsDialogOpen(false)
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <CollaborationInviteForm
+        email={email}
+        role={inviteRole}
+        errorMessage={emailError}
+        onEmailChange={(nextEmail) => {
+          setEmail(nextEmail)
+          if (emailError) {
+            setEmailError('')
+          }
+        }}
+        onRoleChange={setInviteRole}
+        onInvite={inviteCollaborator}
+      />
+      <CollaboratorList
+        activeTab={activeTab}
+        requests={requests}
+        participants={participants}
+        onTabChange={setActiveTab}
+        onRequestRoleChange={updateRequestRole}
+        onRejectRequest={rejectRequest}
+        onApproveRequest={approveRequest}
+        onChangeParticipantRole={(collaborator) =>
+          openDialog({
+            type: 'change-role',
+            collaborator,
+            nextRole: collaborator.role
+          })
+        }
+        onDeleteParticipant={(collaborator) =>
+          openDialog({ type: 'delete', collaborator })
+        }
+      />
+      <CollaborationDialogs
+        open={isDialogOpen}
+        pendingAction={pendingAction}
+        onOpenChange={setIsDialogOpen}
+        onRoleChange={changePendingRole}
+        onConfirm={confirmPendingAction}
+      />
+    </div>
+  )
 }
