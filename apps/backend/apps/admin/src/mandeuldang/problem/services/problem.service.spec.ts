@@ -1,4 +1,6 @@
+import { ForbiddenException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
+import { ProblemType } from '@generated'
 import {
   CollaboratorRole,
   CollaboratorStatus,
@@ -7,7 +9,9 @@ import {
   Role
 } from '@prisma/client'
 import { expect } from 'chai'
+import { rejects } from 'node:assert/strict'
 import { stub } from 'sinon'
+import { MAX_DATE } from '@libs/constants'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 import { MandeuldangProblemService } from './problem.service'
@@ -35,7 +39,10 @@ const baseProblem = {
 const db = {
   problem: {
     findMany: stub(),
-    findUnique: stub()
+    findUnique: stub(),
+    create: stub(),
+    findFirstOrThrow: stub(),
+    delete: stub()
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
@@ -46,6 +53,9 @@ describe('MandeuldangProblemService', () => {
   beforeEach(async () => {
     db.problem.findMany.reset()
     db.problem.findUnique.reset()
+    db.problem.create.reset()
+    db.problem.findFirstOrThrow.reset()
+    db.problem.delete.reset()
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -303,6 +313,96 @@ describe('MandeuldangProblemService', () => {
       )
 
       expect(result.mandeuldangTestFiles).to.deep.equal(testFiles)
+    })
+  })
+
+  describe('createProblem', () => {
+    it('creates a draft with its creator as an approved owner', async () => {
+      const owner = {
+        userId: ownerId,
+        role: CollaboratorRole.Owner,
+        status: CollaboratorStatus.Approved
+      }
+      const created = { ...baseProblem, mandeuldangCollaborators: [owner] }
+      db.problem.create.resolves(created)
+
+      const result = await service.createProblem(
+        { title: '  New problem  ', problemType: ProblemType.General },
+        ownerId
+      )
+
+      expect(db.problem.create.firstCall.args[0]).to.deep.equal({
+        data: {
+          title: 'New problem',
+          problemType: ProblemType.General,
+          languages: undefined,
+          creationMode: ProblemCreationMode.Mandeuldang,
+          status: ProblemStatus.Draft,
+          createdById: ownerId,
+          visibleLockTime: MAX_DATE,
+          mandeuldangCollaborators: { create: owner }
+        },
+        include: { mandeuldangCollaborators: true }
+      })
+      expect(result).to.deep.equal({
+        ...created,
+        myRole: CollaboratorRole.Owner,
+        testFileCount: 0
+      })
+    })
+  })
+
+  describe('deleteProblem', () => {
+    it('deletes the Mandeuldang problem when the requester is its owner', async () => {
+      db.problem.findFirstOrThrow.resolves({
+        mandeuldangCollaborators: [
+          { userId: ownerId, role: CollaboratorRole.Owner }
+        ]
+      })
+      db.problem.delete.resolves(baseProblem)
+
+      const result = await service.deleteProblem(baseProblem.id, ownerId)
+
+      expect(db.problem.findFirstOrThrow.firstCall.args[0]).to.deep.equal({
+        where: {
+          id: baseProblem.id,
+          creationMode: ProblemCreationMode.Mandeuldang
+        },
+        include: {
+          mandeuldangCollaborators: {
+            where: { userId: ownerId, role: CollaboratorRole.Owner }
+          }
+        }
+      })
+      expect(
+        db.problem.delete.calledOnceWithExactly({
+          where: { id: baseProblem.id }
+        })
+      ).to.equal(true)
+      expect(result).to.equal(baseProblem)
+    })
+
+    it('rejects a non-owner without deleting the problem', async () => {
+      db.problem.findFirstOrThrow.resolves({ mandeuldangCollaborators: [] })
+
+      await rejects(
+        service.deleteProblem(baseProblem.id, strangerId),
+        ForbiddenException
+      )
+
+      expect(db.problem.delete.called).to.equal(false)
+    })
+
+    it('propagates a failed Mandeuldang problem lookup without deleting anything', async () => {
+      const error = new Error('Problem not found')
+      db.problem.findFirstOrThrow.rejects(error)
+
+      await rejects(
+        service.deleteProblem(baseProblem.id, ownerId),
+        (caught) => caught === error
+      )
+
+      expect(db.problem.delete.called).to.equal(false)
     })
   })
 })
