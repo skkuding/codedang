@@ -1,4 +1,5 @@
-import { Global, Module } from '@nestjs/common'
+import { Global, Module, type OnApplicationShutdown } from '@nestjs/common'
+import Instrumentation from '../../instrumentation'
 import { PrismaService } from './prisma.service'
 
 @Global()
@@ -6,4 +7,8 @@ import { PrismaService } from './prisma.service'
   providers: [PrismaService],
   exports: [PrismaService]
 })
-export class PrismaModule {}
+export class PrismaModule implements OnApplicationShutdown {
+  async onApplicationShutdown() {
+    await Instrumentation.shutdown()
+  }
+}
