@@ -11,7 +11,8 @@ import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useSuspenseQuery } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
-import { columns } from './Columns'
+import { columns, type DataTableCourse } from './Columns'
+import { CreateSection } from './CreateSection'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
@@ -55,6 +56,10 @@ export function GroupTable() {
     title: 'justify-start'
   }
 
+  const renderCreateSection = (row: DataTableCourse) => (
+    <CreateSection courseCode={row.code} />
+  )
+
   return (
     <div>
       <DataTableRoot
@@ -76,6 +81,7 @@ export function GroupTable() {
         <DataTable
           bodyStyle={bodyStyle}
           getHref={(data) => `/admin/course/${data.id}`}
+          renderCreateSection={renderCreateSection}
         />
         <DataTablePagination showSelection />
       </DataTableRoot>
