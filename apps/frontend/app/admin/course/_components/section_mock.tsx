@@ -1,15 +1,6 @@
-export interface CourseTableRow {
-  id: number
-  type: 'master' | 'section'
-  title: string
-  code: string
-  classNum: number | null
-  semester: string
-  studentCount: number | null
-  subRows?: CourseTableRow[]
-}
+import type { DataTableCourse } from './Columns'
 
-export const coursesMockData: CourseTableRow[] = [
+export const coursesMockData: DataTableCourse[] = [
   {
     id: 1,
     type: 'master',

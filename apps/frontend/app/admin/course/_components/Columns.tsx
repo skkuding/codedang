@@ -3,106 +3,19 @@ import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import type { CourseTableRow } from './section_mock'
 
-// export interface DataTableCourse {
-//   id: number
-//   title: string
-//   code: string
-//   classNum: number | null
-//   semester: string
-//   studentCount: number
-// }
+export interface DataTableCourse {
+  id: number
+  type: 'master' | 'section'
+  title: string
+  code: string
+  classNum: number | null
+  semester: string
+  studentCount: number | null
+  subRows?: DataTableCourse[]
+}
 
-// export const columns: ColumnDef<DataTableCourse>[] = [
-//   {
-//     id: 'select',
-//     header: ({ table }) => (
-//       <Checkbox
-//         onClick={(e) => e.stopPropagation()}
-//         checked={table.getIsAllPageRowsSelected()}
-//         onCheckedChange={(value) =>
-//           table.toggleAllPageRowsSelected(Boolean(value))
-//         }
-//         aria-label="Select all"
-//         className="translate-y-[2px]"
-//       />
-//     ),
-//     cell: ({ row }) => (
-//       <Checkbox
-//         onClick={(e) => e.stopPropagation()}
-//         checked={row.getIsSelected()}
-//         onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-//         aria-label="Select row"
-//         className="translate-y-[2px] bg-transparent"
-//       />
-//     ),
-//     enableSorting: false,
-//     enableHiding: false
-//   },
-//   {
-//     accessorKey: 'code',
-//     header: ({ column }) => (
-//       <DataTableColumnHeader column={column} title="Code" />
-//     ),
-//     cell: ({ row }) => row.getValue('code')
-//   },
-//   {
-//     accessorKey: 'classNum',
-//     header: ({ column }) => (
-//       <DataTableColumnHeader column={column} title="Section" />
-//     ),
-//     cell: ({ row }) => row.getValue('classNum') ?? '-',
-//     enableSorting: false
-//   },
-
-//   {
-//     accessorKey: 'semester',
-//     header: ({ column }) => (
-//       <DataTableColumnHeader column={column} title="Semester" />
-//     ),
-//     cell: ({ row }) => {
-//       const yearSeason = row.original.semester
-//       return (
-//         <div
-//           className={cn(
-//             'border-primary text-primary flex h-[30px] w-[116px] items-center justify-center rounded-full border'
-//           )}
-//         >
-//           <p className="text-body2_m_14">{yearSeason}</p>
-//         </div>
-//       )
-//     }
-//   },
-//   {
-//     accessorKey: 'title',
-//     header: ({ column }) => (
-//       <DataTableColumnHeader
-//         column={column}
-//         title="Title"
-//         className="w-[300px]"
-//       />
-//     ),
-//     cell: ({ row }) => {
-//       return (
-//         <div className="flex w-full justify-center">
-//           {row.getValue('title')}
-//         </div>
-//       )
-//     },
-//     enableSorting: false
-//   },
-//   {
-//     accessorKey: 'studentCount',
-//     header: ({ column }) => (
-//       <DataTableColumnHeader column={column} title="Members" />
-//     ),
-//     cell: ({ row }) => row.getValue('studentCount'),
-//     enableSorting: false
-//   }
-// ]
-
-export const columns: ColumnDef<CourseTableRow>[] = [
+export const columns: ColumnDef<DataTableCourse>[] = [
   {
     id: 'select',
     header: ({ table }) => (
