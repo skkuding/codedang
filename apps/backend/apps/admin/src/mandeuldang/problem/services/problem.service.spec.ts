@@ -405,4 +405,19 @@ describe('MandeuldangProblemService', () => {
       expect(db.problem.delete.called).to.equal(false)
     })
   })
+
+  describe('extractUUIDs', () => {
+    it('returns an empty list for a missing description or text without UUIDs', () => {
+      expect(service.extractUUIDs(null)).to.deep.equal([])
+      expect(service.extractUUIDs('Plain text')).to.deep.equal([])
+    })
+
+    it('extracts each UUID from attachment links in the description', () => {
+      const first = 'a74d3158-4848-428e-8c31-7ac2d8df82c0'
+      const second = 'BE6341D6-A583-4DAE-A725-22612A6C8905'
+      const description = `![diagram](/media/${first}.png) ![example](/media/${second}.jpg)`
+
+      expect(service.extractUUIDs(description)).to.deep.equal([first, second])
+    })
+  })
 })
