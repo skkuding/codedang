@@ -83,7 +83,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
           Master
         </div>
       ) : (
-        row.original.classNum
+        (row.original.classNum ?? '-')
       ),
     enableSorting: false
   },
@@ -94,7 +94,6 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     ),
     cell: ({ row }) => {
       const yearSeason = row.original.semester
-
       return (
         <div
           className={cn(
@@ -125,8 +124,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Members" />
     ),
-    cell: ({ row }) =>
-      row.original.type === 'master' ? '-' : row.original.studentCount,
+    cell: ({ row }) => row.original.studentCount ?? '-',
     enableSorting: false
   }
 ]
