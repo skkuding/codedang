@@ -1,0 +1,24 @@
+meta {
+  name: Get Blueprint Course - Invalid ID
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query { getBlueprintCourse(blueprintCourseId: "invalid") { id } }
+}
+
+tests {
+  test("Rejects a non-integer ID before resolving", function () {
+    expect(res.getStatus()).to.equal(400);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("GRAPHQL_VALIDATION_FAILED");
+  });
+}

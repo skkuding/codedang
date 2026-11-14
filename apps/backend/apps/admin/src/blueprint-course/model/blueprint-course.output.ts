@@ -1,13 +1,31 @@
-import { ObjectType, OmitType } from '@nestjs/graphql'
-import { BlueprintCourse } from '@admin/@generated'
+import { Field, ObjectType, OmitType, PickType } from '@nestjs/graphql'
+import { BlueprintCourse, CourseInfo } from '@admin/@generated'
+import { FindGroup } from '../../group/model/group.output'
 
 /**
- * Blueprint 강좌의 기본 정보입니다.
- *
- * 생성된 BlueprintCourse 타입에서 서비스가 채우지 않는 필드를 제외합니다.
- * - `_count`: non-null 필드라 값이 없으면 GraphQL 응답이 실패합니다.
- * - `createdBy`, `courseInfo`, `blueprintAssignment`: 관계를 조회하지 않아 항상 null이 됩니다.
- *   Section 목록 등 관계 정보가 필요한 응답은 별도 필드로 추가합니다.
+ * Section course information without unloaded relations.
+ */
+@ObjectType()
+export class BlueprintCourseInfoOutput extends OmitType(CourseInfo, [
+  'group',
+  'blueprintCourse'
+] as const) {}
+
+/**
+ * Section output with populated course information and without count fields.
+ */
+@ObjectType()
+export class BlueprintSectionOutput extends OmitType(FindGroup, [
+  '_count',
+  'courseInfo'
+] as const) {
+  @Field(() => BlueprintCourseInfoOutput, { nullable: true })
+  courseInfo?: BlueprintCourseInfoOutput | null
+}
+
+/**
+ *  Basic Blueprint course information
+ *  Excludes relation and count fields that the service does not populate
  */
 @ObjectType()
 export class BlueprintCourseOutput extends OmitType(BlueprintCourse, [
@@ -16,3 +34,24 @@ export class BlueprintCourseOutput extends OmitType(BlueprintCourse, [
   'courseInfo',
   'blueprintAssignment'
 ] as const) {}
+
+/**
+ * Blueprint course summary and all associated sections for the course list.
+ */
+@ObjectType()
+export class BlueprintCourseListItemOutput extends PickType(
+  BlueprintCourseOutput,
+  ['id', 'courseTitle', 'courseNum', 'semester'] as const
+) {
+  @Field(() => [BlueprintSectionOutput])
+  sections!: BlueprintSectionOutput[]
+}
+
+/**
+ * Detailed Blueprint course information and all associated sections.
+ */
+@ObjectType()
+export class BlueprintCourseDetailOutput extends BlueprintCourseOutput {
+  @Field(() => [BlueprintSectionOutput])
+  sections!: BlueprintSectionOutput[]
+}

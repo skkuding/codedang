@@ -1,8 +1,12 @@
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { BlueprintCourseService } from './blueprint-course.service'
 import { BlueprintCourseInput } from './model/blueprint-course.input'
-import { BlueprintCourseOutput } from './model/blueprint-course.output'
+import {
+  BlueprintCourseDetailOutput,
+  BlueprintCourseListItemOutput,
+  BlueprintCourseOutput
+} from './model/blueprint-course.output'
 
 @Resolver(() => BlueprintCourseOutput)
 export class BlueprintCourseResolver {
@@ -22,6 +26,31 @@ export class BlueprintCourseResolver {
   ) {
     return await this.blueprintCourseService.createBlueprintCourse(
       input,
+      req.user
+    )
+  }
+
+  /**
+   * Returns Blueprint courses created or led by the authenticated user.
+   */
+  @Query(() => [BlueprintCourseListItemOutput])
+  @UseDisableAdminGuard()
+  async getBlueprintCourses(@Context('req') req: AuthenticatedRequest) {
+    return await this.blueprintCourseService.getBlueprintCourses(req.user.id)
+  }
+
+  /**
+   * Returns details for a Blueprint course accessible to the user.
+   */
+  @Query(() => BlueprintCourseDetailOutput)
+  @UseDisableAdminGuard()
+  async getBlueprintCourse(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintCourseId', { type: () => Int })
+    blueprintCourseId: number
+  ) {
+    return await this.blueprintCourseService.getBlueprintCourse(
+      blueprintCourseId,
       req.user
     )
   }

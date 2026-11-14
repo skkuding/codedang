@@ -1,0 +1,47 @@
+meta {
+  name: Succeed
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createBlueprintCourse(input: {
+      courseTitle: "Bruno Blueprint Read Test"
+      courseNum: "BRU3200"
+      semester: "2026 Fall"
+      week: 16
+      professor: "Bruno Instructor"
+    }) {
+      id courseTitle courseNum semester week professor createdById
+    }
+  }
+}
+
+tests {
+  test("Creates a Blueprint for the authenticated instructor", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const course = body.data.createBlueprintCourse;
+    expect(course.courseTitle).to.equal("Bruno Blueprint Read Test");
+    expect(course.createdById).to.be.a("number");
+    bru.setVar("blueprintCourseId", Number(course.id));
+    bru.setVar("blueprintExpectedCourseId", Number(course.id));
+    bru.setVar("blueprintExpectedSections", []);
+  });
+}
+
+docs {
+  Optional local test setup. Each execution creates a new Blueprint without sections.
+  Requires the seeded instructor to have canCreateCourse permission.
+  Run once only if no accessible Blueprint exists, then run Blueprint Course requests.
+  This request stores blueprintCourseId as a runtime variable; no environment file is changed.
+  Use only against a local test database. This request does not delete the created course.
+}

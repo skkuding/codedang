@@ -732,6 +732,37 @@ type BlueprintCourseCountAggregate {
   week: Int!
 }
 
+type BlueprintCourseDetailOutput {
+  courseNum: String!
+  courseTitle: String!
+  createTime: DateTime!
+  createdById: Int
+  email: String
+  id: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  sections: [BlueprintSectionOutput!]!
+  semester: String!
+  updateTime: DateTime!
+  website: String
+  week: Int!
+}
+
+type BlueprintCourseInfoOutput {
+  blueprintCourseId: Int
+  classNum: Int
+  courseNum: String!
+  email: String
+  groupId: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  semester: String!
+  website: String
+  week: Int!
+}
+
 input BlueprintCourseInput {
   courseNum: String!
   courseTitle: String!
@@ -742,6 +773,14 @@ input BlueprintCourseInput {
   semester: String!
   website: String
   week: Int!
+}
+
+type BlueprintCourseListItemOutput {
+  courseNum: String!
+  courseTitle: String!
+  id: ID!
+  sections: [BlueprintSectionOutput!]!
+  semester: String!
 }
 
 type BlueprintCourseMaxAggregate {
@@ -796,6 +835,38 @@ type BlueprintCourseSumAggregate {
   createdById: Int
   id: Int
   week: Int
+}
+
+type BlueprintSectionOutput {
+  CourseNotice: [CourseNotice!]
+  GroupWhitelist: [GroupWhitelist!]
+  assignment: [Assignment!]
+
+  """
+  config default value
+  {
+  "showOnList": true,          // show on 'all groups' list
+  "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  "allowJoinWithURL": false,
+  "requireApprovalBeforeJoin": true
+  }
+  """
+  config: JSON!
+  courseInfo: BlueprintCourseInfoOutput
+  courseQnA: [CourseQnA!]
+  createTime: DateTime!
+  description: String
+  groupName: String!
+  groupTag: [GroupTag!]
+  groupType: GroupType!
+  id: ID!
+  invitation: String
+  memberNum: Int!
+  sharedProblems: [Problem!]
+  studyInfo: StudyInfo
+  updateTime: DateTime!
+  userGroup: [UserGroup!]
+  workbook: [Workbook!]
 }
 
 type CheckRequest {
@@ -3854,6 +3925,8 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseDetailOutput!
+  getBlueprintCourses: [BlueprintCourseListItemOutput!]!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!
   getCluster(clusterId: Int!, groupId: Int!): GetClusterOutput!
