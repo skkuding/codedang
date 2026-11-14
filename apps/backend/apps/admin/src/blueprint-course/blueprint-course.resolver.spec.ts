@@ -41,7 +41,8 @@ const createdBlueprintCourse = {
 
 const blueprintCourseService = {
   createBlueprintCourse: stub(),
-  getBlueprintCourses: stub()
+  getBlueprintCourses: stub(),
+  getBlueprintCourse: stub()
 }
 
 describe('BlueprintCourseResolver', () => {
@@ -61,10 +62,43 @@ describe('BlueprintCourseResolver', () => {
   afterEach(() => {
     blueprintCourseService.createBlueprintCourse.reset()
     blueprintCourseService.getBlueprintCourses.reset()
+    blueprintCourseService.getBlueprintCourse.reset()
   })
 
   it('should be defined', () => {
     expect(resolver).to.be.ok
+  })
+
+  describe('getBlueprintCourse', () => {
+    it('should delegate the course ID and full authenticated user', async () => {
+      const course = { ...createdBlueprintCourse, sections: [] }
+      blueprintCourseService.getBlueprintCourse.resolves(course)
+      expect(await resolver.getBlueprintCourse(req, 17)).to.equal(course)
+      expect(
+        blueprintCourseService.getBlueprintCourse.calledOnceWithExactly(
+          17,
+          user
+        )
+      ).to.be.true
+    })
+
+    it('should allow regular users through the admin guard', () => {
+      expect(
+        Reflect.getMetadata(
+          ADMIN_NOT_NEEDED_KEY,
+          BlueprintCourseResolver.prototype.getBlueprintCourse
+        )
+      ).to.equal(true)
+    })
+
+    it('should propagate service failures', async () => {
+      blueprintCourseService.getBlueprintCourse.rejects(
+        new Error('Access denied')
+      )
+      await expect(resolver.getBlueprintCourse(req, 17)).to.be.rejectedWith(
+        'Access denied'
+      )
+    })
   })
 
   describe('getBlueprintCourses', () => {
@@ -156,6 +190,98 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
       .get(GraphQLSchemaFactory)
       .create([BlueprintCourseResolver, SchemaRootResolver])
     await app.close()
+  })
+
+  it('should expose detail fields and require an integer course ID', () => {
+    const field = schema.getQueryType()!.getFields().getBlueprintCourse
+    expect(String(field.type)).to.equal('BlueprintCourseDetailOutput!')
+    expect(field.args.map((arg) => [arg.name, String(arg.type)])).to.deep.equal(
+      [['blueprintCourseId', 'Int!']]
+    )
+    const detail = getNamedType(field.type) as GraphQLObjectType
+    const basic = schema.getType('BlueprintCourseOutput') as GraphQLObjectType
+    expect(Object.keys(detail.getFields())).to.have.members([
+      ...Object.keys(basic.getFields()),
+      'sections'
+    ])
+    expect(String(detail.getFields().sections.type)).to.equal('[FindGroup!]!')
+  })
+
+  for (const argument of [
+    '',
+    '(blueprintCourseId: null)',
+    '(blueprintCourseId: "1")',
+    '(blueprintCourseId: 1.5)'
+  ]) {
+    it(`should reject an invalid detail argument: ${argument || 'missing'}`, async () => {
+      const lookup = stub()
+      const result = await graphql({
+        schema,
+        source: `{ getBlueprintCourse${argument} { id } }`,
+        rootValue: { getBlueprintCourse: lookup }
+      })
+      expect(result.errors).to.have.length.greaterThan(0)
+      expect(lookup.called).to.be.false
+    })
+  }
+
+  it('should serialize all basic detail fields, nullable contacts, and sections', async () => {
+    const course = {
+      ...createdBlueprintCourse,
+      email: null,
+      website: null,
+      office: 'Room 1',
+      phoneNum: null,
+      createTime: new Date('2026-11-14T00:00:00Z'),
+      updateTime: new Date('2026-11-14T01:00:00Z'),
+      sections: [
+        {
+          id: 101,
+          groupName: 'Section 1',
+          memberNum: 0,
+          courseInfo: { classNum: 1 }
+        }
+      ]
+    }
+    const lookup = stub().returns(course)
+    const result = await graphql({
+      schema,
+      source: `{
+        getBlueprintCourse(blueprintCourseId: 1) {
+          id courseTitle courseNum semester week professor createdById
+          email website office phoneNum createTime updateTime
+          sections { id groupName memberNum courseInfo { classNum } }
+        }
+      }`,
+      rootValue: { getBlueprintCourse: lookup }
+    })
+    expect(result.errors).to.equal(undefined)
+    expect(lookup.firstCall.args[0]).to.deep.equal({ blueprintCourseId: 1 })
+    expect(JSON.parse(JSON.stringify(result.data))).to.deep.equal({
+      getBlueprintCourse: {
+        ...course,
+        id: String(course.id),
+        createTime: course.createTime.toISOString(),
+        updateTime: course.updateTime.toISOString(),
+        sections: course.sections.map((section) => ({
+          ...section,
+          id: String(section.id)
+        }))
+      }
+    })
+  })
+
+  it('should serialize a detail response without sections', async () => {
+    const result = await graphql({
+      schema,
+      source:
+        '{ getBlueprintCourse(blueprintCourseId: 1) { id sections { id } } }',
+      rootValue: { getBlueprintCourse: { id: 1, sections: [] } }
+    })
+    expect(result.errors).to.equal(undefined)
+    expect(JSON.parse(JSON.stringify(result.data))).to.deep.equal({
+      getBlueprintCourse: { id: '1', sections: [] }
+    })
   })
 
   it('should expose a non-null list with the agreed summary fields', () => {

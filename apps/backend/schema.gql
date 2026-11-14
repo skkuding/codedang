@@ -732,6 +732,23 @@ type BlueprintCourseCountAggregate {
   week: Int!
 }
 
+type BlueprintCourseDetailOutput {
+  courseNum: String!
+  courseTitle: String!
+  createTime: DateTime!
+  createdById: Int
+  email: String
+  id: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  sections: [FindGroup!]!
+  semester: String!
+  updateTime: DateTime!
+  website: String
+  week: Int!
+}
+
 input BlueprintCourseInput {
   courseNum: String!
   courseTitle: String!
@@ -3862,6 +3879,7 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseDetailOutput!
   getBlueprintCourses: [BlueprintCourseListItemOutput!]!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!

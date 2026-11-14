@@ -25,3 +25,12 @@ export class BlueprintCourseListItemOutput extends PickType(
   @Field(() => [FindGroup])
   sections!: FindGroup[]
 }
+
+/**
+ * Detailed Blueprint course information and all associated sections.
+ */
+@ObjectType()
+export class BlueprintCourseDetailOutput extends BlueprintCourseOutput {
+  @Field(() => [FindGroup])
+  sections!: FindGroup[]
+}

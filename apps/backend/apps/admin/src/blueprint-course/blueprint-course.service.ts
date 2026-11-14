@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { AuthenticatedUser } from '@libs/auth'
+import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from './blueprint-access.service'
 import type { BlueprintCourseInput } from './model/blueprint-course.input'
@@ -95,5 +96,52 @@ export class BlueprintCourseService {
         memberNum: group._count.userGroup
       }))
     }))
+  }
+
+  /**
+   * Returns detailed Blueprint course information and all sections.
+   *
+   * @throws EntityNotExistException - The Blueprint course does not exist.
+   * @throws ForbiddenAccessException - The user cannot access the course.
+   */
+  async getBlueprintCourse(blueprintCourseId: number, user: AuthenticatedUser) {
+    await this.blueprintAccessService.assertBlueprintLeader(
+      user,
+      blueprintCourseId
+    )
+
+    const blueprintCourse = await this.prisma.blueprintCourse.findUnique({
+      where: { id: blueprintCourseId },
+      include: {
+        courseInfo: {
+          orderBy: { classNum: 'asc' },
+          select: {
+            group: {
+              include: {
+                courseInfo: true,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                _count: {
+                  select: { userGroup: true }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!blueprintCourse) {
+      throw new EntityNotExistException('BlueprintCourse')
+    }
+
+    const { courseInfo, ...details } = blueprintCourse
+
+    return {
+      ...details,
+      sections: courseInfo.map(({ group }) => ({
+        ...group,
+        memberNum: group._count.userGroup
+      }))
+    }
   }
 }
