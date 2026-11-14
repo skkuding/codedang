@@ -17,8 +17,8 @@ type CheckManager interface {
 		langExt string,
 		settings CheckSettings,
 	) ([]byte, error)
-	GetAssignmentCheckInput(
-		assignmentId string,
+	GetAssignmentsCheckInput(
+		assignmentIds []string,
 		problemId string,
 		language string,
 	) (CheckInput, error)
@@ -64,13 +64,13 @@ func getCheckInput(baseCode string, element []loader.Element, err error) (CheckI
 	return CheckInput{BaseCode: baseCode, Elements: element, HasBase: baseCode != ""}, nil
 }
 
-func (c *checkManager) GetAssignmentCheckInput(
-	assignmentId string,
+func (c *checkManager) GetAssignmentsCheckInput(
+	assignmentIds []string,
 	problemId string,
 	language string,
-) (CheckInput, error) { // 문제 아이디, 과제 아이디를 바탕으로 submission을 가져와 jplag 실행을 준비합니다.
+) (CheckInput, error) {
 	return getCheckInput(
-		c.database.GetAllCodesFromAssignment(problemId, language, assignmentId),
+		c.database.GetAllCodesFromAssignments(problemId, language, assignmentIds),
 	)
 }
 

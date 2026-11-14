@@ -28,6 +28,7 @@ type Request struct {
 	EnableMerging      bool   `json:"enableMerging"`
 	UseJplagClustering bool   `json:"useJplagClustering"`
 	AssignmentId       *int   `json:"assignmentId,omitempty"`
+	AssignmentIds      *[]int `json:"assignmentIds,omitempty"`
 	ContestId          *int   `json:"contestId,omitempty"`
 	WorkbookId         *int   `json:"workbookId,omitempty"`
 }
@@ -346,6 +347,8 @@ func (c *CheckHandler) Handle(id string, data []byte, out chan CheckResultMessag
 		}
 	}
 
+	comps, clus = check.ExcludeSameUserResults(comps, clus, chIn.Elements)
+
 	if err := c.check.SaveResult(
 		id,
 		comps,
@@ -385,31 +388,64 @@ func (c *CheckHandler) getCheckInput(ctx context.Context, out chan<- result.ChRe
 	)
 	defer childSpan.End()
 
-	isAssignmentRequest := req.AssignmentId != nil
-	isContestRequest := req.ContestId != nil
-	isWorkbookRequest := req.WorkbookId != nil
+	var method requestMethod
+
+	var targetAssignmentIds []int
+	if req.AssignmentIds != nil {
+		targetAssignmentIds = *req.AssignmentIds
+	}
+	if req.AssignmentId != nil {
+		if len(targetAssignmentIds) > 0 {
+			out <- result.ChResult{Err: fmt.Errorf("cannot inference dependent of problem")}
+			return
+		}
+		targetAssignmentIds = []int{*req.AssignmentId}
+	}
+
+	if len(targetAssignmentIds) > 0 {
+		method |= methodAssignments
+	}
+	if req.ContestId != nil {
+		method |= methodContest
+	}
+	if req.WorkbookId != nil {
+		method |= methodWorkbook
+	}
+
+	if method == 0 && req.AssignmentIds != nil {
+		out <- result.ChResult{Err: fmt.Errorf("assignmentIds must not be empty")}
+		return
+	}
 
 	var res check.CheckInput
 	var err error
-	if isAssignmentRequest && !isContestRequest && !isWorkbookRequest {
-		res, err = c.check.GetAssignmentCheckInput(
-			fmt.Sprint(*req.AssignmentId),
+
+	switch method {
+	case methodAssignments:
+		assignmentIds := make([]string, len(targetAssignmentIds))
+
+		for i, id := range targetAssignmentIds {
+			assignmentIds[i] = strconv.Itoa(id)
+		}
+
+		res, err = c.check.GetAssignmentsCheckInput(
+			assignmentIds,
 			fmt.Sprint(req.ProblemId),
 			req.Language,
 		)
-	} else if !isAssignmentRequest && isContestRequest && !isWorkbookRequest {
+	case methodContest:
 		res, err = c.check.GetContestCheckInput(
 			fmt.Sprint(*req.ContestId),
 			fmt.Sprint(req.ProblemId),
 			req.Language,
 		)
-	} else if !isAssignmentRequest && !isContestRequest && isWorkbookRequest {
+	case methodWorkbook:
 		res, err = c.check.GetWorkbookCheckInput(
 			fmt.Sprint(*req.WorkbookId),
 			fmt.Sprint(req.ProblemId),
 			req.Language,
 		)
-	} else {
+	default:
 		out <- result.ChResult{Err: fmt.Errorf("cannot inference dependent of problem")}
 		return
 	}
