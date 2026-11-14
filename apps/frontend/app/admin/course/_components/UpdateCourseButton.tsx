@@ -23,6 +23,7 @@ interface UpdateCourseButtonProps {
 interface TableRowData {
   id: number
   groupName: string
+  type: 'master' | 'section'
   courseInfo: {
     courseNum: string
     classNum: number
@@ -61,6 +62,8 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
 
   const { table } = useDataTable<TableRowData>()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const selectedRows = table.getSelectedRowModel().flatRows
+  const selectedRow = selectedRows[0]
 
   const { refetch } = useQuery(GET_COURSE, {
     variables: { groupId: 0 },
@@ -68,7 +71,6 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
   })
 
   const handleUpdateButtonClick = async () => {
-    const selectedRow = table.getSelectedRowModel().rows[0]
     if (!selectedRow) {
       return
     }
@@ -130,7 +132,6 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
     const local = String(data.emailLocal || '').trim()
     const domain = String(data.emailDomain || '').trim()
     data.email = local || domain ? `${local}@${domain}` : ''
-    const selectedRow = table.getSelectedRowModel().rows[0]
     const updatePromise = updateCourse({
       variables: {
         groupId: Number(selectedRow.original.id),
@@ -156,7 +157,9 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         variant="outline"
         type="button"
         onClick={handleUpdateButtonClick}
-        disabled={table.getSelectedRowModel().rows.length !== 1}
+        disabled={
+          selectedRows.length !== 1 || selectedRow?.original.type === 'master'
+        }
       >
         <PenIcon className="text-color-neutral-60 h-[13px]" />
       </Button>
@@ -172,7 +175,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         <ScrollArea className="h-full w-full pr-[16px]">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(handleUpdateSubmit)}>
-              <CourseFormFields />
+              <CourseFormFields isSection={selectedRow?.depth === 1} />
               <div className="mb-[50px] mt-[20px] flex gap-2">
                 <Button
                   type="button"

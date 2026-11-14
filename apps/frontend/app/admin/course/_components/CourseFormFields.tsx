@@ -6,7 +6,11 @@ import { FormSection } from '../../_components/FormSection'
 import { DropdownForm } from './DropdownForm'
 import { InputForm } from './InputForm'
 
-export function CourseFormFields() {
+export function CourseFormFields({
+  isSection = false
+}: {
+  isSection?: boolean
+}) {
   const [courseNumber, setCourseNumber] = useState('')
 
   const handleCourseNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,12 +53,14 @@ export function CourseFormFields() {
         label="Professor"
         name="professor"
         type="text"
+        disabled={isSection}
       />
       <InputForm
         placeholder="홍길동개론"
         label="Course Title"
         name="courseTitle"
         type="text"
+        disabled={isSection}
       />
       <div className="flex justify-between gap-[10px]">
         <InputForm
@@ -65,6 +71,7 @@ export function CourseFormFields() {
           maxLength={7}
           value={courseNumber}
           onChange={handleCourseNumberChange}
+          disabled={isSection}
         />
       </div>
       <InputForm
@@ -79,12 +86,14 @@ export function CourseFormFields() {
         label="Week"
         items={weekOptions}
         placeholder="16 weeks"
+        disabled={isSection}
       />
       <DropdownForm
         name="semester"
         label="Semester"
         items={semesterItems}
         placeholder={semesterItems[0]}
+        disabled={isSection}
       />
       <span className="whitespace-nowrap text-lg">Contact</span>
       <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
@@ -95,6 +104,7 @@ export function CourseFormFields() {
             name="emailLocal"
             type="text"
             className="w-[45%]"
+            disabled={isSection}
           />
           <span className="select-none py-[10px]">@</span>
           <InputForm
@@ -102,6 +112,7 @@ export function CourseFormFields() {
             name="emailDomain"
             type="text"
             className="w-[55%]"
+            disabled={isSection}
           />
         </div>
         <div className="flex items-end gap-2">
@@ -112,6 +123,7 @@ export function CourseFormFields() {
             type="text"
             maxLength={3}
             className="w-[28%]"
+            disabled={isSection}
           />
           <span className="select-none py-[10px]">-</span>
           <InputForm
@@ -120,6 +132,7 @@ export function CourseFormFields() {
             type="text"
             maxLength={4}
             className="w-[36%]"
+            disabled={isSection}
           />
           <span className="select-none py-[10px]">-</span>
           <InputForm
@@ -128,6 +141,7 @@ export function CourseFormFields() {
             type="text"
             maxLength={4}
             className="w-[36%]"
+            disabled={isSection}
           />
         </div>
         <InputForm
@@ -135,12 +149,14 @@ export function CourseFormFields() {
           placeholder="제2공학관 26B12A호"
           name="office"
           type="text"
+          disabled={isSection}
         />
         <InputForm
           label="Website"
           placeholder="https://example.com"
           name="website"
           type="text"
+          disabled={isSection}
         />
       </div>
     </div>

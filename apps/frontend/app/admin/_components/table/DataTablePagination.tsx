@@ -44,8 +44,8 @@ export function DataTablePagination({
     <div className="relative flex h-10 items-center justify-between px-2">
       <div className="flex items-center text-xs text-neutral-600">
         {showSelection &&
-          `${table.getFilteredSelectedRowModel().rows.length} of${' '}
-          ${table.getFilteredRowModel().rows.length} row(s) selected`}
+          `${table.getFilteredSelectedRowModel().flatRows.length} of${' '}
+          ${table.getFilteredRowModel().flatRows.length} row(s) selected`}
       </div>
       <div className="absolute left-1/2 flex min-w-0 shrink -translate-x-1/2 items-center sm:gap-[30px]">
         <button

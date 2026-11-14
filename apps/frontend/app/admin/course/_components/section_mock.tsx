@@ -29,7 +29,7 @@ export const coursesMockData: CourseTableRow[] = [
         studentCount: 12
       },
       {
-        id: 12,
+        id: 3,
         type: 'section',
         title: '전자회로1',
         code: 'CHS1330',
@@ -67,5 +67,14 @@ export const coursesMockData: CourseTableRow[] = [
         studentCount: 33
       }
     ]
+  },
+  {
+    id: 74,
+    type: 'section',
+    title: '권수린개론',
+    code: 'KSR2026',
+    classNum: 1,
+    semester: '2026 Fall',
+    studentCount: 1
   }
 ]

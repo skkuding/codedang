@@ -27,8 +27,9 @@ export function DeleteCourseButton({ onSuccess }: DeleteCourseButtonProps) {
       className="ml-auto"
       deleteItems={table
         .getSelectedRowModel()
-        .rows.map(
-          (row) => `${row.getValue('title')} [${row.getValue('code')}]`
+        .flatRows.map(
+          (row) =>
+            `${row.getValue('title')} [${row.getValue('code')}] - ${row.getValue('classNum') || 'M'}`
         )}
     />
   )
