@@ -17,6 +17,8 @@ import {
 } from '../_libs/collaboration'
 
 interface CollaborationDialogsProps {
+  open: boolean
+  // 닫히는 애니메이션 동안에도 내용이 유지되도록, 닫힌 뒤에도 마지막 액션을 그대로 받는다
   pendingAction: PendingCollaborationAction | null
   onOpenChange: (open: boolean) => void
   onRoleChange: (role: CollaboratorRole) => void
@@ -24,6 +26,7 @@ interface CollaborationDialogsProps {
 }
 
 export function CollaborationDialogs({
+  open,
   pendingAction,
   onOpenChange,
   onRoleChange,
@@ -32,7 +35,7 @@ export function CollaborationDialogs({
   const isRoleChange = pendingAction?.type === 'change-role'
 
   return (
-    <AlertDialog open={pendingAction !== null} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
         // 피그마 dimmed 레이어: #000 60%, 블러 없음
         overlayClassName="bg-dimmed backdrop-blur-none"

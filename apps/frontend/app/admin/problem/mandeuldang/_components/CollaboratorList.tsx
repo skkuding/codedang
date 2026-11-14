@@ -80,7 +80,7 @@ function ParticipantRoleButton({
   return (
     <button
       type="button"
-      aria-label={`${collaborator.name} 권한 변경`}
+      aria-label={`${collaborator.name} 현재 권한 ${collaborator.role}, 권한 변경`}
       onClick={onClick}
       className="text-body1_m_16 text-color-cool-neutral-20 hover:text-primary focus-visible:ring-primary rounded-sm focus-visible:outline-none focus-visible:ring-2"
     >

@@ -34,6 +34,8 @@ export function CollaborationPage({
     useState<Collaborator[]>(initialParticipants)
   const [pendingAction, setPendingAction] =
     useState<PendingCollaborationAction | null>(null)
+  // 다이얼로그가 닫히는 동안 내용이 바뀌지 않도록 열림 상태를 pendingAction과 따로 둔다
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const validateEmail = (value: string) => {
     const normalizedEmail = value.trim().toLowerCase()
@@ -127,12 +129,9 @@ export function CollaborationPage({
     ])
   }
 
-  const openRoleDialog = (collaborator: Collaborator) => {
-    setPendingAction({
-      type: 'change-role',
-      collaborator,
-      nextRole: collaborator.role
-    })
+  const openDialog = (action: PendingCollaborationAction) => {
+    setPendingAction(action)
+    setIsDialogOpen(true)
   }
 
   const changePendingRole = (nextRole: CollaboratorRole) => {
@@ -164,7 +163,7 @@ export function CollaborationPage({
       )
     }
 
-    setPendingAction(null)
+    setIsDialogOpen(false)
   }
 
   return (
@@ -190,18 +189,21 @@ export function CollaborationPage({
         onRequestRoleChange={updateRequestRole}
         onRejectRequest={rejectRequest}
         onApproveRequest={approveRequest}
-        onChangeParticipantRole={openRoleDialog}
+        onChangeParticipantRole={(collaborator) =>
+          openDialog({
+            type: 'change-role',
+            collaborator,
+            nextRole: collaborator.role
+          })
+        }
         onDeleteParticipant={(collaborator) =>
-          setPendingAction({ type: 'delete', collaborator })
+          openDialog({ type: 'delete', collaborator })
         }
       />
       <CollaborationDialogs
+        open={isDialogOpen}
         pendingAction={pendingAction}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingAction(null)
-          }
-        }}
+        onOpenChange={setIsDialogOpen}
         onRoleChange={changePendingRole}
         onConfirm={confirmPendingAction}
       />
