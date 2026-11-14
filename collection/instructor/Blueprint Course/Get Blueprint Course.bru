@@ -39,7 +39,10 @@ tests {
     expect(course.professor).to.be.a("string");
     expect(course.sections).to.be.an("array");
     const expected = bru.getVar("blueprintExpectedSections");
-    if (expected) expect(course.sections.map(section => section.id)).to.deep.equal(expected);
+    const expectedCourseId = bru.getVar("blueprintExpectedCourseId");
+    if (Array.isArray(expected) && Number(expectedCourseId) === Number(course.id)) {
+      expect(course.sections.map(section => section.id)).to.deep.equal(expected);
+    }
     for (const section of course.sections) {
       expect(section.courseInfo.blueprintCourseId).to.equal(Number(course.id));
       expect(section.memberNum).to.be.at.least(0);

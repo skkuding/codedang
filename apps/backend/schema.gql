@@ -742,7 +742,7 @@ type BlueprintCourseDetailOutput {
   office: String
   phoneNum: String
   professor: String!
-  sections: [FindGroup!]!
+  sections: [BlueprintSectionOutput!]!
   semester: String!
   updateTime: DateTime!
   website: String
@@ -765,7 +765,7 @@ type BlueprintCourseListItemOutput {
   courseNum: String!
   courseTitle: String!
   id: ID!
-  sections: [FindGroup!]!
+  sections: [BlueprintSectionOutput!]!
   semester: String!
 }
 
@@ -821,6 +821,38 @@ type BlueprintCourseSumAggregate {
   createdById: Int
   id: Int
   week: Int
+}
+
+type BlueprintSectionOutput {
+  CourseNotice: [CourseNotice!]
+  GroupWhitelist: [GroupWhitelist!]
+  assignment: [Assignment!]
+
+  """
+  config default value
+  {
+  "showOnList": true,          // show on 'all groups' list
+  "allowJoinFromSearch": true, // can join from 'all groups' list. set to false if `showOnList` is false
+  "allowJoinWithURL": false,
+  "requireApprovalBeforeJoin": true
+  }
+  """
+  config: JSON!
+  courseInfo: CourseInfo
+  courseQnA: [CourseQnA!]
+  createTime: DateTime!
+  description: String
+  groupName: String!
+  groupTag: [GroupTag!]
+  groupType: GroupType!
+  id: ID!
+  invitation: String
+  memberNum: Int!
+  sharedProblems: [Problem!]
+  studyInfo: StudyInfo
+  updateTime: DateTime!
+  userGroup: [UserGroup!]
+  workbook: [Workbook!]
 }
 
 type CheckRequest {

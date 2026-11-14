@@ -204,8 +204,31 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
       ...Object.keys(basic.getFields()),
       'sections'
     ])
-    expect(String(detail.getFields().sections.type)).to.equal('[FindGroup!]!')
+    expect(String(detail.getFields().sections.type)).to.equal(
+      '[BlueprintSectionOutput!]!'
+    )
   })
+
+  for (const query of [
+    'getBlueprintCourses',
+    'getBlueprintCourse(blueprintCourseId: 1)'
+  ]) {
+    it(`should reject unsupported section counts in ${query}`, async () => {
+      const lookup = stub()
+      const result = await graphql({
+        schema,
+        source: `{ ${query} { sections { _count { assignment } } } }`,
+        rootValue: {
+          getBlueprintCourses: lookup,
+          getBlueprintCourse: lookup
+        }
+      })
+      expect(result.errors?.[0].message).to.include(
+        'Cannot query field "_count" on type "BlueprintSectionOutput"'
+      )
+      expect(lookup.called).to.be.false
+    })
+  }
 
   for (const argument of [
     '',
@@ -296,7 +319,9 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
       'semester',
       'sections'
     ])
-    expect(String(item.getFields().sections.type)).to.equal('[FindGroup!]!')
+    expect(String(item.getFields().sections.type)).to.equal(
+      '[BlueprintSectionOutput!]!'
+    )
   })
 
   it('should serialize section fields and empty sections through GraphQL', async () => {

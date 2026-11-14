@@ -3,6 +3,14 @@ import { BlueprintCourse } from '@admin/@generated'
 import { FindGroup } from '../../group/model/group.output'
 
 /**
+ * Section output without count fields that the service does not populate.
+ */
+@ObjectType()
+export class BlueprintSectionOutput extends OmitType(FindGroup, [
+  '_count'
+] as const) {}
+
+/**
  *  Basic Blueprint course information
  *  Excludes relation and count fields that the service does not populate
  */
@@ -22,8 +30,8 @@ export class BlueprintCourseListItemOutput extends PickType(
   BlueprintCourseOutput,
   ['id', 'courseTitle', 'courseNum', 'semester'] as const
 ) {
-  @Field(() => [FindGroup])
-  sections!: FindGroup[]
+  @Field(() => [BlueprintSectionOutput])
+  sections!: BlueprintSectionOutput[]
 }
 
 /**
@@ -31,6 +39,6 @@ export class BlueprintCourseListItemOutput extends PickType(
  */
 @ObjectType()
 export class BlueprintCourseDetailOutput extends BlueprintCourseOutput {
-  @Field(() => [FindGroup])
-  sections!: FindGroup[]
+  @Field(() => [BlueprintSectionOutput])
+  sections!: BlueprintSectionOutput[]
 }

@@ -33,6 +33,7 @@ tests {
     expect(course.courseTitle).to.equal("Bruno Blueprint Read Test");
     expect(course.createdById).to.be.a("number");
     bru.setVar("blueprintCourseId", Number(course.id));
+    bru.setVar("blueprintExpectedCourseId", Number(course.id));
     bru.setVar("blueprintExpectedSections", []);
   });
 }

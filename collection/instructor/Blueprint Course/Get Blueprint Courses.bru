@@ -38,6 +38,7 @@ tests {
     const selectedId = bru.getEnvVar("blueprintCourseId") || bru.getVar("blueprintCourseId") || courses[0]?.id;
     bru.setVar("blueprintCourseId", selectedId ? Number(selectedId) : undefined);
     const selected = courses.find(course => Number(course.id) === Number(selectedId));
+    bru.setVar("blueprintExpectedCourseId", selected ? Number(selected.id) : undefined);
     bru.setVar("blueprintExpectedSections", selected ? selected.sections.map(section => section.id) : undefined);
   });
 }
