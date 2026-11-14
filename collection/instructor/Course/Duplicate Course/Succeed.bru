@@ -17,7 +17,17 @@ body:graphql {
       input: {
         courseNum: "SWE2002",
         semester: "2026 Spring",
-        classNum: 15
+        classNum: 15,
+        studentWhitelist: [
+          {
+            studentId: "2025123123",
+            studentName: "홍길동"
+          },
+          {
+            studentId: "2025123124",
+            studentName: "율전이"
+          }
+        ]
       }) {
       duplicatedCourse {
         id
