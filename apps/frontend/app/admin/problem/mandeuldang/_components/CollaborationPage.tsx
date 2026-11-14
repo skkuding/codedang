@@ -13,8 +13,6 @@ import { CollaborationDialogs } from './CollaborationDialogs'
 import { CollaborationInviteForm } from './CollaborationInviteForm'
 import { CollaboratorList } from './CollaboratorList'
 
-export type { Collaborator, CollaboratorRole } from '../_libs/collaboration'
-
 interface CollaborationPageProps {
   initialRequests?: Collaborator[]
   initialParticipants?: Collaborator[]
