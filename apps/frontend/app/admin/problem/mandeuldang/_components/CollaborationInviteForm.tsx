@@ -86,7 +86,7 @@ export function CollaborationInviteForm({
                   errorMessage ? 'text-red-500' : 'text-color-cool-neutral-50'
                 )}
               >
-                {String(email.length).padStart(2, '0')}/50
+                {email.length}/50
               </span>
             </div>
           </label>
