@@ -9,7 +9,8 @@ import { omit } from 'es-toolkit'
 import { stub } from 'sinon'
 import {
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@client/assignment/assignment.service'
@@ -307,6 +308,17 @@ describe('ProblemService', () => {
         })
       )
     })
+
+    it('should throw UnprocessableDataException when a listed problem has no difficulty', async () => {
+      // given
+      db.problem.findMany.resolves([{ ...mockProblems[0], difficulty: null }])
+      db.tag.findMany.resolves([mockTag])
+
+      // then
+      await expect(
+        service.getProblems({ userId: null, cursor: 1, take: 2 })
+      ).to.be.rejectedWith(UnprocessableDataException)
+    })
   })
 
   describe('getProblem', () => {
@@ -335,6 +347,17 @@ describe('ProblemService', () => {
       // then
       await expect(service.getProblem(problemId)).to.be.rejectedWith(
         prismaNotFoundError
+      )
+    })
+
+    it('should throw UnprocessableDataException when a required field is missing', async () => {
+      // given
+      db.problem.findUniqueOrThrow.resolves({ ...mockProblem, timeLimit: null })
+      db.problemTag.findMany.resolves([mockProblemTag])
+
+      // then
+      await expect(service.getProblem(problemId)).to.be.rejectedWith(
+        UnprocessableDataException
       )
     })
   })
@@ -1057,6 +1080,22 @@ describe('WorkbookProblemService', () => {
       await expect(
         service.getWorkbookProblem(workbookId, problemId, groupId)
       ).to.be.rejectedWith(ForbiddenAccessException)
+      isVisibleSpy.restore()
+    })
+
+    it('should throw UnprocessableDataException when the problem is missing required fields', async () => {
+      // given
+      const isVisibleSpy = stub(workbookService, 'isVisible').resolves(true)
+      db.workbookProblem.findUniqueOrThrow.resolves({
+        ...mockWorkbookProblem,
+        problem: { ...mockWorkbookProblem.problem, memoryLimit: null }
+      })
+      db.problemTag.findMany.resolves([{ tag: mockTag }])
+
+      // then
+      await expect(
+        service.getWorkbookProblem(workbookId, problemId, groupId)
+      ).to.be.rejectedWith(UnprocessableDataException)
       isVisibleSpy.restore()
     })
   })

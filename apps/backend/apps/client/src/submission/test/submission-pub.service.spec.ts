@@ -4,7 +4,10 @@ import { expect } from 'chai'
 import { TraceService } from 'nestjs-otel'
 import * as sinon from 'sinon'
 import { JudgeAMQPService } from '@libs/amqp'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { JudgeRequest, UserTestcaseJudgeRequest } from '../class/judge-request'
 import { problems } from '../mock/problem.mock'
@@ -27,9 +30,7 @@ const submission: Submission & { submissionResult: SubmissionResult[] } = {
   score: new Prisma.Decimal(100)
 }
 
-// problems[0]는 Problem 전체 타입이라 timeLimit/memoryLimit이 number | null이다 —
-// 이 mock은 실제로 항상 값이 채워져 있으므로, JudgeRequest 생성자가 요구하는
-// non-null 타입에 맞춰 좁혀둔다.
+// problems[0] has nullable limits by type; narrow them for JudgeRequest.
 const judgeableProblem = {
   ...problems[0],
   timeLimit: problems[0].timeLimit!,
@@ -157,6 +158,19 @@ describe('SubmissionPublicationService', () => {
           submission
         })
       ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should throw UnprocessableDataException when the problem has no judge limits', async () => {
+      sandbox
+        .stub(db.problem, 'findUnique')
+        .resolves({ ...judgeableProblem, timeLimit: null })
+
+      await expect(
+        service.publishJudgeRequestMessage({
+          code: submissions[0].code,
+          submission
+        })
+      ).to.be.rejectedWith(UnprocessableDataException)
     })
 
     it('should create UserTestcaseJudgeRequest when isUserTest is true', async () => {
