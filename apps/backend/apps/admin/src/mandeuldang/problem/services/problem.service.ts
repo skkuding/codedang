@@ -9,8 +9,7 @@ import {
 import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
-  ForbiddenAccessException,
-  UnprocessableDataException
+  ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
@@ -191,29 +190,10 @@ export class MandeuldangProblemService {
   ): Promise<MandeuldangProblemOutput> {
     const { title, languages, ...data } = input
 
-    // 제목은 빈 문자열일 수 없다.
-    const normalizedTitle = title.trim()
-    if (!normalizedTitle) {
-      throw new UnprocessableDataException('Title cannot be empty')
-    }
-
-    // 시간 제한과 메모리 제한은 양수여야 한다.
-    if (input.timeLimit != null && input.timeLimit <= 0) {
-      throw new UnprocessableDataException(
-        'Time limit must be greater than zero'
-      )
-    }
-
-    if (input.memoryLimit != null && input.memoryLimit <= 0) {
-      throw new UnprocessableDataException(
-        'Memory limit must be greater than zero'
-      )
-    }
-
     const problem = await this.prisma.problem.create({
       data: {
         ...data,
-        title: normalizedTitle,
+        title: title.trim(),
         languages: languages ?? undefined,
         creationMode: ProblemCreationMode.Mandeuldang,
         status: ProblemStatus.Draft,
@@ -255,7 +235,6 @@ export class MandeuldangProblemService {
       }
     })
 
-    // 해당 문제의 Owner만 삭제할 수 있다.
     if (problem.mandeuldangCollaborators.length === 0) {
       throw new ForbiddenException('Only the owner can delete this problem')
     }
