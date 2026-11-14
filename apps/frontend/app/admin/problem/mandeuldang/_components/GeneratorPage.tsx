@@ -3,7 +3,7 @@
 import { Button } from '@/components/shadcn/button'
 import { cn } from '@/libs/utils'
 import DownloadIcon from '@/public/icons/download.svg'
-import TrashcanIcon from '@/public/icons/trashcan2-gray.svg'
+import TrashcanIcon from '@/public/icons/trashcan.svg'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { downloadBlob } from '../_libs/downloadBlob'

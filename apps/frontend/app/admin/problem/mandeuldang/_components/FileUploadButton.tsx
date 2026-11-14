@@ -1,6 +1,6 @@
 import { Button } from '@/components/shadcn/button'
-import UploadGrayIcon from '@/public/icons/upload-gray.svg'
-import UploadWhiteIcon from '@/public/icons/upload-white.svg'
+import { cn } from '@/libs/utils'
+import UploadIcon from '@/public/icons/upload.svg'
 import { useRef, type ChangeEvent } from 'react'
 
 interface FileUploadButtonProps {
@@ -37,11 +37,9 @@ export function FileUploadButton({
         disabled={disabled}
         onClick={() => fileInputRef.current?.click()}
       >
-        {disabled ? (
-          <UploadGrayIcon className="size-5" />
-        ) : (
-          <UploadWhiteIcon className="size-5" />
-        )}
+        <UploadIcon
+          className={cn('size-5', disabled ? 'text-[#9B9B9B]' : 'text-white')}
+        />
         <span className="translate-y-px">파일 업로드</span>
       </Button>
     </>

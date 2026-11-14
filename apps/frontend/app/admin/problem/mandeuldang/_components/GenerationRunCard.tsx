@@ -1,7 +1,7 @@
 import { Button } from '@/components/shadcn/button'
 import { cn, dateFormatter } from '@/libs/utils'
 import BulletIcon from '@/public/icons/bullet.svg'
-import TrashcanIcon from '@/public/icons/trashcan2-gray.svg'
+import TrashcanIcon from '@/public/icons/trashcan.svg'
 import { CircleAlert, Loader2 } from 'lucide-react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import type {
