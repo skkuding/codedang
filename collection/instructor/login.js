@@ -5,7 +5,17 @@ const login = async (req, body) => {
     const baseUrl = bru.getEnvVar('baseUrl')
     const res = await axios.post(baseUrl + '/auth/login', body, { timeout: 5000 })
     req.setHeader('Authorization', res.headers.authorization)
-    req.setHeader('Cookie', res.headers['set-cookie'])
+    // Convert Set-Cookie values into a Cookie request header without attributes.
+    const setCookies = res.headers['set-cookie']
+    const cookies = Array.isArray(setCookies)
+      ? setCookies
+      : setCookies
+        ? [setCookies]
+        : []
+    req.setHeader(
+      'Cookie',
+      cookies.map((cookie) => cookie.split(';')[0]).join('; ')
+    )
   } catch (error) {
     if (axios.isAxiosError(error)) error.message += ' (in pre-script)'
     throw error

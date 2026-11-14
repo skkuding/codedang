@@ -1,0 +1,48 @@
+meta {
+  name: Get Blueprint Course
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getBlueprintCourse(blueprintCourseId: {{blueprintCourseId}}) {
+      id courseTitle courseNum semester week professor
+      email website office phoneNum createdById createTime updateTime
+      sections { id groupName config memberNum courseInfo { blueprintCourseId classNum } }
+    }
+  }
+}
+
+script:pre-request {
+  const id = Number(bru.getEnvVar("blueprintCourseId") || bru.getVar("blueprintCourseId"));
+  if (!Number.isInteger(id) || id < 1) {
+    throw new Error("Run Get Blueprint Courses with an accessible Blueprint or set blueprintCourseId.");
+  }
+  bru.setVar("blueprintCourseId", id);
+}
+
+tests {
+  test("Returns the requested course and its sections", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const course = body.data.getBlueprintCourse;
+    expect(Number(course.id)).to.equal(Number(bru.getVar("blueprintCourseId")));
+    expect(course.week).to.be.at.least(1);
+    expect(course.professor).to.be.a("string");
+    expect(course.sections).to.be.an("array");
+    const expected = bru.getVar("blueprintExpectedSections");
+    if (expected) expect(course.sections.map(section => section.id)).to.deep.equal(expected);
+    for (const section of course.sections) {
+      expect(section.courseInfo.blueprintCourseId).to.equal(Number(course.id));
+      expect(section.memberNum).to.be.at.least(0);
+    }
+  });
+}
