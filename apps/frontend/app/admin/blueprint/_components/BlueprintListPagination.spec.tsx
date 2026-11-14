@@ -74,15 +74,11 @@ describe('Blueprint cursor pagination', () => {
     fireEvent.keyDown(screen.getByRole('combobox', { name: 'Rows per page' }), {
       key: 'ArrowDown'
     })
-    expect(
-      await screen.findByRole('option', { name: '2', exact: true })
-    ).toBeTruthy()
+    expect(await screen.findByRole('option', { name: '2' })).toBeTruthy()
     for (const size of [10, 20, 30, 40, 50]) {
-      expect(
-        screen.getByRole('option', { name: String(size), exact: true })
-      ).toBeTruthy()
+      expect(screen.getByRole('option', { name: String(size) })).toBeTruthy()
     }
-    fireEvent.click(screen.getByRole('option', { name: '20', exact: true }))
+    fireEvent.click(screen.getByRole('option', { name: '20' }))
     expect(props.onPageSizeChange).toHaveBeenCalledWith(20)
   })
 })

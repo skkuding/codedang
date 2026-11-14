@@ -216,9 +216,7 @@ describe('Blueprint routed workspace', () => {
         screen.getByRole('combobox', { name: 'Rows per page' }),
         { key: 'ArrowDown' }
       )
-      fireEvent.click(
-        await screen.findByRole('option', { name: '20', exact: true })
-      )
+      fireEvent.click(await screen.findByRole('option', { name: '20' }))
       expect(navigation.push).toHaveBeenLastCalledWith(
         `/admin/blueprint/31/${kind}?take=20`
       )
