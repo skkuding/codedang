@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 type S3reader struct {
@@ -218,6 +219,45 @@ func (s *S3reader) Put(ctx context.Context, problemId int, id int, element Eleme
 	}
 	if len(errs) > 0 {
 		return fmt.Errorf("failed to upload testcase %d/%d: %v", problemId, id, errs)
+	}
+	return nil
+}
+
+// deleteObjectsBatchSize is the maximum number of keys S3 DeleteObjects accepts per request.
+const deleteObjectsBatchSize = 1000
+
+// Delete removes the <problemId>/<id>.in and <problemId>/<id>.out objects written by Put.
+// Keys that do not exist are not an error, so it is safe to call for partially uploaded ids.
+func (s *S3reader) Delete(ctx context.Context, problemId int, ids []int) error {
+	objects := make([]types.ObjectIdentifier, 0, len(ids)*2)
+	for _, id := range ids {
+		for _, ext := range []string{"in", "out"} {
+			objects = append(objects, types.ObjectIdentifier{
+				Key: aws.String(fmt.Sprintf("%d/%d.%s", problemId, id, ext)),
+			})
+		}
+	}
+
+	var errs []error
+	for start := 0; start < len(objects); start += deleteObjectsBatchSize {
+		end := min(start+deleteObjectsBatchSize, len(objects))
+		output, err := s.client.DeleteObjects(ctx, &s3.DeleteObjectsInput{
+			Bucket: aws.String(s.bucket),
+			Delete: &types.Delete{
+				Objects: objects[start:end],
+				Quiet:   aws.Bool(true),
+			},
+		})
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		for _, e := range output.Errors {
+			errs = append(errs, fmt.Errorf("%s: %s", aws.ToString(e.Key), aws.ToString(e.Message)))
+		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("failed to delete testcases of problem %d: %v", problemId, errs)
 	}
 	return nil
 }
