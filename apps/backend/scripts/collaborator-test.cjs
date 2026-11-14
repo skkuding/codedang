@@ -29,7 +29,7 @@ const output = resolve(
   '../../collection/admin/collaborator.generated.js'
 )
 
-function localUrl(value, protocols) {
+const localUrl = (value, protocols) => {
   const url = new URL(value)
   if (
     !protocols.includes(url.protocol) ||
@@ -40,7 +40,7 @@ function localUrl(value, protocols) {
   return url
 }
 
-async function main() {
+const main = async () => {
   if (!['setup', 'login'].includes(mode)) throw new Error('Use setup or login.')
   if (process.env.NODE_ENV === 'production')
     throw new Error('Production is not allowed.')
