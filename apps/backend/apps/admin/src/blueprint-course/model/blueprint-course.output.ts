@@ -1,14 +1,27 @@
 import { Field, ObjectType, OmitType, PickType } from '@nestjs/graphql'
-import { BlueprintCourse } from '@admin/@generated'
+import { BlueprintCourse, CourseInfo } from '@admin/@generated'
 import { FindGroup } from '../../group/model/group.output'
 
 /**
- * Section output without count fields that the service does not populate.
+ * Section course information without unloaded relations.
+ */
+@ObjectType()
+export class BlueprintCourseInfoOutput extends OmitType(CourseInfo, [
+  'group',
+  'blueprintCourse'
+] as const) {}
+
+/**
+ * Section output with populated course information and without count fields.
  */
 @ObjectType()
 export class BlueprintSectionOutput extends OmitType(FindGroup, [
-  '_count'
-] as const) {}
+  '_count',
+  'courseInfo'
+] as const) {
+  @Field(() => BlueprintCourseInfoOutput, { nullable: true })
+  courseInfo?: BlueprintCourseInfoOutput | null
+}
 
 /**
  *  Basic Blueprint course information

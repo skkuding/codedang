@@ -213,6 +213,64 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
     'getBlueprintCourses',
     'getBlueprintCourse(blueprintCourseId: 1)'
   ]) {
+    for (const relation of ['group', 'blueprintCourse']) {
+      it(`should reject unloaded courseInfo.${relation} in ${query}`, async () => {
+        const lookup = stub()
+        const result = await graphql({
+          schema,
+          source: `{ ${query} { sections { courseInfo { ${relation} { id } } } } }`,
+          rootValue: {
+            getBlueprintCourses: lookup,
+            getBlueprintCourse: lookup
+          }
+        })
+        expect(result.errors?.[0].message).to.include(
+          `Cannot query field "${relation}" on type "BlueprintCourseInfoOutput"`
+        )
+        expect(lookup.called).to.be.false
+      })
+    }
+
+    it(`should preserve section course information in ${query}`, async () => {
+      const courseInfo = {
+        groupId: 101,
+        blueprintCourseId: 1,
+        classNum: 41,
+        courseNum: 'SWE2015',
+        semester: '2026 Fall',
+        professor: 'Professor',
+        week: 16,
+        email: null,
+        website: null,
+        office: null,
+        phoneNum: null
+      }
+      const course = { sections: [{ courseInfo }] }
+      const result = await graphql({
+        schema,
+        source: `{ ${query} {
+          sections { courseInfo {
+            groupId blueprintCourseId classNum courseNum semester professor
+            week email website office phoneNum
+          } }
+        } }`,
+        rootValue: {
+          getBlueprintCourses: [course],
+          getBlueprintCourse: course
+        }
+      })
+      expect(result.errors).to.equal(undefined)
+      const data = JSON.parse(JSON.stringify(result.data))
+      const actual =
+        query === 'getBlueprintCourses'
+          ? data.getBlueprintCourses[0]
+          : data.getBlueprintCourse
+      expect(actual.sections[0].courseInfo).to.deep.equal({
+        ...courseInfo,
+        groupId: '101'
+      })
+    })
+
     it(`should reject unsupported section counts in ${query}`, async () => {
       const lookup = stub()
       const result = await graphql({

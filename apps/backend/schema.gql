@@ -749,6 +749,20 @@ type BlueprintCourseDetailOutput {
   week: Int!
 }
 
+type BlueprintCourseInfoOutput {
+  blueprintCourseId: Int
+  classNum: Int
+  courseNum: String!
+  email: String
+  groupId: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  semester: String!
+  website: String
+  week: Int!
+}
+
 input BlueprintCourseInput {
   courseNum: String!
   courseTitle: String!
@@ -838,7 +852,7 @@ type BlueprintSectionOutput {
   }
   """
   config: JSON!
-  courseInfo: CourseInfo
+  courseInfo: BlueprintCourseInfoOutput
   courseQnA: [CourseQnA!]
   createTime: DateTime!
   description: String
