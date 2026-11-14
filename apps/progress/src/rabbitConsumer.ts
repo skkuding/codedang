@@ -1,19 +1,23 @@
 import amqp from 'amqplib'
+import { createLogger } from './logger'
 import { isIrisProgressPayload, type ProgressEvent } from './types'
 
-// NestJS 백엔드와 동일한 exchange/routing key (apps/backend/libs/constants/src/rabbitmq.constants.ts)
+const logger = createLogger('RabbitConsumer')
+
+// Same exchange/routing key as the NestJS backend (apps/backend/libs/constants/src/rabbitmq.constants.ts)
 const EXCHANGE = 'iris.e.direct.judge'
 const ROUTING_KEY = 'judge.result'
-// 백엔드 큐와 이름이 달라야 같은 메시지의 복사본을 각각 받는다.
+// Must differ from the backend queue so each receives its own copy of every message.
+// NOTE: instances share this queue, so run a single replica.
 const QUEUE = 'progress.q.judge.result'
 
 const PROGRESS_MESSAGE_TYPE = 'progress'
 
-// 서버가 꺼져 있던 동안 쌓인 오래된 진행률은 버린다.
+// Drop stale progress that piled up while the server was down.
 const MESSAGE_TTL_MS = 60_000
 
 function toProgressEvent(raw: amqp.ConsumeMessage): ProgressEvent | null {
-  // submission id는 body가 아니라 messageId에 문자열로 온다.
+  // The submission id comes in messageId, not in the body.
   const submissionId = Number(raw.properties.messageId)
   if (!Number.isInteger(submissionId) || submissionId <= 0) {
     return null
@@ -27,42 +31,79 @@ function toProgressEvent(raw: amqp.ConsumeMessage): ProgressEvent | null {
   return { submissionId, ...payload }
 }
 
+function safeAck(channel: amqp.Channel, raw: amqp.ConsumeMessage) {
+  try {
+    channel.ack(raw)
+  } catch (e) {
+    logger.error({ err: e }, 'failed to ack message')
+  }
+}
+
+function safeNack(channel: amqp.Channel, raw: amqp.ConsumeMessage) {
+  try {
+    channel.nack(raw, false, false)
+  } catch (e) {
+    logger.error({ err: e }, 'failed to nack message')
+  }
+}
+
+/**
+ * Delivery guarantee: best-effort (at-most-once).
+ * Progress is display-only and the backend result is the source of truth,
+ * so invalid or failed messages are nacked without requeue.
+ * Redelivered messages are deduplicated by ProgressStore.
+ */
+function handleMessage(
+  channel: amqp.Channel,
+  raw: amqp.ConsumeMessage,
+  onProgress: (event: ProgressEvent) => void
+) {
+  if (raw.properties.type !== PROGRESS_MESSAGE_TYPE) {
+    safeAck(channel, raw)
+    return
+  }
+
+  try {
+    const event = toProgressEvent(raw)
+    if (!event) {
+      logger.warn(
+        {
+          messageId: raw.properties.messageId,
+          content: raw.content.toString()
+        },
+        'invalid progress message'
+      )
+      safeNack(channel, raw)
+      return
+    }
+
+    onProgress(event)
+    safeAck(channel, raw)
+  } catch (e) {
+    logger.error({ err: e }, 'failed to process message')
+    safeNack(channel, raw)
+  }
+}
+
 export async function startProgressConsumer(
   amqpUrl: string,
   onProgress: (event: ProgressEvent) => void
 ) {
   const connection = await amqp.connect(amqpUrl)
   connection.on('error', (e) =>
-    console.error('[progress-server] amqp connection error', e)
+    logger.error({ err: e }, 'amqp connection error')
   )
   connection.on('close', () => {
-    console.error('[progress-server] amqp connection closed')
+    logger.error('amqp connection closed')
     process.exit(1)
   })
 
   const channel = await connection.createChannel()
-  channel.on('error', (e) =>
-    console.error('[progress-server] amqp channel error', e)
-  )
+  channel.on('error', (e) => logger.error({ err: e }, 'amqp channel error'))
   channel.on('close', () => {
-    console.error('[progress-server] amqp channel closed')
+    logger.error('amqp channel closed')
     process.exit(1)
   })
-
-  const safeAck = (raw: amqp.ConsumeMessage) => {
-    try {
-      channel.ack(raw)
-    } catch (e) {
-      console.error('[progress-server] failed to ack message', e)
-    }
-  }
-  const safeNack = (raw: amqp.ConsumeMessage) => {
-    try {
-      channel.nack(raw, false, false)
-    } catch (e) {
-      console.error('[progress-server] failed to nack message', e)
-    }
-  }
 
   await channel.assertExchange(EXCHANGE, 'direct', { durable: true })
   await channel.assertQueue(QUEUE, {
@@ -74,38 +115,13 @@ export async function startProgressConsumer(
 
   await channel.consume(QUEUE, (raw) => {
     if (!raw) {
-      console.error('[progress-server] consumer cancelled by broker')
+      logger.error('consumer cancelled by broker')
       process.exit(1)
     }
-
-    if (raw.properties.type !== PROGRESS_MESSAGE_TYPE) {
-      safeAck(raw)
-      return
-    }
-
-    try {
-      const event = toProgressEvent(raw)
-      if (!event) {
-        console.warn(
-          '[progress-server] invalid progress message',
-          raw.properties.messageId,
-          raw.content.toString()
-        )
-        safeNack(raw)
-        return
-      }
-
-      onProgress(event)
-      safeAck(raw)
-    } catch (e) {
-      console.error('[progress-server] failed to process message', e)
-      safeNack(raw)
-    }
+    handleMessage(channel, raw, onProgress)
   })
 
-  console.log(
-    `[progress-server] consuming ${QUEUE} bound to ${EXCHANGE}/${ROUTING_KEY}`
-  )
+  logger.info(`consuming ${QUEUE} bound to ${EXCHANGE}/${ROUTING_KEY}`)
 
   return { connection, channel }
 }

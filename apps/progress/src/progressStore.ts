@@ -8,23 +8,43 @@ import {
 interface SubmissionState {
   submissionId: number
   total: number
-  /** 재전송 메시지 중복 집계 방지용 */
+  /** Prevents double counting of redelivered messages */
   seenCurrents: Set<number>
   lastStatusCode: SandboxStatusCode
   status: ProgressStatus
   updatedAt: number
 }
 
-// 끝난 직후 구독한 클라이언트도 최종 상태를 받을 수 있도록 잠시 보관
-const FINISHED_TTL_MS = 60_000
-// 메시지가 끊긴 제출(Iris 장애, 채점 중단 등) 정리용
-const IDLE_TTL_MS = 5 * 60_000
+// Keep finished submissions briefly so late subscribers still get the final state
+export const DEFAULT_FINISHED_TTL_MS = 60_000
+// Evict submissions whose messages stopped arriving (Iris failure, aborted judging)
+export const DEFAULT_IDLE_TTL_MS = 5 * 60_000
+
+export interface ProgressStoreOptions {
+  finishedTtlMs?: number
+  idleTtlMs?: number
+}
+
+type ExpireListener = (submissionId: number) => void
 
 export class ProgressStore {
   private readonly states = new Map<number, SubmissionState>()
   private readonly timers = new Map<number, NodeJS.Timeout>()
+  private readonly finishedTtlMs: number
+  private readonly idleTtlMs: number
+  private expireListener: ExpireListener | null = null
 
-  /** 무시한 메시지(중복, 이미 끝난 제출)면 null을 반환한다. */
+  constructor(options: ProgressStoreOptions = {}) {
+    this.finishedTtlMs = options.finishedTtlMs ?? DEFAULT_FINISHED_TTL_MS
+    this.idleTtlMs = options.idleTtlMs ?? DEFAULT_IDLE_TTL_MS
+  }
+
+  /** Called when a submission is evicted by TTL, to clean up state kept outside the store */
+  onExpire(listener: ExpireListener) {
+    this.expireListener = listener
+  }
+
+  /** Returns null when the message is ignored (duplicate or already finished). */
   handleProgress(event: ProgressEvent): ProgressUpdateMessage | null {
     const state = this.states.get(event.submissionId) ?? this.createState(event)
 
@@ -41,7 +61,7 @@ export class ProgressStore {
     this.states.set(state.submissionId, state)
     this.scheduleCleanup(
       state.submissionId,
-      state.status === 'judging' ? IDLE_TTL_MS : FINISHED_TTL_MS
+      state.status === 'judging' ? this.idleTtlMs : this.finishedTtlMs
     )
 
     return this.toMessage(state)
@@ -53,14 +73,14 @@ export class ProgressStore {
   }
 
   private resolveStatus(state: SubmissionState): ProgressStatus {
-    // 컴파일 에러·서버 에러는 이후 테스트케이스가 실행되지 않는다.
+    // No test case runs after a compile error or server error.
     if (
       state.lastStatusCode === SandboxStatusCode.COMPILE_ERROR ||
       state.lastStatusCode === SandboxStatusCode.SERVER_ERROR
     ) {
       return 'error'
     }
-    // current의 시작값(0 or 1)과 무관하도록 받은 개수로 판단
+    // Count received messages, so it works whether current starts at 0 or 1
     if (state.seenCurrents.size >= state.total) {
       return 'done'
     }
@@ -97,6 +117,7 @@ export class ProgressStore {
     const timer = setTimeout(() => {
       this.states.delete(submissionId)
       this.timers.delete(submissionId)
+      this.expireListener?.(submissionId)
     }, delayMs)
     timer.unref()
     this.timers.set(submissionId, timer)

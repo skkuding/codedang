@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "amqplib": "^0.10.4",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "pino": "^9.7.0",
+    "pino-pretty": "^11.3.0"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.5",

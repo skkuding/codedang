@@ -915,6 +915,12 @@ importers:
       amqplib:
         specifier: ^0.10.4
         version: 0.10.9
+      pino:
+        specifier: ^9.7.0
+        version: 9.7.0
+      pino-pretty:
+        specifier: ^11.3.0
+        version: 11.3.0
       ws:
         specifier: ^8.18.0
         version: 8.18.3
