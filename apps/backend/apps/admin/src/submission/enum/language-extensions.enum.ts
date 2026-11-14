@@ -3,5 +3,5 @@ export enum LanguageExtension {
   C = '.c',
   Cpp = '.cpp',
   Java = '.java',
-  Python = '.py'
+  Python3 = '.py'
 }
