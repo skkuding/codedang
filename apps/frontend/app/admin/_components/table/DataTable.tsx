@@ -19,7 +19,6 @@ import {
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import React, { Fragment } from 'react'
-import React, { Fragment } from 'react'
 import { useDataTable } from './context'
 
 interface DataTableProps<TData extends { id: number }, TRoute extends string> {
@@ -194,42 +193,22 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               const isLastSection =
                 isSection && (!rows[index + 1] || rows[index + 1]?.depth === 0)
 
-<<<<<<< HEAD
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          bodyStyleMap[size],
-                          isSelectColumn
-                            ? 'w-[1%] whitespace-nowrap p-0'
-                            : 'md:p-4',
-                          cell.column.id === 'code' && 'pl-0 md:pl-0'
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'relative flex justify-center whitespace-nowrap',
-                            isSelectColumn && 'w-14',
-                            bodyStyle[cell.column.id],
-                            cell.column.id === 'code' && 'justify-start'
-=======
               return (
                 <Fragment key={row.id}>
-                  <Fragment key={row.id}>
                   <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && 'selected'}
-                      className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
-                      onClick={() => {
-                        onRowClick?.(table, row)
-                        const href = getHref?.(row.original)
-                        if (href) {
-                          router.push(href)
-                        }
-                      }}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        const isSelectColumn = cell.column.id === 'select'
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
+                    onClick={() => {
+                      onRowClick?.(table, row)
+                      const href = getHref?.(row.original)
+                      if (href) {
+                        router.push(href)
+                      }
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const isSelectColumn = cell.column.id === 'select'
 
                       return (
                         <TableCell
