@@ -2,7 +2,10 @@
   "extends": "@istanbuljs/nyc-config-typescript",
   "all": true,
   "check-coverage": false,
-  "include": ["{apps,libs}/**/*.{service,resolver}.ts"],
+  "include": [
+    "{apps,libs}/**/*.{service,resolver}.ts",
+    "libs/prisma/src/prisma-pool.ts"
+  ],
   "exclude": ["**/*.spec.ts"],
   "reporter": ["lcov", "text"]
 }
