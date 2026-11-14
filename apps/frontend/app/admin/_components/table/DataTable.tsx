@@ -218,7 +218,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                             isSelectColumn
                               ? 'w-[1%] whitespace-nowrap p-0'
                               : 'md:p-4',
-                            cell.column.id === 'code' && 'pl-0 md:pl-0'
+                            cell.column.id === 'code' && 'md:pl-0'
                           )}
                         >
                           <div
@@ -229,7 +229,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                               cell.column.id === 'code' && 'justify-start'
                             )}
                             style={{
-                              left:
+                              paddingLeft:
                                 cell.column.id === 'select'
                                   ? `${row.depth * 38}px`
                                   : `${row.depth * 19}px`
