@@ -3,6 +3,7 @@
 import { cn } from '@/libs/utils'
 import {
   getCoreRowModel,
+  getExpandedRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
@@ -24,6 +25,7 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
   hiddenColumns?: string[]
   enablePagination?: boolean // ✅ 추가
   className?: string
+  getSubRows?: (row: TData) => TData[] | undefined
   children: ReactNode
 }
 
@@ -50,6 +52,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
   hiddenColumns = [],
   enablePagination = true,
   className,
+  getSubRows,
   children
 }: DataTableRootProps<TData, TValue>) {
   const defaultRowSelection = Object.fromEntries(
@@ -86,6 +89,8 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
     getRowId: (row) => String(row.id),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSubRows,
+    getExpandedRowModel: getExpandedRowModel(),
     ...(enablePagination
       ? { getPaginationRowModel: getPaginationRowModel() }
       : {}),
