@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Level } from '@generated'
-import { Role } from '@prisma/client'
+import { ProblemStatus, Role } from '@prisma/client'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
 import { UnprocessableDataException } from '@libs/exception'
@@ -106,8 +106,7 @@ describe('ProblemService', () => {
   })
 
   describe('createProblem', () => {
-    // 이 mock의 필드들은 Problem 전체 타입(nullable)에서 왔지만 실제 값은 항상
-    // 채워져 있다 — CreateProblemInput은 (레거시 문제 생성 시 그대로) non-null을 요구한다.
+    // Mock fields are nullable by type; narrow them for CreateProblemInput.
     const input = {
       title: problems[0].title,
       description: problems[0].description!,
@@ -197,6 +196,25 @@ describe('ProblemService', () => {
         mode: 'my'
       })
       expect(result).to.deep.equal(problemsWithIsVisible)
+    })
+
+    it('should only return published problems to SuperAdmin', async () => {
+      db.user.findUnique.resolves({ role: Role.SuperAdmin })
+      db.problem.findMany.resetHistory()
+      db.problem.findMany.resolves(problems)
+
+      await service.getProblems({
+        userId: user[0].id!,
+        input: {},
+        cursor: 1,
+        take: 5,
+        mode: 'my'
+      })
+
+      expect(db.problem.findMany.firstCall.args[0].where).to.deep.equal({
+        status: { equals: ProblemStatus.Published }
+      })
+      db.user.findUnique.resolves({ role: Role.User })
     })
   })
 

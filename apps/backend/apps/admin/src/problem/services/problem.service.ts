@@ -298,10 +298,6 @@ export class ProblemService {
     const whereOptions: ProblemWhereInput =
       await this.buildProblemWhereOptionsWithMode(userId, mode, contestId)
 
-    // 만들당 Draft/Ready 문제는 전용 화면(제작 중인 문제)에서만 다룬다 — 기존 문제 목록/조회에는
-    // 노출하지 않는다. 기존 Legacy 문제는 status가 항상 Published(스키마 기본값)라 영향이 없다.
-    Object.assign(whereOptions, PUBLISHED_PROBLEM_WHERE)
-
     if (input.difficulty) {
       whereOptions.difficulty = {
         in: input.difficulty
@@ -325,6 +321,17 @@ export class ProblemService {
   }
 
   private async buildProblemWhereOptionsWithMode(
+    userId: number,
+    mode: 'my' | 'shared' | 'contest',
+    contestId?: number | null
+  ): Promise<ProblemWhereInput> {
+    return {
+      ...(await this.buildModeWhereOptions(userId, mode, contestId)),
+      status: { equals: ProblemStatus.Published }
+    }
+  }
+
+  private async buildModeWhereOptions(
     userId: number,
     mode: 'my' | 'shared' | 'contest',
     contestId?: number | null
@@ -407,7 +414,6 @@ export class ProblemService {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
         id,
-        // 만들당 Draft/Ready 문제는 전용 화면에서만 조회한다 (getProblems와 동일한 정책).
         ...PUBLISHED_PROBLEM_WHERE
       },
       include: {
@@ -552,9 +558,7 @@ export class ProblemService {
       }
     }
 
-    // Published 문제는 누구나 제출할 수 있는 상태이므로, timeLimit/memoryLimit을
-    // 명시적으로 null로 바꾸는 수정은 막는다 — 그렇지 않으면 공개돼 있지만 채점은
-    // 받을 수 없는 문제가 생긴다(제출 시점에는 뒤늦게 거부됨).
+    // Published problems must keep judge limits; reject explicitly clearing them.
     if (
       problem.status === ProblemStatus.Published &&
       (input.timeLimit === null || input.memoryLimit === null)
@@ -757,7 +761,6 @@ export class ProblemService {
     // HOTFIX: Disable attachment deletion to prevent data loss.
     /*
     // Problem description에 이미지가 포함되어 있다면 삭제
-    // 만들당 Draft 문제는 description이 아직 없을 수 있다 (nullable) — 그 경우 추출할 이미지가 없다.
     const uuidImageFileNames = this.extractUUIDs(problem.description ?? '')
     if (uuidImageFileNames) {
       await this.prisma.file.deleteMany({
