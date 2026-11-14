@@ -61,7 +61,8 @@ const assignment: Assignment = {
   week: 1,
   autoFinalizeScore: false,
   isFinalScoreVisible: false,
-  isExercise: false
+  isExercise: false,
+  blueprintAssignmentId: null
 }
 
 const assignmentWithCount = {
@@ -86,7 +87,8 @@ const assignmentWithCount = {
   week: 1,
   autoFinalizeScore: false,
   isFinalScoreVisible: false,
-  isExercise: false
+  isExercise: false,
+  blueprintAssignmentId: null
 }
 
 const assignmentWithParticipants: AssignmentWithParticipants = {
@@ -108,7 +110,8 @@ const assignmentWithParticipants: AssignmentWithParticipants = {
   week: 1,
   autoFinalizeScore: false,
   isFinalScoreVisible: false,
-  isExercise: false
+  isExercise: false,
+  blueprintAssignmentId: null
 }
 
 const group: Group = {
