@@ -185,10 +185,6 @@ export class MandeuldangProblemService {
     }
   }
 
-  /**
-   * 만들당 문제를 새로 생성한다.
-   * 생성된 문제는 Draft 상태이며, 생성자는 Approved 상태의 Owner Collaborator로 등록된다.
-   */
   async createProblem(
     input: CreateMandeuldangProblemInput,
     userId: number
@@ -243,11 +239,6 @@ export class MandeuldangProblemService {
     }
   }
 
-  /**
-   * 만들당 문제를 삭제한다.
-   * Mandeuldang 모드의 문제만 삭제할 수 있으며,
-   * 해당 문제의 Owner만 삭제할 수 있다.
-   */
   async deleteProblem(id: number, userId: number) {
     const problem = await this.prisma.problem.findFirstOrThrow({
       where: {
@@ -269,7 +260,7 @@ export class MandeuldangProblemService {
       throw new ForbiddenException('Only the owner can delete this problem')
     }
 
-    // Disable attachment deletion until the file deletion policy is defined.
+    // FIXME: Keep attachments until the file deletion policy is defined.
     /*
     // Problem description에 이미지가 포함되어 있다면 삭제
     const uuidImageFileNames = this.extractUUIDs(problem.description)
