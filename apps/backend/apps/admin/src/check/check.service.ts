@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -16,7 +17,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { CheckPublicationService } from './check-pub.service'
 import { Match } from './model/check-result.dto'
-import { CreatePlagiarismCheckInput } from './model/create-check.input'
+import {
+  CreatePlagiarismCheckInput,
+  type CreatePlagiarismTargetsInput
+} from './model/create-check.input'
 
 @Injectable()
 export class CheckService {
@@ -32,31 +36,42 @@ export class CheckService {
    *
    * @param {number} problemId
    * @param {Language} language
+   * @param {number[]} assignmentIds 검사 대상 과제 아이디 목록
+   * @param {number} contestId 검사 대상 대회 아이디
+   * @param {number} workbookId 검사 대상 워크북 아이디
    * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
-   * - 유저 간의 중복이 없을 때, 제출물의 수가 1개 이하인 경우
+   * - 검사 대상에 제출한 서로 다른 유저가 2명 미만인 경우
    */
   @Span()
   async validateRequest({
     problemId,
-    language
+    language,
+    assignmentIds,
+    contestId,
+    workbookId
   }: {
     problemId: number
     language: Language
+    assignmentIds?: number[]
+    contestId?: number
+    workbookId?: number
   }) {
     const submissions = await this.prisma.submission.findMany({
       where: {
         problemId,
-        language
+        language,
+        userId: { not: null },
+        assignmentId: assignmentIds?.length ? { in: assignmentIds } : undefined,
+        contestId,
+        workbookId
       },
       select: {
         userId: true
-      }
+      },
+      distinct: ['userId']
     })
 
-    const uniqueUserSubmissions = submissions.filter(
-      (value, index, self) => value !== null && self.indexOf(value) === index
-    )
-    if (uniqueUserSubmissions.length < 2) {
+    if (submissions.length < 2) {
       throw new EntityNotExistException('There are not enough submissions')
     }
   }
@@ -114,6 +129,79 @@ export class CheckService {
   }
 
   /**
+   * 표절검사가 가능한 그룹과 과제 페어인지 확인합니다.
+   *
+   * @param {number} problemId
+   * @param {{ assignmentId: number; groupId: number }} targets
+   * @throws {EntityNotExistException} 아래와 같은 경우 발생합니다.
+   * - Assignment가 주어진 group에 존재하지 않을 때
+   * - 주어진 아이디의 AssignmentProblem가 존재하지 않을 때
+   * - AssignmentDueTime이 존재하지 않을 때
+   * @throws {ForbiddenException} 아래와 같은 경우 발생합니다.
+   * - 과제의 dueTime이 지나기 전일 때
+   */
+  @Span()
+  async validateAssignments({
+    problemId,
+    targets
+  }: {
+    problemId: number
+    targets: { assignmentId: number; groupId: number }[]
+  }) {
+    if (targets.length === 0) {
+      throw new BadRequestException('At least one assignment is required')
+    }
+
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: {
+        problemId,
+        OR: targets.map(({ assignmentId, groupId }) => ({
+          assignmentId,
+          assignment: {
+            groupId
+          }
+        }))
+      },
+      select: {
+        assignmentId: true,
+        assignment: {
+          select: {
+            groupId: true,
+            dueTime: true
+          }
+        }
+      }
+    })
+
+    const assignmentMap = new Map(
+      assignmentProblems.map((ap) => [
+        `${ap.assignmentId}:${ap.assignment.groupId}`,
+        ap.assignment.dueTime
+      ])
+    )
+
+    const now = Date.now()
+
+    for (const { assignmentId, groupId } of targets) {
+      const key = `${assignmentId}:${groupId}`
+
+      if (!assignmentMap.has(key)) {
+        throw new EntityNotExistException('AssignmentProblem')
+      }
+
+      const dueTime = assignmentMap.get(key)
+
+      if (!dueTime) {
+        throw new EntityNotExistException('AssignmentDueTime')
+      }
+
+      if (dueTime.getTime() > now) {
+        throw new ForbiddenException('Before the Due Time has passed yet.')
+      }
+    }
+  }
+
+  /**
    * 한 assignment의 problem에 대해 표절 검사를 요청합니다.
    *
    * @param {number} userId 검사를 요청한 유저의 아이디
@@ -143,7 +231,48 @@ export class CheckService {
       checkInput,
       problemId,
       idOptions: {
-        assignmentId
+        assignmentIds: [assignmentId]
+      }
+    })
+  }
+
+  /**
+   * 여러 assignment에 대해 한 Problem에 대해 표절 검사를 요청합니다.
+   * 모든 assignment에 대해 해당 problem이 존재하는지 먼저 검사합니다.
+   *
+   * @param {number} userId 검사를 요청한 유저의 아이디
+   * @param {CreatePlagiarismCheckInput} checkInput 표절 검사 설정
+   * @param {number[]} assignmentIds 과제 아이디
+   * @param {number} problemId 문제 아이디
+   * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
+   * @throws {ForbiddenException} 요청자가 Admin 또는 SuperAdmin이 아닐 때 발생합니다.
+   */
+  @Span()
+  async checkAssignmentsProblem({
+    user,
+    checkInput,
+    problemId,
+    targets
+  }: {
+    user: AuthenticatedUser
+    checkInput: CreatePlagiarismCheckInput
+    problemId: number
+    targets: CreatePlagiarismTargetsInput[]
+  }) {
+    if (!user.isAdmin() && !user.isSuperAdmin()) {
+      throw new ForbiddenException('Only admins can request this check')
+    }
+
+    await this.validateAssignments({ problemId, targets })
+
+    const assignmentIds = targets.map((v) => v.assignmentId)
+
+    return await this.checkProblem({
+      userId: user.id,
+      checkInput,
+      problemId,
+      idOptions: {
+        assignmentIds
       }
     })
   }
@@ -158,6 +287,7 @@ export class CheckService {
    * @returns {CheckRequest} 표절 검사를 요청한 기록을 반환합니다.
    * @throws {UnprocessableDataException} 아래와 같은 경우 발생합니다.
    * - Prisma에 요청을 기록할 수 없을 때
+   * @throws {EntityNotExistException} 대상 과제가 존재하지 않을 때 발생합니다.
    * @throws Publish 과정에서 오류가 발생할 수 있습니다.
    */
   @Span()
@@ -172,17 +302,20 @@ export class CheckService {
     problemId: number
     idOptions: {
       contestId?: number
-      assignmentId?: number
+      assignmentIds?: number[]
       workbookId?: number
     }
   }) {
     await this.validateRequest({
       problemId,
-      language: checkInput.language
+      language: checkInput.language,
+      ...idOptions
     })
 
     const { language, enableMerging, useJplagClustering, minTokens } =
       checkInput
+
+    const { assignmentIds = [], contestId, workbookId } = idOptions
 
     try {
       const check = await this.prisma.checkRequest.create({
@@ -194,8 +327,15 @@ export class CheckService {
           enableMerging,
           useJplagClustering,
           minTokens,
-          ...idOptions
-        }
+          contestId,
+          workbookId,
+          assignments: {
+            create: [...new Set(assignmentIds)].map((assignmentId) => ({
+              assignmentId
+            }))
+          }
+        },
+        include: { assignments: true }
       })
 
       await this.publish.publishCheckRequestMessage({
@@ -204,9 +344,22 @@ export class CheckService {
       return check
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (
+          error.code === 'P2003' &&
+          error.meta?.constraint ===
+            'check_request_assignment_assignment_id_fkey'
+        ) {
+          throw new EntityNotExistException('Assignment')
+        }
         throw new UnprocessableDataException('Failed to create check record')
       }
       throw error
+    }
+  }
+
+  private checkRequestScope(groupId: number): Prisma.CheckRequestWhereInput {
+    return {
+      assignments: { some: {}, every: { assignment: { groupId } } }
     }
   }
 
@@ -223,14 +376,15 @@ export class CheckService {
     return await this.prisma.checkRequest.findMany({
       where: {
         problemId,
-        assignment: {
-          id: assignmentId,
-          groupId
-        }
+        AND: [
+          this.checkRequestScope(groupId),
+          { assignments: { some: { assignmentId } } }
+        ]
       },
       select: {
         id: true,
         userId: true,
+        assignments: { select: { assignmentId: true } },
         language: true,
         enableMerging: true,
         minTokens: true,
@@ -272,9 +426,7 @@ export class CheckService {
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         id: checkId,
-        assignment: {
-          groupId
-        }
+        ...this.checkRequestScope(groupId)
       },
       select: {
         result: true
@@ -378,7 +530,10 @@ export class CheckService {
     const request = await this.prisma.checkRequest.findFirst({
       where: {
         problemId,
-        assignmentId
+        AND: [
+          this.checkRequestScope(groupId),
+          { assignments: { some: { assignmentId } } }
+        ]
       },
       select: {
         id: true
@@ -419,15 +574,7 @@ export class CheckService {
     const cluster = await this.prisma.plagiarismCluster.findFirst({
       where: {
         id: clusterId,
-        SubmissionCluster: {
-          every: {
-            submission: {
-              assignment: {
-                groupId
-              }
-            }
-          }
-        }
+        CheckResult: { some: { request: this.checkRequestScope(groupId) } }
       },
       select: {
         id: true,
@@ -483,11 +630,7 @@ export class CheckService {
     const result = await this.prisma.checkResult.findFirst({
       where: {
         id: resultId,
-        request: {
-          assignment: {
-            groupId
-          }
-        }
+        request: this.checkRequestScope(groupId)
       },
       select: {
         requestId: true,

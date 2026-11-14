@@ -15,3 +15,12 @@ export class CreatePlagiarismCheckInput {
   @Field(() => Boolean, { nullable: false, defaultValue: true })
   useJplagClustering: boolean
 }
+
+@InputType()
+export class CreatePlagiarismTargetsInput {
+  @Field(() => Int, { nullable: false })
+  assignmentId: number
+
+  @Field(() => Int, { nullable: false })
+  groupId: number
+}
