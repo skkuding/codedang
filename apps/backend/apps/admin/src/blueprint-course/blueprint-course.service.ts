@@ -42,4 +42,58 @@ export class BlueprintCourseService {
       }
     })
   }
+
+  /**
+   * Returns Blueprint courses created or led by the user,
+   * including all sections and their member counts.
+   */
+  async getBlueprintCourses(userId: number) {
+    const blueprintCourses = await this.prisma.blueprintCourse.findMany({
+      where: {
+        OR: [
+          { createdById: userId },
+          {
+            courseInfo: {
+              some: {
+                group: {
+                  userGroup: {
+                    some: { userId, isGroupLeader: true }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      orderBy: { id: 'desc' },
+      select: {
+        id: true,
+        courseTitle: true,
+        courseNum: true,
+        semester: true,
+        courseInfo: {
+          orderBy: { classNum: 'asc' },
+          select: {
+            group: {
+              include: {
+                courseInfo: true,
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                _count: {
+                  select: { userGroup: true }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    return blueprintCourses.map(({ courseInfo, ...blueprintCourse }) => ({
+      ...blueprintCourse,
+      sections: courseInfo.map(({ group }) => ({
+        ...group,
+        memberNum: group._count.userGroup
+      }))
+    }))
+  }
 }

@@ -744,6 +744,14 @@ input BlueprintCourseInput {
   week: Int!
 }
 
+type BlueprintCourseListItemOutput {
+  courseNum: String!
+  courseTitle: String!
+  id: ID!
+  sections: [FindGroup!]!
+  semester: String!
+}
+
 type BlueprintCourseMaxAggregate {
   courseNum: String
   courseTitle: String
@@ -3854,6 +3862,7 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getBlueprintCourses: [BlueprintCourseListItemOutput!]!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!
   getCluster(clusterId: Int!, groupId: Int!): GetClusterOutput!

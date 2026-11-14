@@ -10,12 +10,14 @@ import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import {
   getNamedType,
+  graphql,
   isObjectType,
   type GraphQLObjectType,
   type GraphQLSchema
 } from 'graphql'
 import { stub } from 'sinon'
 import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
+import { ADMIN_NOT_NEEDED_KEY } from '../../../../libs/auth/src/guard.decorator'
 import { BlueprintCourseResolver } from './blueprint-course.resolver'
 import { BlueprintCourseService } from './blueprint-course.service'
 import type { BlueprintCourseInput } from './model/blueprint-course.input'
@@ -38,7 +40,8 @@ const createdBlueprintCourse = {
 }
 
 const blueprintCourseService = {
-  createBlueprintCourse: stub()
+  createBlueprintCourse: stub(),
+  getBlueprintCourses: stub()
 }
 
 describe('BlueprintCourseResolver', () => {
@@ -57,10 +60,50 @@ describe('BlueprintCourseResolver', () => {
 
   afterEach(() => {
     blueprintCourseService.createBlueprintCourse.reset()
+    blueprintCourseService.getBlueprintCourses.reset()
   })
 
   it('should be defined', () => {
     expect(resolver).to.be.ok
+  })
+
+  describe('getBlueprintCourses', () => {
+    it('should allow regular authenticated users through the admin guard', () => {
+      expect(
+        Reflect.getMetadata(
+          ADMIN_NOT_NEEDED_KEY,
+          BlueprintCourseResolver.prototype.getBlueprintCourses
+        )
+      ).to.equal(true)
+    })
+
+    for (const role of [Role.User, Role.Admin, Role.SuperAdmin]) {
+      it(`should pass the authenticated user ID for ${role}`, async () => {
+        const request = {
+          user: new AuthenticatedUser(42, 'requester', role)
+        } as AuthenticatedRequest
+        const courses = [{ id: 1, sections: [] }]
+        blueprintCourseService.getBlueprintCourses.resolves(courses)
+        expect(await resolver.getBlueprintCourses(request)).to.equal(courses)
+        expect(
+          blueprintCourseService.getBlueprintCourses.calledOnceWithExactly(42)
+        ).to.be.true
+      })
+    }
+
+    it('should preserve an empty result', async () => {
+      blueprintCourseService.getBlueprintCourses.resolves([])
+      expect(await resolver.getBlueprintCourses(req)).to.deep.equal([])
+    })
+
+    it('should propagate service errors', async () => {
+      blueprintCourseService.getBlueprintCourses.rejects(
+        new Error('Query failed')
+      )
+      await expect(resolver.getBlueprintCourses(req)).to.be.rejectedWith(
+        'Query failed'
+      )
+    })
   })
 
   describe('createBlueprintCourse', () => {
@@ -113,6 +156,79 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
       .get(GraphQLSchemaFactory)
       .create([BlueprintCourseResolver, SchemaRootResolver])
     await app.close()
+  })
+
+  it('should expose a non-null list with the agreed summary fields', () => {
+    const query = schema.getQueryType()!.getFields().getBlueprintCourses
+    expect(String(query.type)).to.equal('[BlueprintCourseListItemOutput!]!')
+    expect(query.args).to.be.empty
+    const item = getNamedType(query.type) as GraphQLObjectType
+    expect(Object.keys(item.getFields())).to.have.members([
+      'id',
+      'courseTitle',
+      'courseNum',
+      'semester',
+      'sections'
+    ])
+    expect(String(item.getFields().sections.type)).to.equal('[FindGroup!]!')
+  })
+
+  it('should serialize section fields and empty sections through GraphQL', async () => {
+    const courses = [
+      {
+        id: 1,
+        courseTitle: 'Course',
+        courseNum: 'SWE2015',
+        semester: '2026 Fall',
+        sections: [
+          {
+            id: 101,
+            groupName: 'Section 41',
+            config: { showOnList: true },
+            memberNum: 0,
+            courseInfo: { classNum: 41 }
+          }
+        ]
+      },
+      {
+        id: 2,
+        courseTitle: 'Empty',
+        courseNum: 'SWE3004',
+        semester: '2026 Fall',
+        sections: []
+      }
+    ]
+    const result = await graphql({
+      schema,
+      source: `{
+        getBlueprintCourses {
+          id courseTitle courseNum semester
+          sections { id groupName config memberNum courseInfo { classNum } }
+        }
+      }`,
+      rootValue: { getBlueprintCourses: courses }
+    })
+    expect(result.errors).to.equal(undefined)
+    expect(JSON.parse(JSON.stringify(result.data))).to.deep.equal({
+      getBlueprintCourses: courses.map((course) => ({
+        ...course,
+        id: String(course.id),
+        sections: course.sections.map((section) => ({
+          ...section,
+          id: String(section.id)
+        }))
+      }))
+    })
+  })
+
+  it('should serialize an empty course list', async () => {
+    const result = await graphql({
+      schema,
+      source: '{ getBlueprintCourses { id } }',
+      rootValue: { getBlueprintCourses: [] }
+    })
+    expect(result.errors).to.equal(undefined)
+    expect(result.data?.getBlueprintCourses).to.deep.equal([])
   })
 
   it('should not expose fields that the service does not populate', () => {
