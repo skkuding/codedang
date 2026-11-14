@@ -184,59 +184,57 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
         </TableHeader>
         <TableBody className="[&_td]:border-[#80808040]">
           {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map((row) => {
-              return (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
-                  onClick={() => {
-                    onRowClick?.(table, row)
-                    const href = getHref?.(row.original)
-                    if (href) {
-                      router.push(href)
-                    }
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const isSelectColumn = cell.column.id === 'select'
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className={cn('cursor-pointer', 'hover:bg-neutral-200/30')}
+                onClick={() => {
+                  onRowClick?.(table, row)
+                  const href = getHref?.(row.original)
+                  if (href) {
+                    router.push(href)
+                  }
+                }}
+              >
+                {row.getVisibleCells().map((cell) => {
+                  const isSelectColumn = cell.column.id === 'select'
 
-                    return (
-                      <TableCell
-                        key={cell.id}
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        bodyStyleMap[size],
+                        isSelectColumn
+                          ? 'w-[1%] whitespace-nowrap p-0'
+                          : 'md:p-4',
+                        cell.column.id === 'code' && 'md:pl-0'
+                      )}
+                    >
+                      <div
                         className={cn(
-                          bodyStyleMap[size],
-                          isSelectColumn
-                            ? 'w-[1%] whitespace-nowrap p-0'
-                            : 'md:p-4',
-                          cell.column.id === 'code' && 'pl-0 md:pl-0'
+                          'relative flex justify-center whitespace-nowrap',
+                          isSelectColumn && 'w-14',
+                          bodyStyle[cell.column.id],
+                          cell.column.id === 'code' && 'justify-start'
                         )}
+                        style={{
+                          paddingLeft:
+                            cell.column.id === 'select'
+                              ? `${row.depth * 38}px`
+                              : `${row.depth * 19}px`
+                        }}
                       >
-                        <div
-                          className={cn(
-                            'relative flex justify-center whitespace-nowrap',
-                            isSelectColumn && 'w-14',
-                            bodyStyle[cell.column.id],
-                            cell.column.id === 'code' && 'justify-start'
-                          )}
-                          style={{
-                            paddingLeft:
-                              cell.column.id === 'select'
-                                ? `${row.depth * 38}px`
-                                : `${row.depth * 19}px`
-                          }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </div>
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </div>
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))
           ) : (
             <TableRow>
               <TableCell
