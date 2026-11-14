@@ -20,7 +20,7 @@ export class MandeuldangProblemResolver {
     @Args('status', { nullable: true, type: () => GraphQLProblemStatus })
     status?: PrismaProblemStatus
   ) {
-    return await this.problemService.getMyProblems(
+    return await this.problemService.getProblemsByOwner(
       req.user.id,
       cursor,
       take,

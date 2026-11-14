@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import {
   CollaboratorRole,
   CollaboratorStatus,
+  Prisma,
   ProblemCreationMode,
   ProblemStatus,
   Role
@@ -13,11 +14,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import type { MandeuldangProblemOutput } from '../model/problem.output'
 
-/** 목록 조회 `take`에 허용하는 최대값. 클라이언트가 과도하게 큰 값을 요청해 한 번에 큰
- *  결과셋을 조회해서 생기는 문제 방지를 위해 추가하였다. */
+/** Upper bound for `take` in list queries. */
 const MAX_TAKE = 100
 
-/** 목록/상세 조회 모두에서 재사용하는, "요청자의 협업 역할" 계산 로직. */
+/** Resolves the requester's collaboration role on a problem. */
 const resolveMyRole = (
   problem: {
     createdById: number | null
@@ -29,17 +29,14 @@ const resolveMyRole = (
   },
   userId: number
 ): `${CollaboratorRole}` | null => {
-  // Owner는 항상 Owner 권한을 갖는다 — MandeuldangCollaborator에 Owner 행이 아직
-  // 없더라도(협업자 등록은 다른 작업에서 다룬다) createdById로 대체 판단한다.
+  // The creator is always the Owner, even without a collaborator row.
   if (problem.createdById === userId) {
     return CollaboratorRole.Owner
   }
   const myCollaborator = problem.mandeuldangCollaborators.find(
     (collaborator) => collaborator.userId === userId
   )
-  // 승인(Approved)되지 않은 협업자(Pending/Rejected)에게는 role을 노출하지 않는다 —
-  // Published 문제는 누구나 조회 가능하므로, status를 보지 않으면 거절 혹은 대기 중인
-  // 사용자에게도 Editor/Reviewer 권한이 있는 것처럼 보일 수 있다.
+  // Pending or rejected collaborators have no role.
   return myCollaborator?.status === CollaboratorStatus.Approved
     ? myCollaborator.role
     : null
@@ -50,40 +47,24 @@ export class MandeuldangProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 내가 만든(Owner인) 만들당 문제 목록. 기본적으로 상태와 무관하게 전부 보여준다.
-   * "management -> 내가 만든 문제" 화면용. `status`를 넘기면 그 상태로만 좁혀 조회한다.
+   * Returns Mandeuldang problems created by the given user, regardless of status.
+   * Narrows to a single status when `status` is given.
    */
-  async getMyProblems(
+  async getProblemsByOwner(
     userId: number,
     cursor: number | null,
     take: number,
     status?: ProblemStatus
   ): Promise<MandeuldangProblemOutput[]> {
-    const paginator = this.prisma.getPaginator(cursor)
-    const problems = await this.prisma.problem.findMany({
-      ...paginator,
-      take: Math.max(1, Math.min(take, MAX_TAKE)),
-      where: {
-        creationMode: ProblemCreationMode.Mandeuldang,
-        createdById: userId,
-        ...(status && { status })
-      },
-      include: {
-        mandeuldangCollaborators: { where: { userId } }
-      },
-      orderBy: { updateTime: 'desc' }
+    return await this.findMandeuldangProblems(userId, cursor, take, {
+      createdById: userId,
+      ...(status && { status })
     })
-    return problems.map((problem) => ({
-      ...problem,
-      myRole: resolveMyRole(problem, userId)
-    }))
   }
 
   /**
-   * 제작 중인(기본적으로 아직 발행되지 않은) 만들당 문제 목록.
-   * Owner이거나 승인된(Approved) Collaborator로 참여 중인 문제를 모두 포함한다 —
-   * "내가 만든 문제"보다 넓은 범위다. "management -> 제작 중인 문제" 화면용.
-   * `status`를 넘기면 "Published가 아님" 대신 그 상태로만(Draft만, Ready만) 좁혀 조회한다.
+   * Returns unpublished Mandeuldang problems the user owns or collaborates on
+   * as an approved collaborator. Narrows to a single status when `status` is given.
    */
   async getInProgressProblems(
     userId: number,
@@ -91,39 +72,25 @@ export class MandeuldangProblemService {
     take: number,
     status?: ProblemStatus
   ): Promise<MandeuldangProblemOutput[]> {
-    const paginator = this.prisma.getPaginator(cursor)
-    const problems = await this.prisma.problem.findMany({
-      ...paginator,
-      take: Math.max(1, Math.min(take, MAX_TAKE)),
-      where: {
-        creationMode: ProblemCreationMode.Mandeuldang,
-        status: status ?? { not: ProblemStatus.Published },
-        OR: [
-          { createdById: userId },
-          {
-            mandeuldangCollaborators: {
-              some: { userId, status: CollaboratorStatus.Approved }
-            }
+    return await this.findMandeuldangProblems(userId, cursor, take, {
+      status: status ?? { not: ProblemStatus.Published },
+      OR: [
+        { createdById: userId },
+        {
+          mandeuldangCollaborators: {
+            some: { userId, status: CollaboratorStatus.Approved }
           }
-        ]
-      },
-      include: {
-        mandeuldangCollaborators: { where: { userId } }
-      },
-      orderBy: { updateTime: 'desc' }
+        }
+      ]
     })
-    return problems.map((problem) => ({
-      ...problem,
-      myRole: resolveMyRole(problem, userId)
-    }))
   }
 
   /**
-   * 문제 ID로 상세 조회. Statement, 발행 가능 여부, Solution/Tool/TestFile 목록,
-   * Collaborator 목록, 요청자의 역할을 한 번에 반환한다.
+   * Returns a Mandeuldang problem with its statement, publish readiness,
+   * solution, tools, test files, collaborators, and the requester's role.
    *
-   * 접근 권한: Published 문제는 (기존 Problem API와 동등하게) 누구나 조회 가능하다.
-   * 그 외(Draft/Ready)는 Owner·승인된 Collaborator·Admin/SuperAdmin만 조회할 수 있다.
+   * Published problems are visible to everyone. Draft and Ready problems are
+   * visible only to the owner, approved collaborators, and Admin/SuperAdmin.
    */
   async getProblem(
     id: number,
@@ -177,5 +144,26 @@ export class MandeuldangProblemService {
       canPublish: missingForPublish.length === 0,
       missingForPublish
     }
+  }
+
+  private async findMandeuldangProblems(
+    userId: number,
+    cursor: number | null,
+    take: number,
+    where: Prisma.ProblemWhereInput
+  ): Promise<MandeuldangProblemOutput[]> {
+    const problems = await this.prisma.problem.findMany({
+      ...this.prisma.getPaginator(cursor),
+      take: Math.max(1, Math.min(take, MAX_TAKE)),
+      where: { creationMode: ProblemCreationMode.Mandeuldang, ...where },
+      include: {
+        mandeuldangCollaborators: { where: { userId } }
+      },
+      orderBy: { updateTime: 'desc' }
+    })
+    return problems.map((problem) => ({
+      ...problem,
+      myRole: resolveMyRole(problem, userId)
+    }))
   }
 }

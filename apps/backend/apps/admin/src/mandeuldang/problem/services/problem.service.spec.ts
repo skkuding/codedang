@@ -60,11 +60,11 @@ describe('MandeuldangProblemService', () => {
     expect(service).to.be.ok
   })
 
-  describe('getMyProblems', () => {
+  describe('getProblemsByOwner', () => {
     it('filters by creationMode=Mandeuldang and createdById, regardless of status by default', async () => {
       db.problem.findMany.resolves([baseProblem])
 
-      await service.getMyProblems(ownerId, null, 10)
+      await service.getProblemsByOwner(ownerId, null, 10)
 
       const call = db.problem.findMany.firstCall.args[0]
       expect(call.where).to.deep.equal({
@@ -76,7 +76,7 @@ describe('MandeuldangProblemService', () => {
     it('narrows to a specific status when one is given', async () => {
       db.problem.findMany.resolves([])
 
-      await service.getMyProblems(ownerId, null, 10, ProblemStatus.Ready)
+      await service.getProblemsByOwner(ownerId, null, 10, ProblemStatus.Ready)
 
       const call = db.problem.findMany.firstCall.args[0]
       expect(call.where.status).to.equal(ProblemStatus.Ready)
@@ -85,7 +85,7 @@ describe('MandeuldangProblemService', () => {
     it('reports myRole=Owner on every item in the list', async () => {
       db.problem.findMany.resolves([baseProblem])
 
-      const result = await service.getMyProblems(ownerId, null, 10)
+      const result = await service.getProblemsByOwner(ownerId, null, 10)
 
       expect(result[0].myRole).to.equal(CollaboratorRole.Owner)
     })

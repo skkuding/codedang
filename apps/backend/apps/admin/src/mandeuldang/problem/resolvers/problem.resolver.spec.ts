@@ -7,7 +7,7 @@ import { MandeuldangProblemService } from '../services/problem.service'
 import { MandeuldangProblemResolver } from './problem.resolver'
 
 const problemService = {
-  getMyProblems: stub(),
+  getProblemsByOwner: stub(),
   getInProgressProblems: stub(),
   getProblem: stub()
 }
@@ -20,7 +20,7 @@ describe('MandeuldangProblemResolver', () => {
   let resolver: MandeuldangProblemResolver
 
   beforeEach(async () => {
-    problemService.getMyProblems.reset()
+    problemService.getProblemsByOwner.reset()
     problemService.getInProgressProblems.reset()
     problemService.getProblem.reset()
 
@@ -41,22 +41,22 @@ describe('MandeuldangProblemResolver', () => {
   })
 
   it('getMyMandeuldangProblems delegates to the service with the requester id', async () => {
-    problemService.getMyProblems.resolves([])
+    problemService.getProblemsByOwner.resolves([])
 
     await resolver.getMyMandeuldangProblems(req, null, 10, undefined)
 
     expect(
-      problemService.getMyProblems.calledOnceWith(1, null, 10, undefined)
+      problemService.getProblemsByOwner.calledOnceWith(1, null, 10, undefined)
     ).to.equal(true)
   })
 
   it('getMyMandeuldangProblems forwards an explicit status filter', async () => {
-    problemService.getMyProblems.resolves([])
+    problemService.getProblemsByOwner.resolves([])
 
     await resolver.getMyMandeuldangProblems(req, null, 10, ProblemStatus.Draft)
 
     expect(
-      problemService.getMyProblems.calledOnceWith(
+      problemService.getProblemsByOwner.calledOnceWith(
         1,
         null,
         10,
