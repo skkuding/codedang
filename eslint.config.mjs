@@ -62,6 +62,15 @@ export default eslintTS.config(
   },
 
   /* Backend configuration */
+  {
+    files: ['apps/backend/scripts/*.cjs'],
+    languageOptions: {
+      parserOptions: { project: false }
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
+  },
 
   {
     files: ['apps/backend/**/*.ts'],
