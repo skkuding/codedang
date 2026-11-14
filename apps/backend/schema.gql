@@ -2398,7 +2398,9 @@ type MandeuldangProblemOutput {
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
 
-  """지금 상태로 발행 가능한지 여부. 상세 조회에서만 계산해 채운다."""
+  """
+  Whether the problem can be published. Computed only in the detail query.
+  """
   canPublish: Boolean
   contestProblem: [ContestProblem!]
   courseQnA: [CourseQnA!]
@@ -2428,11 +2430,13 @@ type MandeuldangProblemOutput {
   memoryLimit: Int
 
   """
-  canPublish가 false일 때 무엇이 부족한지 나타내는 코드 목록 (STATEMENT/SOLUTION/TEST_FILES). 실제 발행 가능 여부의 최종 판단과 발행 자체는 Update/발행 담당 쪽에서 이뤄지므로, 이 값은 참고용 미리보기다.
+  Missing items when canPublish is false (STATEMENT, SOLUTION, TEST_FILES).
   """
   missingForPublish: [String!]
 
-  """요청한 사용자가 이 문제에 대해 가진 협업 역할. Owner/Editor/Reviewer가 아니면 null."""
+  """
+  Collaboration role of the requester. Null if the requester is not an Owner, Editor, or Reviewer.
+  """
   myRole: CollaboratorRole
   outputDescription: String
   problemTag: [ProblemTag!]
@@ -2458,7 +2462,9 @@ type MandeuldangProblemOutput {
   """
   template: [JSON!]
 
-  """등록된 테스트 파일(.in/.out 쌍 기준이 아니라 개별 파일 개수)"""
+  """
+  Number of uploaded test files, counted individually rather than as in/out pairs.
+  """
   testFileCount: Int
   testSubmission: [TestSubmission!]
   timeLimit: Int

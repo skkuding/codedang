@@ -245,7 +245,7 @@ model Problem {
   createdBy   User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?  @map("created_by_id")
 
-  // 문제 생성 방식 및 제작 상태
+  // Creation mode and publication status
   creationMode ProblemCreationMode @default(Legacy) @map("creation_mode")
   status       ProblemStatus       @default(Published)
   lastRunPass  Boolean             @default(false) @map("last_run_pass")
@@ -294,7 +294,7 @@ model Problem {
   isSampleUploadedByZip Boolean   @default(false) @map("is_sample_uploaded_by_zip")
   isHiddenUploadedByZip Boolean   @default(false) @map("is_hidden_uploaded_by_zip")
 
-  // 기존 Problem 관계
+  // Problem relations
   sharedGroups      Group[]
   problemTestcase   ProblemTestcase[]
   problemTag        ProblemTag[]
@@ -309,7 +309,7 @@ model Problem {
   testSubmission    TestSubmission[]
   CheckRequest      CheckRequest[]
 
-  // 만들당 관계
+  // Mandeuldang relations
   mandeuldangTestFiles     MandeuldangTestFile[]
   mandeuldangSolution      MandeuldangSolution?
   mandeuldangTools         MandeuldangTool[]

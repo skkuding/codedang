@@ -69,14 +69,10 @@ type NullableProblemContent = {
 }
 
 /**
- * status=Published 문제가 응답에 필요한 필수 콘텐츠 필드를 모두 갖췄는지 검증하고,
- * 해당 필드들이 non-null로 좁혀진 동일 객체를 반환합니다.
+ * Asserts that a published problem has all required content fields
+ * and returns it with those fields narrowed to non-null.
  *
- * 스키마상 nullable이지만 발행된 문제라면 항상 채워져 있어야 하며(레거시 문제는 생성
- * 시점에, 만들당 문제는 발행 검증에서 보장), 비어 있다면 발행 검증(publish validation)
- * 쪽 버그이므로 nullable 값을 응답 계약에 흘리지 않고 예외를 던집니다.
- *
- * @throws {UnprocessableDataException} 필수 필드가 비어 있는 경우
+ * @throws {UnprocessableDataException} if any required field is missing
  */
 const ensurePublishedProblemContent = <T extends NullableProblemContent>(
   problem: T
@@ -159,7 +155,6 @@ export class ProblemService {
           contains: search
         },
         visibleLockTime: MIN_DATE,
-        // 발행 전(Draft/Ready) 만들당 문제는 목록에 노출하지 않는다.
         ...PUBLISHED_PROBLEM_WHERE
       },
       select: {
@@ -201,8 +196,7 @@ export class ProblemService {
         submissionCount,
         title
       } = problem
-      // 목록은 status=Published 문제만 조회하므로 difficulty가 항상 존재해야 한다.
-      // 비어 있으면 발행 검증 쪽 버그이므로 nullable 값을 응답에 흘리지 않고 막는다.
+      // Published problems always have a difficulty; this narrows the type.
       if (difficulty == null) {
         throw new UnprocessableDataException(
           `Published problem ${id} is missing required field: difficulty`
@@ -251,8 +245,7 @@ export class ProblemService {
           contains: search
         },
         visibleLockTime: MIN_DATE,
-        // 발행 전(Draft/Ready) 만들당 문제는 목록 쿼리와 동일하게 집계에서도 제외한다 —
-        // 그렇지 않으면 total이 실제 반환 가능한 행 수보다 커져서 뒷 페이지가 비어 보인다.
+        // Must match the list query's filter so `total` reflects returnable rows.
         ...PUBLISHED_PROBLEM_WHERE
       }
     })
@@ -278,7 +271,6 @@ export class ProblemService {
       where: {
         id: problemId,
         visibleLockTime: MIN_DATE,
-        // 발행 전(Draft/Ready) 만들당 문제는 학생에게 공개되면 안 된다.
         ...PUBLISHED_PROBLEM_WHERE
       },
       select: problemSelectOption
@@ -1075,7 +1067,6 @@ export class WorkbookProblemService {
         },
         problem: {
           visibleLockTime: MIN_DATE,
-          // 발행 전(Draft/Ready) 만들당 문제는 워크북 상세 조회에도 노출하지 않는다.
           ...PUBLISHED_PROBLEM_WHERE
         }
       },
@@ -1087,7 +1078,6 @@ export class WorkbookProblemService {
       }
     })
 
-    // 워크북 문제 상세도 발행된(Published) 문제만 노출한다 — 필수 콘텐츠 필드가 채워져 있어야 한다.
     const publishedProblem = ensurePublishedProblemContent(data.problem)
 
     const tags = (
