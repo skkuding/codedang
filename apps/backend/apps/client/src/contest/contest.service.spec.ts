@@ -137,8 +137,8 @@ describe('ContestService', () => {
       const contests = await service.getContests(user01Id, keyword)
 
       expect(contests.ongoing.map((contest) => contest.title)).to.deep.equals([
-        '24년도 소프트웨어학과 신입생 입학 테스트2',
         '24년도 소프트웨어학과 신입생 입학 테스트1',
+        '24년도 소프트웨어학과 신입생 입학 테스트2',
         '24년도 소프트웨어학과 신입생 입학 테스트3'
       ])
     })
