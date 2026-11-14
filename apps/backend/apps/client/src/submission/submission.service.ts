@@ -233,7 +233,7 @@ export class SubmissionService {
    * @returns {Promise<Submission>} 생성된 제출 객체
    * @throws {EntityNotExistException} 아래의 경우에 발생합니다
    *   - 유효한 진행 중인 과제가 없을 경우 (Assignment)
-   *   - 사용자가 과제에 등록되어 있지 않은 경우 (AssignmentRecord)
+   *   - 사용자가 과제의 Course 멤버가 아닌 경우 (UserGroup)
    *   - 문제를 찾을 수 없거나 과제와 매칭되지 않는 경우 (AssignmentProblem)
    * @throws {ConflictFoundException} 아래의 경우에 발생합니다
    *   - 과제가 진행중이지 않을 경우
@@ -275,39 +275,7 @@ export class SubmissionService {
       throw new EntityNotExistException('Assignment')
     }
 
-    // 과제에 등록되어 있는지 확인합니다.
-    const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        assignmentId_userId: {
-          assignmentId,
-          userId
-        }
-      },
-      select: {
-        assignment: {
-          select: {
-            startTime: true,
-            dueTime: true,
-            endTime: true
-          }
-        }
-      }
-    })
-    if (!assignmentRecord) {
-      throw new ForbiddenAccessException(
-        'User not participated in the assignment'
-      )
-    }
-    if (
-      assignmentRecord.assignment.startTime > now ||
-      (assignmentRecord.assignment.dueTime ??
-        assignmentRecord.assignment.endTime) <= now
-    ) {
-      throw new ConflictFoundException(
-        'Submission is only allowed to ongoing assignments'
-      )
-    }
+    await this.requireAssignmentMember(assignment.groupId, userId)
 
     const assignmentProblem = await this.prisma.assignmentProblem.findUnique({
       where: {
@@ -325,26 +293,6 @@ export class SubmissionService {
       throw new EntityNotExistException('AssignmentProblem')
     }
     const { problem } = assignmentProblem
-
-    await this.prisma.assignmentProblemRecord.upsert({
-      where: {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        assignmentId_userId_problemId: {
-          assignmentId,
-          userId,
-          problemId: problem.id
-        }
-      },
-      create: {
-        assignmentId,
-        userId,
-        problemId: problem.id,
-        isSubmitted: true
-      },
-      update: {
-        isSubmitted: true
-      }
-    })
 
     const submission = await this.createSubmission({
       submissionDto,
@@ -508,7 +456,7 @@ export class SubmissionService {
         )
       }
 
-      const submission = await this.prisma.submission.create({
+      const submission = await this.persistSubmission({
         data: {
           ...submissionData,
           result: ResultStatus.Judging,
@@ -535,6 +483,86 @@ export class SubmissionService {
     }
   }
 
+  /** Persist score records and the submission atomically before publishing or finalizing. */
+  private async persistSubmission({
+    data
+  }: {
+    data: Prisma.SubmissionUncheckedCreateInput
+  }): Promise<Submission> {
+    if (!data.assignmentId && !data.contestId) {
+      return this.prisma.submission.create({ data })
+    }
+
+    return this.prisma.$transaction(async (prisma) => {
+      const { assignmentId, contestId, userId, problemId } = data
+      if (assignmentId && userId) {
+        await prisma.assignmentRecord.upsert({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { assignmentId_userId: { assignmentId, userId } },
+          create: { assignmentId, userId },
+          update: { userId }
+        })
+        await prisma.assignmentProblemRecord.upsert({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_userId_problemId: { assignmentId, userId, problemId }
+          },
+          create: { assignmentId, userId, problemId, isSubmitted: true },
+          update: { isSubmitted: true }
+        })
+      }
+      if (contestId && userId) {
+        const registration = await prisma.userContest.findUnique({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { userId_contestId: { userId, contestId } },
+          select: { role: true }
+        })
+        if (registration?.role === ContestRole.Participant) {
+          await prisma.contestRecord.upsert({
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            where: { contestId_userId: { contestId, userId } },
+            create: { contestId, userId },
+            update: { userId }
+          })
+        }
+      }
+      return prisma.submission.create({ data })
+    })
+  }
+
+  private async requireAssignmentMember(groupId: number, userId: number) {
+    const member = await this.prisma.userGroup.findFirst({
+      where: { groupId, userId },
+      select: { isGroupLeader: true }
+    })
+    if (!member) {
+      throw new ForbiddenAccessException(
+        'User not participated in the assignment'
+      )
+    }
+    return member
+  }
+
+  private async getMemberAssignment(assignmentId: number, userId: number) {
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: {
+        groupId: true,
+        startTime: true,
+        endTime: true,
+        isJudgeResultVisible: true
+      }
+    })
+    if (!assignment) {
+      throw new EntityNotExistException('Assignment')
+    }
+    const member = await this.requireAssignmentMember(
+      assignment.groupId,
+      userId
+    )
+    return { assignment, isGroupLeader: member.isGroupLeader }
+  }
+
   /**
    * 채점 가능한 테스트케이스가 없는 제출을 곧바로 정답 상태로 생성하고, 관련 통계 및 기록에 반영합니다.
    *
@@ -559,7 +587,7 @@ export class SubmissionService {
       workbookId?: number
     }
   ): Promise<Submission> {
-    const submission = await this.prisma.submission.create({
+    const submission = await this.persistSubmission({
       data: {
         ...submissionData,
         result: ResultStatus.Accepted,
@@ -1172,80 +1200,32 @@ export class SubmissionService {
 
     if (contestId) {
       isStaff = await this.isContestStaff(contestId, userId)
-      if (isStaff) {
-        const contestData = await this.prisma.contest.findUnique({
-          where: { id: contestId },
-          select: {
-            startTime: true,
-            endTime: true,
-            isJudgeResultVisible: true
-          }
+      if (!isStaff) {
+        const registration = await this.prisma.userContest.findUnique({
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          where: { userId_contestId: { userId, contestId } }
         })
-        if (!contestData) {
-          throw new EntityNotExistException('Contest')
+        if (!registration) {
+          throw new EntityNotExistException('UserContest')
         }
-        contest = contestData
-        isJudgeResultVisible = contest.isJudgeResultVisible
-      } else {
-        const contestRecord = await this.prisma.contestRecord.findUnique({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            contestId_userId: {
-              contestId,
-              userId
-            }
-          },
-          select: {
-            contest: {
-              select: {
-                startTime: true,
-                endTime: true,
-                isJudgeResultVisible: true
-              }
-            }
-          }
-        })
-        if (!contestRecord) {
-          throw new EntityNotExistException('ContestRecord')
-        }
-        contest = contestRecord.contest
-        isJudgeResultVisible = contest.isJudgeResultVisible
       }
+      contest = await this.prisma.contest.findUnique({
+        where: { id: contestId },
+        select: {
+          startTime: true,
+          endTime: true,
+          isJudgeResultVisible: true
+        }
+      })
+      if (!contest) {
+        throw new EntityNotExistException('Contest')
+      }
+      isJudgeResultVisible = contest.isJudgeResultVisible
     } else if (assignmentId) {
-      const assignmentData = await this.findLeaderAssignment(
-        assignmentId,
-        userId
-      )
-      if (assignmentData) {
-        isGroupLeader = true
-        assignment = assignmentData
-        isHiddenTestcaseVisible = assignment.isJudgeResultVisible
-      } else {
-        const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
-          where: {
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            assignmentId_userId: {
-              assignmentId,
-              userId
-            }
-          },
-          select: {
-            assignment: {
-              select: {
-                groupId: true,
-                startTime: true,
-                endTime: true,
-                isJudgeResultVisible: true
-              }
-            }
-          }
-        })
-        if (!assignmentRecord) {
-          throw new EntityNotExistException('AssignmentRecord')
-        }
-        assignment = assignmentRecord.assignment
-        isHiddenTestcaseVisible = assignment.isJudgeResultVisible
-      }
+      const access = await this.getMemberAssignment(assignmentId, userId)
+      assignment = access.assignment
+      isGroupLeader = access.isGroupLeader
+      isHiddenTestcaseVisible = assignment.isJudgeResultVisible
     }
 
     let problem
@@ -1477,17 +1457,12 @@ export class SubmissionService {
       : await this.isContestStaff(contestId, userId)
 
     if (!isStaff) {
-      const contestRecord = await this.prisma.contestRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          contestId_userId: {
-            contestId,
-            userId
-          }
-        }
+      const registration = await this.prisma.userContest.findUnique({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        where: { userId_contestId: { userId, contestId } }
       })
-      if (!contestRecord) {
-        throw new EntityNotExistException('ContestRecord')
+      if (!registration) {
+        throw new EntityNotExistException('UserContest')
       }
     }
 
@@ -1597,18 +1572,7 @@ export class SubmissionService {
     })
 
     if (!isAdmin) {
-      const assignmentRecord = await this.prisma.assignmentRecord.findUnique({
-        where: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          assignmentId_userId: {
-            assignmentId,
-            userId
-          }
-        }
-      })
-      if (!assignmentRecord) {
-        throw new EntityNotExistException('AssignmentRecord')
-      }
+      await this.getMemberAssignment(assignmentId, userId)
     }
 
     const assignmentProblem = await this.prisma.assignmentProblem.findFirst({
@@ -1712,29 +1676,8 @@ export class SubmissionService {
     assignmentId: number,
     userId: number
   ) {
-    const isParticipated = await this.prisma.assignmentRecord.findUnique({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      where: { assignmentId_userId: { assignmentId, userId } }
-    })
-
-    if (!isParticipated) {
-      throw new ForbiddenAccessException(
-        'User not participated in the assignment'
-      )
-    }
-
-    const isHiddenTestcaseVisible = (
-      await this.prisma.assignment.findUnique({
-        where: { id: assignmentId },
-        select: {
-          isJudgeResultVisible: true
-        }
-      })
-    )?.isJudgeResultVisible
-
-    if (isHiddenTestcaseVisible === undefined) {
-      throw new NotFoundException('Assignment')
-    }
+    const { assignment } = await this.getMemberAssignment(assignmentId, userId)
+    const isHiddenTestcaseVisible = assignment.isJudgeResultVisible
 
     const rawSubmission = await this.prisma.submission.findFirst({
       where: { userId, assignmentId, problemId },
@@ -1805,33 +1748,11 @@ export class SubmissionService {
    * @throws {ForbiddenAccessException} 사용자가 과제에 참여하지 않은 경우
    */
   async getAssignmentSubmissionSummary(assignmentId: number, userId: number) {
-    const [isParticipated, assignmentProblems] = await Promise.all([
-      this.prisma.assignmentRecord.findUnique({
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        where: { assignmentId_userId: { assignmentId, userId } },
-        select: {
-          assignment: {
-            select: {
-              isJudgeResultVisible: true
-            }
-          }
-        }
-      }),
-      this.prisma.assignmentProblem.findMany({
-        where: { assignmentId },
-        select: {
-          problemId: true
-        }
-      })
-    ])
-
-    if (!isParticipated) {
-      throw new ForbiddenAccessException(
-        'User not participated in the assignment'
-      )
-    }
-
-    const { assignment } = isParticipated
+    const { assignment } = await this.getMemberAssignment(assignmentId, userId)
+    const assignmentProblems = await this.prisma.assignmentProblem.findMany({
+      where: { assignmentId },
+      select: { problemId: true }
+    })
     const isHiddenTestcaseVisible = assignment.isJudgeResultVisible
 
     if (assignmentProblems.length === 0) {
