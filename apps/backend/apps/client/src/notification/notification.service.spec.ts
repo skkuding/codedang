@@ -6,7 +6,6 @@ import type {
   NotificationRecord,
   PushSubscription
 } from '@prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import {
@@ -14,6 +13,7 @@ import {
   ConflictFoundException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { PrismaClientKnownRequestError } from '@libs/prisma-runtime'
 import { NotificationService } from './notification.service'
 
 const userId = 1

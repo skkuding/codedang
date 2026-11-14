@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import type { Readable } from 'stream'
 import { MAX_FILE_SIZE, MAX_IMAGE_SIZE } from '@libs/constants'
@@ -9,6 +8,7 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { PrismaClientKnownRequestError } from '@libs/prisma-runtime'
 import { StorageService } from '@libs/storage'
 import type { UploadFileInput } from '../model/problem.input'
 

@@ -1,9 +1,11 @@
 import {
   Injectable,
+  Logger,
   type OnModuleDestroy,
   type OnModuleInit
 } from '@nestjs/common'
 import { PrismaClient, type Prisma } from '@prisma/client'
+import { createPrismaPool, observePoolErrors } from './prisma-pool'
 import type { Paginator } from './prisma.service'
 
 export type FlatTransactionClient = Prisma.TransactionClient & {
@@ -19,17 +21,23 @@ export class PrismaTestService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    super({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL
-        }
-      }
-    })
+    const { pool, adapter } = createPrismaPool(
+      process.env.DATABASE_URL,
+      process.env.DATABASE_CONNECTION_LIMIT,
+      true
+    )
+    super({ adapter })
+    const logger = new Logger(PrismaTestService.name)
+    observePoolErrors(pool, logger)
   }
 
   async onModuleInit() {
-    await this.$connect()
+    try {
+      await this.$connect()
+    } catch (error) {
+      await this.$disconnect()
+      throw error
+    }
   }
 
   async onModuleDestroy() {

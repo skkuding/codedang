@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "NodeNext",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "target": "esnext",
     "sourceMap": true,
     "outDir": "./dist",
@@ -33,7 +34,10 @@
       "@libs/instrumentation": ["./libs/instrumentation.ts"],
       "@libs/storage": ["./libs/storage/src/index.ts"],
       "@libs/amqp": ["./libs/amqp/src/index.ts"],
-      "@libs/graphql": ["./libs/graphql/src/index.ts"]
-    }
+      "@libs/graphql": ["./libs/graphql/src/index.ts"],
+      "@prisma/client": ["./libs/prisma/src/generated/client"],
+      "@libs/prisma-runtime": ["./libs/prisma/src/client-runtime"]
+    },
+    "moduleResolution": "NodeNext"
   }
 }

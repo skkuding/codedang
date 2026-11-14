@@ -15,7 +15,7 @@ const bootstrap = async () => {
   expand(config())
   await Instrumentation.start('client-api')
 
-  const { AppModule } = await import('./app.module')
+  const { AppModule } = await import('./app.module.js')
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   })
@@ -48,6 +48,7 @@ const bootstrap = async () => {
     app.setGlobalPrefix('api')
   }
 
+  app.enableShutdownHooks()
   await app.listen(4000)
 }
 
