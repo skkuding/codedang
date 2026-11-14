@@ -11,12 +11,12 @@ import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useSuspenseQuery } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
-import { columns } from './Columns'
+import { columns, type DataTableCourse } from './Columns'
 import { CreateSection } from './CreateSection'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
-import { coursesMockData, type CourseTableRow } from './section_mock'
+import { coursesMockData } from './section_mock'
 
 export function GroupTable() {
   const client = useApolloClient()
@@ -56,7 +56,7 @@ export function GroupTable() {
     title: 'justify-start'
   }
 
-  const renderCreateSection = (row: CourseTableRow) => (
+  const renderCreateSection = (row: DataTableCourse) => (
     <CreateSection courseCode={row.code} />
   )
 
