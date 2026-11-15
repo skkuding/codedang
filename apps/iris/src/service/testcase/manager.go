@@ -85,9 +85,9 @@ func (t *testcaseManager) SaveTestcase(ctx context.Context, problemId string, hi
 	// 2) Upload each testcase's .in/.out to S3 using the id it was just assigned, in parallel.
 	errChan := make(chan error, len(data))
 	for i, element := range data {
-		go func(id int, element loader.ElementIn) {
+		go func(id int, element loader.ElementIn, errChan chan<- error) {
 			errChan <- t.s3Manager.Put(ctx, parsedProblemID, id, element)
-		}(ids[i], element)
+		}(ids[i], element, errChan)
 	}
 	var errs []error
 	for range data {

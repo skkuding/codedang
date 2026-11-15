@@ -91,7 +91,7 @@ func (s *S3Manager) Get(problemId string) ([]ElementOut, error) {
 
 	// Process each testcase in a goroutine
 	for _, id := range testcaseIds {
-		go func(id string) {
+		go func(id string, resultChan chan<- ElementOut, errChan chan<- error) {
 			inKey := problemId + "/" + id + ".in"
 			outKey := problemId + "/" + id + ".out"
 
@@ -156,7 +156,7 @@ func (s *S3Manager) Get(problemId string) ([]ElementOut, error) {
 				Out:    string(bodyOut),
 				Hidden: isHidden,
 			}
-		}(id)
+		}(id, resultChan, errChan)
 	}
 
 	var results []ElementOut
@@ -200,7 +200,7 @@ func (s *S3Manager) Put(ctx context.Context, problemId int, id int, element Elem
 	// Same goroutine + buffered channel pattern as Get above.
 	errChan := make(chan error, len(uploads))
 	for _, u := range uploads {
-		go func(u upload) {
+		go func(u upload, errChan chan<- error) {
 			_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
 				Bucket:  aws.String(s.bucket),
 				Key:     aws.String(u.key),
@@ -208,7 +208,7 @@ func (s *S3Manager) Put(ctx context.Context, problemId int, id int, element Elem
 				Tagging: aws.String(tagging),
 			})
 			errChan <- err
-		}(u)
+		}(u, errChan)
 	}
 
 	var errs []error
