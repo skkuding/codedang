@@ -24,20 +24,20 @@ type TestcaseManager interface {
 }
 
 type testcaseManager struct {
-	database *loader.Postgres
-	s3reader *loader.S3reader
-	logger   logger.Logger
+	database  *loader.Postgres
+	s3Manager *loader.S3Manager
+	logger    logger.Logger
 }
 
 func NewTestcaseManager(
-	s3reader *loader.S3reader,
+	s3Manager *loader.S3Manager,
 	database *loader.Postgres,
 	logProvider logger.Logger,
 ) TestcaseManager {
 	return &testcaseManager{
-		s3reader: s3reader,
-		database: database,
-		logger:   logProvider,
+		s3Manager: s3Manager,
+		database:  database,
+		logger:    logProvider,
 	}
 }
 
@@ -86,7 +86,7 @@ func (t *testcaseManager) SaveTestcase(ctx context.Context, problemId string, hi
 	errChan := make(chan error, len(data))
 	for i, element := range data {
 		go func(id int, element loader.ElementIn) {
-			errChan <- t.s3reader.Put(ctx, parsedProblemID, id, element)
+			errChan <- t.s3Manager.Put(ctx, parsedProblemID, id, element)
 		}(ids[i], element)
 	}
 	var errs []error
@@ -160,7 +160,7 @@ func (t *testcaseManager) discardPending(ctx context.Context, problemID int, ids
 	if len(deleted) == 0 {
 		return
 	}
-	if err := t.s3reader.Delete(cleanupCtx, problemID, deleted); err != nil {
+	if err := t.s3Manager.Delete(cleanupCtx, problemID, deleted); err != nil {
 		t.logger.Log(
 			logger.ERROR,
 			fmt.Sprintf("testcase.cleanup.failed stage=s3 problem_id=%d ids=%v err=%v", problemID, deleted, err),
@@ -169,7 +169,7 @@ func (t *testcaseManager) discardPending(ctx context.Context, problemID int, ids
 }
 
 func (t *testcaseManager) GetTestcase(ctx context.Context, problemId string, testcaseFilter TestcaseFilterCode) (Testcase, error) {
-	data, err := t.s3reader.Get(problemId)
+	data, err := t.s3Manager.Get(problemId)
 	if err != nil {
 		data, err = t.database.Get(ctx, problemId)
 		if err != nil {

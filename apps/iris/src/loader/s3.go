@@ -14,12 +14,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-type S3reader struct {
+type S3Manager struct {
 	client *s3.Client
 	bucket string
 }
 
-func NewS3DataSource(bucket string) (*S3reader, error) {
+func NewS3Manager(bucket string) (*S3Manager, error) {
 	endpoint := os.Getenv("MINIO_ENDPOINT_URL")
 	if endpoint != "" {
 		// When running with MinIO, static env credentials are used.
@@ -49,10 +49,10 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot access S3 bucket <%s>: %w", bucket, err)
 	}
-	return &S3reader{client: client, bucket: bucket}, nil
+	return &S3Manager{client: client, bucket: bucket}, nil
 }
 
-func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
+func (s *S3Manager) Get(problemId string) ([]ElementOut, error) {
 	output, err := s.client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(s.bucket),
 		Prefix: aws.String(problemId + "/"),
@@ -182,7 +182,7 @@ func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 // <problemId>/<id>.out, tagging both objects with hidden=<true|false>. Get reads
 // this same tag to determine ElementOut.Hidden, so the tag must always be set —
 // the admin backend's testcase.service.ts::createTestcases follows the same convention.
-func (s *S3reader) Put(ctx context.Context, problemId int, id int, element ElementIn) error {
+func (s *S3Manager) Put(ctx context.Context, problemId int, id int, element ElementIn) error {
 	tagging := "hidden=false"
 	if element.Hidden {
 		tagging = "hidden=true"
@@ -228,7 +228,7 @@ const deleteObjectsBatchSize = 1000
 
 // Delete removes the <problemId>/<id>.in and <problemId>/<id>.out objects written by Put.
 // Keys that do not exist are not an error, so it is safe to call for partially uploaded ids.
-func (s *S3reader) Delete(ctx context.Context, problemId int, ids []int) error {
+func (s *S3Manager) Delete(ctx context.Context, problemId int, ids []int) error {
 	objects := make([]types.ObjectIdentifier, 0, len(ids)*2)
 	for _, id := range ids {
 		for _, ext := range []string{"in", "out"} {
