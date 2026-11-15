@@ -6,13 +6,13 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 
 export interface DataTableCourse {
   id: number
-  type: 'master' | 'section'
+  type: 'master' | 'section' | 'course'
   title: string
   code: string
   classNum: number | null
   semester: string
   studentCount: number | null
-  subRows?: DataTableCourse[]
+  sections?: DataTableCourse[]
 }
 
 export const columns: ColumnDef<DataTableCourse>[] = [

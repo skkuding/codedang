@@ -1,61 +1,59 @@
-import type { DataTableCourse } from './Columns'
+export interface BluePrintCourse {
+  id: number
+  courseNum: string
+  courseTitle: string
+  semester: string
+  isProfessor: boolean
+  sections: SectionCourse[]
+}
 
-export const coursesMockData: DataTableCourse[] = [
+export interface SectionCourse {
+  id: number
+  groupName: string
+  memberNum: number
+  courseInfo: { classNum: number }
+}
+
+export const bluePrintMockData: BluePrintCourse[] = [
   {
-    id: 1,
-    type: 'master',
-    title: '전자회로1',
-    code: 'CHS1330',
-    classNum: null,
+    id: 100,
+    courseNum: 'CHS1330',
+    courseTitle: '전자회로1',
     semester: '2026 Winter',
-    studentCount: null,
-    subRows: [
+    isProfessor: true,
+    sections: [
       {
         id: 11,
-        type: 'section',
-        title: '전자회로1',
-        code: 'CHS1330',
-        classNum: 43,
-        semester: '2026 Winter',
-        studentCount: 12
+        groupName: '전자회로1',
+        memberNum: 12,
+        courseInfo: { classNum: 43 }
       },
       {
         id: 12,
-        type: 'section',
-        title: '전자회로1',
-        code: 'CHS1330',
-        classNum: 42,
-        semester: '2026 Winter',
-        studentCount: 41
+        groupName: '전자회로1',
+        memberNum: 41,
+        courseInfo: { classNum: 42 }
       }
     ]
   },
   {
     id: 2,
-    type: 'master',
-    title: '김민규개론',
-    code: 'SWE1234',
-    classNum: null,
+    courseTitle: '김민규개론',
+    courseNum: 'SWE1234',
     semester: '2026 Winter',
-    studentCount: null,
-    subRows: [
+    isProfessor: false,
+    sections: [
       {
         id: 21,
-        type: 'section',
-        title: '김민규개론',
-        code: 'SWE1234',
-        classNum: 15,
-        semester: '2026 Winter',
-        studentCount: 15
+        groupName: '김민규개론',
+        memberNum: 15,
+        courseInfo: { classNum: 15 }
       },
       {
         id: 22,
-        type: 'section',
-        title: '김민규개론',
-        code: 'SWE1234',
-        classNum: 16,
-        semester: '2026 Winter',
-        studentCount: 33
+        groupName: '김민규개론',
+        memberNum: 33,
+        courseInfo: { classNum: 16 }
       }
     ]
   }

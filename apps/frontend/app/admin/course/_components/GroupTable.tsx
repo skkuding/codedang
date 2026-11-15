@@ -11,32 +11,61 @@ import { GET_COURSES_USER_LEAD } from '@/graphql/course/queries'
 import { useApolloClient, useSuspenseQuery } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
 import { DataTableSemesterFilter } from '../../_components/table/DataTableSemesterFilter'
-import { columns } from './Columns'
+import { columns, type DataTableCourse } from './Columns'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
-import { coursesMockData } from './section_mock'
+import { bluePrintMockData } from './section_mock'
 
 export function GroupTable() {
   const client = useApolloClient()
 
   const [semesters, setSemesters] = useState<string[]>([])
 
-  // const { data } = useSuspenseQuery(GET_COURSES_USER_LEAD)
-  // const courses = useMemo(
-  //   () =>
-  //     data.getCoursesUserLead.map((course) => ({
-  //       id: Number(course.id),
-  //       title: course.groupName,
-  //       code: course.courseInfo?.courseNum ?? '',
-  //       classNum: course.courseInfo?.classNum ?? null,
-  //       semester: course.courseInfo?.semester ?? '',
-  //       studentCount: course.memberNum
-  //     })),
-  //   [data.getCoursesUserLead]
-  // )
+  // const {data: bluePrintData} = useSuspenseQuery(GET_BLUE_PRINT_COURSES)
+  const { data: normalCourseData } = useSuspenseQuery(GET_COURSES_USER_LEAD)
 
-  const courses = coursesMockData
+  const bluePrintCourses: DataTableCourse[] = useMemo(
+    () =>
+      bluePrintMockData.map((blueprint) => ({
+        id: blueprint.id,
+        type: 'master',
+        title: blueprint.courseTitle,
+        code: String(blueprint.courseNum),
+        classNum: null,
+        semester: blueprint.semester,
+        studentCount: null,
+        sections: blueprint.sections.map((section) => ({
+          id: section.id,
+          type: 'section',
+          title: section.groupName,
+          code: String(blueprint.courseNum),
+          classNum: section.courseInfo.classNum,
+          semester: blueprint.semester,
+          studentCount: section.memberNum
+        }))
+      })),
+    []
+  )
+
+  const normalCourses: DataTableCourse[] = useMemo(
+    () =>
+      normalCourseData.getCoursesUserLead.map((course) => ({
+        id: Number(course.id),
+        type: 'course' as const,
+        title: course.groupName,
+        code: course.courseInfo?.courseNum ?? '',
+        classNum: course.courseInfo?.classNum ?? null,
+        semester: course.courseInfo?.semester ?? '',
+        studentCount: course.memberNum
+      })),
+    [normalCourseData]
+  )
+
+  const courses = useMemo(
+    () => [...bluePrintCourses, ...normalCourses],
+    [bluePrintCourses, normalCourses]
+  )
 
   useEffect(() => {
     const uniqueSemesters = Array.from(
@@ -60,7 +89,7 @@ export function GroupTable() {
       <DataTableRoot
         data={courses}
         columns={columns}
-        getSubRows={(row) => row.subRows}
+        getSubRows={(row) => row.sections}
       >
         <div className="flex justify-between">
           <div className="flex gap-2">
