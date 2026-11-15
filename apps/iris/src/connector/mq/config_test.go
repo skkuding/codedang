@@ -26,11 +26,18 @@ func TestMessageTimeoutFromEnv(t *testing.T) {
 		assert.Equal(t, 1234*time.Millisecond, timeout)
 	})
 
-	for _, value := range []string{"0", "-1", "bad", "9223372036854775807"} {
+	t.Run("disables timeout", func(t *testing.T) {
+		t.Setenv(MessageTimeoutEnv, "-1")
+		timeout, err := MessageTimeoutFromEnv()
+		require.NoError(t, err)
+		assert.Equal(t, -time.Millisecond, timeout)
+	})
+
+	for _, value := range []string{"0", "-2", "bad", "9223372036854775807"} {
 		t.Run("rejects "+value, func(t *testing.T) {
 			t.Setenv(MessageTimeoutEnv, value)
 			_, err := MessageTimeoutFromEnv()
-			assert.EqualError(t, err, "must be a positive integer")
+			assert.EqualError(t, err, "must be -1 (disabled) or a positive integer within time.Duration range")
 		})
 	}
 }
@@ -72,6 +79,7 @@ func TestConfigFromEnv(t *testing.T) {
 	}{
 		{"default", "false", "", "amqp://user:pass@broker:5672/vhost", false, time.Duration(DefaultMessageTimeoutMS) * time.Millisecond, 0},
 		{"TLS and configured timeout", "true", "1234", "amqps://user:pass@broker:5672/vhost", true, 1234 * time.Millisecond, 0},
+		{"explicitly disabled timeout", "false", "-1", "amqp://user:pass@broker:5672/vhost", false, -time.Millisecond, 0},
 		{"invalid timeout fallback", "false", "bad", "amqp://user:pass@broker:5672/vhost", false, time.Duration(DefaultMessageTimeoutMS) * time.Millisecond, 1},
 	} {
 		t.Run(test.name, func(t *testing.T) {

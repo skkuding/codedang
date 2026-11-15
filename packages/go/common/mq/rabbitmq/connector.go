@@ -17,6 +17,9 @@ type Router interface {
 	Route(path string, id string, data []byte, out chan<- mq.Response, ctx context.Context)
 }
 
+// DisabledMessageTimeout skips the per-message deadline while honoring parent cancellation.
+const DisabledMessageTimeout = -time.Millisecond
+
 type ConnectorConfig struct {
 	MessageTimeout time.Duration
 }
@@ -87,8 +90,11 @@ func (c *Connector) handle(message amqp.Delivery, ctx context.Context) {
 	)
 	defer childSpan.End()
 	timeout := c.timeout
-	spanCtx, cancel := context.WithTimeout(spanCtx, timeout)
-	defer cancel()
+	if timeout != DisabledMessageTimeout {
+		var cancel context.CancelFunc
+		spanCtx, cancel = context.WithTimeout(spanCtx, timeout)
+		defer cancel()
+	}
 
 	resultChan := make(chan mq.Response, 1)
 	go func() {
@@ -106,7 +112,11 @@ drain:
 				break drain
 			}
 		case <-spanCtx.Done():
-			c.logger.LogWithContext(commonlogger.ERROR, fmt.Sprintf("message handling timed out after %s", timeout), spanCtx)
+			if timeout == DisabledMessageTimeout {
+				c.logger.LogWithContext(commonlogger.ERROR, fmt.Sprintf("message handling canceled: %s", spanCtx.Err()), spanCtx)
+			} else {
+				c.logger.LogWithContext(commonlogger.ERROR, fmt.Sprintf("message handling timed out after %s", timeout), spanCtx)
+			}
 			break drain
 		}
 

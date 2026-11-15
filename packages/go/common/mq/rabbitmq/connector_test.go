@@ -67,6 +67,26 @@ func TestConnectorHandlePublishesAndAcknowledges(t *testing.T) {
 	}
 }
 
+func TestConnectorHandleDisabledTimeout(t *testing.T) {
+	producer := &connectorTestProducer{}
+	ack := &connectorTestAcknowledger{}
+	hasDeadline := make(chan bool, 1)
+	router := connectorTestRouter(func(_, _ string, _ []byte, out chan<- mq.Response, ctx context.Context) {
+		_, deadlineSet := ctx.Deadline()
+		hasDeadline <- deadlineSet
+		out <- mq.Response{Message: []byte("result"), Type: "result"}
+	})
+	c := NewConnector(nil, producer, router, &connectorTestLogger{}, ConnectorConfig{MessageTimeout: DisabledMessageTimeout})
+	c.handle(amqp.Delivery{Acknowledger: ack}, context.Background())
+
+	if <-hasDeadline {
+		t.Fatal("disabled message timeout unexpectedly added a deadline")
+	}
+	if string(producer.message) != "result" || producer.typ != "result" || !ack.acked {
+		t.Fatalf("got publish=(%q, %q), ack=%t", producer.message, producer.typ, ack.acked)
+	}
+}
+
 func TestConnectorHandleTimeoutAndPublishAckErrors(t *testing.T) {
 	t.Run("timeout", func(t *testing.T) {
 		producer := &connectorTestProducer{}

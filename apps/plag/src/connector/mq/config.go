@@ -13,7 +13,7 @@ import (
 
 const (
 	MessageTimeoutEnv     = "PLAG_MESSAGE_TIMEOUT_MS"
-	DefaultMessageTimeout = 10 * time.Minute
+	DefaultMessageTimeout = rabbitmq.DisabledMessageTimeout
 )
 
 func MessageTimeoutFromEnv() (time.Duration, error) {
@@ -22,8 +22,11 @@ func MessageTimeoutFromEnv() (time.Duration, error) {
 		return DefaultMessageTimeout, nil
 	}
 	milliseconds, err := strconv.ParseInt(raw, 10, 64)
-	if err != nil || milliseconds <= 0 || milliseconds > (1<<63-1)/int64(time.Millisecond) {
-		return 0, fmt.Errorf("must be a positive integer within time.Duration range")
+	if err != nil || (milliseconds <= 0 && milliseconds != -1) || milliseconds > (1<<63-1)/int64(time.Millisecond) {
+		return 0, fmt.Errorf("must be -1 (disabled) or a positive integer within time.Duration range")
+	}
+	if milliseconds == -1 {
+		return rabbitmq.DisabledMessageTimeout, nil
 	}
 	return time.Duration(milliseconds) * time.Millisecond, nil
 }

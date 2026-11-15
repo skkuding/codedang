@@ -18,7 +18,8 @@ func TestMessageTimeoutFromEnv(t *testing.T) {
 		{"default", "", DefaultMessageTimeout, false},
 		{"configured", "1234", 1234 * time.Millisecond, false},
 		{"zero", "0", 0, true},
-		{"negative", "-1", 0, true},
+		{"disabled", "-1", DefaultMessageTimeout, false},
+		{"invalid negative", "-2", 0, true},
 		{"invalid", "abc", 0, true},
 		{"overflow", "9223372036854775807", 0, true},
 	} {
@@ -69,6 +70,7 @@ func TestConfigFromEnv(t *testing.T) {
 	}{
 		{"default", "false", "", "amqp://user:pass@broker:5672/vhost", false, DefaultMessageTimeout, 0},
 		{"TLS and configured timeout", "true", "1234", "amqps://user:pass@broker:5672/vhost", true, 1234 * time.Millisecond, 0},
+		{"explicitly disabled timeout", "false", "-1", "amqp://user:pass@broker:5672/vhost", false, DefaultMessageTimeout, 0},
 		{"invalid timeout fallback", "false", "bad", "amqp://user:pass@broker:5672/vhost", false, DefaultMessageTimeout, 1},
 	} {
 		t.Run(test.name, func(t *testing.T) {
