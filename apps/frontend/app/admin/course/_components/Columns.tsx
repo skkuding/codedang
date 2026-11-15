@@ -36,7 +36,7 @@ export const columns: ColumnDef<DataTableCourse>[] = [
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
         onCheckedChange={(value) => {
-          if (!row.original.isProfessor) {
+          if (row.original.type === 'master' && !row.original.isProfessor) {
             toast.error('Blueprint의 수정/삭제는 교수만 가능합니다')
           }
           row.toggleSelected(Boolean(value))
