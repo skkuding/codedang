@@ -89,6 +89,7 @@ jobs:
               - 'apps/iris/**'
             plag:
               - *ci_workflow_path
+              - 'codecov.yml'
               - 'apps/plag/**'
             runner_backend:
               - *ci_workflow_path
@@ -459,6 +460,9 @@ jobs:
     needs: detect-changes
     if: needs['detect-changes'].outputs.plag == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v7
@@ -476,6 +480,16 @@ jobs:
       - name: Test (Go)
         run: go test ./...
         working-directory: ./apps/plag
+
+      - name: Upload Plag coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/plag/coverage.out
+          flags: plag
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
 
   test-runner-backend:
     name: Test Runner Backend
