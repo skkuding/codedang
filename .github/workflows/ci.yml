@@ -478,7 +478,7 @@ jobs:
         working-directory: ./apps/plag
 
       - name: Test (Go)
-        run: go test ./...
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
         working-directory: ./apps/plag
 
       - name: Upload Plag coverage to Codecov
