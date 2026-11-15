@@ -3,6 +3,7 @@
 [![CI](https://github.com/skkuding/next/actions/workflows/ci.yml/badge.svg)](https://github.com/skkuding/next/actions/workflows/ci.yml)
 [![Backend coverage](https://codecov.io/gh/skkuding/codedang/branch/main/graph/badge.svg?flag=backend)](https://app.codecov.io/gh/skkuding/codedang)
 [![Iris coverage](https://codecov.io/gh/skkuding/codedang/branch/main/graph/badge.svg?flag=iris)](https://app.codecov.io/gh/skkuding/codedang)
+[![Plag coverage](https://codecov.io/gh/skkuding/codedang/branch/main/graph/badge.svg?flag=plag)](https://app.codecov.io/gh/skkuding/codedang)
 [![Contributors](https://img.shields.io/github/contributors/skkuding/codedang)](https://github.com/skkuding/codedang/graphs/contributors)
 [![MIT License](https://img.shields.io/github/license/skkuding/next)](https://github.com/skkuding/next/blob/main/LICENSE)
 
