@@ -1,6 +1,9 @@
-import { PrismaClient } from '@prisma/client'
+import {
+  createScriptPrismaClient,
+  runPrismaScript
+} from '../libs/prisma/src/script-client'
 
-const prisma = new PrismaClient()
+const prisma = createScriptPrismaClient()
 
 const main = async () => {
   console.log('Starting Solution Update Script.')
@@ -33,6 +36,4 @@ const main = async () => {
   console.log('All empty solution fields updated!')
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
+void runPrismaScript(prisma, main)

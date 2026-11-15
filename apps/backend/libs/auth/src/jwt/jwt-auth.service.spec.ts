@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
 import type { User } from '@prisma/client'
 import { expect } from 'chai'
-import * as proxyquire from 'proxyquire'
+import proxyquire from 'proxyquire'
 
 const user: User = {
   id: 1,

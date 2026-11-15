@@ -71,6 +71,7 @@ jobs:
               - 'apps/backend/libs/**'
               - 'apps/backend/prisma/**'
               - 'apps/backend/*.json'
+              - 'apps/backend/prisma.config.ts'
               - 'pnpm-lock.yaml'
             backend_client:
               - *backend_shared
@@ -333,6 +334,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      SHADOW_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding_shadow?schema=public
       MINIO_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
       CHECK_RESULT_BUCKET_NAME: codedang-plag-checks
@@ -377,18 +379,19 @@ jobs:
 
       - uses: ./.github/actions/setup-pnpm
 
+      - name: Create Shadow Database
+        run: >-
+          PGPASSWORD=1234 psql -h localhost -U postgres -d postgres
+          -v ON_ERROR_STOP=1 -c 'CREATE DATABASE skkuding_shadow'
+
       - name: Check Prisma Migration
         run: |
           pnpm --filter="@codedang/backend" exec prisma migrate diff \
             --from-migrations ./prisma/migrations \
-            --to-schema-datamodel ./prisma/schema.prisma \
-            --shadow-database-url ${{ env.DATABASE_URL }} \
+            --to-schema ./prisma/schema.prisma \
             --exit-code ||
           (echo "::error::Prisma migration is not up to date." \
           "Please run 'pnpm prisma migrate dev' locally and commit the changes." && exit 1)
-
-      - name: Migrate Prisma
-        run: pnpm --filter="@codedang/backend" exec prisma migrate reset --force
 
       - name: Initialize MinIO
         run: pnpm run init:storage

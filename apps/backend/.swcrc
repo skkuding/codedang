@@ -18,7 +18,9 @@
       "@libs/exception": ["./libs/exception/src/index.ts"],
       "@libs/pipe": ["./libs/pipe/src/index.ts"],
       "@libs/constants": ["./libs/constants/src/index.ts"],
-      "@libs/rabbitmq": ["./libs/amqp/src/index.ts"]
+      "@libs/rabbitmq": ["./libs/amqp/src/index.ts"],
+      "@prisma/client": ["./libs/prisma/src/generated/client"],
+      "@libs/prisma-runtime": ["./libs/prisma/src/client-runtime"]
     }
   }
 }

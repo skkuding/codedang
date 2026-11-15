@@ -21,6 +21,7 @@ export default eslintTS.config(
       '**/.pnpm-store',
       '**/__generated__',
       '**/@generated',
+      'apps/backend/libs/prisma/src/generated/**',
       '**/collection',
       '**/.next',
       '**/codegen.ts',

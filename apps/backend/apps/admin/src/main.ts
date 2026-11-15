@@ -15,7 +15,7 @@ const bootstrap = async () => {
   expand(config())
   await Instrumentation.start('admin-api')
 
-  const { AdminModule } = await import('./admin.module')
+  const { AdminModule } = await import('./admin.module.js')
   const app = await NestFactory.create<NestExpressApplication>(AdminModule, {
     bufferLogs: true
   })

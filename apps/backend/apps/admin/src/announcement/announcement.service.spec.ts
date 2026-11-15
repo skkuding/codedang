@@ -1,11 +1,11 @@
 import { Test, type TestingModule } from '@nestjs/testing'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { expect } from 'chai'
 import {
   PrismaService,
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
+import { PrismaClientKnownRequestError } from '@libs/prisma-runtime'
 import { AnnouncementService } from './announcement.service'
 
 const contestId = 1

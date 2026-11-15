@@ -553,7 +553,7 @@ export class TestcaseService {
     const values = originalFileNames.map((name, index) => {
       const id = testcaseIdMapper[name]
 
-      return Prisma.sql`(${id}, ${index + 1})`
+      return Prisma.sql`(${id}::integer, ${index + 1}::integer)`
     })
 
     await this.prisma.$executeRaw`

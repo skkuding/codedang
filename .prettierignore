@@ -10,3 +10,5 @@ schema.gql
 collection/
 .next/
 components.json
+
+apps/backend/libs/prisma/src/generated/

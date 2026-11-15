@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { BaseExceptionFilter } from '@nestjs/core'
 import type { GqlExceptionFilter } from '@nestjs/graphql'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { PrismaClientKnownRequestError } from '@libs/prisma-runtime'
 import { BusinessException } from './business.exception'
 
 @Catch()

@@ -1,7 +1,10 @@
-import { PrismaClient } from '@prisma/client'
 import { TOLERANCE_THRESHOLD } from '@libs/constants'
+import {
+  createScriptPrismaClient,
+  runPrismaScript
+} from '../libs/prisma/src/script-client'
 
-const prisma = new PrismaClient()
+const prisma = createScriptPrismaClient()
 
 type TestcaseRow = {
   id: number
@@ -166,6 +169,4 @@ const main = async (): Promise<void> => {
   }
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
+void runPrismaScript(prisma, main)

@@ -2,12 +2,16 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
+  provider            = "prisma-client"
+  output              = "../libs/prisma/src/generated"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+  previewFeatures     = ["fullTextSearchPostgres"]
 }
 
 generator graphql {
   provider           = "prisma-nestjs-graphql"
+  prismaClientImport = "@prisma/client"
   output             = "../apps/admin/src/@generated"
   purgeOutput        = true
   noAtomicOperations = true
@@ -18,7 +22,6 @@ generator graphql {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {

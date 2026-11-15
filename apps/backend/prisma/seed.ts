@@ -4,7 +4,6 @@ import {
   Language,
   Level,
   NotificationType,
-  PrismaClient,
   QnACategory,
   ResultStatus,
   Role,
@@ -28,8 +27,12 @@ import {
 import { hash } from 'argon2'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import {
+  createScriptPrismaClient,
+  runPrismaScript
+} from '../libs/prisma/src/script-client'
 
-const prisma = new PrismaClient()
+const prisma = createScriptPrismaClient()
 const fixturePath = join(__dirname, '__fixtures__')
 const problemTestcasesPath = join(__dirname, 'problem-testcases')
 
@@ -5677,11 +5680,4 @@ const main = async () => {
   await createCourseQnA()
 }
 
-main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    process.exit(1)
-  })
+void runPrismaScript(prisma, main)

@@ -4,8 +4,8 @@ import { faker } from '@faker-js/faker'
 import type { Assignment, Notification } from '@prisma/client'
 import { NotificationType } from '@prisma/client'
 import { expect } from 'chai'
-import { stub } from 'sinon'
-import * as webpush from 'web-push'
+import { restore, stub } from 'sinon'
+import webpush from 'web-push'
 import { PrismaService } from '@libs/prisma'
 import { AssignmentService } from '@admin/assignment/assignment.service'
 import { NotificationService } from './notification.service'
@@ -110,6 +110,7 @@ describe('NotificationService', () => {
   })
 
   afterEach(() => {
+    restore()
     db.assignment.findUnique.reset()
     db.contest.findUnique.reset()
     db.notice.findUnique.reset()
@@ -380,11 +381,10 @@ describe('NotificationService', () => {
 
       await service.notifyAssignmentCreated(assignmentId)
 
+      expect(sendStub.calledOnce).to.be.true
       expect(db.pushSubscription.delete.calledOnce).to.be.true
       const delCall = db.pushSubscription.delete.getCall(0)
       expect(delCall.args[0]).to.deep.equal({ where: { id: 99 } })
-
-      sendStub.restore()
     })
   })
 

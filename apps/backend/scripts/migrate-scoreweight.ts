@@ -1,7 +1,11 @@
-// apps/backend/scripts/migrate-scoreweight.ts
-import { PrismaClient } from '@prisma/client'
+import {
+  createScriptPrismaClient,
+  runPrismaScript
+} from '../libs/prisma/src/script-client'
 
-const prisma = new PrismaClient()
+// apps/backend/scripts/migrate-scoreweight.ts
+
+const prisma = createScriptPrismaClient()
 
 type TestcaseRow = {
   id: number
@@ -167,6 +171,4 @@ const main = async (): Promise<void> => {
   }
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect())
+void runPrismaScript(prisma, main)

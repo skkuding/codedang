@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Prisma, ResultStatus as PrismaResultStatus } from '@prisma/client'
-import * as archiver from 'archiver'
+import archiver from 'archiver'
 import { plainToInstance } from 'class-transformer'
 import { Response } from 'express'
 import {

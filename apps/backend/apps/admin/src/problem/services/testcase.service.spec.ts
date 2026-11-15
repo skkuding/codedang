@@ -2,14 +2,19 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Role } from '@prisma/client'
-import * as archiver from 'archiver'
+import archiver from 'archiver'
 import { expect } from 'chai'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
 import * as StreamZipNs from 'node-stream-zip'
 import { spy, stub } from 'sinon'
 import { Readable } from 'stream'
-import { PrismaService } from '@libs/prisma'
-import { S3Provider, StorageService } from '@libs/storage'
+import { UnprocessableDataException } from '@libs/exception'
+import {
+  PrismaService,
+  PrismaTestService,
+  type FlatTransactionClient
+} from '@libs/prisma'
+import { StorageService } from '@libs/storage'
 import {
   exampleProblemTestcases,
   testcaseData,
@@ -62,27 +67,80 @@ const db = {
 
 describe('TestcaseService', () => {
   let service: TestcaseService
-  let prismaService: PrismaService
+  let prismaService: FlatTransactionClient
   let storageService: StorageService
+  let integrationModule: TestingModule | undefined
+  let storedObjects: Map<string, string>
+  const storage = {
+    uploadObject: stub(),
+    listObjects: stub(),
+    deleteObject: stub()
+  }
 
-  // Override testing module in this scope to use real PrismaService
-  // TODO: Refactor to use real PrismaService, not mock
+  const useDatabase = async () => {
+    integrationModule = await Test.createTestingModule({
+      providers: [
+        TestcaseService,
+        FileService,
+        PrismaTestService,
+        {
+          provide: PrismaService,
+          useExisting: PrismaTestService
+        },
+        { provide: StorageService, useValue: storage },
+        ConfigService,
+        { provide: CACHE_MANAGER, useValue: { del: () => null } }
+      ]
+    }).compile()
+
+    service = integrationModule.get<TestcaseService>(TestcaseService)
+    storageService = integrationModule.get<StorageService>(StorageService)
+    prismaService = await integrationModule
+      .get<PrismaTestService>(PrismaTestService)
+      .$begin()
+    Reflect.set(service, 'prisma', prismaService)
+  }
+
   beforeEach(async () => {
+    storedObjects = new Map()
+    storage.uploadObject.reset()
+    storage.listObjects.reset()
+    storage.deleteObject.reset()
+    storage.uploadObject.callsFake(
+      async (filename: string, content: string | Readable) => {
+        if (typeof content === 'string') {
+          storedObjects.set(filename, content)
+        } else {
+          const chunks: Buffer[] = []
+          for await (const chunk of content) {
+            chunks.push(Buffer.from(chunk))
+          }
+          storedObjects.set(filename, Buffer.concat(chunks).toString())
+        }
+      }
+    )
+    storage.listObjects.callsFake(async (prefix: string) =>
+      [...storedObjects.keys()]
+        .filter((key) => key.startsWith(prefix))
+        .map((key) => ({ Key: key }))
+    )
+    storage.deleteObject.callsFake(async (filename: string) => {
+      storedObjects.delete(filename)
+    })
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TestcaseService,
         { provide: PrismaService, useValue: db },
         FileService,
-        StorageService,
+        { provide: StorageService, useValue: storage },
         ConfigService,
-        S3Provider,
         { provide: CACHE_MANAGER, useValue: { del: () => null } }
       ]
     }).compile()
 
     service = module.get<TestcaseService>(TestcaseService)
     storageService = module.get<StorageService>(StorageService)
-    prismaService = module.get<PrismaService>(PrismaService)
 
     // reset shared stubs to avoid cross-test leakage
     db.problemTestcase.create.reset()
@@ -103,6 +161,17 @@ describe('TestcaseService', () => {
         throw new Error('Invalid transaction input')
       }
     )
+  })
+
+  afterEach(async () => {
+    if (integrationModule) {
+      try {
+        await prismaService.$rollback()
+      } finally {
+        await integrationModule.close()
+        integrationModule = undefined
+      }
+    }
   })
 
   it('should be defined', () => {
@@ -129,24 +198,7 @@ describe('TestcaseService', () => {
       }
     ]
 
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          TestcaseService,
-          PrismaService,
-          StorageService,
-          FileService,
-          ConfigService,
-          S3Provider,
-          { provide: CACHE_MANAGER, useValue: { del: () => null } }
-        ]
-      }).compile()
-
-      service = module.get<TestcaseService>(TestcaseService)
-      storageService = module.get<StorageService>(StorageService)
-    })
+    beforeEach(useDatabase)
 
     it('should fail if problem id is not found', async () => {
       const problemId = 999
@@ -163,13 +215,26 @@ describe('TestcaseService', () => {
       const userId = 1
       const userRole = Role.Admin
 
-      await service.createTestcases(testcases, problemId, userId, userRole)
+      const ids = await service.createTestcases(
+        testcases,
+        problemId,
+        userId,
+        userRole
+      )
 
       const uploadedFiles = await storageService.listObjects(
         `${problemId}/`,
         'testcase'
       )
       expect(uploadedFiles).to.have.lengthOf(6)
+      ids.forEach(({ testcaseId }, index) => {
+        expect(storedObjects.get(`${problemId}/${testcaseId}.in`)).to.equal(
+          testcases[index].input
+        )
+        expect(storedObjects.get(`${problemId}/${testcaseId}.out`)).to.equal(
+          testcases[index].output
+        )
+      })
     })
   })
 
@@ -191,31 +256,17 @@ describe('TestcaseService', () => {
         })
     } satisfies FileUpload
 
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          TestcaseService,
-          FileService,
-          PrismaService,
-          StorageService,
-          ConfigService,
-          S3Provider,
-          { provide: CACHE_MANAGER, useValue: { del: () => null } }
-        ]
-      }).compile()
-
-      service = module.get<TestcaseService>(TestcaseService)
-      storageService = module.get<StorageService>(StorageService)
-    })
+    beforeEach(useDatabase)
 
     it('should not allow if given file is not zip', async () => {
       const nonZipFile = { ...file, mimetype: 'text/plain' }
 
       await expect(
         service.uploadTestcaseZip(nonZipFile, problemId, userId, userRole)
-      ).to.be.rejected
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Only zip files are accepted'
+      )
     })
 
     it('should not allow testcase files without corresponding input/output', async () => {
@@ -237,7 +288,10 @@ describe('TestcaseService', () => {
 
       await expect(
         service.uploadTestcaseZip(invalidZipFile, problemId, userId, userRole)
-      ).to.be.rejected
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Testcase files must have corresponding .in/.out files'
+      )
 
       const uploadedFiles = await storageService.listObjects(
         `${problemId}/`,
@@ -249,10 +303,10 @@ describe('TestcaseService', () => {
     it('should upload testcase files', async () => {
       const createZipStream = () => {
         const archive = archiver('zip', { zlib: { level: 9 } })
-        archive.append('Content for 1.in', { name: '1.in' })
-        archive.append('Content for 1.out', { name: '1.out' })
         archive.append('Content for 2.in', { name: '2.in' })
         archive.append('Content for 2.out', { name: '2.out' })
+        archive.append('Content for 1.in', { name: '1.in' })
+        archive.append('Content for 1.out', { name: '1.out' })
         archive.finalize()
         return archive
       }
@@ -262,13 +316,37 @@ describe('TestcaseService', () => {
         createReadStream: createZipStream
       } satisfies FileUpload
 
-      await service.uploadTestcaseZip(zipFile, problemId, userId, userRole)
+      const ids = await service.uploadTestcaseZip(
+        zipFile,
+        problemId,
+        userId,
+        userRole
+      )
 
       const uploadedFiles = await storageService.listObjects(
         `${problemId}/`,
         'testcase'
       )
       expect(uploadedFiles).to.have.lengthOf(4)
+      ids.forEach(({ testcaseId }, index) => {
+        for (const extension of ['in', 'out']) {
+          expect(
+            storedObjects.get(`${problemId}/${testcaseId}.${extension}`)
+          ).to.equal(`Content for ${index + 1}.${extension}`)
+        }
+      })
+
+      const testcases = await prismaService.problemTestcase.findMany({
+        where: { problemId, isOutdated: false },
+        orderBy: { order: 'asc' },
+        select: { id: true, order: true }
+      })
+      expect(testcases).to.deep.equal(
+        ids.map(({ testcaseId }, index) => ({
+          id: testcaseId,
+          order: index + 1
+        }))
+      )
     })
   })
 
@@ -292,25 +370,7 @@ describe('TestcaseService', () => {
   })
 
   describe('removeAllTestcaseFiles', () => {
-    // Override testing module in this scope to use real PrismaService
-    // TODO: Refactor to use real PrismaService, not mock
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          TestcaseService,
-          FileService,
-          PrismaService,
-          StorageService,
-          ConfigService,
-          S3Provider,
-          { provide: CACHE_MANAGER, useValue: { del: () => null } }
-        ]
-      }).compile()
-
-      service = module.get<TestcaseService>(TestcaseService)
-      storageService = module.get<StorageService>(StorageService)
-      prismaService = module.get<PrismaService>(PrismaService)
-    })
+    beforeEach(useDatabase)
 
     it('should remove all testcase files', async () => {
       const problemId = 1
