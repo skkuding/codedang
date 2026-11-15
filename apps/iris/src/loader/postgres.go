@@ -96,9 +96,7 @@ func (p *Postgres) SavePending(ctx context.Context, elements []ElementIn) ([]int
 	}
 
 	// Insert every pending row in one transaction so a failure leaves none behind.
-	tx, err := p.client.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelReadCommitted,
-	})
+	tx, err := p.client.BeginTx(ctx, nil)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin testcase transaction: %w", err)
@@ -174,9 +172,7 @@ func (p *Postgres) Activate(ctx context.Context, problemID int, ids []int) error
 		return nil
 	}
 
-	tx, err := p.client.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelReadCommitted,
-	})
+	tx, err := p.client.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed to begin testcase activation: %w", err)
 	}
