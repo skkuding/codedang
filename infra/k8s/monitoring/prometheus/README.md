@@ -1,13 +1,10 @@
-# Prisma Client metrics
+# Prisma metrics retirement
 
-Admin and client API Pods expose Prisma metrics at `GET /api/internal/prisma`.
-Each API Service has a `ServiceMonitor` labeled `release: prometheus` that selects
-its `app` label and scrapes the named `http` port every 30 seconds.
+The legacy Prisma Client metrics HTTP API has been retired before upgrading
+to Prisma ORM 7. The admin and client APIs
+no longer expose `/api/internal/prisma`, and their API ServiceMonitors have
+been removed. Remove dashboard queries and alerts that depend on the retired
+`prisma_*` metrics, or update them when replacement pool telemetry is enabled.
 
-Prometheus reaches Pod endpoints through the ClusterIP Service, not the public
-ingress. The existing Grafana datasource (`prometheus`) can query these metrics;
-no new datasource or dashboard is required.
-
-Apply the internal-route protection and backend endpoint before these
-ServiceMonitors. After rollout, confirm the Prometheus targets are `UP` and query
-`prisma_pool_connections_busy` in Grafana Explore.
+PrismaInstrumentation remains enabled for tracing. Sampled spans are not exact
+query counters or replacements for pool metrics.

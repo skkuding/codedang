@@ -8,9 +8,7 @@ import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import { stub } from 'sinon'
 import { AdminGuard, JwtAuthGuard, RolesService } from '@libs/auth'
-import { PrismaService } from '@libs/prisma'
 import { JwtStrategy } from '../../auth/src/jwt/jwt.strategy'
-import { AdminInternalModule, InternalModule } from './internal.module'
 
 @Controller('protected')
 class ProtectedController {
@@ -20,30 +18,23 @@ class ProtectedController {
   }
 }
 
-const metrics =
-  '# HELP prisma_pool_connections_busy Active connections\n' +
-  '# TYPE prisma_pool_connections_busy gauge\nprisma_pool_connections_busy 0\n'
 const secret = 'internal-metrics-test-secret'
 
 for (const mode of ['client-development', 'client-production', 'admin']) {
-  describe(`Internal metrics (${mode})`, () => {
+  describe(`Internal metrics retirement (${mode})`, () => {
     let app: INestApplication
     let url: string
     const metricsPath =
       mode === 'client-development'
         ? '/internal/prisma'
         : '/api/internal/prisma'
-    const prometheus = stub()
     const getUserRole = stub()
     const protectedPath =
       mode === 'client-production' ? '/api/protected' : '/protected'
 
     beforeEach(async () => {
-      prometheus.reset()
-      prometheus.resolves(metrics)
       getUserRole.reset()
       const module = await Test.createTestingModule({
-        imports: [mode === 'admin' ? AdminInternalModule : InternalModule],
         controllers: [ProtectedController],
         providers: [
           {
@@ -57,10 +48,7 @@ for (const mode of ['client-development', 'client-production', 'admin']) {
             ? [{ provide: APP_GUARD, useClass: AdminGuard }]
             : [])
         ]
-      })
-        .overrideProvider(PrismaService)
-        .useValue({ $metrics: { prometheus } })
-        .compile()
+      }).compile()
       app = module.createNestApplication({ logger: false })
       if (mode === 'client-production') {
         app.setGlobalPrefix('api')
@@ -73,18 +61,18 @@ for (const mode of ['client-development', 'client-production', 'admin']) {
       await app?.close()
     })
 
-    it('returns Prometheus metrics without authentication or role lookup', async () => {
-      const response = await fetch(`${url}${metricsPath}`)
-      expect(response.status).to.equal(200)
-      expect(
-        response.headers
-          .get('content-type')
-          ?.split(';')
-          .map((part) => part.trim())
-      ).to.have.members(['text/plain', 'version=0.0.4', 'charset=utf-8'])
-      expect(await response.text()).to.equal(metrics)
-      expect(prometheus.calledOnce).to.equal(true)
-      expect(getUserRole.called).to.equal(false)
+    it('does not expose the retired Prisma metrics endpoint', async () => {
+      const token = new JwtService({ secret }).sign({
+        userId: 1,
+        username: 'test',
+        userRole: Role.Admin,
+        tokenType: 'access'
+      })
+      const response = await fetch(`${url}${metricsPath}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      expect(response.status).to.equal(404)
+      // The retired route is no longer an authentication bypass.
     })
 
     it('keeps protected routes authenticated', async () => {
@@ -129,9 +117,16 @@ for (const mode of ['client-development', 'client-production', 'admin']) {
 
     if (mode === 'client-production') {
       it('does not apply the API prefix twice', async () => {
-        const response = await fetch(`${url}/api/api/internal/prisma`)
+        const token = new JwtService({ secret }).sign({
+          userId: 1,
+          username: 'test',
+          userRole: Role.Admin,
+          tokenType: 'access'
+        })
+        const response = await fetch(`${url}/api/api/internal/prisma`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
         expect(response.status).to.equal(404)
-        expect(prometheus.called).to.equal(false)
       })
     }
 
