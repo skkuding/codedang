@@ -84,7 +84,16 @@ export class PrismaTestService
       throw e
     })
 
-    return new Proxy(await txClient, {
+    // Acquisition can fail before the transaction callback runs. Propagate that
+    // failure instead of leaving callers waiting forever for txClient.
+    const startedClient = await Promise.race([
+      txClient,
+      tx.then(() => {
+        throw new Error('Transaction ended before providing a client')
+      })
+    ])
+
+    return new Proxy(startedClient, {
       get(target, prop) {
         if (prop === '$commit') {
           return () => {
@@ -106,7 +115,7 @@ export class PrismaTestService
                 if (typeof query === 'function') {
                   results.push(await query(target))
                 } else {
-                  results.push(query)
+                  results.push(await query)
                 }
               }
               return results
