@@ -36,6 +36,7 @@ export function GroupTable() {
         classNum: null,
         semester: blueprint.semester,
         studentCount: null,
+        isProfessor: blueprint.isProfessor,
         sections: blueprint.sections.map((section) => ({
           id: section.id,
           type: 'section',
@@ -95,6 +96,9 @@ export function GroupTable() {
         data={courses}
         columns={columns}
         getSubRows={(row) => row.sections}
+        enableSelection={(row) =>
+          row.type !== 'master' || row.isProfessor === true
+        }
       >
         <div className="flex justify-between">
           <div className="flex gap-2">
@@ -109,7 +113,11 @@ export function GroupTable() {
         </div>
         <DataTable
           bodyStyle={bodyStyle}
-          getHref={(data) => `/admin/course/${data.id}`}
+          getHref={(data) =>
+            data.type === 'master'
+              ? `admin/blueprint/${data.id}`
+              : `/admin/course/${data.id}`
+          }
           renderCreateSection={renderCreateSection}
         />
         <DataTablePagination showSelection />

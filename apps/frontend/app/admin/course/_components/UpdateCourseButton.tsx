@@ -23,7 +23,7 @@ interface UpdateCourseButtonProps {
 interface TableRowData {
   id: number
   groupName: string
-  type: 'master' | 'section'
+  type: 'master' | 'section' | 'course'
   courseInfo: {
     courseNum: string
     classNum: number
@@ -157,9 +157,7 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         variant="outline"
         type="button"
         onClick={handleUpdateButtonClick}
-        disabled={
-          selectedRows.length !== 1 || selectedRow?.original.type === 'master'
-        }
+        disabled={selectedRows.length !== 1}
       >
         <PenIcon className="text-color-neutral-60 h-[13px]" />
       </Button>

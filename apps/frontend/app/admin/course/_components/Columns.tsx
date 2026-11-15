@@ -3,6 +3,7 @@ import { Checkbox } from '@/components/shadcn/checkbox'
 import { cn } from '@/libs/utils'
 import type { ColumnDef } from '@tanstack/react-table'
 import { ChevronDown, ChevronRight } from 'lucide-react'
+import { toast } from 'sonner'
 
 export interface DataTableCourse {
   id: number
@@ -12,6 +13,7 @@ export interface DataTableCourse {
   classNum: number | null
   semester: string
   studentCount: number | null
+  isProfessor?: boolean
   sections?: DataTableCourse[]
 }
 
@@ -33,7 +35,12 @@ export const columns: ColumnDef<DataTableCourse>[] = [
       <Checkbox
         onClick={(e) => e.stopPropagation()}
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
+        onCheckedChange={(value) => {
+          if (!row.original.isProfessor) {
+            toast.error('Blueprint의 수정/삭제는 교수만 가능합니다')
+          }
+          row.toggleSelected(Boolean(value))
+        }}
         aria-label="Select row"
         className="translate-y-[2px] bg-transparent"
       />
