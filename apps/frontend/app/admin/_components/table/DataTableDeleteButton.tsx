@@ -18,11 +18,13 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
     | 'course'
     | 'user'
   deleteTarget: (id: number, extra?: number) => Promise<TPromise>
+  size?: 'sm' | 'md' | 'lg'
   extraArg?: number // 현재는 groupId만 사용되고 있음
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
   className?: string
   deleteItems?: string[]
+  description?: string
 }
 
 /**
@@ -44,11 +46,13 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
 export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   target,
   deleteTarget,
+  size,
   extraArg,
   getCanDelete,
   onSuccess,
   className,
-  deleteItems
+  deleteItems,
+  description
 }: DataTableDeleteButtonProps<TData, TPromise>) {
   const { table } = useDataTable<TData>()
   const selectedRows = table
@@ -110,12 +114,13 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       type={'warning'}
       showIcon={!deleteItems}
       title={`Delete ${target}?`}
+      size={size}
       primaryButton={{
         text: 'Delete',
         onClick: handleDeleteRows
       }}
       {...(deleteItems
-        ? {}
+        ? { description }
         : {
             description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
           })}
