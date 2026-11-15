@@ -22,21 +22,23 @@ export function DeleteCourseButton({ onSuccess }: DeleteCourseButtonProps) {
 
   const selectedRows = table.getSelectedRowModel().flatRows
 
-  const deleteItems = selectedRows
-    .filter((row) => row.depth === 0)
-    .flatMap((row) => {
-      const item = `${row.getValue('title')} [${row.getValue('code')}]`
+  const deleteItems: string[] = Array.from(
+    new Map(
+      table.getSelectedRowModel().flatRows.flatMap((row) => {
+        const course = row.original
 
-      if (row.original.type === 'master') {
-        return [
-          `${item} - M`,
-          ...(row.subRows ?? []).map(
-            (subRow) => `${item} - ${subRow.getValue('classNum')}`
-          )
-        ]
-      }
-      return `${row.getValue('title')} [${row.getValue('code')}] - ${row.getValue('classNum')}`
-    })
+        const items =
+          course.type === 'master'
+            ? [course, ...(course.sections ?? [])]
+            : [course]
+
+        return items.map((item) => [
+          `${item.type}-${item.id}`,
+          `${item.title} [${item.code}] - ${item.type === 'master' ? 'M' : item.classNum}`
+        ])
+      })
+    ).values()
+  )
 
   const deleteDescriptions = selectedRows
     .filter((row) => row.depth === 0 && row.original.type === 'master')
