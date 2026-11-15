@@ -55,12 +55,6 @@ export function DeleteCourseButton({ onSuccess }: DeleteCourseButtonProps) {
       onSuccess={onSuccess}
       size="md"
       className="ml-auto"
-      // deleteItems={table
-      //   .getSelectedRowModel()
-      //   .flatRows.map(
-      //     (row) =>
-      //       `${row.getValue('title')} [${row.getValue('code')}] - ${row.getValue('classNum') || 'M'}`
-      //   )}
       deleteItems={deleteItems}
       description={deleteDescriptions}
     />
