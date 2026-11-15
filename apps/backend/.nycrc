@@ -5,13 +5,11 @@
   "include": [
     "{apps,libs}/**/*.{service,resolver}.ts",
     "libs/prisma/src/script-client.ts",
-    "libs/prisma/src/prisma-pool.ts"
+    "libs/prisma/src/prisma-pool.ts",
+    "libs/prisma/src/prisma-pool.metrics.ts",
+    "libs/prisma/src/prisma.module.ts",
+    "libs/instrumentation.ts"
   ],
-  "exclude": [
-    "**/*.spec.ts"
-  ],
-  "reporter": [
-    "lcov",
-    "text"
-  ]
+  "exclude": ["**/*.spec.ts"],
+  "reporter": ["lcov", "text"]
 }

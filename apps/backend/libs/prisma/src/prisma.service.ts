@@ -5,6 +5,7 @@ import type { Prisma } from '@prisma/client'
 import { PrismaClient } from '@prisma/client'
 import type { Pool } from 'pg'
 import { createPrismaPool, observePoolErrors } from './prisma-pool'
+import { registerPoolMetrics } from './prisma-pool.metrics'
 
 export type Paginator<T> = {
   skip?: number
@@ -22,11 +23,13 @@ export class PrismaService
 {
   private readonly logger = new Logger(PrismaService.name)
   private readonly pgPool: Pool
+  private readonly maxConnections: number
+  private stopPoolMetrics?: () => void
   private cleanupPromise?: Promise<void>
   private readonly stopPoolErrors: () => void
 
   constructor(config: ConfigService) {
-    const { pool, adapter } = createPrismaPool(
+    const { pool, adapter, max } = createPrismaPool(
       config.get<string>('DATABASE_URL'),
       config.get<string>('DATABASE_CONNECTION_LIMIT')
     )
@@ -53,6 +56,7 @@ export class PrismaService
       ]
     })
     this.pgPool = pool
+    this.maxConnections = max
     this.stopPoolErrors = observePoolErrors(pool, this.logger)
   }
 
@@ -72,6 +76,11 @@ export class PrismaService
 
     try {
       await this.$connect()
+      this.stopPoolMetrics?.()
+      this.stopPoolMetrics = registerPoolMetrics(
+        this.pgPool,
+        this.maxConnections
+      )
     } catch (error) {
       await this.onModuleDestroy()
       throw error
@@ -83,6 +92,8 @@ export class PrismaService
   }
 
   private async closePool() {
+    this.stopPoolMetrics?.()
+    this.stopPoolMetrics = undefined
     try {
       await this.$disconnect()
     } finally {
