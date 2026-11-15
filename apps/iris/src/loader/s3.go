@@ -178,6 +178,12 @@ func (s *S3Manager) Get(problemId string) ([]ElementOut, error) {
 	return results, nil
 }
 
+// upload is a single S3 object written by Put.
+type upload struct {
+	key  string
+	body string
+}
+
 // Put uploads a single testcase's .in/.out pair under <problemId>/<id>.in and
 // <problemId>/<id>.out, tagging both objects with hidden=<true|false>. Get reads
 // this same tag to determine ElementOut.Hidden, so the tag must always be set —
@@ -188,10 +194,6 @@ func (s *S3Manager) Put(ctx context.Context, problemId int, id int, element Elem
 		tagging = "hidden=true"
 	}
 
-	type upload struct {
-		key  string
-		body string
-	}
 	uploads := []upload{
 		{key: fmt.Sprintf("%d/%d.in", problemId, id), body: element.In},
 		{key: fmt.Sprintf("%d/%d.out", problemId, id), body: element.Out},
