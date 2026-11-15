@@ -41,7 +41,7 @@ export function DeleteCourseButton({ onSuccess }: DeleteCourseButtonProps) {
   )
 
   const deleteDescriptions = selectedRows
-    .filter((row) => row.depth === 0 && row.original.type === 'master')
+    .filter((row) => row.original.type === 'master')
     .map(
       (row) =>
         `'${row.getValue('title')} [${row.getValue('code')}]'을(를) 삭제하면 하위 분반 ${row.subRows.length}개와 각 분반의 수강생·제출 기록이 모두 삭제되며, 복구할 수 없습니다.`

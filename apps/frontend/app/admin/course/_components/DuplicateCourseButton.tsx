@@ -175,7 +175,7 @@ export function DuplicateCourseButton({
             items={[
               table
                 .getSelectedRowModel()
-                .rows.map((row) => row.original.title)
+                .flatRows.map((row) => row.original.title)
                 .join(', ')
             ]}
           />

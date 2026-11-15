@@ -173,7 +173,9 @@ export function UpdateCourseButton({ onSuccess }: UpdateCourseButtonProps) {
         <ScrollArea className="h-full w-full pr-[16px]">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(handleUpdateSubmit)}>
-              <CourseFormFields isSection={selectedRow?.depth === 1} />
+              <CourseFormFields
+                isSection={selectedRow?.original.type === 'section'}
+              />
               <div className="mb-[50px] mt-[20px] flex gap-2">
                 <Button
                   type="button"
