@@ -16,11 +16,7 @@ import { CreateSection } from './CreateSection'
 import { DeleteCourseButton } from './DeleteCourseButton'
 import { DuplicateCourseButton } from './DuplicateCourseButton'
 import { UpdateCourseButton } from './UpdateCourseButton'
-<<<<<<< HEAD
 import { bluePrintMockData } from './section_mock'
-=======
-import { coursesMockData } from './section_mock'
->>>>>>> 57a59693a (fix: rebase commit)
 
 export function GroupTable() {
   const client = useApolloClient()
