@@ -40,6 +40,9 @@ export const columns: ColumnDef<DataTableCourse>[] = [
             toast.error('Blueprint의 수정/삭제는 교수만 가능합니다')
           }
           row.toggleSelected(Boolean(value))
+          if (row.original.type === 'master' && value) {
+            row.toggleExpanded(true)
+          }
         }}
         aria-label="Select row"
         className="translate-y-[2px] bg-transparent"

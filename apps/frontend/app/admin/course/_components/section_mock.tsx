@@ -16,7 +16,7 @@ export interface SectionCourse {
 
 export const bluePrintMockData: BluePrintCourse[] = [
   {
-    id: 100,
+    id: 10,
     courseNum: 'CHS1330',
     courseTitle: '전자회로1',
     semester: '2026 Winter',

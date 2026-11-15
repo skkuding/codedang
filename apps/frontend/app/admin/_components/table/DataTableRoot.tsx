@@ -13,7 +13,6 @@ import {
   type ColumnDef
 } from '@tanstack/react-table'
 import type { ReactNode } from 'react'
-import { Row } from 'react-day-picker'
 import { DEFAULT_COLUMN_VISIBILITY } from './constants'
 import { Provider } from './context'
 
