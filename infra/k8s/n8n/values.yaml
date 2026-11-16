@@ -13,12 +13,14 @@ diagnostics:
 
 image:
   repository: n8nio/n8n
-  # n8n 1.123.87 bundles Node.js 24.22.1, which contains the Brotli decoder fix
-  # for CVE-2026-111497 (fixed in Node 22.23.4/24.22.1/26.12.1) and the eMudhra
-  # distrust update. Stay on the 1.x line for now: n8n 2.x enables task runners
-  # by default and enforces stricter config file permissions, which needs its
-  # own migration.
-  tag: 1.123.87
+  # n8n 1.123.97 retains the Node.js 24.22.1 runtime from 1.123.87, so the
+  # Brotli decoder fix for CVE-2026-111497 (fixed in Node 22.23.4/24.22.1/
+  # 26.12.1) and the eMudhra distrust update still apply. It also contains the
+  # 1.123.91 fix for $('Node') expressions returning null for legacy vm2 Code
+  # node output (n8n#42249), which broke the GitHub-to-Notion status update.
+  # Stay on the 1.x line for now: n8n 2.x enables task runners by default and
+  # enforces stricter config file permissions, which needs its own migration.
+  tag: 1.123.97
   pullPolicy: IfNotPresent
 
 versionNotifications:
@@ -85,7 +87,7 @@ main:
   initContainers:
     - name: import-managed-workflows
       # Keep in sync with image.tag above; both pins run the same Node runtime.
-      image: n8nio/n8n:1.123.87
+      image: n8nio/n8n:1.123.97
       imagePullPolicy: IfNotPresent
       command: ['/bin/sh', '-c']
       # Bumping the marker re-imports the managed credentials and workflows from
