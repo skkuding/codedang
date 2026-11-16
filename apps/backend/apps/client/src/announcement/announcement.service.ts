@@ -6,6 +6,15 @@ import { PrismaService } from '@libs/prisma'
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 대회의 공지 목록을 최신순으로 조회합니다.
+   * 공지에 연결된 problemId는 대회 내 문제 순서(problemOrder)로 변환하여 반환하며,
+   * 문제와 연결되지 않은 공지는 problemOrder가 null입니다.
+   *
+   * @param {number} contestId 대회 ID
+   * @returns problemId 대신 problemOrder가 포함된 공지 목록
+   * @throws {NotFoundException} contestId에 해당하는 대회가 없는 경우 발생합니다.
+   */
   async getContestAnnouncements(
     contestId: number
   ): Promise<
