@@ -88,6 +88,7 @@ loki.write "loki" {
   }
 }
 
+// probe 대상 주소 정의
 prometheus.exporter.blackbox "cluster_endpoints" {
   // Cluster traffic is plaintext HTTP, so a probe never sees a certificate.
   // preferred_ip_protocol pins IPv4 because ClusterIP DNS only answers with
@@ -153,9 +154,8 @@ modules:
   ]
 }
 
-// The exporter labels every probe `instance = <component id>` and hides the
-// target name in `job`, so all nine series look alike. Move the name to
-// `instance` and give every probe the same `job`.
+// before: job="integrations/blackbox/client-api", instance="<component id>"
+// after:  job="blackbox", instance="client-api"
 discovery.relabel "blackbox" {
   targets = prometheus.exporter.blackbox.cluster_endpoints.targets
 
@@ -171,6 +171,7 @@ discovery.relabel "blackbox" {
   }
 }
 
+// probe 트리거 주기 설정
 prometheus.scrape "blackbox" {
   targets    = discovery.relabel.blackbox.output
   forward_to = [prometheus.remote_write.local.receiver]
@@ -181,6 +182,7 @@ prometheus.scrape "blackbox" {
   scrape_timeout  = "10s"
 }
 
+// exporter가 Alloy 안에만 있어 Prometheus가 가져갈 주소가 없으므로 push한다.
 prometheus.remote_write "local" {
   endpoint {
     url = "http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/api/v1/write"
