@@ -1,4 +1,4 @@
-# Alloy Iris profiling collector
+# Alloy collector
 
 The `alloy` ApplicationSet deploys one Alloy Pod per cluster in
 `monitoring-alloy`. It discovers ready `iris`, `iris-test`, and `iris-rejudge`
@@ -16,3 +16,14 @@ Prometheus.
 After rollout, check the `alloy` Pod and its debug UI for discovered targets
 and scrape errors, then confirm that Pyroscope receives profiles for all
 three Iris service names. The Grafana data source is configured separately.
+
+## Kubernetes Events
+
+`loki.source.kubernetes_events` writes Events from every namespace to Loki,
+which keeps them for 90 days; etcd drops them after about an hour. A Pod
+restart replays the Events still in etcd, and Loki rejects any more than an
+hour behind the stream's newest entry.
+
+```logql
+{job="kubernetes-events", environment="production"} | json | reason = "FailedScheduling"
+```

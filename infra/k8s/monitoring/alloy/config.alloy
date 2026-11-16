@@ -71,3 +71,19 @@ pyroscope.write "local" {
     environment = sys.env("ALLOY_ENVIRONMENT"),
   }
 }
+
+loki.source.kubernetes_events "cluster" {
+  forward_to = [loki.write.loki.receiver]
+  job_name   = "kubernetes-events"
+  log_format = "json"
+}
+
+loki.write "loki" {
+  endpoint {
+    url = "http://loki.monitoring-loki.svc.cluster.local:3100/loki/api/v1/push"
+  }
+
+  external_labels = {
+    environment = sys.env("ALLOY_ENVIRONMENT"),
+  }
+}
