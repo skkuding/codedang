@@ -117,13 +117,13 @@ The provisioning init container imports the encrypted integration credentials an
 
 ## Git limitations
 
-Files larger than 1 GiB fail the run by default rather than silently producing an incomplete backup. The configured limit is enforced while streaming and declared HTTP lengths must match received bytes. The exporter uses the stock `n8nio/n8n:1.123.87` image and its bundled `@aws-sdk/client-s3@3.808.0`; objects use manually managed streamed multipart uploads, so raise the limit deliberately for larger Notion files. GitHub stores Markdown and recovery metadata only.
+Files larger than 1 GiB fail the run by default rather than silently producing an incomplete backup. The configured limit is enforced while streaming and declared HTTP lengths must match received bytes. The exporter uses the stock `n8nio/n8n:1.123.97` image and its bundled `@aws-sdk/client-s3@3.808.0`; objects use manually managed streamed multipart uploads, so raise the limit deliberately for larger Notion files. GitHub stores Markdown and recovery metadata only.
 
 Both backup branches must accept direct fast-forward pushes from their respective backup identities. Use dedicated repositories or unprotected backup branches rather than branches that require pull requests.
 
 External file URLs are retained as links instead of downloaded because they can point to arbitrary hosts. Notion-hosted temporary URLs are downloaded during the run. Restore with `node /opt/n8n-provisioning/notion-restore.mjs <snapshot-key> <output-directory>`; it rejects traversal and verifies every recovered file's size and SHA-256 before writing it.
 
-The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. Any n8n upgrade must repeat this validation before rollout.
+The init container runs `notion-s3-preflight.mjs` before importing workflows. It requires the stock n8n installation's `/usr/local/lib/node_modules/n8n/package.json`, verifies the bundled client version is exactly `3.808.0`, and checks all multipart commands. The check was re-run inside `n8nio/n8n:1.123.97` and still reports `@aws-sdk/client-s3@3.808.0`; any further n8n upgrade must repeat this validation before rollout.
 
 `notion-backup-s3-credentials.yaml` is listed in `kustomization.yml` and carries the sealed S3 credentials, so Argo CD creates the SealedSecret and the controller decrypts it into the Secret. Rotate them by resealing the values, not by applying a plaintext Secret.
 
