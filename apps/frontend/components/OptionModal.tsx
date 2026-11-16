@@ -17,6 +17,7 @@ export interface OptionModalProps {
   description?: string
   children?: React.ReactNode
   iconType?: 'check' | 'info'
+  trigger: React.ReactNode
 }
 
 export function OptionModal({
@@ -25,16 +26,12 @@ export function OptionModal({
   title,
   description,
   children,
-  iconType = 'check'
+  iconType = 'check',
+  trigger
 }: OptionModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button type="button" variant="default" className="w-[120px]">
-          <HiMiniPlusCircle className="mr-2 h-5 w-5" />
-          <span className="text-lg">Create</span>
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="!flex !min-h-[470px] !w-[620px] !flex-col !rounded-2xl !px-7 !py-8">
         <DialogHeader className="mb-2 flex flex-col items-start justify-center gap-[6px] space-y-0">
           {iconType === 'check' ? (

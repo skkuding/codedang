@@ -8,7 +8,7 @@ import ListIcon from '@/public/icons/list-box.svg'
 import PlusCircleIcon from '@/public/icons/plus-circle.svg'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 type ProblemType = 'General' | 'SpecialJudge'
 
@@ -18,6 +18,10 @@ interface ProblemTypeOption {
   title: string
   description: string
   disabled?: boolean
+}
+
+interface ProblemTypeSelectModalProps {
+  trigger: ReactNode
 }
 
 const problemTypeOptions: ProblemTypeOption[] = [
@@ -36,7 +40,9 @@ const problemTypeOptions: ProblemTypeOption[] = [
   }
 ]
 
-export function ProblemTypeSelectModal() {
+export function ProblemTypeSelectModal({
+  trigger
+}: ProblemTypeSelectModalProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [selectedType, setSelectedType] = useState<ProblemType>('General')
@@ -62,6 +68,7 @@ export function ProblemTypeSelectModal() {
       title="어떤 유형의 문제를 생성할까요?"
       description="문제 유형에 맞는 생성 흐름을 선택하여 효율적으로 문제를 제작할 수 있습니다."
       iconType="check"
+      trigger={trigger}
     >
       <div
         role="radiogroup"

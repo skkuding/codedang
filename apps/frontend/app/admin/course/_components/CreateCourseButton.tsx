@@ -41,6 +41,12 @@ export function CreateCourseButton() {
       title="어떤 유형의 강좌를 생성할까요?"
       description="두 가지 유형을 선택할 수 있습니다."
       iconType="check"
+      trigger={
+        <Button size="large">
+          <PlusCircleIcon className="size-5" />
+          <span className="text-sub3_sb_16">강좌 생성</span>
+        </Button>
+      }
     >
       <div className="flex flex-col gap-2">
         <div
