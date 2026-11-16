@@ -50,10 +50,10 @@ export class AnnouncementService {
 
   /**
    * 대회의 공지 목록을 최신순으로 조회합니다.
-   * 각 공지에는 연결된 문제의 순서(problemOrder)가 함께 포함되며, 문제와 연결되지 않은 공지는 null입니다.
+   * problemOrder는 contestProblem의 order가 아닌, 정렬 없이 조회한 contestProblem 배열의 인덱스(0부터)입니다.
    *
    * @param {number} contestId 대회 ID
-   * @returns problemOrder가 포함된 공지 목록
+   * @returns problemOrder가 포함된 공지 목록 (문제와 연결되지 않은 공지는 null)
    * @throws {NotFoundException} contestId에 해당하는 대회가 없는 경우 발생합니다.
    */
   async getAnnouncementsByContestId(contestId: number) {
