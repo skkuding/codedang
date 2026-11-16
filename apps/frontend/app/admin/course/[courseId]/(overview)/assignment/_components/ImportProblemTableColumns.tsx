@@ -1,4 +1,8 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
+import {
+  PROBLEM_IMPORT_LIMIT,
+  hasProblemSolution
+} from '@/app/admin/_libs/problemImport'
 import { Badge } from '@/components/shadcn/badge'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { BaseDataTableProblem, Level } from '@/types/type'
@@ -15,7 +19,7 @@ export interface AssignmentProblem extends BaseDataTableProblem {
 }
 
 export const DEFAULT_PAGE_SIZE = 5
-export const MAX_SELECTED_ROW_COUNT = 20
+export const MAX_SELECTED_ROW_COUNT = PROBLEM_IMPORT_LIMIT
 export const ERROR_MESSAGE = `You can only import up to ${MAX_SELECTED_ROW_COUNT} problems in a assignment`
 export const columns: ColumnDef<AssignmentProblem>[] = [
   {
@@ -100,11 +104,7 @@ export const columns: ColumnDef<AssignmentProblem>[] = [
       <DataTableColumnHeader column={column} title="Solution" />
     ),
     cell: ({ row }) => {
-      return row.original.solution.some((solution) => solution.code !== '') ? (
-        <FaCheck />
-      ) : (
-        '-'
-      )
+      return hasProblemSolution(row.original.solution) ? <FaCheck /> : '-'
     },
     enableSorting: false
   },

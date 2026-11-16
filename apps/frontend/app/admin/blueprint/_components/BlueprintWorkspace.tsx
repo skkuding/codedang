@@ -5,6 +5,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { blueprintKeys } from '../_libs/queries'
 import {
   blueprintKind,
+  blueprintListHref,
   blueprintListLocation,
   blueprintScope,
   type BlueprintContentKind,
@@ -36,7 +37,8 @@ export function BlueprintWorkspace({
   blueprintId: number
   children: ReactNode
 }) {
-  const kind = blueprintKind(usePathname())
+  const pathname = usePathname()
+  const kind = blueprintKind(pathname)
   const location = blueprintListLocation(useSearchParams())
   const scope = blueprintScope(blueprintId, kind, location)
   const viewState = useBlueprintAssignmentListState(scope)
@@ -54,6 +56,8 @@ export function BlueprintWorkspace({
         blueprintId={blueprintId}
         kind={kind}
         information={information}
+        creation={pathname.endsWith('/create')}
+        listHref={blueprintListHref(blueprintId, kind, location)}
       >
         {children}
       </BlueprintShell>

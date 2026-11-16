@@ -14,7 +14,7 @@ import {
   UPDATE_ASSIGNMENT_PROBLEMS_ORDER
 } from '@/graphql/problem/mutations'
 import { GET_ASSIGNMENT_PROBLEMS } from '@/graphql/problem/queries'
-import { useMutation, useQuery } from '@apollo/client'
+import { useApolloClient, useMutation, useQuery } from '@apollo/client'
 import type { UpdateAssignmentInput } from '@generated/graphql'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
@@ -22,7 +22,7 @@ import { useState, type ReactNode } from 'react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../_libs/type'
-import { isOptionAfterDeadline } from '../_libs/utils'
+import { evictAssignmentQueries, isOptionAfterDeadline } from '../_libs/utils'
 
 interface EditAssigmentFormProps {
   courseId: number
@@ -57,6 +57,7 @@ export function EditAssignmentForm({
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
+  const client = useApolloClient()
 
   useQuery(GET_ASSIGNMENT, {
     variables: { groupId: courseId, assignmentId },
@@ -255,6 +256,8 @@ export function EditAssignmentForm({
         })
       }
     })
+
+    evictAssignmentQueries(client.cache)
 
     setShouldSkipWarning(true)
     toast.success(

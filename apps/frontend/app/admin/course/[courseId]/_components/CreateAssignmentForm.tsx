@@ -6,7 +6,7 @@ import {
   IMPORT_PROBLEMS_TO_ASSIGNMENT
 } from '@/graphql/assignment/mutations'
 import { UPDATE_ASSIGNMENT_PROBLEMS_ORDER } from '@/graphql/problem/mutations'
-import { useMutation } from '@apollo/client'
+import { useApolloClient, useMutation } from '@apollo/client'
 import type { CreateAssignmentInput } from '@generated/graphql'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { useRouter } from 'next/navigation'
@@ -15,7 +15,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { createSchema } from '../_libs/schemas'
 import type { AssignmentProblem } from '../_libs/type'
-import { isOptionAfterDeadline } from '../_libs/utils'
+import { evictAssignmentQueries, isOptionAfterDeadline } from '../_libs/utils'
 
 interface CreateAssignmentFormProps {
   groupId: string
@@ -47,6 +47,7 @@ export function CreateAssignmentForm({
 
   const { setShouldSkipWarning } = useConfirmNavigationContext()
   const router = useRouter()
+  const client = useApolloClient()
 
   const [createAssignment, { error }] = useMutation(CREATE_ASSIGNMENT)
   const [importProblemsToAssignment] = useMutation(
@@ -132,6 +133,8 @@ export function CreateAssignmentForm({
         orders: orderArray
       }
     })
+
+    evictAssignmentQueries(client.cache)
 
     setShouldSkipWarning(true)
     toast.success(

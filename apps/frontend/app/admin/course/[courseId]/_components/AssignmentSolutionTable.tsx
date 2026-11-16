@@ -1,4 +1,5 @@
 import { DataTable, DataTableRoot } from '@/app/admin/_components/table'
+import { hasProblemSolution } from '@/app/admin/_libs/problemImport'
 import dayjs from 'dayjs'
 import {
   useCallback,
@@ -260,11 +261,7 @@ export function AssignmentSolutionTable({
   )
 
   const filteredProblems = useMemo(() => {
-    return problems.filter((problem) => {
-      return (
-        problem.solution?.some((solution) => solution.code.length > 0) ?? false
-      )
-    })
+    return problems.filter((problem) => hasProblemSolution(problem.solution))
   }, [problems])
 
   const columns = useMemo(

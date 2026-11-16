@@ -28,6 +28,7 @@ interface BlueprintAssignmentListProps {
   state: BlueprintReadState<readonly BlueprintAssignmentSummary[]>
   viewState?: BlueprintListStateController
   onOpenMaster: (id: number) => void
+  onCreate?: () => void
   pagination: {
     page: number
     hasPrevious: boolean
@@ -61,6 +62,7 @@ function BlueprintAssignmentListPage({
   assignments,
   viewState,
   onOpenMaster,
+  onCreate,
   pagination
 }: BlueprintAssignmentListProps & {
   assignments: readonly BlueprintAssignmentSummary[]
@@ -139,6 +141,15 @@ function BlueprintAssignmentListPage({
             aria-describedby={`${searchId}-scope`}
           />
         </div>
+        {onCreate && (
+          <Button
+            type="button"
+            className="ml-4 h-[46px] shrink-0 rounded-[10px]"
+            onClick={onCreate}
+          >
+            Create
+          </Button>
+        )}
         <p
           id={`${searchId}-scope`}
           className="absolute left-0 top-full mt-1 text-xs text-neutral-600"
