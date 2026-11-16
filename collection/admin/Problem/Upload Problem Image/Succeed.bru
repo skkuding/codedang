@@ -1,0 +1,58 @@
+meta {
+  name: Succeed
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Apollo-Require-Preflight: true
+}
+
+body:multipart-form {
+  operations: '''
+    {
+      "query": "mutation($input: UploadFileInput!){uploadProblemImage(input: $input){ attachmentId }}",
+      "variables": {
+        "input": {
+          "file": null
+        }
+      }
+    }
+  '''
+  map: '''
+    {
+      "nfile": [
+        "variables.input.file"
+      ]
+    }
+  '''
+  nfile: @file(Problem/Upload Problem Image/sample.png)
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.uploadProblemImage: isDefined
+  res.body.data.uploadProblemImage.attachmentId: isString
+}
+
+docs {
+  ## Upload Problem Image
+  문제 본문(description, inputDescription, outputDescription)에 사용할 이미지를 업로드하고, 첨부 ID를 반환합니다.
+
+  - 업로드된 파일은 `Temporary` 상태로 저장되며, 문제를 저장할 때 해당 문제에 귀속됩니다.
+  - 반환된 `attachmentId`는 본문 HTML의 `data-attachment-id` 값으로 사용합니다.
+  - 기존 `uploadImage`와 달리 URL을 반환하지 않습니다.
+
+  ### Error Cases
+  #### UNPROCESSABLE (1)
+  이미지 파일만 업로드가 가능합니다. (mimetype이 image/*)
+
+  #### UNPROCESSABLE (2)
+  5MB 이하의 이미지 파일만 업로드가 가능합니다.
+}

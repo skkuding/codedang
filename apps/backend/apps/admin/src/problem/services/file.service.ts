@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { FileStatus } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { randomUUID } from 'crypto'
 import type { Readable } from 'stream'
@@ -21,7 +22,45 @@ export class FileService {
     private readonly config: ConfigService
   ) {}
 
+  /**
+   * 기존 업로드 API(uploadImage/uploadFile)용.
+   * 파일을 Unmanaged 상태로 저장하고 공개 URL을 반환한다.
+   */
   async uploadFile(input: UploadFileInput, userId: number, isImage: boolean) {
+    const filename = await this.storeFile(input, userId, isImage)
+    return { src: this.getFileUrl(filename) }
+  }
+
+  /**
+   * Problem 전용 업로드 API(uploadProblemImage/uploadProblemFile)용.
+   * 파일을 Temporary 상태로 저장하고 첨부 ID(filename)를 반환한다.
+   * 문제를 저장할 때 해당 문제에 귀속(Attached)된다.
+   */
+  async uploadProblemAttachment(
+    input: UploadFileInput,
+    userId: number,
+    isImage: boolean
+  ) {
+    const attachmentId = await this.storeFile(
+      input,
+      userId,
+      isImage,
+      FileStatus.Temporary
+    )
+    return { attachmentId }
+  }
+
+  /**
+   * MIME·크기를 검증한 뒤 S3에 업로드하고 File 레코드를 생성한다.
+   * DB 저장에 실패하면 업로드한 S3 객체를 삭제한다.
+   * @returns 생성된 파일의 filename(UUID)
+   */
+  private async storeFile(
+    input: UploadFileInput,
+    userId: number,
+    isImage: boolean,
+    status: FileStatus = FileStatus.Unmanaged
+  ) {
     const { mimetype, createReadStream } = await input.file
     const newFilename = randomUUID()
 
@@ -47,7 +86,8 @@ export class FileService {
       await this.prisma.file.create({
         data: {
           filename: newFilename,
-          createdById: userId
+          createdById: userId,
+          status
         }
       })
     } catch (error) {
@@ -60,7 +100,7 @@ export class FileService {
       )
     }
 
-    return { src: this.getFileUrl(newFilename) }
+    return newFilename
   }
 
   async deleteFile(filename: string, userId: number) {

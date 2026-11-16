@@ -1,7 +1,7 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
 import { File } from '@generated'
 import { AuthenticatedRequest, UseManagerGuard } from '@libs/auth'
-import { FileSource } from '../model/file.output'
+import { FileSource, ProblemAttachmentUpload } from '../model/file.output'
 import { UploadFileInput } from '../model/problem.input'
 import { FileService } from '../services'
 
@@ -24,6 +24,30 @@ export class FileResolver {
     @Context('req') req: AuthenticatedRequest
   ) {
     return await this.fileService.uploadFile(input, req.user.id, false)
+  }
+
+  @Mutation(() => ProblemAttachmentUpload)
+  async uploadProblemImage(
+    @Args('input') input: UploadFileInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.fileService.uploadProblemAttachment(
+      input,
+      req.user.id,
+      true
+    )
+  }
+
+  @Mutation(() => ProblemAttachmentUpload)
+  async uploadProblemFile(
+    @Args('input') input: UploadFileInput,
+    @Context('req') req: AuthenticatedRequest
+  ) {
+    return await this.fileService.uploadProblemAttachment(
+      input,
+      req.user.id,
+      false
+    )
   }
 
   @Mutation(() => File)
