@@ -17,6 +17,9 @@ export class WorkbookController {
 
   constructor(private readonly workbookService: WorkbookService) {}
 
+  /**
+   * 그룹에 속한 공개 문제집 목록을 조회합니다.
+   */
   @Get()
   async getWorkbooks(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
@@ -31,6 +34,9 @@ export class WorkbookController {
     )
   }
 
+  /**
+   * 공개된 문제집의 정보와 포함된 문제 목록을 조회합니다.
+   */
   @Get(':workbookId')
   async getWorkbook(
     @Param('workbookId', new RequiredIntPipe('workbookId')) workbookId,

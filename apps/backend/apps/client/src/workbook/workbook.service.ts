@@ -7,6 +7,14 @@ import { PrismaService } from '@libs/prisma'
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * 그룹에 속한 공개(isVisible) 문제집 목록을 커서 기반으로 조회합니다.
+   *
+   * @param {number | null} cursor 페이지네이션 커서 (마지막으로 조회한 문제집 ID)
+   * @param {number} take 조회할 문제집 개수
+   * @param {number} groupId 그룹 ID
+   * @returns 문제집 목록(`data`)과 공개 문제집 전체 개수(`total`)
+   */
   async getWorkbooksByGroupId(
     cursor: number | null,
     take: number,
@@ -39,6 +47,14 @@ export class WorkbookService {
     return { data: workbooks, total }
   }
 
+  /**
+   * 공개된 문제집의 정보와 포함된 문제 목록을 조회합니다.
+   *
+   * @param {number} workbookId 문제집 ID
+   * @param {number} groupId 그룹 ID
+   * @returns 문제집 ID, 제목 및 문제 목록(문제 ID, 제목, 태그 이름)
+   * @throws {EntityNotExistException} 그룹에 해당 문제집이 없거나 공개되지 않은 경우 발생합니다.
+   */
   async getWorkbook(
     workbookId: number,
     groupId: number
@@ -84,6 +100,13 @@ export class WorkbookService {
     }
   }
 
+  /**
+   * 그룹에 속한 문제집이 공개 상태인지 확인합니다.
+   *
+   * @param {number} id 문제집 ID
+   * @param {number} groupId 그룹 ID
+   * @returns 공개된 문제집이 존재하면 true, 아니면 false
+   */
   async isVisible(id: number, groupId: number): Promise<boolean> {
     return !!(await this.prisma.workbook.count({
       where: { id, groupId, isVisible: true }

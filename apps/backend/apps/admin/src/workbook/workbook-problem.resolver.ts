@@ -23,6 +23,9 @@ export class WorkbookProblemResolver {
     private readonly problemService: ProblemService
   ) {}
 
+  /**
+   * 그룹에 속한 문제집의 문제 목록을 조회합니다.
+   */
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
     @Args('groupId', { type: () => Int }, GroupIDPipe)
@@ -35,6 +38,9 @@ export class WorkbookProblemResolver {
     )
   }
 
+  /**
+   * 문제집에 포함된 문제들의 순서를 변경합니다.
+   */
   @Mutation(() => [WorkbookProblem])
   async updateWorkbookProblemsOrder(
     @Args('groupId', { type: () => Int }, GroupIDPipe)
@@ -50,6 +56,9 @@ export class WorkbookProblemResolver {
     )
   }
 
+  /**
+   * workbookProblem에 연결된 문제의 상세 정보를 조회합니다.
+   */
   @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() workbookProblem: WorkbookProblem) {
     return await this.problemService.getProblemById(workbookProblem.problemId)
