@@ -20,8 +20,6 @@ terraform {
 # Reads the token from SENTRY_AUTH_TOKEN (see .envrc.local.example).
 provider "sentry" {}
 
-# The organization is looked up, never managed: a resource here could delete
-# the whole organization, including its sponsored plan.
 data "sentry_organization" "skkuding" {
   slug = "skkuding"
 }
