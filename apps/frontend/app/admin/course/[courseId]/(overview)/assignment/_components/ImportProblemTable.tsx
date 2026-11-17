@@ -9,12 +9,9 @@ import {
   DataTableRoot,
   DataTableSearchBar
 } from '@/app/admin/_components/table'
-import {
-  PROBLEM_IMPORT_FILTER,
-  uniqueProblems
-} from '@/app/admin/_libs/problemImport'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { useSuspenseQuery } from '@apollo/client'
+import { Language, Level } from '@generated/graphql'
 import { toast } from 'sonner'
 import type { AssignmentProblem } from '../../../_libs/type'
 import {
@@ -35,7 +32,16 @@ export function ImportProblemTable({
 }: ImportProblemTableProps) {
   const queryVariables = {
     take: 500,
-    input: PROBLEM_IMPORT_FILTER
+    input: {
+      difficulty: [
+        Level.Level1,
+        Level.Level2,
+        Level.Level3,
+        Level.Level4,
+        Level.Level5
+      ],
+      languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
+    }
   }
 
   const { data: myData } = useSuspenseQuery(GET_PROBLEMS, {
@@ -53,19 +59,19 @@ export function ImportProblemTable({
     }
   })
 
-  const problems = uniqueProblems([
-    ...myData.getProblems,
-    ...sharedData.getProblems
-  ]).map((problem) => ({
+  const combinedProblems = [...myData.getProblems, ...sharedData.getProblems]
+
+  const uniqueProblemsMap = new Map()
+  combinedProblems.forEach((problem) => {
+    uniqueProblemsMap.set(problem.id, problem)
+  })
+
+  const problems = Array.from(uniqueProblemsMap.values()).map((problem) => ({
     ...problem,
     id: Number(problem.id),
     isVisible: problem.isVisible !== undefined ? problem.isVisible : null,
     updateTime: problem.updateContentTime ?? problem.updateTime,
     languages: problem.languages ?? [],
-    solution: problem.solution ?? [],
-    solutionReleaseTime:
-      checkedProblems.find((item) => item.id === Number(problem.id))
-        ?.solutionReleaseTime ?? null,
     score: checkedProblems.find((item) => item.id === Number(problem.id))
       ?.score,
     order: checkedProblems.find((item) => item.id === Number(problem.id))?.order

@@ -1,6 +1,6 @@
 'use client'
 
-import { uniqueProblems } from '@/app/admin/_libs/problemImport'
+import { uniqueProblems } from '@/app/admin/blueprint/_libs/problemImport'
 import { GET_PROBLEMS } from '@/graphql/problem/queries'
 import { NetworkStatus, useQuery } from '@apollo/client'
 import { useRef, useState } from 'react'

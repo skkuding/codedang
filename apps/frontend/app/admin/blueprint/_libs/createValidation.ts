@@ -1,4 +1,4 @@
-import { PROBLEM_IMPORT_LIMIT } from '@/app/admin/_libs/problemImport'
+import { PROBLEM_IMPORT_LIMIT } from '@/app/admin/blueprint/_libs/problemImport'
 import type {
   BlueprintCreateDraft,
   BlueprintCreateOptions,

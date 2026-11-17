@@ -1,7 +1,7 @@
 'use client'
 
 import { OptionSelect } from '@/app/admin/_components/OptionSelect'
-import { PROBLEM_IMPORT_LIMIT } from '@/app/admin/_libs/problemImport'
+import { PROBLEM_IMPORT_LIMIT } from '@/app/admin/blueprint/_libs/problemImport'
 import { Badge } from '@/components/shadcn/badge'
 import { Button } from '@/components/shadcn/button'
 import { Checkbox } from '@/components/shadcn/checkbox'

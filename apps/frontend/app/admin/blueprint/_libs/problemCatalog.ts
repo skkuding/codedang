@@ -1,7 +1,7 @@
 import {
   PROBLEM_IMPORT_FILTER,
   hasProblemSolution
-} from '@/app/admin/_libs/problemImport'
+} from '@/app/admin/blueprint/_libs/problemImport'
 import { isApolloError } from '@apollo/client'
 import type {
   GetProblemsQuery,
