@@ -96,6 +96,7 @@ const db = {
     update: stub()
   },
   assignmentProblemRecord: {
+    createMany: stub(),
     upsert: stub()
   },
   user: {
@@ -205,6 +206,7 @@ describe('SubmissionService', () => {
       SubmissionFinalizationService
     )
     cache = module.get<Cache>(CACHE_MANAGER)
+    db.assignmentProblem.findMany.resolves([])
     stub(cache, 'set').resolves()
     stub(cache, 'get').resolves([])
   })
@@ -1252,6 +1254,11 @@ describe('SubmissionService', () => {
   describe('record persistence', () => {
     beforeEach(() => {
       db.userContest.findUnique.resolves({ role: ContestRole.Participant })
+      db.assignmentProblem.findMany.resolves([
+        { problemId: problems[0].id },
+        { problemId: problems[0].id + 1 },
+        { problemId: problems[0].id + 2 }
+      ])
     })
 
     const cases = [
@@ -1290,13 +1297,58 @@ describe('SubmissionService', () => {
           if (needsRecord)
             expect(parent.calledBefore(db.submission.create)).to.be.true
           if (kind === 'assignment') {
-            expect(parent.calledBefore(db.assignmentProblemRecord.upsert)).to.be
-              .true
+            expect(
+              db.assignmentProblem.findMany.firstCall.args[0]
+            ).to.deep.equal({
+              where: { assignmentId: ASSIGNMENT_ID },
+              select: { problemId: true }
+            })
+            // Only identifiers are initialized; existing scores and comments are preserved.
+            expect(
+              db.assignmentProblemRecord.createMany.firstCall.args[0]
+            ).to.deep.equal({
+              data: [0, 1, 2].map((offset) => ({
+                assignmentId: ASSIGNMENT_ID,
+                userId: saved.userId,
+                problemId: problems[0].id + offset
+              })),
+              skipDuplicates: true
+            })
+            expect(parent.calledBefore(db.assignmentProblemRecord.createMany))
+              .to.be.true
+            expect(
+              db.assignmentProblemRecord.createMany.calledBefore(
+                db.assignmentProblemRecord.upsert
+              )
+            ).to.be.true
+            expect(
+              db.assignmentProblemRecord.upsert.firstCall.args[0]
+            ).to.deep.equal({
+              where: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                assignmentId_userId_problemId: {
+                  assignmentId: ASSIGNMENT_ID,
+                  userId: saved.userId,
+                  problemId: saved.problemId
+                }
+              },
+              create: {
+                assignmentId: ASSIGNMENT_ID,
+                userId: saved.userId,
+                problemId: saved.problemId,
+                isSubmitted: true
+              },
+              update: { isSubmitted: true }
+            })
             expect(
               db.assignmentProblemRecord.upsert.calledBefore(
                 db.submission.create
               )
             ).to.be.true
+          }
+          if (kind === 'contest') {
+            expect(db.assignmentProblem.findMany.called).to.be.false
+            expect(db.assignmentProblemRecord.createMany.called).to.be.false
           }
           const afterSave = hasTestcases
             ? publishStub
@@ -1320,6 +1372,7 @@ describe('SubmissionService', () => {
       ).to.be.rejectedWith(ConflictFoundException)
       expect(db.assignmentRecord.upsert.called).to.be.false
       expect(db.assignmentProblemRecord.upsert.called).to.be.false
+      expect(db.assignmentProblemRecord.createMany.called).to.be.false
       expect(db.submission.create.called).to.be.false
     })
   })

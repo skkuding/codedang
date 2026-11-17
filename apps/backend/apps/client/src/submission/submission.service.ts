@@ -502,6 +502,18 @@ export class SubmissionService {
           create: { assignmentId, userId },
           update: { userId }
         })
+        const assignmentProblems = await prisma.assignmentProblem.findMany({
+          where: { assignmentId },
+          select: { problemId: true }
+        })
+        await prisma.assignmentProblemRecord.createMany({
+          data: assignmentProblems.map(({ problemId }) => ({
+            assignmentId,
+            userId,
+            problemId
+          })),
+          skipDuplicates: true
+        })
         await prisma.assignmentProblemRecord.upsert({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -720,50 +732,6 @@ export class SubmissionService {
       select: { id: true }
     })
     return !!staff
-  }
-
-  /**
-   * 주어진 사용자가 해당 과제의 group leader인지 확인합니다.
-   * 확인 후 사용자가 해당 과제의 group leader이면 assignment를 반환하고, 그렇지 않으면 null을 반환합니다.
-   *
-   * @param {number} assignmentId - 과제 ID
-   * @param {number} userId - 사용자 ID
-   * @returns {Promise<{ groupId: number, startTime: Date, endTime: Date, isJudgeResultVisible: boolean } | null>}
-   * - group leader이면 assignment, 아니면 null
-   */
-  async findLeaderAssignment(
-    assignmentId: number,
-    userId: number
-  ): Promise<{
-    groupId: number
-    startTime: Date
-    endTime: Date
-    isJudgeResultVisible: boolean
-  } | null> {
-    const assignment = await this.prisma.assignment.findUnique({
-      where: { id: assignmentId },
-      select: {
-        groupId: true,
-        startTime: true,
-        endTime: true,
-        isJudgeResultVisible: true
-      }
-    })
-    if (!assignment) {
-      return null
-    }
-    const leader = await this.prisma.userGroup.findFirst({
-      where: {
-        userId,
-        groupId: assignment.groupId,
-        isGroupLeader: true
-      },
-      select: { userId: true }
-    })
-    if (!leader) {
-      return null
-    }
-    return assignment
   }
 
   /**
