@@ -189,9 +189,11 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row, index) => {
               const rows = table.getRowModel().rows
-              const isSection = row.depth === 1
               const isLastSection =
-                isSection && (!rows[index + 1] || rows[index + 1]?.depth === 0)
+                row.depth === 1 &&
+                (!rows[index + 1] || rows[index + 1].depth === 0)
+              const isLastRow = row.depth === 0 && row.subRows.length === 0
+              const toRenderCreateSection = isLastSection || isLastRow
 
               return (
                 <Fragment key={row.id}>
@@ -244,7 +246,7 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                       )
                     })}
                   </TableRow>
-                  {isLastSection && renderCreateSection?.(row.original)}
+                  {toRenderCreateSection && renderCreateSection?.(row.original)}
                 </Fragment>
               )
             })

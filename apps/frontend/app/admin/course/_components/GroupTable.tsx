@@ -85,9 +85,12 @@ export function GroupTable() {
     title: 'justify-start'
   }
 
-  const renderCreateSection = (row: DataTableCourse) => (
-    <CreateSection courseCode={row.code} />
-  )
+  const renderCreateSection = (row: DataTableCourse) => {
+    if (row.type === 'course') {
+      return
+    }
+    return <CreateSection courseCode={row.code} />
+  }
 
   return (
     <div>
