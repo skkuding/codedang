@@ -10,7 +10,7 @@ import {
 import { FaCirclePlay } from 'react-icons/fa6'
 
 interface BlueprintListPaginationProps {
-  kind: 'assignments' | 'exercises'
+  kind: 'assignments' | 'exercises' | 'notices'
   page: number
   pageSize: number
   selectedCount: number

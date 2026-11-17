@@ -22,6 +22,7 @@ import type {
   BlueprintReadResult
 } from '../_libs/types'
 import { BlueprintDataSourceProvider } from './BlueprintDataSourceProvider'
+import { useBlueprintNoticeWorkspace } from './BlueprintNoticeWorkspace'
 import {
   BlueprintDetailRoute,
   BlueprintListRoute
@@ -101,18 +102,42 @@ function createSource() {
 
 const clients: QueryClient[] = []
 
+function NoticeStateProbe() {
+  const { viewState } = useBlueprintNoticeWorkspace()
+  return (
+    <label>
+      Notice search
+      <input
+        value={viewState.value.search}
+        onChange={(event) =>
+          viewState.onChange((current) => ({
+            ...current,
+            search: event.target.value
+          }))
+        }
+      />
+    </label>
+  )
+}
+
 function renderRoutes(source?: BlueprintDataSource, initialDetail?: number) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } }
   })
   clients.push(client)
   function tree(detail?: number) {
+    const assignmentContent =
+      detail === undefined ? (
+        <BlueprintListRoute />
+      ) : (
+        <BlueprintDetailRoute assignmentId={detail} />
+      )
     const workspace = (
       <BlueprintWorkspace blueprintId={31}>
-        {detail === undefined ? (
-          <BlueprintListRoute />
+        {navigation.pathname.split('/')[4] === 'notice' ? (
+          <NoticeStateProbe />
         ) : (
-          <BlueprintDetailRoute assignmentId={detail} />
+          assignmentContent
         )}
       </BlueprintWorkspace>
     )
@@ -317,6 +342,34 @@ describe('Blueprint routed workspace', () => {
         .getByRole('checkbox', { name: 'Select Route assignment' })
         .getAttribute('aria-checked')
     ).toBe('false')
+    expect(
+      screen.getByLabelText<HTMLInputElement>('Search this page').value
+    ).toBe('')
+  })
+
+  it('separates Notice from Assignment reads and resets state when switching tabs', async () => {
+    const source = createSource()
+    const routes = renderRoutes(source)
+    await screen.findByRole('button', { name: 'Route assignment' })
+    fireEvent.change(screen.getByLabelText('Search this page'), {
+      target: { value: 'assignment search' }
+    })
+    const readCount = source.readAssignments.mock.calls.length
+    routes.navigate('/admin/blueprint/31/notice')
+    expect(screen.getByRole('heading', { name: 'NOTICE' })).toBeTruthy()
+    expect(screen.getByLabelText<HTMLInputElement>('Notice search').value).toBe(
+      ''
+    )
+    fireEvent.change(screen.getByLabelText('Notice search'), {
+      target: { value: 'notice search' }
+    })
+    routes.navigate('/admin/blueprint/31/notice', '?cursor=91&page=2')
+    expect(screen.getByLabelText<HTMLInputElement>('Notice search').value).toBe(
+      ''
+    )
+    expect(source.readAssignments).toHaveBeenCalledTimes(readCount)
+    routes.navigate('/admin/blueprint/31/assignment')
+    await screen.findByRole('button', { name: 'Route assignment' })
     expect(
       screen.getByLabelText<HTMLInputElement>('Search this page').value
     ).toBe('')

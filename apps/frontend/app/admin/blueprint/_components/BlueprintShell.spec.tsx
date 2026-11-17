@@ -24,7 +24,7 @@ const information: BlueprintReadState<BlueprintCourseInformation> = {
 }
 
 describe('BlueprintShell', () => {
-  it.each(['assignment', 'exercise'] as const)(
+  it.each(['assignment', 'exercise', 'notice'] as const)(
     'uses provided metadata and marks the active %s route, including detail views',
     (kind) => {
       render(
@@ -48,20 +48,17 @@ describe('BlueprintShell', () => {
         '/admin/blueprint/72/assignment'
       )
       expect(exercise.getAttribute('href')).toBe('/admin/blueprint/72/exercise')
-      expect(
-        (kind === 'assignment' ? assignment : exercise).getAttribute(
-          'aria-current'
+      const notice = within(nav).getByRole('link', { name: 'Notice' })
+      expect(notice.getAttribute('href')).toBe('/admin/blueprint/72/notice')
+      for (const link of [assignment, exercise, notice]) {
+        expect(link.getAttribute('aria-current')).toBe(
+          link.textContent?.toLowerCase() === kind ? 'page' : null
         )
-      ).toBe('page')
-      expect(
-        (kind === 'assignment' ? exercise : assignment).hasAttribute(
-          'aria-current'
-        )
-      ).toBe(false)
+      }
     }
   )
 
-  it('links back to Course List and never links to unimplemented or excluded tabs', () => {
+  it('links back to Course List and omits excluded tabs', () => {
     render(
       <BlueprintShell blueprintId={72} kind="assignment" information={null}>
         <p>Page content</p>
@@ -72,12 +69,10 @@ describe('BlueprintShell', () => {
         .getByRole('link', { name: 'Back to Course List' })
         .getAttribute('href')
     ).toBe('/admin/course')
-    const notice = screen.getByRole<HTMLButtonElement>('button', {
+    const notice = screen.getByRole('link', {
       name: 'Notice'
     })
-    expect(notice.disabled).toBe(true)
-    expect(notice.getAttribute('aria-disabled')).toBe('true')
-    expect(screen.queryByRole('link', { name: 'Notice' })).toBeNull()
+    expect(notice.getAttribute('href')).toBe('/admin/blueprint/72/notice')
     expect(screen.queryByText(/^(Home|Member|Q&A)$/)).toBeNull()
     expect(screen.getAllByRole('navigation')).toHaveLength(1)
   })

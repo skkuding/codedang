@@ -5,7 +5,7 @@ import BackIcon from '@/public/icons/blueprint-create-back.svg'
 import type { Route } from 'next'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { blueprintListHref } from '../_libs/routes'
+import { blueprintListHref, type BlueprintWorkspaceKind } from '../_libs/routes'
 import type {
   BlueprintCourseInformation,
   BlueprintReadState
@@ -14,7 +14,7 @@ import { BlueprintReadBoundary } from './BlueprintReadBoundary'
 
 interface BlueprintShellProps {
   blueprintId: number
-  kind: 'assignment' | 'exercise'
+  kind: BlueprintWorkspaceKind
   information: BlueprintReadState<BlueprintCourseInformation> | null
   children: ReactNode
   creation?: boolean
@@ -24,7 +24,8 @@ interface BlueprintShellProps {
 
 const tabs = [
   { kind: 'assignment', name: 'Assignment' },
-  { kind: 'exercise', name: 'Exercise' }
+  { kind: 'exercise', name: 'Exercise' },
+  { kind: 'notice', name: 'Notice' }
 ] as const
 
 export function BlueprintShell({
@@ -104,7 +105,7 @@ export function BlueprintShell({
               <h1 className={formPage ? 'text-head2_b_32' : 'text-head3_sb_28'}>
                 {editing && 'EDIT '}
                 {creation && !editing && 'CREATE '}
-                {kind === 'exercise' ? 'EXERCISE' : 'ASSIGNMENT'}
+                {kind.toUpperCase()}
               </h1>
               <span className="bg-primary text-caption2_m_12 rounded-full px-4 py-1.5 tracking-[-0.36px] text-white">
                 Blueprint
@@ -142,15 +143,6 @@ export function BlueprintShell({
                 {tab.name}
               </Link>
             ))}
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              title="Coming soon"
-              className="text-sub3_sb_16 text-color-neutral-70 flex h-10 min-w-0 flex-1 cursor-not-allowed items-center justify-center pb-4"
-            >
-              Notice
-            </button>
           </nav>
         )}
 
