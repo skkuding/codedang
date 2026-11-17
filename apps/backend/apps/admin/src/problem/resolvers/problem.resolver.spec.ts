@@ -3,7 +3,11 @@ import { expect } from 'chai'
 import { buildSchema, Kind, parse, type GraphQLResolveInfo } from 'graphql'
 import { stub, type SinonStub } from 'sinon'
 import type { ProblemWithIsVisible } from '../model/problem.output'
-import { TagService, TestcaseService } from '../services'
+import {
+  ProblemAttachmentService,
+  TagService,
+  TestcaseService
+} from '../services'
 import { ProblemService } from '../services/problem.service'
 import { ProblemResolver } from './problem.resolver'
 
@@ -30,7 +34,8 @@ describe('ProblemResolver', () => {
         ProblemResolver,
         { provide: ProblemService, useValue: {} },
         { provide: TagService, useValue: {} },
-        { provide: TestcaseService, useValue: { getProblemTestcases } }
+        { provide: TestcaseService, useValue: { getProblemTestcases } },
+        { provide: ProblemAttachmentService, useValue: {} }
       ]
     }).compile()
 

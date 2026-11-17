@@ -5,6 +5,7 @@ import { Level } from '@generated'
 import { Role } from '@prisma/client'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
+import { AttachmentService } from '@libs/attachment'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { S3Provider, StorageService } from '@libs/storage'
@@ -20,7 +21,13 @@ import {
   testcaseInput,
   updateHistories
 } from '../mock/mock'
-import { FileService, ProblemService, TagService, TestcaseService } from './'
+import {
+  FileService,
+  ProblemAttachmentService,
+  ProblemService,
+  TagService,
+  TestcaseService
+} from './'
 
 /**
  * TODO: s3 관련 코드 재작성(수정) 필요
@@ -39,6 +46,7 @@ const db = {
   problem: {
     findMany: stub(),
     findFirstOrThrow: stub(),
+    findUniqueOrThrow: stub(),
     create: stub(),
     createMany: stub(),
     update: stub(),
@@ -63,7 +71,10 @@ const db = {
     delete: stub()
   },
   $transaction: stub(),
+  $queryRaw: stub().resolves([]),
   file: {
+    findMany: stub().resolves([]),
+    updateMany: stub(),
     deleteMany: stub()
   },
   submission: {
@@ -75,11 +86,16 @@ const db = {
   },
   getPaginator: PrismaService.prototype.getPaginator
 }
+db.$transaction.callsFake(async (arg) =>
+  typeof arg === 'function' ? arg(db) : Promise.all(arg)
+)
 
 describe('ProblemService', () => {
   let service: ProblemService
   let storageService: StorageService
   let testcaseService: TestcaseService
+  let problemAttachmentService: ProblemAttachmentService
+  let configService: ConfigService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -90,6 +106,8 @@ describe('ProblemService', () => {
         TestcaseService,
         TagService,
         FileService,
+        ProblemAttachmentService,
+        AttachmentService,
         ConfigService,
         S3Provider,
         { provide: CACHE_MANAGER, useValue: { del: () => null } }
@@ -99,6 +117,11 @@ describe('ProblemService', () => {
     service = module.get<ProblemService>(ProblemService)
     storageService = module.get<StorageService>(StorageService)
     testcaseService = module.get<TestcaseService>(TestcaseService)
+    problemAttachmentService = module.get<ProblemAttachmentService>(
+      ProblemAttachmentService
+    )
+    configService = module.get<ConfigService>(ConfigService)
+    db.problem.findUniqueOrThrow.resolves(problems[0])
   })
 
   it('should be defined', () => {
@@ -160,6 +183,68 @@ describe('ProblemService', () => {
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
+    })
+
+    it('should create testcases in the problem transaction', async () => {
+      db.problem.create.resolves(problems[0])
+      const createTestcases = stub(
+        testcaseService,
+        'createTestcasesLegacy'
+      ).resolves()
+
+      await service.createProblem(
+        input,
+        problems[0].createdById!,
+        user[0].role!
+      )
+
+      expect(createTestcases.calledOnce).to.be.true
+      expect(createTestcases.firstCall.args[2]).to.equal(db)
+    })
+
+    it('should reject when testcase creation fails in the transaction', async () => {
+      db.problem.create.resolves(problems[0])
+      stub(testcaseService, 'createTestcasesLegacy').rejects(
+        new Error('testcase failure')
+      )
+
+      await expect(
+        service.createProblem(input, problems[0].createdById!, user[0].role!)
+      ).to.be.rejectedWith('testcase failure')
+    })
+  })
+
+  describe('createProblem with an unreadable attachment id', () => {
+    it('should reject the problem instead of leaving the file unattached', async () => {
+      const newId = '16fd2706-8baf-433b-82eb-8c7fada847da'
+      db.file.findMany.resolves([{ filename: newId }])
+      db.problem.create.resetHistory()
+
+      await expect(
+        service.createProblem(
+          {
+            title: problems[0].title,
+            description: `<img alt=don't data-attachment-id="${newId}">`,
+            inputDescription: '',
+            outputDescription: '',
+            hint: '',
+            isVisible: false,
+            template: [],
+            languages: problems[0].languages,
+            solution: [],
+            timeLimit: 1000,
+            memoryLimit: 256,
+            difficulty: Level.Level1,
+            source: '',
+            testcases: [testcaseInput],
+            tagIds: []
+          },
+          problems[0].createdById!,
+          user[0].role!
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(db.problem.create.called).to.be.false
+      db.file.findMany.resolves([])
     })
   })
 
@@ -281,6 +366,147 @@ describe('ProblemService', () => {
         )
       ).to.be.rejectedWith(UnprocessableDataException)
       expect(uploadSpy.called).to.be.false
+    })
+
+    it('should sync testcases in the transaction with the locked zip flags', async () => {
+      db.problem.findFirstOrThrow.resolves({
+        ...problems[0],
+        isSampleUploadedByZip: false,
+        isHiddenUploadedByZip: false
+      })
+      db.problem.findUniqueOrThrow.resolves({
+        ...problems[0],
+        isSampleUploadedByZip: false,
+        isHiddenUploadedByZip: true
+      })
+      db.problem.update.resolves(problems[0])
+      db.problemTestcase.findMany.resolves([])
+      const sync = stub(testcaseService, 'syncTestcases').resolves()
+
+      await service.updateProblem(
+        { id: problemId, testcases: [testcase] },
+        user[0].role!,
+        user[0].id!
+      )
+
+      const [id, isSample, isHidden, , tx] = sync.firstCall.args
+      expect([id, isSample, isHidden]).to.deep.equal([problemId, false, true])
+      expect(tx).to.equal(db)
+      expect(sync.calledBefore(db.problem.update)).to.be.true
+    })
+
+    it('should diff attachments against the body read in the transaction', async () => {
+      const keptId = '0f8fad5b-d9cb-469f-a165-70867728950e'
+      const removedId = '7c9e6679-7425-40de-944b-e07fc1f90ae7'
+      const addedId = '16fd2706-8baf-433b-82eb-8c7fada847da'
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findUniqueOrThrow.resolves({
+        ...problems[0],
+        description: `<img data-attachment-id="${removedId}">`,
+        inputDescription: `<img data-attachment-id="${keptId}">`
+      })
+      db.problem.update.resolves(problems[0])
+      const attach = stub(problemAttachmentService, 'attach').resolves()
+      const findDeletable = stub(
+        problemAttachmentService,
+        'findDeletable'
+      ).resolves([removedId])
+      const deleteRecords = stub(
+        problemAttachmentService,
+        'deleteRecords'
+      ).resolves()
+
+      await service.updateProblem(
+        {
+          id: problemId,
+          description: `<img data-attachment-id="${addedId}">`
+        },
+        user[0].role!,
+        user[0].id!
+      )
+
+      expect(db.$queryRaw.called).to.be.true
+      expect(attach.firstCall.args[1].ids).to.deep.equal([addedId])
+      expect(findDeletable.firstCall.args[2]).to.deep.equal([removedId])
+      expect(deleteRecords.firstCall.args[2]).to.deep.equal([removedId])
+    })
+
+    it('should reject replacing an attachment id with its storage URL', async () => {
+      const attachedId = '0f8fad5b-d9cb-469f-a165-70867728950e'
+      stub(configService, 'get').callsFake((key: string) =>
+        key === 'MEDIA_CDN_URL' ? 'https://media.codedang.com' : undefined
+      )
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findUniqueOrThrow.resolves({
+        ...problems[0],
+        description: `<img data-attachment-id="${attachedId}">`
+      })
+      db.file.findMany.resolves([{ filename: attachedId }])
+      db.file.deleteMany.resetHistory()
+      db.problem.update.resetHistory()
+
+      await expect(
+        service.updateProblem(
+          {
+            id: problemId,
+            description: `<img src="https://media.codedang.com/${attachedId}">`
+          },
+          user[0].role!,
+          user[0].id!
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(db.file.deleteMany.called).to.be.false
+      expect(db.problem.update.called).to.be.false
+      db.file.findMany.resolves([])
+    })
+
+    it('should reject an edit that hides an attached id from the parser', async () => {
+      const attachedId = '0f8fad5b-d9cb-469f-a165-70867728950e'
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findUniqueOrThrow.resolves({
+        ...problems[0],
+        description: `<img data-attachment-id="${attachedId}">`
+      })
+      db.file.findMany.resolves([{ filename: attachedId }])
+      db.file.deleteMany.resetHistory()
+      db.problem.update.resetHistory()
+
+      await expect(
+        service.updateProblem(
+          {
+            id: problemId,
+            description: `<img alt=don't data-attachment-id="${attachedId}">`
+          },
+          user[0].role!,
+          user[0].id!
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(db.file.deleteMany.called).to.be.false
+      expect(db.problem.update.called).to.be.false
+      db.file.findMany.resolves([])
+    })
+
+    it('should reject adding a new attachment the parser cannot read', async () => {
+      const newId = '16fd2706-8baf-433b-82eb-8c7fada847da'
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findUniqueOrThrow.resolves(problems[0])
+      db.file.findMany.resolves([{ filename: newId }])
+      db.file.updateMany.resetHistory()
+      db.problem.update.resetHistory()
+
+      await expect(
+        service.updateProblem(
+          {
+            id: problemId,
+            description: `<img alt=don't data-attachment-id="${newId}">`
+          },
+          user[0].role!,
+          user[0].id!
+        )
+      ).to.be.rejectedWith(UnprocessableDataException)
+      expect(db.file.updateMany.called).to.be.false
+      expect(db.problem.update.called).to.be.false
+      db.file.findMany.resolves([])
     })
   })
 

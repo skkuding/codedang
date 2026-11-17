@@ -7,6 +7,7 @@ import type {
 } from '@prisma/client'
 import type { JsonValue } from '@prisma/client/runtime/library'
 import { Exclude, Expose } from 'class-transformer'
+import type { Attachment } from '@libs/attachment'
 
 export class ProblemResponseDto {
   id: number
@@ -33,6 +34,7 @@ export class ProblemResponseDto {
   tags: Partial<Tag>[]
   template: JsonValue[]
   problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
+  attachments: Attachment[]
   updateHistory: UpdateHistory[]
 }
 
@@ -64,6 +66,7 @@ export class _ProblemResponseDto {
   @Expose() tags: Partial<Tag>[]
   @Expose() template: JSON[]
   @Expose() problemTestcase: Pick<ProblemTestcase, 'id' | 'input' | 'output'>[]
+  @Expose() attachments: Attachment[]
   @Expose() updateContentTime: Date
   @Expose() isHiddenUploadedByZip: boolean
   @Expose() isSampleUploadedByZip: boolean

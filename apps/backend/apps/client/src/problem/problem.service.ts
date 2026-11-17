@@ -1,6 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
-import { Prisma, ResultStatus } from '@prisma/client'
+import { ConfigService } from '@nestjs/config'
+import { FileStatus, Prisma, ResultStatus } from '@prisma/client'
 import type { Decimal } from '@prisma/client/runtime/library'
+import { buildAttachments } from '@libs/attachment'
 import { MIN_DATE } from '@libs/constants'
 import { ForbiddenAccessException } from '@libs/exception'
 import { ProblemOrder } from '@libs/pipe'
@@ -47,12 +49,20 @@ const problemSelectOption: Prisma.ProblemSelect = {
       input: true,
       output: true
     }
+  },
+  files: {
+    where: { status: FileStatus.Attached },
+    select: { filename: true },
+    orderBy: { createTime: 'asc' }
   }
 }
 
 @Injectable()
 export class ProblemService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
+  ) {}
 
   /**
    * 주어진 옵션에 따라 문제 목록을 가져옵니다.
@@ -237,9 +247,11 @@ export class ProblemService {
     ).map((tag) => tag.tag)
 
     const updateHistory = await this.getProblemUpdateHistory(problemId)
+    const { files, ...problem } = data
 
     return {
-      ...data,
+      ...problem,
+      attachments: buildAttachments(this.config, files),
       tags,
       updateHistory
     }
@@ -369,7 +381,8 @@ export class ProblemService {
 export class ContestProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly contestService: ContestService
+    private readonly contestService: ContestService,
+    private readonly config: ConfigService
   ) {}
 
   /**
@@ -622,7 +635,7 @@ export class ContestProblemService {
       'visibleLockTime'
     ]
 
-    const problem = { ...data.problem } // 원본 객체를 복사해서 안전하게 작업
+    const { files, ...problem } = data.problem
     excludedFields.forEach((key) => {
       delete problem[key]
     })
@@ -637,6 +650,7 @@ export class ContestProblemService {
       order: data.order,
       problem: {
         ...problem,
+        attachments: buildAttachments(this.config, files),
         tags
       },
       updateHistory
@@ -686,7 +700,8 @@ export class ContestProblemService {
 export class AssignmentProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly assignmentService: AssignmentService
+    private readonly assignmentService: AssignmentService,
+    private readonly config: ConfigService
   ) {}
 
   /**
@@ -849,7 +864,7 @@ export class AssignmentProblemService {
       excludedFields.push('solution')
     }
 
-    const problem = { ...data.problem } // 원본 객체를 복사해서 안전하게 작업
+    const { files, ...problem } = data.problem
     excludedFields.forEach((key) => {
       delete problem[key]
     })
@@ -858,6 +873,7 @@ export class AssignmentProblemService {
       order: data.order,
       problem: {
         ...problem,
+        attachments: buildAttachments(this.config, files),
         tags
       }
     }
@@ -868,7 +884,8 @@ export class AssignmentProblemService {
 export class WorkbookProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly workbookService: WorkbookService
+    private readonly workbookService: WorkbookService,
+    private readonly config: ConfigService
   ) {}
 
   /**
@@ -1045,7 +1062,7 @@ export class WorkbookProblemService {
       'visibleLockTime',
       'solution'
     ]
-    const problem = { ...data.problem }
+    const { files, ...problem } = data.problem
     excludedFields.forEach((key) => {
       delete problem[key]
     })
@@ -1054,6 +1071,7 @@ export class WorkbookProblemService {
       order: data.order,
       problem: {
         ...problem,
+        attachments: buildAttachments(this.config, files),
         tags
       }
     }

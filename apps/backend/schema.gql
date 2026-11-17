@@ -527,6 +527,11 @@ type AssignmentsGroupedByStatus {
   upcoming: [AssignmentWithScores!]!
 }
 
+type AttachmentUrl {
+  id: String!
+  url: String!
+}
+
 type CheckRequest {
   CheckResult: [CheckResult!]
   _count: CheckRequestCount!
@@ -3445,6 +3450,7 @@ type ProblemWithIsVisible {
   acceptedRate: Float!
   announcement: [Announcement!]
   assignmentProblem: [AssignmentProblem!]
+  attachments: [AttachmentUrl!]!
   contestProblem: [ContestProblem!]
   courseQnA: [CourseQnA!]
   createTime: DateTime!
