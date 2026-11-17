@@ -36,11 +36,13 @@ function settingValue(value: boolean | null) {
 export function BlueprintAssignmentDetail({
   state,
   isExercise,
-  onBack
+  onBack,
+  onEdit
 }: {
   state: BlueprintReadState<Detail>
   isExercise: boolean
   onBack: () => void
+  onEdit?: () => void
 }) {
   const checkedState: BlueprintReadState<Detail> =
     state.status === 'success' && state.data.isExercise !== isExercise
@@ -65,6 +67,11 @@ export function BlueprintAssignmentDetail({
           return (
             <article className="flex flex-col gap-8">
               <header className="flex flex-col gap-2">
+                {onEdit && (
+                  <Button type="button" onClick={onEdit} className="self-end">
+                    Edit
+                  </Button>
+                )}
                 <h1 className="text-head3_sb_28">Master Information</h1>
                 <h2 className="text-head5_sb_24 break-words">{detail.title}</h2>
                 <p className="text-body2_m_14">Week {detail.week}</p>

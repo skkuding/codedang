@@ -29,6 +29,7 @@ interface BlueprintAssignmentListProps {
   viewState?: BlueprintListStateController
   onOpenMaster: (id: number) => void
   onCreate?: () => void
+  onDelete?: (targets: readonly BlueprintAssignmentSummary[]) => void
   pagination: {
     page: number
     hasPrevious: boolean
@@ -63,6 +64,7 @@ function BlueprintAssignmentListPage({
   viewState,
   onOpenMaster,
   onCreate,
+  onDelete,
   pagination
 }: BlueprintAssignmentListProps & {
   assignments: readonly BlueprintAssignmentSummary[]
@@ -157,6 +159,24 @@ function BlueprintAssignmentListPage({
           Searches this page only.
         </p>
       </div>
+
+      {onDelete && (
+        <Button
+          type="button"
+          variant="destructive"
+          className="mt-7"
+          disabled={selectedCount === 0}
+          onClick={() =>
+            onDelete(
+              pageAssignments.filter((assignment) =>
+                selected.has(assignment.id)
+              )
+            )
+          }
+        >
+          Delete ({selectedCount})
+        </Button>
+      )}
 
       <div className="mt-[28px]">
         <Table>

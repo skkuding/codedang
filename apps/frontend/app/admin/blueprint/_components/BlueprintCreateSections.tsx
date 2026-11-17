@@ -25,6 +25,7 @@ interface BlueprintCreateSectionsProps {
   onChange: (draft: BlueprintCreateDraft) => void
   errors: Readonly<Record<string, string>>
   disabled?: boolean
+  selectionLocked?: boolean
 }
 
 const scheduleFields = [
@@ -44,7 +45,8 @@ export function BlueprintCreateSections({
   draft,
   onChange,
   errors,
-  disabled = false
+  disabled = false,
+  selectionLocked = false
 }: BlueprintCreateSectionsProps) {
   const id = useId()
   const [applyToSelected, setApplyToSelected] = useState({
@@ -56,6 +58,9 @@ export function BlueprintCreateSections({
   const selectedSections = options.sections.filter(({ groupId }) =>
     selectedIds.has(groupId)
   )
+  const availableSections = selectionLocked
+    ? selectedSections
+    : options.sections
   const allSelected =
     options.sections.length > 0 &&
     selectedSections.length === options.sections.length
@@ -113,14 +118,22 @@ export function BlueprintCreateSections({
             Sections <span className="text-error">*</span>
           </h2>
           <p className="text-body2_m_14 text-color-neutral-70 tracking-[-0.42px]">
-            Select the sections that will receive this content.
+            {selectionLocked
+              ? 'Currently linked sections are fixed and cannot be reselected.'
+              : 'Select the sections that will receive this content.'}
           </p>
         </div>
-        {options.sections.length === 0 ? (
-          <p role="status">No sections are available for this Blueprint.</p>
+        {availableSections.length === 0 ? (
+          <p role="status">
+            {selectionLocked
+              ? 'No sections are currently linked.'
+              : 'No sections are available for this Blueprint.'}
+          </p>
         ) : (
           <Table
-            aria-label="Available sections"
+            aria-label={
+              selectionLocked ? 'Linked sections' : 'Available sections'
+            }
             className="min-w-[760px] table-fixed"
           >
             <colgroup>
@@ -134,33 +147,37 @@ export function BlueprintCreateSections({
               <TableRow>
                 <TableHead scope="col" className="p-0 pr-1">
                   <div className="bg-color-neutral-99 flex h-[39px] items-center justify-center gap-1 rounded-full">
-                    <Checkbox
-                      aria-label="Select all sections"
-                      disabled={disabled}
-                      checked={
-                        allSelected ||
-                        (selectedSections.length > 0 && 'indeterminate')
-                      }
-                      onCheckedChange={(checked) => {
-                        const byId = new Map(
-                          draft.sections.map((section) => [
-                            section.groupId,
-                            section
-                          ])
-                        )
-                        onChange({
-                          ...draft,
-                          sections: checked
-                            ? options.sections.map(
-                                ({ groupId }) =>
-                                  byId.get(groupId) ?? emptySchedule(groupId)
-                              )
-                            : []
-                        })
-                      }}
-                    />
+                    {!selectionLocked && (
+                      <Checkbox
+                        aria-label="Select all sections"
+                        disabled={disabled}
+                        checked={
+                          allSelected ||
+                          (selectedSections.length > 0 && 'indeterminate')
+                        }
+                        onCheckedChange={(checked) => {
+                          const byId = new Map(
+                            draft.sections.map((section) => [
+                              section.groupId,
+                              section
+                            ])
+                          )
+                          onChange({
+                            ...draft,
+                            sections: checked
+                              ? options.sections.map(
+                                  ({ groupId }) =>
+                                    byId.get(groupId) ?? emptySchedule(groupId)
+                                )
+                              : []
+                          })
+                        }}
+                      />
+                    )}
                     <span className="text-body2_m_14 tracking-[-0.42px]">
-                      {selectedSections.length}/{options.sections.length}
+                      {selectionLocked
+                        ? 'Linked'
+                        : `${selectedSections.length}/${options.sections.length}`}
                     </span>
                   </div>
                 </TableHead>
@@ -180,17 +197,21 @@ export function BlueprintCreateSections({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {options.sections.map((section) => (
+              {availableSections.map((section) => (
                 <TableRow key={section.groupId}>
                   <TableCell className="h-[58px] p-4 text-center md:p-4">
-                    <Checkbox
-                      aria-label={`Select section ${section.sectionLabel}`}
-                      disabled={disabled}
-                      checked={selectedIds.has(section.groupId)}
-                      onCheckedChange={(checked) =>
-                        selectSection(section.groupId, checked === true)
-                      }
-                    />
+                    {selectionLocked ? (
+                      <span className="text-body2_m_14">Linked</span>
+                    ) : (
+                      <Checkbox
+                        aria-label={`Select section ${section.sectionLabel}`}
+                        disabled={disabled}
+                        checked={selectedIds.has(section.groupId)}
+                        onCheckedChange={(checked) =>
+                          selectSection(section.groupId, checked === true)
+                        }
+                      />
+                    )}
                   </TableCell>
                   <TableCell className="p-2 text-center md:p-2">
                     <span className="bg-color-blue-90 text-primary text-sub4_sb_14 inline-block whitespace-nowrap rounded-full px-2.5 py-1 tracking-[-0.42px]">
@@ -236,7 +257,11 @@ export function BlueprintCreateSections({
           </p>
         </div>
         {selectedSections.length === 0 ? (
-          <p role="status">Select sections to enter their schedules.</p>
+          <p role="status">
+            {selectionLocked
+              ? 'There are no linked section schedules.'
+              : 'Select sections to enter their schedules.'}
+          </p>
         ) : (
           <Table
             aria-label="Section schedules"

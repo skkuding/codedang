@@ -24,27 +24,52 @@ import { BlueprintCreateConfirmation } from './BlueprintCreateConfirmation'
 import { BlueprintCreateProblems } from './BlueprintCreateProblems'
 import { BlueprintCreateSections } from './BlueprintCreateSections'
 
-interface BlueprintCreateFormProps {
+interface BlueprintFormProps {
   isExercise: boolean
   options: BlueprintCreateOptions
   onCancel: () => void
   optionsReady?: boolean
   problemCatalog: BlueprintProblemCatalogController
+  problemChangesAllowed?: boolean
 }
+
+type BlueprintCreateFormProps = BlueprintFormProps &
+  (
+    | { mode?: 'create'; initialDraft?: never }
+    | { mode: 'edit'; initialDraft: BlueprintCreateDraft }
+  )
 
 const inputClass =
   'h-[46px] rounded-xl border-line data-[filled=true]:border-line px-4 text-body1_m_16'
 const tabClass =
   'text-sub3_sb_16 flex-1 rounded-none border-b-2 border-transparent pb-4 font-semibold tracking-[-0.48px] data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=inactive]:text-color-cool-neutral-40'
 
-export function BlueprintCreateForm({
-  isExercise,
-  options,
-  onCancel,
-  optionsReady = true,
-  problemCatalog
-}: BlueprintCreateFormProps) {
-  const [draft, setDraft] = useState(emptyBlueprintCreateDraft)
+export function BlueprintCreateForm(props: BlueprintCreateFormProps) {
+  const {
+    isExercise,
+    options,
+    onCancel,
+    optionsReady = true,
+    problemCatalog,
+    mode = 'create',
+    problemChangesAllowed = false
+  } = props
+  const [originalDraft] = useState<BlueprintCreateDraft | null>(() =>
+    props.mode === 'edit'
+      ? {
+          ...props.initialDraft,
+          problems: props.initialDraft.problems.map((problem) => ({
+            ...problem
+          })),
+          sections: props.initialDraft.sections.map((section) => ({
+            ...section
+          }))
+        }
+      : null
+  )
+  const [draft, setDraft] = useState<BlueprintCreateDraft>(
+    () => originalDraft ?? emptyBlueprintCreateDraft()
+  )
   const [tab, setTab] = useState('content')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [confirmation, setConfirmation] = useState(false)
@@ -54,6 +79,8 @@ export function BlueprintCreateForm({
   const formRef = useRef<HTMLFormElement>(null)
   const createButtonRef = useRef<HTMLButtonElement>(null)
   const kind = isExercise ? 'Exercise' : 'Assignment'
+  const editing = mode === 'edit'
+  const canChangeProblems = !editing || problemChangesAllowed
 
   function validate(value: BlueprintCreateDraft) {
     const nextErrors = validateBlueprintCreateDraft(
@@ -62,6 +89,35 @@ export function BlueprintCreateForm({
       isExercise,
       problemCatalog.problems
     )
+    if (
+      originalDraft &&
+      !canChangeProblems &&
+      (value.problems.length !== originalDraft.problems.length ||
+        value.problems.some(
+          (problem) =>
+            originalDraft.problems.find(
+              (original) => original.problemId === problem.problemId
+            )?.score !== problem.score
+        ))
+    ) {
+      nextErrors.problems =
+        'Problem selection and scores cannot change without permission.'
+    }
+    if (originalDraft) {
+      if (
+        value.sections.length !== originalDraft.sections.length ||
+        value.sections.some(
+          (section) =>
+            !originalDraft.sections.some(
+              (original) => original.groupId === section.groupId
+            )
+        )
+      ) {
+        nextErrors.sections = 'Linked sections cannot change during editing.'
+      } else if (originalDraft.sections.length === 0) {
+        delete nextErrors.sections
+      }
+    }
     if (
       value.problems.length > 0 &&
       (problemCatalog.status !== 'ready' || problemCatalog.isLoadingMore)
@@ -90,7 +146,13 @@ export function BlueprintCreateForm({
       return
     }
     handledConfirmation.current = false
-    submittedDraft.current = { ...draft, title: draft.title.trim() }
+    submittedDraft.current = {
+      ...draft,
+      title:
+        editing && draft.title === originalDraft?.title
+          ? draft.title
+          : draft.title.trim()
+    }
     setConfirmation(true)
   }
 
@@ -101,10 +163,16 @@ export function BlueprintCreateForm({
     handledConfirmation.current = true
     setConfirmation(false)
     if (!optionsReady) {
-      setConnectionMessage('Reload creation options before saving.')
+      setConnectionMessage(
+        editing
+          ? 'Reload edit information before saving.'
+          : 'Reload creation options before saving.'
+      )
     } else if (validate(submittedDraft.current)) {
       setConnectionMessage(
-        'Blueprint creation is not connected. No content has been created.'
+        editing
+          ? 'Blueprint updates are not connected. No content has been updated.'
+          : 'Blueprint creation is not connected. No content has been created.'
       )
     }
   }
@@ -130,7 +198,7 @@ export function BlueprintCreateForm({
       onSubmit={review}
       noValidate
       className="mt-10 flex w-full max-w-[1000px] flex-col gap-[60px]"
-      aria-label={`Create Blueprint ${kind}`}
+      aria-label={`${editing ? 'Edit' : 'Create'} Blueprint ${kind}`}
     >
       <fieldset disabled={confirmation} className="min-w-0 border-0 p-0">
         <Tabs value={tab} onValueChange={setTab}>
@@ -280,6 +348,7 @@ export function BlueprintCreateForm({
                 onChange={setDraft}
                 isExercise={isExercise}
                 disabled={confirmation}
+                problemChangesAllowed={canChangeProblems}
                 errors={errors}
               />
 
@@ -330,6 +399,7 @@ export function BlueprintCreateForm({
               onChange={setDraft}
               errors={errors}
               disabled={confirmation}
+              selectionLocked={editing}
             />
           </TabsContent>
         </Tabs>
@@ -346,10 +416,16 @@ export function BlueprintCreateForm({
         </p>
       )}
       {!optionsReady && (
-        <p role="status">Reload creation options before saving.</p>
+        <p role="status">
+          {editing
+            ? 'Reload edit information before saving.'
+            : 'Reload creation options before saving.'}
+        </p>
       )}
       <p role="status">
-        Saving is not connected. This form cannot create content yet.
+        {editing
+          ? 'Saving is not connected. Content, section schedules and Solution changes cannot be saved yet.'
+          : 'Saving is not connected. This form cannot create content yet.'}
       </p>
       <div className="flex flex-wrap justify-end gap-1">
         <Button
@@ -367,13 +443,17 @@ export function BlueprintCreateForm({
           className="h-[46px] rounded-[10px]"
           disabled={confirmation || !optionsReady}
         >
-          Create in {draft.sections.length} sections
+          {editing
+            ? 'Review changes'
+            : `Create in ${draft.sections.length} sections`}
         </Button>
       </div>
       <BlueprintCreateConfirmation
         open={confirmation}
         draft={submittedDraft.current ?? draft}
         options={options}
+        mode={mode}
+        initialDraft={originalDraft ?? undefined}
         onConfirm={confirm}
         onCancel={() => setConfirmation(false)}
         onRestoreFocus={() => {
