@@ -7,6 +7,7 @@ import PlusCircleIcon from '@/public/icons/plus-circle.svg'
 import SquareIcon from '@/public/icons/square.svg'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { HiMiniPlusCircle } from 'react-icons/hi2'
 
 export function CreateCourseButton() {
   const router = useRouter()
@@ -42,9 +43,9 @@ export function CreateCourseButton() {
       description="두 가지 유형을 선택할 수 있습니다."
       iconType="check"
       trigger={
-        <Button size="large">
-          <PlusCircleIcon className="size-5" />
-          <span className="text-sub3_sb_16">강좌 생성</span>
+        <Button variant="default" className="w-[120px]">
+          <HiMiniPlusCircle className="mr-2 h-5 w-5" />
+          <span className="text-lg">Create</span>
         </Button>
       }
     >
