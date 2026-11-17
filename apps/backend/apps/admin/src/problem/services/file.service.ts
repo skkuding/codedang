@@ -135,6 +135,15 @@ export class FileService {
     try {
       await this.storageService.deleteFile(filename)
     } catch (error) {
+      // Restore the Temporary row so the same request can retry the deletion
+      await this.prisma.file.create({
+        data: {
+          filename: file.filename,
+          createdById: file.createdById,
+          createTime: file.createTime,
+          status: FileStatus.Temporary
+        }
+      })
       throw new UnprocessableDataException(
         `Failed to delete file from storage: ${error.message}`
       )

@@ -45,6 +45,16 @@ describe('storage-url', () => {
       ])
     })
 
+    it('should stay linear on long values without URLs', () => {
+      const started = Date.now()
+      findUrlCandidates('src', 'a'.repeat(400_000))
+      findUrlCandidates(
+        'style',
+        `${'a'.repeat(200_000)}:${'b'.repeat(200_000)}`
+      )
+      expect(Date.now() - started).to.be.below(500)
+    })
+
     it('should find URLs inside style url() and ignore tabs and newlines', () => {
       expect(
         findUrlCandidates(

@@ -65,7 +65,8 @@ export const decodeCharacterReferences = (value: string): string =>
   })
 
 const SRCSET_ATTRIBUTES = new Set(['srcset', 'imagesrcset'])
-const URL_CANDIDATE = /(?:[a-z][a-z\d+.-]*:)?\/\/[^\s"'<>(),]+/gi
+// The lookbehind keeps each scheme start O(1), so long values stay linear
+const URL_CANDIDATE = /(?<![a-z\d+.-])(?:[a-z][a-z\d+.-]*:)?\/\/[^\s"'<>(),]+/gi
 // The URL parser strips ASCII tabs and newlines anywhere in a URL
 const URL_IGNORED_CHARS = /[\t\n\r]/g
 

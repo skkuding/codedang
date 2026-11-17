@@ -230,20 +230,28 @@ describe('ProblemAttachmentService', () => {
       })
     })
 
-    it('should reject a managed file whose id the parser cannot read', async () => {
-      await expect(
-        service.assertAttachmentsReferencedById(managedTx() as never, {
-          description: `<img alt=don't data-attachment-id="${MANAGED}">`
-        })
-      ).to.be.rejectedWith(UnprocessableDataException)
+    it('should reject a managed file whose id is not in a rendered tag', async () => {
+      for (const description of [
+        `<!-- <img data-attachment-id="${MANAGED}"> -->`,
+        `<p>${MANAGED}</p>`,
+        `<img data-attachment-id="${MANAGED}"`
+      ]) {
+        await expect(
+          service.assertAttachmentsReferencedById(managedTx() as never, {
+            description
+          })
+        ).to.be.rejectedWith(UnprocessableDataException)
+      }
     })
 
-    it('should reject a managed file id written as an encoded attribute value', async () => {
-      await expect(
-        service.assertAttachmentsReferencedById(managedTx() as never, {
-          inputDescription: `<img data-attachment-id="&#48;${MANAGED.slice(1)}" alt=x'>`
-        })
-      ).to.be.rejectedWith(UnprocessableDataException)
+    it('should read ids the way a browser does, including unquoted quotes and encoding', async () => {
+      const tx = managedTx()
+
+      await service.assertAttachmentsReferencedById(tx as never, {
+        description: `<img alt=don't data-attachment-id="${MANAGED}">`,
+        inputDescription: `<img data-attachment-id="&#48;${MANAGED.slice(1)}" alt=x'>`
+      })
+      expect(tx.file.findMany.called).to.be.false
     })
 
     it('should allow UUIDs of unmanaged files in legacy bodies', async () => {

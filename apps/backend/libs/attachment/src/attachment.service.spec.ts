@@ -54,6 +54,19 @@ describe('AttachmentService', () => {
       expect(ids).to.deep.equal([OTHER_FILENAME])
     })
 
+    it('should read ids in tags whose unquoted values contain quotes', () => {
+      expect(
+        service.extractIds([`<img alt=don't data-attachment-id="${FILENAME}">`])
+      ).to.deep.equal([FILENAME])
+    })
+
+    it('should stay fast on adversarial input', () => {
+      const started = Date.now()
+      service.extractIds(['<a'.repeat(200_000), '<a"<a"'.repeat(100_000)])
+      service.extractStorageFilenames([`<img src="${'a'.repeat(400_000)}">`])
+      expect(Date.now() - started).to.be.below(1000)
+    })
+
     it('should return an empty array when there is no attachment', () => {
       expect(service.extractIds(['<p>text</p>', undefined, ''])).to.deep.equal(
         []

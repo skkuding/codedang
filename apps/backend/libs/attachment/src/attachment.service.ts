@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { UnprocessableDataException } from '@libs/exception'
 import { StorageService } from '@libs/storage'
+import { readHtmlAttributes } from './html-attributes'
 import { type Attachment, buildAttachments, buildMediaUrl } from './media-url'
 import {
   type StorageLocation,
@@ -12,9 +13,6 @@ import {
   toStorageLocation
 } from './storage-url'
 
-const TAG_PATTERN = /<[a-z](?:"[^"]*"|'[^']*'|[^"'>])*>/gi
-const ATTRIBUTE_PATTERN =
-  /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g
 const ATTACHMENT_ID_ATTRIBUTE = 'data-attachment-id'
 const UUID_PATTERN =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
@@ -153,16 +151,8 @@ export class AttachmentService {
   ): Generator<{ name: string; value: string }> {
     for (const html of htmls) {
       if (!html) continue
-      for (const [tag] of html.matchAll(TAG_PATTERN)) {
-        const attributes = tag.slice(tag.search(/[\s/>]/), -1)
-        for (const match of attributes.matchAll(ATTRIBUTE_PATTERN)) {
-          yield {
-            name: match[1].toLowerCase(),
-            value: decodeCharacterReferences(
-              match[2] ?? match[3] ?? match[4] ?? ''
-            ).trim()
-          }
-        }
+      for (const { name, value } of readHtmlAttributes(html)) {
+        yield { name, value: decodeCharacterReferences(value).trim() }
       }
     }
   }

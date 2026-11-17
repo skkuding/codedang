@@ -224,7 +224,7 @@ describe('ProblemService', () => {
         service.createProblem(
           {
             title: problems[0].title,
-            description: `<img alt=don't data-attachment-id="${newId}">`,
+            description: `<!-- <img data-attachment-id="${newId}"> -->`,
             inputDescription: '',
             outputDescription: '',
             hint: '',
@@ -460,7 +460,7 @@ describe('ProblemService', () => {
       db.file.findMany.resolves([])
     })
 
-    it('should reject an edit that hides an attached id from the parser', async () => {
+    it('should reject an edit that moves an attached id out of a rendered tag', async () => {
       const attachedId = '0f8fad5b-d9cb-469f-a165-70867728950e'
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.findUniqueOrThrow.resolves({
@@ -475,7 +475,7 @@ describe('ProblemService', () => {
         service.updateProblem(
           {
             id: problemId,
-            description: `<img alt=don't data-attachment-id="${attachedId}">`
+            description: `<!-- <img data-attachment-id="${attachedId}"> -->`
           },
           user[0].role!,
           user[0].id!
@@ -486,7 +486,7 @@ describe('ProblemService', () => {
       db.file.findMany.resolves([])
     })
 
-    it('should reject adding a new attachment the parser cannot read', async () => {
+    it('should reject adding a new attachment outside a rendered tag', async () => {
       const newId = '16fd2706-8baf-433b-82eb-8c7fada847da'
       db.problem.findFirstOrThrow.resolves(problems[0])
       db.problem.findUniqueOrThrow.resolves(problems[0])
@@ -498,7 +498,7 @@ describe('ProblemService', () => {
         service.updateProblem(
           {
             id: problemId,
-            description: `<img alt=don't data-attachment-id="${newId}">`
+            description: `<!-- <img data-attachment-id="${newId}"> -->`
           },
           user[0].role!,
           user[0].id!
