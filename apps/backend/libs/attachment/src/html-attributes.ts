@@ -9,7 +9,8 @@ const isWhitespace = (char: string) => /^[\t\n\f\r ]$/.test(char)
 /**
  * Yields the attributes of every start tag in one linear pass, following the
  * browser tokenizer where it matters for attachment references: quotes only
- * delimit a value right after "=", comments and end tags are skipped, and an
+ * delimit a value right after "=", comments (ending in "-->" or "--!>", or the
+ * empty "<!-->" and "<!--->") and end tags are skipped, and an
  * unterminated tag ends parsing because the browser drops it with the rest.
  */
 export const readHtmlAttributes = function* (
@@ -18,15 +19,45 @@ export const readHtmlAttributes = function* (
   const length = html.length
   let i = 0
 
+  // Next known position of each comment ending; reused while it is still
+  // ahead of the cursor so repeated comments keep the scan linear.
+  const commentEnds = [
+    { token: '-->', at: -2 },
+    { token: '--!>', at: -2 }
+  ]
+  const findCommentEnd = (from: number) => {
+    let end = -1
+    for (const commentEnd of commentEnds) {
+      if (commentEnd.at !== -1 && commentEnd.at < from) {
+        commentEnd.at = html.indexOf(commentEnd.token, from)
+      }
+      if (commentEnd.at !== -1) {
+        const after = commentEnd.at + commentEnd.token.length
+        end = end === -1 ? after : Math.min(end, after)
+      }
+    }
+    return end
+  }
+
   while (i < length) {
     const start = html.indexOf('<', i)
     if (start === -1) return
     const next = html[start + 1] ?? ''
 
     if (html.startsWith('<!--', start)) {
-      const end = html.indexOf('-->', start + 4)
+      const body = start + 4
+      // "<!-->" and "<!--->" close the comment right away in browsers
+      if (html[body] === '>') {
+        i = body + 1
+        continue
+      }
+      if (html.startsWith('->', body)) {
+        i = body + 2
+        continue
+      }
+      const end = findCommentEnd(body)
       if (end === -1) return
-      i = end + 3
+      i = end
       continue
     }
     if (next === '!' || next === '?') {

@@ -43,6 +43,26 @@ describe('readHtmlAttributes', () => {
     ).to.deep.equal([{ name: 'a', value: 'F' }])
   })
 
+  it('should end comments where browsers do and read the following tag', () => {
+    const image = `<img data-attachment-id="0f8fad5b-d9cb-469f-a165-70867728950e">`
+    const expected = [
+      {
+        name: 'data-attachment-id',
+        value: '0f8fad5b-d9cb-469f-a165-70867728950e'
+      }
+    ]
+    for (const comment of [
+      '<!-->',
+      '<!--->',
+      '<!-- note --!>',
+      '<!-- ends at the first --!> text -->',
+      '<!-- ends at the first --> text --!>'
+    ]) {
+      expect(read(`${comment}${image}`)).to.deep.equal(expected)
+    }
+    expect(read(`<!-- <img a="X"> --!>${image}`)).to.deep.equal(expected)
+  })
+
   it('should stop at a tag or comment the browser would drop as unterminated', () => {
     expect(read(`<img a="F"><img b="G"`)).to.deep.equal([
       { name: 'a', value: 'F' }
@@ -60,6 +80,8 @@ describe('readHtmlAttributes', () => {
     read('<a'.repeat(200_000))
     read('<a"<a"'.repeat(100_000))
     read(`<a ${'b='.repeat(200_000)}>`)
+    read('<!-- x -->'.repeat(50_000))
+    read('<!-- x --!>'.repeat(50_000))
     expect(Date.now() - started).to.be.below(500)
   })
 })

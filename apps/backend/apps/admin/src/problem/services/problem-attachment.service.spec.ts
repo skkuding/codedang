@@ -249,7 +249,8 @@ describe('ProblemAttachmentService', () => {
 
       await service.assertAttachmentsReferencedById(tx as never, {
         description: `<img alt=don't data-attachment-id="${MANAGED}">`,
-        inputDescription: `<img data-attachment-id="&#48;${MANAGED.slice(1)}" alt=x'>`
+        inputDescription: `<img data-attachment-id="&#48;${MANAGED.slice(1)}" alt=x'>`,
+        outputDescription: `<!--><!---><img data-attachment-id="${MANAGED}">`
       })
       expect(tx.file.findMany.called).to.be.false
     })
