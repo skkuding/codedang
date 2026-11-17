@@ -9,11 +9,9 @@ import { startWebSocketServer } from './wsServer'
 
 const logger = createLogger('Server')
 
-// Uses the same env vars as the backend (libs/amqp/src/amqp.module.ts).
-// Defaults match the local RabbitMQ in the root docker-compose.yml.
+// Same env vars as libs/amqp/src/amqp.module.ts; defaults match docker-compose.yml
 function getAmqpUrl() {
   const protocol = process.env.RABBITMQ_SSL === 'true' ? 'amqps' : 'amqp'
-  // Same deployment env var as the backend
   const isDeployed =
     process.env.APP_ENV === 'production' || process.env.APP_ENV === 'stage'
   const user =
@@ -32,14 +30,19 @@ function getAmqpUrl() {
   return `${protocol}://${encodeURIComponent(user)}:${encodeURIComponent(pass)}@${host}:${port}/${encodeURIComponent(vhost)}`
 }
 
+// setTimeout fires immediately above this
+const MAX_TIMER_MS = 2_147_483_647
+
 function getPositiveIntEnv(name: string, defaultValue: number) {
   const raw = process.env[name]
   if (raw === undefined || raw === '') {
     return defaultValue
   }
   const value = Number(raw)
-  if (!Number.isInteger(value) || value <= 0) {
-    throw new Error(`${name} must be a positive integer, got "${raw}"`)
+  if (!Number.isInteger(value) || value <= 0 || value > MAX_TIMER_MS) {
+    throw new Error(
+      `${name} must be an integer between 1 and ${MAX_TIMER_MS}, got "${raw}"`
+    )
   }
   return value
 }

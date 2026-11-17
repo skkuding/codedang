@@ -47,7 +47,6 @@ function parseClientMessage(raw: RawData): ClientMessage | null {
   return { type, submissionId }
 }
 
-// Terminate clients that stop reading, to bound outbound memory.
 function safeSend(ws: WebSocket, data: string) {
   if (ws.readyState !== WebSocket.OPEN) {
     return
@@ -65,10 +64,8 @@ export function startWebSocketServer(
   store: ProgressStore,
   options: WebSocketServerOptions = {}
 ) {
-  // Keep both maps in sync
   const subscribers = new Map<number, Set<WebSocket>>()
   const subscribedIdsByClient = new Map<WebSocket, Set<number>>()
-  // Clients that answered the last ping
   const aliveClients = new WeakSet<WebSocket>()
   const wss = new WebSocketServer({ port, maxPayload: MAX_PAYLOAD_BYTES })
 
@@ -102,8 +99,13 @@ export function startWebSocketServer(
     subscribers.delete(id)
   }
 
-  // Drop subscriptions of submissions evicted by the store's TTL
-  store.onExpire(removeSubmission)
+  store.onExpire((id) => {
+    const payload = JSON.stringify({ type: 'expired', submissionId: id })
+    for (const ws of subscribers.get(id) ?? []) {
+      safeSend(ws, payload)
+    }
+    removeSubmission(id)
+  })
 
   const heartbeat = setInterval(() => {
     for (const ws of wss.clients) {
