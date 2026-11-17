@@ -11,7 +11,9 @@ holds a Role there, with no cluster-wide access.
 To add a service account, add a `GrafanaServiceAccount` to
 `service-accounts.yaml`. The operator creates the account and writes each
 token to a Secret under the `token` key, so token values never appear in this
-repository. Removing the resource deletes the account from Grafana.
+repository. Removing the resource asks Grafana to delete the account, but if
+that request fails the operator only logs the error, so check in Grafana that
+the account is gone.
 
 | Account    | Role   | Token Secret             | Used by         |
 | ---------- | ------ | ------------------------ | --------------- |
