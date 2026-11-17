@@ -1,4 +1,9 @@
-import { Logger } from '@nestjs/common'
+import {
+  Injectable,
+  Logger,
+  Module,
+  type OnApplicationShutdown
+} from '@nestjs/common'
 import {
   CompositePropagator,
   W3CBaggagePropagator,
@@ -109,7 +114,23 @@ class Instrumentation {
   }
 }
 
-process.on('SIGTERM', () => Instrumentation.shutdown())
+/**
+ * OTEL SDK 정리를 NestJS의 종료 훅에 연결합니다.
+ * 종료 경로는 `app.enableShutdownHooks()` 하나이며, HTTP 서버가 닫힌 뒤
+ * `onApplicationShutdown`에서 남은 텔레메트리를 flush합니다.
+ * @class InstrumentationShutdownService
+ */
+@Injectable()
+export class InstrumentationShutdownService implements OnApplicationShutdown {
+  async onApplicationShutdown(): Promise<void> {
+    await Instrumentation.shutdown()
+  }
+}
+
+@Module({
+  providers: [InstrumentationShutdownService]
+})
+export class InstrumentationModule {}
 
 export default Instrumentation
 
