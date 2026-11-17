@@ -101,7 +101,7 @@ export class ContestProblemService {
             throw new EntityNotExistException(`Problem ${problemId}`)
           }
         }
-        throw new UnprocessableDataException((error as Error).message)
+        throw error
       }
     }
 
@@ -214,7 +214,7 @@ export class ContestProblemService {
             throw new EntityNotExistException('ContestProblem')
           }
         }
-        throw new UnprocessableDataException((error as Error).message)
+        throw error
       }
     }
 

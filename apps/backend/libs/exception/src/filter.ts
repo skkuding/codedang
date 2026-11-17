@@ -62,32 +62,14 @@ export class ClientExceptionFilter extends BaseExceptionFilter {
 const convertPrismaError2HTTPException = (
   exception: PrismaClientKnownRequestError
 ) => {
-  const meta = exception.meta as {
-    cause?: string
-    modelName?: string
-  }
-
-  /*
-    TODO: 특정 상황에서 `meta`가 undefined로 반환되는 문제가 있는 것으로 보임.
-    해당 문제 해결되면 exception.message가 아닌 `meta`를 활용한 통일된 에러 메세지를 전달하도록 수정
-    참고: https://github.com/prisma/prisma/issues/24449
-  */
-  const extraDescription = meta?.modelName
-    ? ` : on model "${meta.modelName}", during "${meta.cause}"`
-    : ''
-
   switch (exception.code) {
     case 'P2002': // Unique Constraint violation
-      return new ConflictException(exception.message + extraDescription)
+      return new ConflictException('Resource already exists')
     case 'P2025': // Record not found
-      return new NotFoundException(exception.message + extraDescription)
+      return new NotFoundException('Resource not found')
     case 'P2003': // Foreign key constraint violation
-      return new UnprocessableEntityException(
-        exception.message + extraDescription
-      )
+      return new UnprocessableEntityException('Unprocessable data')
     default:
-      return new InternalServerErrorException(
-        exception.message + extraDescription
-      )
+      return new InternalServerErrorException()
   }
 }
