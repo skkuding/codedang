@@ -13,8 +13,7 @@ export const apolloErrorFormatter = (
     return {
       ...restFormattedError,
       extensions: {
-        code: GqlErrorCodeMapTable[httpStatusCode],
-        stacktrace: extensions?.stacktrace
+        code: GqlErrorCodeMapTable[httpStatusCode]
       }
     }
   }
