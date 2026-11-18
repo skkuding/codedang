@@ -46,7 +46,7 @@ export default async function Layout({
 }) {
   const session = await auth()
   if (!session) {
-    redirect('/login')
+    redirect('/login?redirectUrl=/admin')
   }
 
   if (session.user.role === 'User') {
