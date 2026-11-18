@@ -28,7 +28,11 @@ export default function LoginPage() {
   useEffect(() => {
     if (session) {
       const redirectUrl = searchParams.get('redirectUrl')
-      if (redirectUrl) {
+      if (
+        redirectUrl &&
+        redirectUrl.startsWith('/') &&
+        !redirectUrl.startsWith('//')
+      ) {
         router.push(redirectUrl as Route)
       } else {
         router.push('/')
