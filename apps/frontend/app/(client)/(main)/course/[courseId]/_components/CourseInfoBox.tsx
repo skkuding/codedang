@@ -44,7 +44,6 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
               className="size-[9.333px] text-white"
             />
           </span>
-          {/* FIXME: 하드코딩된 ONGOING 대신 데이터를 받아와주세요 */}
           <p className="text-caption3_r_13 text-primary">
             {course && 'ONGOING'}
           </p>
@@ -57,7 +56,10 @@ export function CourseInfoBox({ courseId }: CourseInfoBoxProps) {
       </div>
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <CourseCalendarIcon aria-hidden="true" className="size-4 shrink-0" />
+          <CourseCalendarIcon
+            aria-hidden="true"
+            className="text-primary size-4 shrink-0"
+          />
           <p className="text-body2_m_14 text-color-neutral-40">
             {course ? course.courseInfo.semester : ''}
           </p>

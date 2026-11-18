@@ -45,7 +45,10 @@ export function CourseSidebar({ courseId }: CourseSidebarProps) {
       {/* Mobile Navigation */}
       <div className="lg:hidden">
         <div className="fixed z-10 w-full border-b border-gray-200 bg-white px-4 py-3">
-          <nav className="flex items-center justify-center">
+          <nav
+            aria-label="강의 메뉴"
+            className="flex items-center justify-center"
+          >
             {navItems.map((item) => {
               const isActive = pathname.includes(item.path)
               return (
