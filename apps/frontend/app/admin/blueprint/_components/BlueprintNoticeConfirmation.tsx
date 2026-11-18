@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/shadcn/dialog'
+import { getNoticePlainText } from '../_libs/noticeText'
 import type {
   BlueprintNoticeDraft,
   BlueprintNoticeSection
@@ -35,6 +36,8 @@ export function BlueprintNoticeConfirmation({
   onConfirm,
   onRestoreFocus
 }: Props) {
+  const originalText = getNoticePlainText(original.content)
+  const updatedText = getNoticePlainText(values.content)
   const changes = [
     values.title !== original.title && 'Title',
     values.content !== original.content && 'Main Text'
@@ -77,10 +80,9 @@ export function BlueprintNoticeConfirmation({
             {values.content !== original.content && (
               <div>
                 <h3 className="font-semibold">Main Text</h3>
-                <p>Before: {original.content.replace(/<[^>]*>/g, '')}</p>
-                <p>After: {values.content.replace(/<[^>]*>/g, '')}</p>
-                {original.content.replace(/<[^>]*>/g, '') ===
-                  values.content.replace(/<[^>]*>/g, '') && (
+                <p>Before: {originalText}</p>
+                <p>After: {updatedText}</p>
+                {originalText === updatedText && (
                   <p>Formatting or embedded content has changed.</p>
                 )}
               </div>

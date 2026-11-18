@@ -234,6 +234,62 @@ describe('Blueprint Notice editor', () => {
     )
   })
 
+  it('counts decoded body text consistently and rejects blank or oversized content', async () => {
+    setup(sourceFor(), null)
+    await screen.findByLabelText(/Title/)
+    fireEvent.change(screen.getByLabelText(/Title/), {
+      target: { value: 'Notice with entities' }
+    })
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Select all Notice sections' })
+    )
+    setBody(`<p>${'&amp;'.repeat(400)}</p>`)
+    expect(screen.getByText('400/400')).toBeTruthy()
+    const confirmation = await openConfirmation(false)
+    fireEvent.click(
+      within(confirmation).getByRole('button', { name: 'Cancel' })
+    )
+    for (const body of [
+      `<p>${'&amp;'.repeat(401)}</p>`,
+      '<p>&nbsp;&#160;&#xA0;&#9;&#10;</p>'
+    ]) {
+      setBody(body)
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }))
+      expect(
+        screen.getByText('Enter Main Text between 1 and 400 characters.')
+      ).toBeTruthy()
+      expect(
+        screen.queryByRole('dialog', { name: '2개 분반에 저장할까요?' })
+      ).toBeNull()
+    }
+  })
+
+  it('compares decoded text and renders encoded markup only as text', async () => {
+    const data = editData()
+    const text = '&lt;img src=x onerror=alert(1)&gt; &amp; text'
+    data.values.content = `<p>${text}</p>`
+    setup(sourceFor(data))
+    await screen.findByDisplayValue('Notice 101')
+    setBody(`<p><strong>${text}</strong></p>`)
+    const confirmation = await openConfirmation(true)
+    expect(
+      within(confirmation).getByText(
+        'Before: <img src=x onerror=alert(1)> & text'
+      )
+    ).toBeTruthy()
+    expect(
+      within(confirmation).getByText(
+        'After: <img src=x onerror=alert(1)> & text'
+      )
+    ).toBeTruthy()
+    expect(
+      within(confirmation).getByText(
+        'Formatting or embedded content has changed.'
+      )
+    ).toBeTruthy()
+    expect(confirmation.querySelector('img, script, style')).toBeNull()
+  })
+
   it.each(['incomplete', 'forbidden', 'error', 'linked-change'] as const)(
     'closes confirmation and preserves the draft across a %s refetch',
     async (failure) => {

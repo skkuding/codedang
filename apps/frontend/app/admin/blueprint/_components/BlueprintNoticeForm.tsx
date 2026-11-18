@@ -13,6 +13,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
+import { getNoticePlainText } from '../_libs/noticeText'
 import type {
   BlueprintNoticeDraft,
   BlueprintNoticeOptions
@@ -59,7 +60,7 @@ export function BlueprintNoticeForm(props: Props) {
     }
   }, [ready])
   const id = useId()
-  const plainText = values.content.replace(/<[^>]*>/g, '')
+  const plainText = getNoticePlainText(values.content)
   const rows = editing
     ? options.sections.filter((section) =>
         original.sectionGroupIds.includes(section.groupId)
@@ -75,11 +76,8 @@ export function BlueprintNoticeForm(props: Props) {
     if (!draft.title.trim() || draft.title.length > 35) {
       next.title = 'Enter a title between 1 and 35 characters.'
     }
-    const text = draft.content.replace(/<[^>]*>/g, '')
-    if (
-      !text.replace(/&(?:nbsp|#160|#xA0);/gi, ' ').trim() ||
-      text.length > 400
-    ) {
+    const text = getNoticePlainText(draft.content)
+    if (!text.trim() || text.length > 400) {
       next.content = 'Enter Main Text between 1 and 400 characters.'
     }
     if (
