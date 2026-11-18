@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/course/1/qna/2
+  url: {{baseUrl}}/course/1/qna/2/comment
   body: json
   auth: none
 }
@@ -18,7 +18,7 @@ body:json {
 
 script:pre-request {
   const login = require('./login');
-  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+  await login.loginUser3rd(req);  // user03: 강의 멤버이지만 작성자(user02)도 리더도 아님
 }
 
 settings {
@@ -39,4 +39,6 @@ docs {
   비밀글 댓글 작성 권한:
   - 질문 작성자 본인
   - 교수/조교
+
+  강의 1의 2번 질문은 user02가 작성한 비밀글이므로, 같은 강의의 다른 학생인 user03으로 요청합니다.
 }
