@@ -21,6 +21,11 @@ spec:
   template:
     metadata:
       name: 'prometheus-{{.env}}'
+      annotations:
+        # The API server defaults HTTPRoute fields the chart omits
+        # (parentRefs/backendRefs group, kind and weight). A client-side diff
+        # reports them as drift and selfHeal re-syncs every few minutes.
+        argocd.argoproj.io/compare-options: ServerSideDiff=true
       labels:
         app.kubernetes.io/environment: '{{.env}}'
     spec:

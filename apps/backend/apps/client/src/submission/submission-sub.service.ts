@@ -641,7 +641,13 @@ export class SubmissionSubscriptionService implements OnModuleInit {
       select: {
         submissionResult: {
           select: {
-            problemTestcase: true,
+            problemTestcase: {
+              select: {
+                id: true,
+                scoreWeightNumerator: true,
+                scoreWeightDenominator: true
+              }
+            },
             result: true
           }
         },

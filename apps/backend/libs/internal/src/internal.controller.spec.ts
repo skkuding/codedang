@@ -96,12 +96,26 @@ for (const mode of ['client-development', 'client-production', 'admin']) {
       const token = new JwtService({ secret }).sign({
         userId: 1,
         username: 'test',
-        userRole: Role.Admin
+        userRole: Role.Admin,
+        tokenType: 'access'
       })
       const response = await fetch(`${url}${protectedPath}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       expect(response.status).to.equal(200)
+    })
+
+    it('rejects refresh tokens on protected routes', async () => {
+      const token = new JwtService({ secret }).sign({
+        userId: 1,
+        username: 'test',
+        userRole: Role.Admin,
+        tokenType: 'refresh'
+      })
+      const response = await fetch(`${url}${protectedPath}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      expect(response.status).to.equal(401)
     })
 
     it('excludes internal metrics from Swagger', () => {
@@ -126,7 +140,8 @@ for (const mode of ['client-development', 'client-production', 'admin']) {
         const token = new JwtService({ secret }).sign({
           userId: 1,
           username: 'test',
-          userRole: Role.User
+          userRole: Role.User,
+          tokenType: 'access'
         })
         const response = await fetch(`${url}${protectedPath}`, {
           headers: { Authorization: `Bearer ${token}` }

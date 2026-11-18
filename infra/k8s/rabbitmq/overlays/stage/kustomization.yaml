@@ -6,6 +6,18 @@ resources:
   - ../../cert-manager
 
 patches:
+  - path: rabbitmq-node.yaml
+
+  - target:
+      group: rabbitmq.com
+      version: v1beta1
+      kind: RabbitmqCluster
+      name: rabbitmq
+    patch: |-
+      - op: add
+        path: /spec/image
+        value: rabbitmq:4.2.9-management
+
   - path: httproute.yaml
     target:
       kind: HTTPRoute

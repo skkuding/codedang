@@ -1,0 +1,88 @@
+# Traefik for the kubeadm stage cluster.
+# k3s ships Traefik (with Gateway API CRDs) as a built-in HelmChart; kubeadm does not,
+# so stage installs the upstream chart here. Values mirror production's k3s Traefik
+# (internal/overlays/production/traefik-config.yaml) plus the kubeadm-specific exposure below.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-stage
+  namespace: argocd
+  annotations:
+    # Before k8s-internal (Gateway, Middleware) and the apps' HTTPRoutes
+    argocd.argoproj.io/sync-wave: '-3'
+  labels:
+    app.kubernetes.io/environment: 'stage'
+spec:
+  project: default
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    # Same upstream chart (and Gateway API CRDs v1.5.1) as production's k3s traefik-40.1.4+up40.1.0.
+    # The upstream chart runs Traefik v3.7.1 and refuses newer images; k3s patches it to v3.7.8.
+    targetRevision: 40.1.0
+    helm:
+      releaseName: traefik
+      valuesObject:
+        # No LoadBalancer implementation on kubeadm (k3s uses ServiceLB).
+        # Run on every node and bind host ports 80/443 directly, like k3s svclb did.
+        deployment:
+          kind: DaemonSet
+          podAnnotations:
+            prometheus.io/port: '8082'
+            prometheus.io/scrape: 'true'
+        # hostPort cannot be shared, so replace pods one at a time instead of surging.
+        updateStrategy:
+          rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 0
+        service:
+          spec:
+            type: ClusterIP
+        ports:
+          web:
+            hostPort: 80
+          websecure:
+            hostPort: 443
+            http:
+              # Apply HSTS to every router on the HTTPS entrypoint (Gateway listeners on 8443).
+              middlewares:
+                - kube-system-hsts@kubernetescrd
+        providers:
+          kubernetesGateway:
+            enabled: true
+          kubernetesCRD:
+            enabled: true
+            # Needed for the iris/kubernetes-apiserver ExternalName Service used by
+            # the pprof TraefikService.
+            allowExternalNameServices: true
+          kubernetesIngress:
+            publishedService:
+              enabled: true
+        priorityClassName: system-cluster-critical
+        tolerations:
+          - key: CriticalAddonsOnly
+            operator: Exists
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+            effect: NoSchedule
+        # In-cluster collector is plaintext gRPC. tls: null stops the chart from
+        # also emitting TLS flags, which Traefik v3.6+ rejects next to insecure.
+        tracing:
+          otlp:
+            enabled: true
+            grpc:
+              enabled: true
+              endpoint: simplest-collector.monitoring-otel.svc.cluster.local:4317
+              insecure: true
+              tls: null
+  destination:
+    namespace: kube-system
+    name: stage
+  syncPolicy:
+    automated:
+      # Prune disabled: requires manual review before removing resources
+      prune: false
+      selfHeal: true
+    syncOptions:
+      # Gateway API CRDs are too large for client-side apply annotations
+      - ServerSideApply=true

@@ -12,6 +12,11 @@ export const renderKatex = (
       ADD_ATTR: ['content']
     })
     const div = katexRef.current
+    div.querySelectorAll('a').forEach((link) => {
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+    })
+
     div.querySelectorAll('math-component').forEach((el) => {
       const content = el.getAttribute('content') || ''
       const mathHtml = katex.renderToString(content, {

@@ -4,6 +4,9 @@ metadata:
   name: simplest
   namespace: monitoring-otel
 spec:
+  # Pin the core distribution. The operator's default image is the k8s
+  # distribution, which has no prometheus exporter and fails on this config.
+  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector:0.145.0
   # prometheus will scrape through this port
   ports:
     - name: metrics

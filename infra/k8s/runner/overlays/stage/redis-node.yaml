@@ -1,0 +1,11 @@
+# Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: runner-scheduler-redis
+  namespace: runner
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: skkuding-1

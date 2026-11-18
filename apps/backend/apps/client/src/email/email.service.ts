@@ -22,4 +22,13 @@ export class EmailService {
     })
     this.logger.log(sentMessageInfo, 'sendEmailAuthenticationPin')
   }
+
+  async sendUsername(email: string, username: string) {
+    const sentMessageInfo = await this.mailerService.sendMail({
+      to: email,
+      subject: '[Codedang] Your User ID',
+      html: `<p>Your Codedang user ID is <b>${username}</b>.</p>`
+    })
+    this.logger.log(sentMessageInfo, 'sendUsername')
+  }
 }

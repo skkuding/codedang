@@ -4,7 +4,6 @@ import { HeaderAuthPanel } from '@/components/auth/HeaderAuthPanel'
 import { Skeleton } from '@/components/shadcn/skeleton'
 import { auth } from '@/libs/auth'
 import {
-  dateFormatter,
   fetcher,
   fetcherWithAuth,
   getStatusWithStartEnd,
@@ -54,18 +53,13 @@ export async function EditorLayout({
       `contest/${contestId}/problem/${problemId}`
     )
     if (!res.ok && (res.status === 403 || res.status === 401)) {
-      const contest: Contest = await fetcher(`contest/${contestId}`).json()
-      const formattedStartTime = dateFormatter(
-        contest.startTime,
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      const formattedEndTime = dateFormatter(
-        contest.endTime,
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      const status = getStatusWithStartEnd(formattedStartTime, formattedEndTime)
+      const contest = await fetcher(`contest/${contestId}`).json<{
+        startTime: string
+        endTime: string
+      }>()
+      const status = getStatusWithStartEnd(contest.startTime, contest.endTime)
 
-      if (status === 'upcoming') {
+      if (status !== 'finished') {
         redirect(`/contest/${contestId}/problem`)
       } else {
         redirect(`/contest/${contestId}/finished/problem/${problemId}`)

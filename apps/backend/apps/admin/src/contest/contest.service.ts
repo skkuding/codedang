@@ -85,7 +85,14 @@ export class ContestService {
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
-          select: { contestRecord: true }
+          select: {
+            userContest: {
+              where: {
+                role: ContestRole.Participant,
+                userId: { not: null }
+              }
+            }
+          }
         }
       },
       orderBy: [{ startTime: 'asc' }, { endTime: 'asc' }, { createTime: 'asc' }]
@@ -118,7 +125,7 @@ export class ContestService {
       const { _count, ...data } = contest
       return {
         ...data,
-        participants: _count.contestRecord
+        participants: _count.userContest
       }
     })
   }
@@ -137,7 +144,14 @@ export class ContestService {
       include: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         _count: {
-          select: { contestRecord: true }
+          select: {
+            userContest: {
+              where: {
+                role: ContestRole.Participant,
+                userId: { not: null }
+              }
+            }
+          }
         },
         userContest: {
           where: {
@@ -183,7 +197,7 @@ export class ContestService {
 
     return {
       ...data,
-      participants: _count.contestRecord
+      participants: _count.userContest
     }
   }
 
@@ -674,9 +688,6 @@ export class ContestService {
     if (!userContest) {
       throw new EntityNotExistException('UserContest')
     }
-    if (!contestRecord) {
-      throw new EntityNotExistException('ContestRecord')
-    }
     if (
       !requesterRole ||
       (requesterRole.role !== ContestRole.Admin &&
@@ -693,7 +704,7 @@ export class ContestService {
     }
 
     return await this.prisma.$transaction(async (tx) => {
-      if (now >= contest.startTime) {
+      if (contestRecord && now >= contest.startTime) {
         // 강퇴당한 user가 firstSolver인 문제 존재 여부 확인 후 있으면 다음 사람에게 이월
         const firstSolveProblems = await tx.contestProblemFirstSolver.findMany({
           where: { contestRecordId: contestRecord.id },
@@ -748,7 +759,7 @@ export class ContestService {
             })
           }
         }
-      } else {
+      } else if (contestRecord) {
         await tx.contestRecord.delete({
           where: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1222,14 +1233,11 @@ export class ContestService {
           }
         }
       }),
-      this.prisma.contestRecord.count({
+      this.prisma.userContest.count({
         where: {
           contestId,
-          user: {
-            userContest: {
-              some: { contestId }
-            }
-          }
+          role: ContestRole.Participant,
+          userId: { not: null }
         }
       }),
       // Contest의 최고 점수 계산

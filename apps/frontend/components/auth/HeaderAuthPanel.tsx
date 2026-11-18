@@ -14,11 +14,11 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger
 } from '@/components/shadcn/dropdown-menu'
+import { hasContestAdminRole } from '@/libs/contestRole'
 import { cn, safeFetcherWithAuth } from '@/libs/utils'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import { useAuthModalStore } from '@/stores/authModal'
 import type { Course } from '@/types/type'
-import { ContestRole, type UserContest } from '@generated/graphql'
 import { ChevronDown } from 'lucide-react'
 import type { Session } from 'next-auth'
 import { usePathname } from 'next/navigation'
@@ -95,17 +95,7 @@ export function HeaderAuthPanel({
 
     const checkIsAnyContestAdmin = async () => {
       try {
-        const response: UserContest[] = await safeFetcherWithAuth
-          .get('contest/role')
-          .json()
-
-        const isAnyContestAdmin = response.some((userContest) => {
-          return (
-            userContest.role !== ContestRole.Participant &&
-            userContest.role !== ContestRole.Reviewer
-          )
-        })
-        setIsAnyContestAdmin(isAnyContestAdmin)
+        setIsAnyContestAdmin(await hasContestAdminRole())
       } catch (error) {
         console.error('Error fetching contest roles:', error)
       }

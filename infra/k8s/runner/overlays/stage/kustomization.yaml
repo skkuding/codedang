@@ -7,6 +7,7 @@ resources:
   - redis-secret.yaml
 
 patches:
+  - path: redis-node.yaml
   - path: configmap.yaml
     target:
       kind: ConfigMap

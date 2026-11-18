@@ -489,7 +489,7 @@ export interface ProblemRecord {
   finalScore: number
   score: number
   isSubmitted: boolean
-  comment: string
+  comment: string | null
 }
 
 export interface RunnerMessage {

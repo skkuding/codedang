@@ -2,6 +2,8 @@ module pod-manager
 
 go 1.24.0
 
+toolchain go1.27.3
+
 require (
 	github.com/alicebob/miniredis/v2 v2.35.0
 	github.com/gorilla/websocket v1.5.3

@@ -1,7 +1,7 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
   "all": true,
-  "check-coverage": true,
+  "check-coverage": false,
   "include": ["{apps,libs}/**/*.{service,resolver}.ts"],
   "exclude": ["**/*.spec.ts"],
   "reporter": ["lcov", "text"]

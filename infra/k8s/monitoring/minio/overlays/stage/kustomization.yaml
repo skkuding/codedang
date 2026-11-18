@@ -6,3 +6,9 @@ resources:
   - ../../base
   - tenant-config.yaml
   - users.yaml
+
+patches:
+  - path: tenant-node.yaml
+    target:
+      kind: Tenant
+      name: minio
