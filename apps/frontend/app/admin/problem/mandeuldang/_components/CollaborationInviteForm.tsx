@@ -29,7 +29,6 @@ export function CollaborationInviteForm({
   }
 
   return (
-    // noValidate: 브라우저 기본 이메일 검증 대신 CollaborationPage의 검증 메시지를 보여준다
     <form
       noValidate
       aria-labelledby="collaboration-invite-title"

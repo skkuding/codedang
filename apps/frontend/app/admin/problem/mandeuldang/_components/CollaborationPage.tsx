@@ -32,7 +32,6 @@ export function CollaborationPage({
     useState<Collaborator[]>(initialParticipants)
   const [pendingAction, setPendingAction] =
     useState<PendingCollaborationAction | null>(null)
-  // 다이얼로그가 닫히는 동안 내용이 바뀌지 않도록 열림 상태를 pendingAction과 따로 둔다
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const validateEmail = (value: string) => {
@@ -58,7 +57,6 @@ export function CollaborationPage({
     return ''
   }
 
-  // 초기 데이터의 id와 겹치지 않는 초대 id를 만든다
   const createInvitationId = () => {
     const existingIds = new Set(
       [...requests, ...participants].map(({ id }) => id)

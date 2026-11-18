@@ -34,7 +34,6 @@ export function CollaborationRoleSelect({
       <SelectTrigger
         aria-label={ariaLabel}
         className={cn(
-          // 피그마: 화살표 20px #242626, 행 드롭다운 109×44 CoolNeutral/20, 폼 셀렉트 46 CoolNeutral/5
           'text-body1_m_16 border-color-line [&>svg]:text-color-cool-neutral-15 bg-white pl-5 pr-4 [&>svg]:size-5 [&>svg]:opacity-100',
           compact
             ? 'text-color-cool-neutral-20 h-11 w-[109px] rounded-full'

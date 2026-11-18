@@ -28,7 +28,6 @@ interface CollaboratorListProps {
   onDeleteParticipant: (collaborator: Collaborator) => void
 }
 
-// 피그마: 탭 124×38(패딩 0/12/16), 텍스트 sub3_sb_16, 비활성 CoolNeutral/40 (기본 variant의 font-normal·neutral-60을 덮어쓴다)
 const TAB_TRIGGER_CLASS =
   'text-sub3_sb_16 font-semibold data-[state=active]:text-primary data-[state=active]:border-primary data-[state=inactive]:text-color-cool-neutral-40 h-[38px] w-[124px] rounded-none border-0 border-b-2 border-transparent bg-transparent px-3 pb-4 pt-0 shadow-none data-[state=active]:bg-transparent'
 
@@ -72,7 +71,6 @@ interface ParticipantControlProps {
   onClick: () => void
 }
 
-// 피그마: 참여자 행의 권한은 글자(body1_m_16, CoolNeutral/20)로만 보여주고, 누르면 권한 변경 다이얼로그를 연다
 function ParticipantRoleButton({
   collaborator,
   onClick
@@ -89,7 +87,6 @@ function ParticipantRoleButton({
   )
 }
 
-// 피그마: 48×36 둥근 아이콘 버튼, 배경 Neutral/99, 테두리 Neutral/90, 16px 휴지통(Neutral/70)
 function DeleteIconButton({ collaborator, onClick }: ParticipantControlProps) {
   return (
     <Button
@@ -139,7 +136,6 @@ interface RequestActionsProps {
   onApprove: () => void
 }
 
-// 피그마: 88×46 버튼 두 개, 간격 6. 버튼 이름에 협업자 이름을 붙여 스크린리더가 어느 행인지 구분할 수 있게 한다.
 function RequestActions({
   collaborator,
   onReject,
@@ -174,7 +170,6 @@ interface CollaboratorRowProps {
   actions: ReactNode
 }
 
-// 협업 요청과 활성화된 참여자가 공유하는 행. 권한 컨트롤과 액션 사이는 피그마대로 40px.
 function CollaboratorRow({
   collaborator,
   roleControl,
