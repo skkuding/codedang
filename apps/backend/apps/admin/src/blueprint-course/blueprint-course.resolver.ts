@@ -31,7 +31,7 @@ export class BlueprintCourseResolver {
   }
 
   /**
-   * Returns Blueprint courses created or led by the authenticated user.
+   * @return Blueprint courses created or led by the authenticated user.
    */
   @Query(() => [BlueprintCourseListItemOutput])
   @UseDisableAdminGuard()
@@ -40,7 +40,7 @@ export class BlueprintCourseResolver {
   }
 
   /**
-   * Returns details for a Blueprint course accessible to the user.
+   * @return details for a Blueprint course accessible to the user.
    */
   @Query(() => BlueprintCourseDetailOutput)
   @UseDisableAdminGuard()

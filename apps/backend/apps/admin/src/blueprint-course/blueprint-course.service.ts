@@ -45,7 +45,7 @@ export class BlueprintCourseService {
   }
 
   /**
-   * Returns Blueprint courses created or led by the user,
+   * @return Blueprint courses created or led by the user,
    * including all sections and their member counts.
    */
   async getBlueprintCourses(userId: number) {
@@ -99,7 +99,7 @@ export class BlueprintCourseService {
   }
 
   /**
-   * Returns detailed Blueprint course information and all sections.
+   * @return detailed Blueprint course information and all sections.
    *
    * @throws EntityNotExistException - The Blueprint course does not exist.
    * @throws ForbiddenAccessException - The user cannot access the course.
