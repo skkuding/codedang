@@ -1,0 +1,40 @@
+meta {
+  name: Get Blueprint Course - FORBIDDEN
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getBlueprintCourse(blueprintCourseId: {{blueprintCourseId}}) { id }
+  }
+}
+
+script:pre-request {
+  const id = Number(bru.getEnvVar("blueprintCourseId") || bru.getVar("blueprintCourseId"));
+  if (!Number.isInteger(id) || id < 1) {
+    throw new Error("Run Get Blueprint Courses with an accessible Blueprint or set blueprintCourseId.");
+  }
+  bru.setVar("blueprintCourseId", id);
+  await require("./login").loginUser(req);
+}
+
+tests {
+  test("Rejects an unrelated user", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("FORBIDDEN");
+    expect(body.data).to.equal(null);
+  });
+}
+
+docs {
+  Uses seeded user01. The target must exist and user01 must not own or lead any of its sections.
+}

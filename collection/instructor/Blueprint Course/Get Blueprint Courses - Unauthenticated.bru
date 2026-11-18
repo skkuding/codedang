@@ -1,0 +1,29 @@
+meta {
+  name: Get Blueprint Courses - Unauthenticated
+  type: graphql
+  seq: 6
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query { getBlueprintCourses { id } }
+}
+
+script:pre-request {
+  req.setHeader("Authorization", "");
+  req.setHeader("Cookie", "");
+}
+
+tests {
+  test("Rejects a request without authentication", function () {
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("UNAUTHENTICATED");
+    expect(body.data).to.equal(null);
+  });
+}
