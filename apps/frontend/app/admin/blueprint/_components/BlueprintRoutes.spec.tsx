@@ -44,6 +44,9 @@ vi.mock('@/public/icons/arrow-bottom-thin.svg', () => ({
   default: () => null
 }))
 vi.mock('@/public/icons/arrow-top.svg', () => ({ default: () => null }))
+vi.mock('@/public/icons/blueprint-detail-back.svg', () => ({
+  default: () => null
+}))
 
 beforeAll(() => {
   HTMLElement.prototype.scrollIntoView = vi.fn()
@@ -167,6 +170,14 @@ describe('Blueprint routed workspace', () => {
         .getByRole('link', { name: 'Back to Assignments' })
         .getAttribute('href')
     ).toBe('/admin/blueprint/31/assignment?cursor=60&take=20&page=3')
+    expect(
+      screen
+        .getByRole('link', { name: 'Back to Course List' })
+        .getAttribute('href')
+    ).toBe('/admin/course')
+    expect(
+      screen.getByText('Blueprint information is unavailable.')
+    ).toBeTruthy()
   })
 
   it('loads header and list through the supplied adapter with Blueprint scope', async () => {

@@ -5,6 +5,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { blueprintKeys } from '../_libs/queries'
 import {
   blueprintKind,
+  parseBlueprintId,
   blueprintListLocation,
   blueprintScope,
   type BlueprintContentKind,
@@ -12,7 +13,9 @@ import {
 } from '../_libs/routes'
 import type {
   BlueprintListScope,
-  BlueprintListStateController
+  BlueprintListStateController,
+  BlueprintCourseInformation,
+  BlueprintReadState
 } from '../_libs/types'
 import { useBlueprintAssignmentListState } from '../_libs/useBlueprintAssignmentListState'
 import { useBlueprintRead } from '../_libs/useBlueprintRead'
@@ -25,6 +28,7 @@ interface WorkspaceState {
   location: BlueprintListLocation
   scope: BlueprintListScope
   viewState: BlueprintListStateController
+  information: BlueprintReadState<BlueprintCourseInformation> | null
 }
 
 const WorkspaceContext = createContext<WorkspaceState | null>(null)
@@ -36,7 +40,8 @@ export function BlueprintWorkspace({
   blueprintId: number
   children: ReactNode
 }) {
-  const kind = blueprintKind(usePathname())
+  const pathname = usePathname()
+  const kind = blueprintKind(pathname)
   const location = blueprintListLocation(useSearchParams())
   const scope = blueprintScope(blueprintId, kind, location)
   const viewState = useBlueprintAssignmentListState(scope)
@@ -48,12 +53,16 @@ export function BlueprintWorkspace({
 
   return (
     <WorkspaceContext.Provider
-      value={{ blueprintId, kind, location, scope, viewState }}
+      value={{ blueprintId, kind, location, scope, viewState, information }}
     >
       <BlueprintShell
         blueprintId={blueprintId}
         kind={kind}
         information={information}
+        detail={
+          kind === 'assignment' &&
+          parseBlueprintId(pathname.split('/')[5] ?? '') !== null
+        }
       >
         {children}
       </BlueprintShell>
