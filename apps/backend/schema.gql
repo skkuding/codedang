@@ -749,20 +749,6 @@ type BlueprintCourseDetailOutput {
   week: Int!
 }
 
-type BlueprintCourseInfoOutput {
-  blueprintCourseId: Int
-  classNum: Int
-  courseNum: String!
-  email: String
-  groupId: ID!
-  office: String
-  phoneNum: String
-  professor: String!
-  semester: String!
-  website: String
-  week: Int!
-}
-
 input BlueprintCourseInput {
   courseNum: String!
   courseTitle: String!
@@ -838,10 +824,6 @@ type BlueprintCourseSumAggregate {
 }
 
 type BlueprintSectionOutput {
-  CourseNotice: [CourseNotice!]
-  GroupWhitelist: [GroupWhitelist!]
-  assignment: [Assignment!]
-
   """
   config default value
   {
@@ -852,21 +834,10 @@ type BlueprintSectionOutput {
   }
   """
   config: JSON!
-  courseInfo: BlueprintCourseInfoOutput
-  courseQnA: [CourseQnA!]
-  createTime: DateTime!
-  description: String
+  courseInfo: SectionCourseInfoOutput
   groupName: String!
-  groupTag: [GroupTag!]
-  groupType: GroupType!
   id: ID!
-  invitation: String
   memberNum: Int!
-  sharedProblems: [Problem!]
-  studyInfo: StudyInfo
-  updateTime: DateTime!
-  userGroup: [UserGroup!]
-  workbook: [Workbook!]
 }
 
 type CheckRequest {
@@ -4017,6 +3988,20 @@ input ScoreWeights {
 
   """점수 가중치 분자"""
   scoreWeightNumerator: Int
+}
+
+type SectionCourseInfoOutput {
+  blueprintCourseId: Int
+  classNum: Int
+  courseNum: String!
+  email: String
+  groupId: ID!
+  office: String
+  phoneNum: String
+  professor: String!
+  semester: String!
+  website: String
+  week: Int!
 }
 
 input Snippet {

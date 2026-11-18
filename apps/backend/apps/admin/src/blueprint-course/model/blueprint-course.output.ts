@@ -6,21 +6,23 @@ import { FindGroup } from '../../group/model/group.output'
  * Section course information without unloaded relations.
  */
 @ObjectType()
-export class BlueprintCourseInfoOutput extends OmitType(CourseInfo, [
+export class SectionCourseInfoOutput extends OmitType(CourseInfo, [
   'group',
   'blueprintCourse'
 ] as const) {}
 
 /**
- * Section output with populated course information and without count fields.
+ * Section summary with only the fields supported by Blueprint queries.
  */
 @ObjectType()
-export class BlueprintSectionOutput extends OmitType(FindGroup, [
-  '_count',
-  'courseInfo'
+export class BlueprintSectionOutput extends PickType(FindGroup, [
+  'id',
+  'groupName',
+  'config',
+  'memberNum'
 ] as const) {
-  @Field(() => BlueprintCourseInfoOutput, { nullable: true })
-  courseInfo?: BlueprintCourseInfoOutput | null
+  @Field(() => SectionCourseInfoOutput, { nullable: true })
+  courseInfo?: SectionCourseInfoOutput | null
 }
 
 /**

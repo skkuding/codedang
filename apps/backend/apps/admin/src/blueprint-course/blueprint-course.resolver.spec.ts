@@ -213,6 +213,47 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
     'getBlueprintCourses',
     'getBlueprintCourse(blueprintCourseId: 1)'
   ]) {
+    it(`should expose only supported section fields in ${query}`, () => {
+      const queryName = query.split('(')[0]
+      const output = getNamedType(
+        schema.getQueryType()!.getFields()[queryName].type
+      ) as GraphQLObjectType
+      const section = getNamedType(
+        output.getFields().sections.type
+      ) as GraphQLObjectType
+      expect(Object.keys(section.getFields())).to.have.members([
+        'id',
+        'groupName',
+        'config',
+        'memberNum',
+        'courseInfo'
+      ])
+    })
+
+    it(`should reject unloaded section relations and invitation in ${query}`, async () => {
+      const lookup = stub()
+      const result = await graphql({
+        schema,
+        source: `{ ${query} {
+          sections { assignment { id } userGroup { userId } invitation }
+        } }`,
+        rootValue: {
+          getBlueprintCourses: lookup,
+          getBlueprintCourse: lookup
+        }
+      })
+      for (const field of ['assignment', 'userGroup', 'invitation']) {
+        expect(
+          result.errors?.some((error) =>
+            error.message.includes(
+              `Cannot query field "${field}" on type "BlueprintSectionOutput"`
+            )
+          )
+        ).to.be.true
+      }
+      expect(lookup.called).to.be.false
+    })
+
     for (const relation of ['group', 'blueprintCourse']) {
       it(`should reject unloaded courseInfo.${relation} in ${query}`, async () => {
         const lookup = stub()
@@ -225,7 +266,7 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
           }
         })
         expect(result.errors?.[0].message).to.include(
-          `Cannot query field "${relation}" on type "BlueprintCourseInfoOutput"`
+          `Cannot query field "${relation}" on type "SectionCourseInfoOutput"`
         )
         expect(lookup.called).to.be.false
       })
