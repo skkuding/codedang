@@ -16,6 +16,7 @@ import { BlueprintAssignmentDetail } from './BlueprintAssignmentDetail'
 import { BlueprintAssignmentList } from './BlueprintAssignmentList'
 import { useBlueprintDataSource } from './BlueprintDataSourceProvider'
 import { BlueprintDeleteDialog } from './BlueprintDeleteDialog'
+import { BlueprintContentTabs, BlueprintCourseMetadata } from './BlueprintShell'
 import { useBlueprintWorkspace } from './BlueprintWorkspace'
 
 function BlueprintUnavailable() {
@@ -117,7 +118,7 @@ export function BlueprintDetailRoute({
 }: {
   assignmentId: number
 }) {
-  const { blueprintId, kind, location } = useBlueprintWorkspace()
+  const { blueprintId, kind, location, information } = useBlueprintWorkspace()
   const source = useBlueprintDataSource()
   const state = useBlueprintRead(
     blueprintKeys.assignment(blueprintId, assignmentId),
@@ -133,6 +134,20 @@ export function BlueprintDetailRoute({
           </Link>
         </Button>
         <BlueprintUnavailable />
+        {kind === 'assignment' && (
+          <>
+            <Link
+              href="/admin/course"
+              className="text-body2_m_14 text-color-neutral-50 hover:text-primary self-start underline underline-offset-4"
+            >
+              Back to Course List
+            </Link>
+            <BlueprintCourseMetadata information={information} detail />
+          </>
+        )}
+        {kind === 'assignment' && (
+          <BlueprintContentTabs blueprintId={blueprintId} kind={kind} detail />
+        )}
       </div>
     )
   }
@@ -145,6 +160,12 @@ export function BlueprintDetailRoute({
         router.push(
           blueprintEditHref(blueprintId, kind, assignmentId, location)
         )
+      }
+      information={information}
+      navigation={
+        kind === 'assignment' ? (
+          <BlueprintContentTabs blueprintId={blueprintId} kind={kind} detail />
+        ) : undefined
       }
     />
   )

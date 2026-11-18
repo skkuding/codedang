@@ -15,7 +15,9 @@ import {
 } from '../_libs/routes'
 import type {
   BlueprintListScope,
-  BlueprintListStateController
+  BlueprintListStateController,
+  BlueprintCourseInformation,
+  BlueprintReadState
 } from '../_libs/types'
 import { useBlueprintAssignmentListState } from '../_libs/useBlueprintAssignmentListState'
 import { useBlueprintRead } from '../_libs/useBlueprintRead'
@@ -28,6 +30,7 @@ interface WorkspaceState {
   location: BlueprintListLocation
   scope: BlueprintListScope
   viewState: BlueprintListStateController
+  information: BlueprintReadState<BlueprintCourseInformation> | null
 }
 
 const WorkspaceContext = createContext<WorkspaceState | null>(null)
@@ -55,7 +58,7 @@ export function BlueprintWorkspace({
 
   return (
     <WorkspaceContext.Provider
-      value={{ blueprintId, kind, location, scope, viewState }}
+      value={{ blueprintId, kind, location, scope, viewState, information }}
     >
       <BlueprintShell
         blueprintId={blueprintId}
@@ -67,6 +70,11 @@ export function BlueprintWorkspace({
           editId !== null
             ? blueprintDetailHref(blueprintId, kind, editId, location)
             : blueprintListHref(blueprintId, kind, location)
+        }
+        detail={
+          editId === null &&
+          kind === 'assignment' &&
+          parseBlueprintId(pathname.split('/')[5] ?? '') !== null
         }
       >
         {children}
