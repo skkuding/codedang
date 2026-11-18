@@ -13,6 +13,10 @@ import type {
 import { BlueprintAssignmentDetail } from './BlueprintAssignmentDetail'
 import { BlueprintAssignmentSections } from './BlueprintAssignmentSections'
 
+vi.mock('@/public/icons/blueprint-detail-back.svg', () => ({
+  default: () => null
+}))
+
 afterEach(cleanup)
 
 const copy: BlueprintAssignmentCopy = {
@@ -57,7 +61,9 @@ describe.each([false, true])(
       )
 
       expect(
-        screen.getByRole('heading', { name: 'Master Information' })
+        screen.getByRole('heading', {
+          name: isExercise ? 'Master Information' : 'Week 4 problems'
+        })
       ).toBeTruthy()
       expect(screen.getByText('Read the instructions.')).toBeTruthy()
       expect(container.querySelector('script')).toBeNull()
@@ -67,8 +73,21 @@ describe.each([false, true])(
           .getAttribute('href')
       ).toBe(`/admin/course/42/${isExercise ? 'exercise' : 'assignment'}/703`)
       const sections = screen.getByRole('table', { name: 'Section copies' })
-      expect(within(sections).getByText('Nov 13, 2026 09:00')).toBeTruthy()
-      expect(within(sections).getByText('Nov 20, 2026 18:00')).toBeTruthy()
+      expect(
+        within(sections).getByText(
+          isExercise ? 'Nov 13, 2026 09:00' : '2026-11-13 09:00'
+        )
+      ).toBeTruthy()
+      expect(
+        within(sections).getByText(
+          isExercise ? 'Nov 20, 2026 18:00' : '2026-11-20 18:00'
+        )
+      ).toBeTruthy()
+      expect(
+        within(sections)
+          .getAllByRole('time')
+          .map((time) => time.getAttribute('datetime'))
+      ).toEqual([copy.startTime, copy.endTime])
       expect(within(sections).getByText('-')).toBeTruthy()
       expect(screen.getByText('Section schedules (Asia/Seoul)')).toBeTruthy()
       expect(
@@ -76,6 +95,15 @@ describe.each([false, true])(
       ).toBeNull()
       expect(screen.queryByRole('tab')).toBeNull()
       const problems = screen.getByRole('table', { name: 'Included problems' })
+      expect(
+        screen
+          .getAllByRole('region')
+          .map((region) => region.getAttribute('aria-label'))
+      ).toEqual(
+        isExercise
+          ? ['Description', 'Included Problems', 'Settings', 'Sections']
+          : ['Description', 'Sections', 'Included Problems', 'Settings']
+      )
       if (isExercise) {
         expect(
           within(problems).queryByRole('columnheader', { name: 'Score' })
@@ -106,12 +134,37 @@ describe.each([false, true])(
         'could not be found'
       )
       expect(screen.queryByText('Week 4 problems')).toBeNull()
-      expect(screen.queryByRole('link')).toBeNull()
+      expect(screen.queryByRole('link', { name: copy.sectionLabel })).toBeNull()
     })
   }
 )
 
 describe('Blueprint master information', () => {
+  it.each([false, true])(
+    'retains Edit on the successful original detail, isExercise=%s',
+    (isExercise) => {
+      const onEdit = vi.fn()
+      const { rerender } = render(
+        <BlueprintAssignmentDetail
+          state={{ status: 'success', data: detail(isExercise) }}
+          isExercise={isExercise}
+          onBack={vi.fn()}
+          onEdit={onEdit}
+        />
+      )
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+      expect(onEdit).toHaveBeenCalledOnce()
+      rerender(
+        <BlueprintAssignmentDetail
+          state={{ status: 'forbidden' }}
+          isExercise={isExercise}
+          onBack={vi.fn()}
+          onEdit={onEdit}
+        />
+      )
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull()
+    }
+  )
   it('sorts a copy of the problem relation and computes its total', () => {
     const data = detail()
     render(
@@ -221,7 +274,12 @@ describe('Blueprint master information', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(retry).toHaveBeenCalledOnce()
-    expect(screen.queryByRole('link')).toBeNull()
+    expect(screen.queryByRole('link', { name: copy.sectionLabel })).toBeNull()
+    expect(
+      screen
+        .getByRole('link', { name: 'Back to Course List' })
+        .getAttribute('href')
+    ).toBe('/admin/course')
 
     rerender(
       <BlueprintAssignmentDetail

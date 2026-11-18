@@ -45,6 +45,9 @@ vi.mock('@/public/icons/arrow-bottom-thin.svg', () => ({
   default: () => null
 }))
 vi.mock('@/public/icons/arrow-top.svg', () => ({ default: () => null }))
+vi.mock('@/public/icons/blueprint-detail-back.svg', () => ({
+  default: () => null
+}))
 
 beforeAll(() => {
   HTMLElement.prototype.scrollIntoView = vi.fn()
@@ -192,6 +195,14 @@ describe('Blueprint routed workspace', () => {
         .getByRole('link', { name: 'Back to Assignments' })
         .getAttribute('href')
     ).toBe('/admin/blueprint/31/assignment?cursor=60&take=20&page=3')
+    expect(
+      screen
+        .getByRole('link', { name: 'Back to Course List' })
+        .getAttribute('href')
+    ).toBe('/admin/course')
+    expect(
+      screen.getByText('Blueprint information is unavailable.')
+    ).toBeTruthy()
   })
 
   it('loads header and list through the supplied adapter with Blueprint scope', async () => {
@@ -292,6 +303,9 @@ describe('Blueprint routed workspace', () => {
       await screen.findByText('Adapter-provided instructions')
     ).toBeTruthy()
     expect(source.readAssignment).toHaveBeenCalledWith(31, 91)
+    expect(
+      screen.getByRole('link', { name: 'Notice' }).getAttribute('href')
+    ).toBe('/admin/blueprint/31/notice')
     expect(screen.queryByLabelText('Search this page')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Back to Assignments' }))
     expect(navigation.push).toHaveBeenLastCalledWith(

@@ -15,7 +15,9 @@ import {
 } from '../_libs/routes'
 import type {
   BlueprintListScope,
-  BlueprintListStateController
+  BlueprintListStateController,
+  BlueprintCourseInformation,
+  BlueprintReadState
 } from '../_libs/types'
 import { useBlueprintAssignmentListState } from '../_libs/useBlueprintAssignmentListState'
 import { useBlueprintRead } from '../_libs/useBlueprintRead'
@@ -29,6 +31,7 @@ interface WorkspaceState {
   location: BlueprintListLocation
   scope: BlueprintListScope
   viewState: BlueprintListStateController
+  information: BlueprintReadState<BlueprintCourseInformation> | null
 }
 
 const WorkspaceContext = createContext<WorkspaceState | null>(null)
@@ -63,6 +66,7 @@ export function BlueprintWorkspace({
         blueprintId={blueprintId}
         kind={kind}
         location={location}
+        information={information}
       >
         {children}
       </AssignmentWorkspace>
@@ -75,6 +79,11 @@ export function BlueprintWorkspace({
       information={information}
       creation={kind !== 'notice' && pathname.endsWith('/create')}
       editing={editId !== null}
+      detail={
+        editId === null &&
+        kind === 'assignment' &&
+        parseBlueprintId(pathname.split('/')[5] ?? '') !== null
+      }
       listHref={
         editId !== null && kind !== 'notice'
           ? blueprintDetailHref(blueprintId, kind, editId, location)
@@ -90,18 +99,20 @@ function AssignmentWorkspace({
   blueprintId,
   kind,
   location,
+  information,
   children
 }: {
   blueprintId: number
   kind: BlueprintContentKind
   location: BlueprintListLocation
+  information: BlueprintReadState<BlueprintCourseInformation> | null
   children: ReactNode
 }) {
   const scope = blueprintScope(blueprintId, kind, location)
   const viewState = useBlueprintAssignmentListState(scope)
   return (
     <WorkspaceContext.Provider
-      value={{ blueprintId, kind, location, scope, viewState }}
+      value={{ blueprintId, kind, location, scope, viewState, information }}
     >
       {children}
     </WorkspaceContext.Provider>
