@@ -18,7 +18,9 @@ const redactPaths = [
 const rootLogger = pino(
   {
     name: 'progress-server',
-    level: process.env.APP_ENV === 'production' ? 'info' : 'trace',
+    level:
+      process.env.LOG_LEVEL ??
+      (process.env.APP_ENV === 'production' ? 'info' : 'trace'),
     formatters: {
       level(label) {
         return { level: label }

@@ -115,7 +115,7 @@ export default eslintTS.config(
     }
   },
   {
-    files: ['apps/backend/**/*.spec.ts'],
+    files: ['apps/backend/**/*.spec.ts', 'apps/progress/**/*.spec.ts'],
     languageOptions: {
       globals: {
         ...globals.mocha

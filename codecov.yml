@@ -14,6 +14,11 @@ coverage:
           - iris
         target: auto
         informational: true
+      progress:
+        flags:
+          - progress
+        target: auto
+        informational: true
     patch:
       default: off
       backend:
@@ -26,6 +31,11 @@ coverage:
           - iris
         target: auto
         informational: true
+      progress:
+        flags:
+          - progress
+        target: auto
+        informational: true
 
 flags:
   backend:
@@ -34,3 +44,6 @@ flags:
   iris:
     paths:
       - apps/iris/
+  progress:
+    paths:
+      - apps/progress/

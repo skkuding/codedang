@@ -16,7 +16,9 @@ const PROGRESS_MESSAGE_TYPE = 'progress'
 // Drop stale progress that piled up while the server was down.
 const MESSAGE_TTL_MS = 60_000
 
-function toProgressEvent(raw: amqp.ConsumeMessage): ProgressEvent | null {
+export function toProgressEvent(
+  raw: amqp.ConsumeMessage
+): ProgressEvent | null {
   // The submission id comes in messageId, not in the body.
   const submissionId = Number(raw.properties.messageId)
   if (!Number.isInteger(submissionId) || submissionId <= 0) {
@@ -53,7 +55,7 @@ function safeNack(channel: amqp.Channel, raw: amqp.ConsumeMessage) {
  * so invalid or failed messages are nacked without requeue.
  * Redelivered messages are deduplicated by ProgressStore.
  */
-function handleMessage(
+export function handleMessage(
   channel: amqp.Channel,
   raw: amqp.ConsumeMessage,
   onProgress: (event: ProgressEvent) => void

@@ -25,6 +25,7 @@ jobs:
       backend_test: ${{ steps.filter.outputs.backend_test }}
       iris: ${{ steps.filter.outputs.iris }}
       plag: ${{ steps.filter.outputs.plag }}
+      progress: ${{ steps.filter.outputs.progress }}
       runner_backend: ${{ steps.filter.outputs.runner_backend }}
       runner_pod_manager: ${{ steps.filter.outputs.runner_pod_manager }}
       go_lint: ${{ steps.filter.outputs.go_lint }}
@@ -56,6 +57,7 @@ jobs:
               - *ci_workflow_path
               - 'apps/backend/**'
               - 'apps/frontend/**'
+              - 'apps/progress/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -90,6 +92,11 @@ jobs:
             plag:
               - *ci_workflow_path
               - 'apps/plag/**'
+            progress:
+              - *ci_workflow_path
+              - 'codecov.yml'
+              - 'apps/progress/**'
+              - 'pnpm-lock.yaml'
             runner_backend:
               - *ci_workflow_path
               - 'apps/runner/backend/**'
@@ -477,6 +484,45 @@ jobs:
         run: go test ./...
         working-directory: ./apps/plag
 
+  test-progress:
+    name: Test Progress
+    needs: detect-changes
+    if: needs['detect-changes'].outputs.progress == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Check types (progress)
+        run: pnpm --filter="@codedang/progress" typecheck
+
+      - name: Test (progress)
+        run: pnpm --filter="@codedang/progress" test:coverage
+
+      - name: Normalize Progress coverage paths
+        run: |
+          report=apps/progress/coverage/lcov.info
+          if ! grep -q '^SF:' "$report"; then
+            echo '::error::Progress coverage report contains no source files'
+            exit 1
+          fi
+          sed -i 's|^SF:|SF:apps/progress/|' "$report"
+
+      - name: Upload Progress coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/progress/coverage/lcov.info
+          flags: progress
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
+
   test-runner-backend:
     name: Test Runner Backend
     needs: detect-changes
@@ -833,6 +879,7 @@ jobs:
       - test-backend
       - test-iris
       - test-plag
+      - test-progress
       - test-runner-backend
       - test-runner-pod-manager
       - test-x509-distrust-go
@@ -862,6 +909,7 @@ jobs:
             "test-backend:${{ needs['test-backend'].result }}"
             "test-iris:${{ needs['test-iris'].result }}"
             "test-plag:${{ needs['test-plag'].result }}"
+            "test-progress:${{ needs['test-progress'].result }}"
             "test-runner-backend:${{ needs['test-runner-backend'].result }}"
             "test-runner-pod-manager:${{ needs['test-runner-pod-manager'].result }}"
             "test-x509-distrust-go:${{ needs['test-x509-distrust-go'].result }}"
