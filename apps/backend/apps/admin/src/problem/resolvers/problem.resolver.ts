@@ -7,10 +7,13 @@ import {
   Mutation,
   Resolver,
   ResolveField,
-  Parent
+  Parent,
+  Info
 } from '@nestjs/graphql'
 import { Group, ProblemTag, ProblemTestcase, UpdateHistory } from '@generated'
+import type { GraphQLResolveInfo } from 'graphql'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
+import { hasSelectedField } from '@libs/graphql'
 import {
   CursorValidationPipe,
   IDValidationPipe,
@@ -104,8 +107,14 @@ export class ProblemResolver {
   }
 
   @ResolveField('testcase', () => [ProblemTestcase])
-  async getProblemTestCases(@Parent() problem: ProblemWithIsVisible) {
-    return await this.testcaseService.getProblemTestcases(problem.id)
+  async getProblemTestCases(
+    @Parent() problem: ProblemWithIsVisible,
+    @Info() info: GraphQLResolveInfo
+  ) {
+    return await this.testcaseService.getProblemTestcases(
+      problem.id,
+      hasSelectedField(info, ['input', 'output'])
+    )
   }
 
   @Mutation(() => ProblemWithIsVisible)

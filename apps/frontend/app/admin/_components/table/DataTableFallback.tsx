@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell
 } from '@/components/shadcn/table'
+import { cn } from '@/libs/utils'
 import {
   flexRender,
   getCoreRowModel,
@@ -63,19 +64,32 @@ function TableFallback<TData>({
   })
 
   return (
-    <ScrollArea className="rounded-xs max-w-full border">
+    <ScrollArea className="rounded-xs max-w-full">
       <Table>
-        <TableHeader className="bg-neutral-100 [&_tr]:border-b-gray-200">
+        <TableHeader className="border-b-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className={headerStyle[header.id]}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                <TableHead
+                  key={header.id}
+                  className={cn(
+                    headerStyle[header.id],
+                    header.id === 'select' && 'w-[1%] whitespace-nowrap p-0'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'h-[39px]! flex items-center justify-center whitespace-nowrap rounded-full bg-neutral-200/30 text-sm font-normal',
+                      header.id === 'select' && 'w-14 bg-transparent'
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </div>
                 </TableHead>
               ))}
             </TableRow>
@@ -89,8 +103,22 @@ function TableFallback<TData>({
                 {table.getAllColumns().map(
                   (column) =>
                     column.getIsVisible() && (
-                      <TableCell key={column.id} className="md:p-4">
-                        <Skeleton className="mx-auto h-[20px] w-full" />
+                      <TableCell
+                        key={column.id}
+                        className={
+                          column.id === 'select'
+                            ? 'w-[1%] whitespace-nowrap p-0'
+                            : 'md:p-4'
+                        }
+                      >
+                        <div
+                          className={cn(
+                            'flex justify-center whitespace-nowrap',
+                            column.id === 'select' && 'w-14'
+                          )}
+                        >
+                          <Skeleton className="mx-auto h-[20px] w-full" />
+                        </div>
                       </TableCell>
                     )
                 )}

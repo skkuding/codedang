@@ -15,13 +15,11 @@ spec:
         releaseName: n8n
         valueFiles:
           - $codedang/infra/k8s/n8n/values.yaml
-    # This branch intentionally exists only in the local worktree. Replace the
-    # repository URL and revision with a private Git source before applying.
     - repoURL: https://github.com/skkuding/codedang
-      targetRevision: local-notion-backup
+      targetRevision: release
       ref: codedang
     - repoURL: https://github.com/skkuding/codedang
-      targetRevision: local-notion-backup
+      targetRevision: release
       path: infra/k8s/n8n
   destination:
     name: production

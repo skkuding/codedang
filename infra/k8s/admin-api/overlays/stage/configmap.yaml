@@ -4,4 +4,5 @@ metadata:
   name: admin-api-env
   namespace: admin-api
 data:
+  APP_ENV: 'stage'
   MINIO_ENDPOINT_URL: 'https://minio.stage.codedang.com'

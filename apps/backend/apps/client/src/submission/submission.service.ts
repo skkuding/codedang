@@ -902,6 +902,9 @@ export class SubmissionService {
         problemId,
         isOutdated: false,
         ...(containHiddenTestcases ? {} : { isHidden: false })
+      },
+      select: {
+        id: true
       }
     })
 

@@ -23,3 +23,7 @@ onlyBuiltDependencies:
   - protobufjs
   - sharp
   - unrs-resolver
+
+# CodeMirror extensions must share the editor's view instance.
+overrides:
+  '@codemirror/view': 6.38.1

@@ -7,13 +7,13 @@ import {
   SheetTrigger,
   SheetClose
 } from '@/components/shadcn/sheet'
-import CourseSidebarIcon from '@/public/icons/course-sidebar.svg'
 import DetailOnMobileIcon from '@/public/icons/detail-on-mobile.svg'
+import FileIcon from '@/public/icons/file-fill.svg'
+import CourseSidebarIcon from '@/public/icons/graduation.svg'
 import LoginMobileIcon from '@/public/icons/login-mobile.svg'
 import LogoutMobileIcon from '@/public/icons/logout-mobile.svg'
 import NotificationIcon from '@/public/icons/notification.svg'
 import PrizeIcon from '@/public/icons/prize.svg'
-import ProblemIcon from '@/public/icons/problem-sidebar.svg'
 import SettingsIcon from '@/public/icons/settings.svg'
 import codedangLogo from '@/public/logos/codedang-with-text.svg'
 import { useAuthModalStore } from '@/stores/authModal'
@@ -30,7 +30,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
 
   const navItems = [
     { href: '/notice', label: 'Notice', icon: NotificationIcon },
-    { href: '/problem', label: 'Problem', icon: ProblemIcon },
+    { href: '/problem', label: 'Problem', icon: FileIcon },
     { href: '/course', label: 'Course', icon: CourseSidebarIcon },
     { href: '/contest', label: 'Contest', icon: PrizeIcon }
   ]
@@ -90,7 +90,7 @@ export function MobileMenu({ session }: { session: Session | null }) {
                 className="flex items-center gap-[10px] rounded-full px-4 py-3 hover:bg-gray-100"
               >
                 <span className="flex h-[18px] w-[18px] items-center justify-center text-neutral-400">
-                  <item.icon width={18} height={18} />
+                  <item.icon className="text-primary size-[18px]" />
                 </span>
                 <span className="text-neutral-700">{item.label}</span>
               </Link>
@@ -111,7 +111,10 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   className="block rounded-full px-4 py-3 text-[18px] hover:bg-gray-100"
                 >
                   <span className="flex items-center gap-[10px]">
-                    <SettingsIcon width={15} height={15} aria-hidden />
+                    <SettingsIcon
+                      className="text-color-neutral-80 size-4"
+                      aria-hidden
+                    />
                     <span>Setting</span>
                   </span>
                 </Link>
@@ -126,7 +129,10 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   }}
                 >
                   <span className="flex items-center gap-[10px]">
-                    <LogoutMobileIcon width={20} height={20} aria-hidden />
+                    <LogoutMobileIcon
+                      className="text-color-neutral-70 size-5"
+                      aria-hidden
+                    />
                     <span>Log Out</span>
                   </span>
                 </button>
@@ -153,7 +159,10 @@ export function MobileMenu({ session }: { session: Session | null }) {
                   onClick={() => showSignIn()}
                 >
                   <span className="flex items-center gap-[10px]">
-                    <LoginMobileIcon width={20} height={20} aria-hidden />
+                    <LoginMobileIcon
+                      className="text-color-neutral-70 size-5"
+                      aria-hidden
+                    />
                     <span>Log In</span>
                   </span>
                 </button>

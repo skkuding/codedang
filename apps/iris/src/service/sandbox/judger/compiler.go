@@ -1,10 +1,9 @@
 package judger
 
 import (
-	"bytes"
-	"fmt"
-
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"time"
@@ -40,16 +39,6 @@ func (c *compiler) Compile(dto sandbox.CompileRequest) (sandbox.CompileResult, e
 		return sandbox.CompileResult{}, err
 	}
 
-	if execResult.StatusCode == sandbox.StatusCode(SYSTEM_ERROR) {
-		c.logger.Log(logger.ERROR, fmt.Sprintf("Compile failed: %+v", execResult))
-		data, err := c.file.ReadFile(constants.COMPILE_LOG_PATH)
-		if err != nil {
-			return sandbox.CompileResult{}, fmt.Errorf("failed to read output file: %w", err)
-		}
-		c.logger.Log(logger.ERROR, fmt.Sprintf("Compile Log: %s", string(data)))
-		return sandbox.CompileResult{}, fmt.Errorf("system error: %v", execResult)
-	}
-
 	compileResult := sandbox.CompileResult{}
 	compileResult.ExecResult = execResult
 
@@ -71,7 +60,7 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 	outputFile, err := os.Create(args.OutputPath)
 	if err != nil {
 		return sandbox.ExecResult{
-			StatusCode: sandbox.StatusCode(SYSTEM_ERROR),
+			StatusCode: sandbox.SERVER_ERROR,
 		}, err
 	}
 	defer outputFile.Close()
@@ -81,9 +70,8 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 
 	cmd := exec.CommandContext(ctx, args.ExePath, args.Args...)
 	cmd.Env = append(cmd.Env, env)
-
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
+	cmd.Stdout = outputFile
+	cmd.Stderr = outputFile
 
 	startTime := time.Now()
 	err = cmd.Run()
@@ -95,9 +83,16 @@ func (c *compiler) compileExec(args ExecArgs) (sandbox.ExecResult, error) {
 	}
 
 	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() >= 0 {
+			return sandbox.ExecResult{
+				ExitCode:   exitErr.ExitCode(),
+				StatusCode: sandbox.COMPILE_ERROR,
+			}, nil
+		}
 		return sandbox.ExecResult{
-			StatusCode: sandbox.StatusCode(SYSTEM_ERROR),
-		}, fmt.Errorf("%s", stderr.String())
+			StatusCode: sandbox.SERVER_ERROR,
+		}, fmt.Errorf("compiler execution failed: %w", err)
 	}
 
 	realTimeSpentMS := int(time.Since(startTime).Milliseconds())

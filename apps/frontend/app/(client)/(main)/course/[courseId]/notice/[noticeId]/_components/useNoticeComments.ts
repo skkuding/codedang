@@ -76,7 +76,6 @@ export function useNoticeComments(
         if (replys.length === group.replys.length) {
           return group
         }
-        // 이미 삭제된 원댓글의 마지막 답글이 지워지면 원댓글도 함께 사라진다(cascade).
         if (replys.length === 0 && group.comment.isDeleted) {
           return null
         }
@@ -108,6 +107,7 @@ export function useNoticeComments(
       toast.success('Comment posted!')
       resetCreateState()
       invalidateComments()
+      invalidateNoticeDetail()
     },
     onError: () => toast.error('Failed to post comment.')
   })

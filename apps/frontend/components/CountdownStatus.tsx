@@ -17,6 +17,7 @@ interface CountdownStatusProps {
   showIcon?: boolean
   showTarget?: boolean
   inEditor?: boolean
+  isLoading?: boolean
   textStyle?: string
   startTime?: Date
   baseTime: Date
@@ -28,6 +29,7 @@ export function CountdownStatus({
   showText = false,
   showTarget = true,
   inEditor = false,
+  isLoading = false,
   startTime,
   baseTime,
   target,
@@ -110,6 +112,7 @@ export function CountdownStatus({
       <DurationDisplay
         startTime={startTime}
         endTime={baseTime}
+        isLoading={isLoading}
         title="duration"
       />
     )

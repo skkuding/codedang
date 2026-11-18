@@ -2,9 +2,8 @@
 
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { dateFormatter } from '@/libs/utils'
-import LockGrayIcon from '@/public/icons/lock-gray.svg'
+import LockIcon from '@/public/icons/lock.svg'
 import type { ColumnDef } from '@tanstack/react-table'
-import Image from 'next/image'
 
 export interface DataTableQna {
   id: number
@@ -73,7 +72,7 @@ export const columns: ColumnDef<DataTableQna>[] = [
       return (
         <div className="flex items-center gap-2">
           {isPrivate && (
-            <LockGrayIcon className="text-color-neutral-60 h-4 w-4 shrink-0" />
+            <LockIcon className="text-color-neutral-60 h-4 w-4 shrink-0" />
           )}
           <span
             className="text-body1_m_16 max-w-[400px] truncate"

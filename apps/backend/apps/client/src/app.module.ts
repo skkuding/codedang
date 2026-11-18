@@ -9,7 +9,10 @@ import { LoggerModule } from 'nestjs-pino'
 import { JwtAuthGuard, JwtAuthModule } from '@libs/auth'
 import { CacheConfigService } from '@libs/cache'
 import { ClientExceptionFilter } from '@libs/exception'
-import { openTelemetryModuleOption } from '@libs/instrumentation'
+import {
+  InstrumentationModule,
+  openTelemetryModuleOption
+} from '@libs/instrumentation'
 import { InternalModule } from '@libs/internal'
 import { pinoLoggerModuleOption } from '@libs/logger'
 import { PrismaModule } from '@libs/prisma'
@@ -57,6 +60,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     NotificationModule,
     LoggerModule.forRoot(pinoLoggerModuleOption),
     OpenTelemetryModule.forRoot(openTelemetryModuleOption),
+    InstrumentationModule,
     StudyModule
   ],
   controllers: [AppController],

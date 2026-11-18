@@ -1,6 +1,6 @@
 'use client'
 
-import CalendarGrayIcon from '@/public/icons/calendar-gray.svg'
+import CalendarGrayIcon from '@/public/icons/calendar.svg'
 import PersonFillIcon from '@/public/icons/person-fill.svg'
 import type { JoinedCourse } from '@/types/type'
 
@@ -51,15 +51,19 @@ export function CourseCard({ course }: CourseCardProps) {
         <div className="text-head6_m_24 line-clamp-2 h-[62px]">
           {course.groupName}
         </div>
-        <div className="flex flex-col gap-[6px] pt-4">
+        <div className="flex flex-col justify-start gap-[6px] pt-4">
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <CalendarGrayIcon width={24} height={24} />
+            <span className="flex w-6 shrink-0 justify-center">
+              <CalendarGrayIcon className="text-color-cool-neutral-60 size-[19px]" />
+            </span>
             <span className="text-color-cool-neutral-40 text-body3_r_16">
               {course.courseInfo.semester}
             </span>
           </div>
           <div className="inline-flex items-center gap-[14px] whitespace-nowrap">
-            <PersonFillIcon className="text-color-cool-neutral-60 h-6" />
+            <span className="flex w-6 shrink-0 justify-center">
+              <PersonFillIcon className="text-color-cool-neutral-60 h-6" />
+            </span>
             <span className="text-color-cool-neutral-40 text-body3_r_16">
               Prof. {course.courseInfo.professor}
             </span>

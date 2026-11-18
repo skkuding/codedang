@@ -1,73 +1,44 @@
-import { GET_PROBLEMS } from '@/graphql/problem/queries'
-import { useSuspenseQuery } from '@apollo/client'
-import { Language, Level } from '@generated/graphql'
+import type { Route } from 'next'
 import {
   DataTable,
   DataTableFallback,
-  DataTableLangFilter,
-  DataTableLevelFilter,
   DataTablePagination,
-  DataTableRoot,
-  DataTableSearchBar
+  DataTableRoot
 } from '../../../_components/table'
-import { ProblemsDownload } from '../../_components/ProblemsDownload'
+import { SearchInputSync } from '../../_components/SearchInputSync'
+import { useInProgressMandeuldangProblems } from '../_libs/useInProgressMandeuldangProblems'
 import { columns } from './CreatingProblemTableColumns'
 
-export function SharedProblemTable() {
-  const { data } = useSuspenseQuery(GET_PROBLEMS, {
-    variables: {
-      take: 500,
-      input: {
-        difficulty: [
-          Level.Level1,
-          Level.Level2,
-          Level.Level3,
-          Level.Level4,
-          Level.Level5
-        ],
-        languages: [Language.C, Language.Cpp, Language.Java, Language.Python3]
-      },
-      mode: 'shared'
-    }
-  })
-
-  const problems = data.getProblems.map((problem) => ({
-    ...problem,
-    id: Number(problem.id),
-    languages: problem.languages ?? [],
-    tag: problem.tag.map(({ id, tag }) => ({
-      id: Number(id),
-      tag: {
-        ...tag,
-        id: Number(tag.id)
-      }
-    }))
-  }))
+export function CreatingProblemTable() {
+  const problems = useInProgressMandeuldangProblems()
   const bodyStyle = { title: 'justify-start' }
 
   return (
     <DataTableRoot
       data={problems}
       columns={columns}
+      className="contents space-y-0"
       defaultSortState={[{ id: 'updateTime', desc: true }]}
     >
-      <div className="flex gap-4">
-        <DataTableSearchBar columndId="title" sizeVariant="sm" />
-        <DataTableLangFilter />
-        <DataTableLevelFilter />
-        <div className="ml-auto flex gap-2">
-          <ProblemsDownload />
-        </div>
+      <SearchInputSync />
+      <div className="w-full space-y-4">
+        <DataTable
+          // TODO: 만들당 문제 id 라우트 생성 후 교체
+          getHref={(data) =>
+            `/admin/problem/mandeuldang?problemId=${data.id}` as Route
+          }
+          bodyStyle={bodyStyle}
+        />
+        <DataTablePagination />
       </div>
-      <DataTable
-        getHref={(data) => `/admin/problem/${data.id}`}
-        bodyStyle={bodyStyle}
-      />
-      <DataTablePagination showSelection />
     </DataTableRoot>
   )
 }
 
-export function SharedProblemTableFallback() {
-  return <DataTableFallback columns={columns} />
+export function CreatingProblemTableFallback() {
+  return (
+    <div className="w-full">
+      <DataTableFallback columns={columns} withSearchBar={false} />
+    </div>
+  )
 }

@@ -5,6 +5,8 @@ resources:
   - ../../base
   - route53-credentials.yaml
   - local-path-retain.yaml
+  # k3s built-in Traefik settings (stage uses argocd/applications/traefik-stage.yaml)
+  - traefik-config.yaml
 
 commonAnnotations:
   managed-by: kustomize

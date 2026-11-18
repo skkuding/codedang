@@ -1,5 +1,7 @@
 # Iris local judge workers
 
+[![Iris coverage](https://codecov.io/gh/skkuding/codedang/branch/main/graph/badge.svg?flag=iris)](https://app.codecov.io/gh/skkuding/codedang)
+
 Iris is configured as a generic judge request consumer. The queue it consumes
 is selected by `JUDGE_REQUEST_*`; it always publishes results through
 `JUDGE_RESULT_*`.

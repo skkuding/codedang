@@ -143,36 +143,42 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
               key={headerGroup.id}
               // className={cn(isHeaderGrouped && 'bg-background-alternative')}
             >
-              {headerGroup.headers.map((header, index) => (
-                <TableHead
-                  key={header.id}
-                  className={cn(
-                    isHeaderGrouped && 'p-0',
-                    headerStyle[header.column.id]
-                  )}
-                >
-                  <div
+              {headerGroup.headers.map((header, index) => {
+                const isSelectColumn = header.column.id === 'select'
+
+                return (
+                  <TableHead
+                    key={header.id}
                     className={cn(
-                      headerStyleMap[size],
-                      !isHeaderGrouped
-                        ? 'rounded-full bg-neutral-200/30 [&:has([role=checkbox])]:bg-transparent'
-                        : 'bg-background-alternative',
-                      isHeaderGrouped && index === 0 && 'rounded-l-full',
-                      isHeaderGrouped &&
-                        index === headerGroup.headers.length - 1 &&
-                        'rounded-r-full',
-                      'flex items-center justify-center whitespace-nowrap [&:has([role=checkbox])]:w-14'
+                      isHeaderGrouped && 'p-0',
+                      headerStyle[header.column.id],
+                      header.id === 'select' && 'w-[1%] whitespace-nowrap p-0'
                     )}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </div>
-                </TableHead>
-              ))}
+                    <div
+                      className={cn(
+                        headerStyleMap[size],
+                        !isHeaderGrouped
+                          ? 'rounded-full bg-neutral-200/30'
+                          : 'bg-background-alternative',
+                        isHeaderGrouped && index === 0 && 'rounded-l-full',
+                        isHeaderGrouped &&
+                          index === headerGroup.headers.length - 1 &&
+                          'rounded-r-full',
+                        'flex items-center justify-center whitespace-nowrap',
+                        isSelectColumn && 'w-14 bg-transparent'
+                      )}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </div>
+                  </TableHead>
+                )
+              })}
             </TableRow>
           ))}
         </TableHeader>
@@ -191,27 +197,34 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                   }
                 }}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn(
-                      bodyStyleMap[size],
-                      'md:p-4 [&:has([role=checkbox])]:w-14'
-                    )}
-                  >
-                    <div
+                {row.getVisibleCells().map((cell) => {
+                  const isSelectColumn = cell.column.id === 'select'
+
+                  return (
+                    <TableCell
+                      key={cell.id}
                       className={cn(
-                        'flex justify-center whitespace-nowrap',
-                        bodyStyle[cell.column.id]
+                        bodyStyleMap[size],
+                        isSelectColumn
+                          ? 'w-[1%] whitespace-nowrap p-0'
+                          : 'md:p-4'
                       )}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </div>
-                  </TableCell>
-                ))}
+                      <div
+                        className={cn(
+                          'flex justify-center whitespace-nowrap',
+                          isSelectColumn && 'w-14',
+                          bodyStyle[cell.column.id]
+                        )}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </div>
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))
           ) : (
