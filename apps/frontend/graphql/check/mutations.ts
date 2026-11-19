@@ -20,7 +20,6 @@ const CHECK_ASSIGNMENT_SUBMISSIONS = gql(`
       enableMerging
       minTokens
       useJplagClustering
-      assignmentId
       contestId
       workbookId
       createTime
