@@ -101,7 +101,9 @@
     "sql-formatter": "^15.6.6",
     "unzipper": "^0.12.3",
     "web-push": "^3.6.7",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@prisma/adapter-pg": "7.10.1",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
@@ -140,7 +142,8 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "@types/pg": "^8.20.0"
   },
   "prisma": {
     "seed": "swc-node prisma/seed.ts"
