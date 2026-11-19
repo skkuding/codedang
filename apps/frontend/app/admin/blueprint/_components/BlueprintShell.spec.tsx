@@ -14,6 +14,10 @@ import { BlueprintShell } from './BlueprintShell'
 
 afterEach(cleanup)
 
+vi.mock('@/public/icons/blueprint-create-back.svg', () => ({
+  default: () => null
+}))
+
 const information: BlueprintReadState<BlueprintCourseInformation> = {
   status: 'success',
   data: {
@@ -24,6 +28,38 @@ const information: BlueprintReadState<BlueprintCourseInformation> = {
 }
 
 describe('BlueprintShell', () => {
+  it.each(['assignment', 'exercise'] as const)(
+    'retains the %s creation header and scoped Back without list tabs',
+    (kind) => {
+      const listHref =
+        `/admin/blueprint/72/${kind}?cursor=60&take=2&page=3` as const
+      render(
+        <BlueprintShell
+          blueprintId={72}
+          kind={kind}
+          information={information}
+          creation
+          listHref={listHref}
+        >
+          <p>Creation content</p>
+        </BlueprintShell>
+      )
+      expect(
+        screen.getByRole('heading', { name: `CREATE ${kind.toUpperCase()}` })
+      ).toBeTruthy()
+      expect(
+        screen
+          .getByRole('link', {
+            name: `Back to ${kind === 'exercise' ? 'Exercises' : 'Assignments'}`
+          })
+          .getAttribute('href')
+      ).toBe(listHref)
+      expect(
+        screen.queryByRole('navigation', { name: 'Blueprint content' })
+      ).toBeNull()
+      expect(screen.getByText('Creation content')).toBeTruthy()
+    }
+  )
   it.each(['assignment', 'exercise'] as const)(
     'uses provided metadata and marks the active %s route, including detail views',
     (kind) => {

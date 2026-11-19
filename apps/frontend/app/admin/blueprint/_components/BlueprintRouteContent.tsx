@@ -4,7 +4,11 @@ import { Button } from '@/components/shadcn/button'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { blueprintKeys } from '../_libs/queries'
-import { blueprintDetailHref, blueprintListHref } from '../_libs/routes'
+import {
+  blueprintCreateHref,
+  blueprintDetailHref,
+  blueprintListHref
+} from '../_libs/routes'
 import { useBlueprintRead } from '../_libs/useBlueprintRead'
 import { BlueprintAssignmentDetail } from './BlueprintAssignmentDetail'
 import { BlueprintAssignmentList } from './BlueprintAssignmentList'
@@ -25,8 +29,16 @@ export function BlueprintListRoute() {
     source ? () => source.readAssignments(scope) : null
   )
   const router = useRouter()
+  const createHref = blueprintCreateHref(blueprintId, kind, location)
   if (state === null) {
-    return <BlueprintUnavailable />
+    return (
+      <div className="flex flex-col gap-6">
+        <Button asChild className="self-end">
+          <Link href={createHref}>Create</Link>
+        </Button>
+        <BlueprintUnavailable />
+      </div>
+    )
   }
   const page = state.status === 'success' ? state.data : null
   return (
@@ -38,6 +50,7 @@ export function BlueprintListRoute() {
           : state
       }
       viewState={viewState}
+      onCreate={() => router.push(createHref)}
       onOpenMaster={(id) =>
         router.push(blueprintDetailHref(blueprintId, kind, id, location))
       }

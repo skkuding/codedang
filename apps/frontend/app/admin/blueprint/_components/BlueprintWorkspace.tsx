@@ -5,6 +5,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { blueprintKeys } from '../_libs/queries'
 import {
   blueprintKind,
+  blueprintListHref,
   parseBlueprintId,
   blueprintListLocation,
   blueprintScope,
@@ -59,6 +60,8 @@ export function BlueprintWorkspace({
         blueprintId={blueprintId}
         kind={kind}
         information={information}
+        creation={pathname.endsWith('/create')}
+        listHref={blueprintListHref(blueprintId, kind, location)}
         detail={
           kind === 'assignment' &&
           parseBlueprintId(pathname.split('/')[5] ?? '') !== null
