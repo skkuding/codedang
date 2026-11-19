@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	_ "github.com/lib/pq"
+	pq "github.com/lib/pq"
 )
 
 type Postgres struct {
@@ -151,11 +151,13 @@ func (p *Postgres) GetRawBaseCode(problemId string, language string) (string, er
 	return "", nil
 }
 
-func (p *Postgres) GetAllCodesFromAssignment(problemId string, language string, assignmentId string) (string, []Element, error) {
-	rows, err := p.client.Query(`SELECT DISTINCT ON (user_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
-                               FROM public.submission
-                               WHERE problem_id = $1 AND language = $2 AND assignment_id = $3
-                               ORDER BY user_id, update_time DESC`, problemId, language, assignmentId)
+func (p *Postgres) GetAllCodesFromAssignments(problemId string, language string, assignmentId []string) (string, []Element, error) {
+	const query = `SELECT DISTINCT ON (user_id, assignment_id) id, user_id, COALESCE(to_jsonb(code), '[]'::jsonb), create_time
+                FROM public.submission
+                WHERE problem_id = $1 AND language = $2 AND assignment_id = ANY($3::INT4[])
+                ORDER BY user_id, assignment_id, update_time DESC;`
+
+	rows, err := p.client.Query(query, problemId, language, pq.Array(assignmentId))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to get data: %w", err)
 	}
