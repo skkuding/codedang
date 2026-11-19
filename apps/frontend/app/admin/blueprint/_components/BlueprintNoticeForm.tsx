@@ -2,23 +2,16 @@
 
 import { TextEditor } from '@/app/admin/_components/TextEditor'
 import { Button } from '@/components/shadcn/button'
-import { Checkbox } from '@/components/shadcn/checkbox'
 import { Input } from '@/components/shadcn/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/shadcn/table'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { getNoticePlainText } from '../_libs/noticeText'
 import type {
   BlueprintNoticeDraft,
   BlueprintNoticeOptions
 } from '../_libs/noticeTypes'
+import { validateBlueprintNoticeDraft } from '../_libs/noticeValidation'
 import { BlueprintNoticeConfirmation } from './BlueprintNoticeConfirmation'
+import { BlueprintNoticeSections } from './BlueprintNoticeSections'
 
 export type BlueprintNoticeFormSeed =
   | { mode: 'create'; options: BlueprintNoticeOptions }
@@ -66,44 +59,13 @@ export function BlueprintNoticeForm(props: Props) {
         original.sectionGroupIds.includes(section.groupId)
       )
     : options.sections
-  const selected = new Set(values.sectionGroupIds)
-  const selectedCount = rows.filter((section) =>
-    selected.has(section.groupId)
-  ).length
 
   function validate(draft: BlueprintNoticeDraft) {
-    const next: Record<string, string> = {}
-    if (!draft.title.trim() || draft.title.length > 35) {
-      next.title = 'Enter a title between 1 and 35 characters.'
-    }
-    const text = getNoticePlainText(draft.content)
-    if (!text.trim() || text.length > 400) {
-      next.content = 'Enter Main Text between 1 and 400 characters.'
-    }
-    if (
-      new Set(draft.sectionGroupIds).size !== draft.sectionGroupIds.length ||
-      draft.sectionGroupIds.some(
-        (groupId) =>
-          !options.sections.some((section) => section.groupId === groupId)
-      ) ||
-      (!editing && draft.sectionGroupIds.length === 0) ||
-      (editing &&
-        (draft.sectionGroupIds.length !== original.sectionGroupIds.length ||
-          draft.sectionGroupIds.some(
-            (groupId) => !original.sectionGroupIds.includes(groupId)
-          )))
-    ) {
-      next.sections = editing
-        ? 'Linked sections cannot change. Reload Notice information.'
-        : 'Select at least one available section.'
-    }
-    if (
-      editing &&
-      draft.title === original.title &&
-      draft.content === original.content
-    ) {
-      next.unchanged = 'No Notice changes to review.'
-    }
+    const next = validateBlueprintNoticeDraft(
+      draft,
+      options,
+      editing ? original : null
+    )
     setErrors(next)
     setMessage('')
     return Object.keys(next).length === 0
@@ -219,110 +181,16 @@ export function BlueprintNoticeForm(props: Props) {
             </p>
           )}
         </div>
-        <section aria-labelledby={`${id}-sections`} className="min-w-0">
-          <h3 id={`${id}-sections`} className="text-sub3_sb_16 mb-3">
-            Sections
-          </h3>
-          {editing && (
-            <p className="text-body2_m_14 mb-3 text-neutral-600">
-              Linked sections are fixed and cannot be reselected.
-            </p>
-          )}
-          {rows.length === 0 ? (
-            <p role="status">
-              {editing
-                ? 'No sections are currently linked.'
-                : 'No sections are available.'}
-            </p>
-          ) : (
-            <Table
-              aria-label={
-                editing ? 'Linked Notice sections' : 'Available Notice sections'
-              }
-              className="min-w-[600px] table-fixed"
-            >
-              <TableHeader className="border-b-0">
-                <TableRow>
-                  <TableHead className="w-20 p-0">
-                    <div className="text-body2_m_14 bg-color-neutral-99 flex h-[34px] items-center justify-center whitespace-nowrap rounded-full">
-                      {editing ? (
-                        'Linked'
-                      ) : (
-                        <Checkbox
-                          aria-label="Select all Notice sections"
-                          checked={
-                            rows.length === selectedCount ||
-                            (selectedCount > 0 && 'indeterminate')
-                          }
-                          onCheckedChange={(checked) =>
-                            setValues({
-                              ...values,
-                              sectionGroupIds: checked
-                                ? rows.map((section) => section.groupId)
-                                : []
-                            })
-                          }
-                        />
-                      )}
-                    </div>
-                  </TableHead>
-                  {['Number', 'Title', 'Semester', 'Members'].map((title) => (
-                    <TableHead key={title} className="p-0 pl-1">
-                      <div className="text-body2_m_14 bg-color-neutral-99 flex h-[34px] items-center justify-center rounded-full">
-                        {title}
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((section) => (
-                  <TableRow key={section.groupId}>
-                    <TableCell className="text-body2_m_14 whitespace-nowrap px-3 text-center">
-                      {editing ? (
-                        'Linked'
-                      ) : (
-                        <Checkbox
-                          aria-label={`Select Notice section ${section.sectionLabel}`}
-                          checked={selected.has(section.groupId)}
-                          onCheckedChange={(checked) =>
-                            setValues({
-                              ...values,
-                              sectionGroupIds: checked
-                                ? [...values.sectionGroupIds, section.groupId]
-                                : values.sectionGroupIds.filter(
-                                    (groupId) => groupId !== section.groupId
-                                  )
-                            })
-                          }
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-primary bg-color-blue-90 text-sub4_sb_14 rounded-full px-2.5 py-1">
-                        {section.sectionLabel}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-body2_m_14 break-words">
-                      {section.title}
-                    </TableCell>
-                    <TableCell className="text-body2_m_14 text-center">
-                      {section.semester ?? '-'}
-                    </TableCell>
-                    <TableCell className="text-body2_m_14 text-center">
-                      {section.memberCount ?? '-'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          {errors.sections && (
-            <p role="alert" className="text-error mt-2 text-sm">
-              {errors.sections}
-            </p>
-          )}
-        </section>
+        <BlueprintNoticeSections
+          id={`${id}-sections`}
+          editing={editing}
+          sections={rows}
+          selectedGroupIds={values.sectionGroupIds}
+          onChange={(sectionGroupIds) =>
+            setValues({ ...values, sectionGroupIds })
+          }
+          error={errors.sections}
+        />
       </fieldset>
       {!ready && (
         <p role="status">Reload Notice information before continuing.</p>

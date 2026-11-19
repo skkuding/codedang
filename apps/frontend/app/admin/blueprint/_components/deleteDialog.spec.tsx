@@ -17,6 +17,7 @@ import type {
 } from '../_libs/editTypes'
 import { blueprintKeys } from '../_libs/queries'
 import type { BlueprintReadResult } from '../_libs/types'
+import { deferred } from '../_test/deferred'
 import { BlueprintDeleteDialog } from './BlueprintDeleteDialog'
 
 const impact: BlueprintDeletionImpact = {
@@ -203,28 +204,23 @@ describe('Blueprint deletion confirmation', () => {
           data: impact
         })
       }
-      let finish = () => {}
-      const pending = new Promise<BlueprintReadResult<BlueprintDeletionImpact>>(
-        (resolve, reject) => {
-          finish =
-            outcome === 'blocked'
-              ? () =>
-                  resolve({
-                    status: 'success',
-                    data: { ...impact, deletable: false }
-                  })
-              : () => reject(new Error('Impact refresh failed'))
-        }
-      )
+      const pending = deferred<BlueprintReadResult<BlueprintDeletionImpact>>()
       const read = vi.fn((_: number, id: number) =>
         id === 191
-          ? pending
+          ? pending.promise
           : Promise.resolve({ status: 'success' as const, data: impact })
       )
       setup(read, false, client)
       await waitFor(() => expect(read).toHaveBeenCalledTimes(2))
       expect(confirm().disabled).toBe(true)
-      finish()
+      if (outcome === 'blocked') {
+        pending.resolve({
+          status: 'success',
+          data: { ...impact, deletable: false }
+        })
+      } else {
+        pending.reject(new Error('Impact refresh failed'))
+      }
       await screen.findByText(
         outcome === 'blocked'
           ? 'Deletion is not allowed for this original.'
@@ -240,17 +236,10 @@ describe('Blueprint deletion confirmation', () => {
   ])(
     'keeps a late response outside the current scope: %j',
     async ({ blueprintId, target }) => {
-      let finish:
-        | ((value: BlueprintReadResult<BlueprintDeletionImpact>) => void)
-        | undefined
-      const pending = new Promise<BlueprintReadResult<BlueprintDeletionImpact>>(
-        (resolve) => {
-          finish = resolve
-        }
-      )
+      const pending = deferred<BlueprintReadResult<BlueprintDeletionImpact>>()
       const read = vi.fn((blueprint: number, id: number) =>
         blueprint === 51 && id === 191
-          ? pending
+          ? pending.promise
           : Promise.resolve({
               status: 'success' as const,
               data: { ...impact, deletable: false }
@@ -261,8 +250,8 @@ describe('Blueprint deletion confirmation', () => {
       view.rerender([target], blueprintId)
       await screen.findByText('Deletion is not allowed for this original.')
       await act(async () => {
-        finish?.({ status: 'success', data: impact })
-        await pending
+        pending.resolve({ status: 'success', data: impact })
+        await pending.promise
       })
       await waitFor(() => expect(confirm().disabled).toBe(true))
       expect(screen.getAllByRole('region')).toHaveLength(1)

@@ -8,9 +8,9 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type {
   BlueprintAssignmentSummary,
-  BlueprintListScope,
   BlueprintReadState
 } from '../_libs/types'
+import { createTestListFixture } from '../_test/listFixtures'
 import { BlueprintAssignmentList } from './BlueprintAssignmentList'
 
 vi.mock('@/public/icons/arrow-bottom-thin.svg', () => ({
@@ -18,30 +18,9 @@ vi.mock('@/public/icons/arrow-bottom-thin.svg', () => ({
 }))
 vi.mock('@/public/icons/arrow-top.svg', () => ({ default: () => null }))
 
+const { rows, scope } = createTestListFixture('assignment')
 const assignments: readonly BlueprintAssignmentSummary[] = [
-  {
-    id: 10,
-    title: 'Alpha assignment',
-    week: 1,
-    isExercise: false,
-    assignment: [
-      {
-        id: 100,
-        groupId: 5,
-        sectionLabel: 'Section 01',
-        startTime: '2026-11-01T00:00:00Z',
-        dueTime: null,
-        endTime: '2026-11-08T00:00:00Z'
-      }
-    ]
-  },
-  {
-    id: 11,
-    title: 'Beta assignment',
-    week: 2,
-    isExercise: false,
-    assignment: []
-  },
+  ...rows,
   {
     id: 12,
     title: 'Practice exercise',
@@ -50,13 +29,6 @@ const assignments: readonly BlueprintAssignmentSummary[] = [
     assignment: null
   }
 ]
-
-const scope: BlueprintListScope = {
-  blueprintCourseId: 1,
-  isExercise: false,
-  cursor: null,
-  take: 10
-}
 
 function createProps() {
   return {

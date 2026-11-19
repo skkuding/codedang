@@ -23,6 +23,7 @@ import {
   createTestSchedule
 } from '../_test/createFixtures'
 import '../_test/createFormEnvironment'
+import { deferred } from '../_test/deferred'
 import '../_test/mockCreateIcons'
 import { BlueprintEditRoute } from './BlueprintEditRoute'
 import { BlueprintProblemCatalogProvider } from './BlueprintProblemCatalogBoundary'
@@ -342,24 +343,20 @@ describe('Blueprint editing read boundary', () => {
   })
 
   it('starts the next original without leaking the previous draft or delayed response', async () => {
-    let finish:
-      | ((
-          value: Awaited<ReturnType<BlueprintManagementSource['readEdit']>>
-        ) => void)
-      | undefined
+    const pending =
+      deferred<Awaited<ReturnType<BlueprintManagementSource['readEdit']>>>()
     const source = sourceFor(null)
     vi.mocked(source.readEdit).mockImplementation((_, id) =>
       id === 101
-        ? new Promise((resolve) => {
-            finish = resolve
-          })
+        ? pending.promise
         : Promise.resolve({ status: 'success', data: editData(id) })
     )
     const view = setup(source)
+    expect(source.readEdit).toHaveBeenCalledWith(51, 101)
     view.navigate(102)
     await screen.findByDisplayValue('Original 102')
     await act(() => {
-      finish?.({ status: 'success', data: editData() })
+      pending.resolve({ status: 'success', data: editData() })
     })
     expect(screen.queryByDisplayValue('Original 101')).toBeNull()
     expect(screen.getByLabelText<HTMLInputElement>(/Title/).value).toBe(

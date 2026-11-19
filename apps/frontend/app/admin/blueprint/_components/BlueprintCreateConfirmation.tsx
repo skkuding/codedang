@@ -177,21 +177,12 @@ export function BlueprintCreateConfirmation({
                 >
                   <BulletIcon aria-hidden="true" className="shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p>
-                      {options.sections.find(
-                        (item) => item.groupId === section.groupId
-                      )?.sectionLabel ?? String(section.groupId)}
-                    </p>
+                    <p>{sectionLabel(section.groupId)}</p>
                     <p className="border-line mt-2 rounded-lg border bg-white px-3 py-2">
                       {section.startTime.replace('T', ' ')} →{' '}
                       {section.endTime.replace('T', ' ')} (Asia/Seoul)
                     </p>
-                    <p className="mt-1">
-                      Due:{' '}
-                      {section.dueTime
-                        ? section.dueTime.replace('T', ' ')
-                        : 'None'}
-                    </p>
+                    <p className="mt-1">Due: {displayTime(section.dueTime)}</p>
                   </div>
                 </li>
               ))}
