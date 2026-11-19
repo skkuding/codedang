@@ -2410,6 +2410,8 @@ type Mutation {
   updateWorkbookProblemsOrder(groupId: Int!, orders: [Int!]!, workbookId: Int!): [WorkbookProblem!]!
   uploadFile(input: UploadFileInput!): FileSource!
   uploadImage(input: UploadFileInput!): FileSource!
+  uploadProblemFile(input: UploadFileInput!): ProblemAttachmentUpload!
+  uploadProblemImage(input: UploadFileInput!): ProblemAttachmentUpload!
   uploadProblems(input: UploadFileInput!): [ProblemWithIsVisible!]!
   uploadTestcase(input: UploadFileInput!, problemId: Int!): ProblemTestcase!
   uploadTestcaseZip(input: UploadTestcaseZipInput!): [ProblemTestcaseId!]!
@@ -3124,6 +3126,11 @@ type Problem {
   updateTime: DateTime!
   visibleLockTime: DateTime!
   workbookProblem: [WorkbookProblem!]
+}
+
+"""problem attachment upload result"""
+type ProblemAttachmentUpload {
+  attachmentId: String!
 }
 
 type ProblemAvgAggregate {
