@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { describe, expect, it } from 'vitest'
+import { blueprintNoticeKeys } from './noticeQueries'
 import { blueprintKeys } from './queries'
 
 describe('Blueprint read cache scope', () => {
@@ -46,5 +47,33 @@ describe('Blueprint read cache scope', () => {
     expect(client.getQueryState(blueprintKey)?.isInvalidated).toBe(true)
     expect(client.getQueryState(otherBlueprintKey)?.isInvalidated).toBe(false)
     expect(client.getQueryState(courseKey)?.isInvalidated).toBe(false)
+  })
+
+  it('isolates Notice pages, options and edit data from Assignment/Exercise caches', () => {
+    const client = new QueryClient()
+    const scope = {
+      kind: 'notice' as const,
+      blueprintCourseId: 42,
+      cursor: null,
+      take: 10,
+      page: 1
+    }
+    client.setQueryData(blueprintNoticeKeys.list(scope), ['notice'])
+    client.setQueryData(blueprintNoticeKeys.detail(42, 10), { title: 'notice' })
+    const otherKeys = [
+      blueprintNoticeKeys.list({ ...scope, blueprintCourseId: 43 }),
+      blueprintNoticeKeys.list({ ...scope, cursor: 10, page: 2 }),
+      blueprintNoticeKeys.list({ ...scope, take: 20 }),
+      blueprintNoticeKeys.options(42),
+      blueprintNoticeKeys.detail(43, 10),
+      blueprintKeys.assignment(42, 10),
+      ...[false, true].map((isExercise) =>
+        blueprintKeys.assignments({ ...scope, isExercise })
+      )
+    ]
+    for (const key of otherKeys) {
+      expect(client.getQueryData(key)).toBeUndefined()
+    }
+    client.clear()
   })
 })

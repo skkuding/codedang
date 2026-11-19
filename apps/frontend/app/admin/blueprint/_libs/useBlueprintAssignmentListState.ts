@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import type { BlueprintNoticeScope } from './noticeTypes'
 import type {
   BlueprintListScope,
   BlueprintListStateController,
@@ -14,9 +15,10 @@ const emptyState: BlueprintListViewState = {
 }
 
 export function useBlueprintAssignmentListState(
-  scope: BlueprintListScope
+  scope: BlueprintListScope | BlueprintNoticeScope
 ): BlueprintListStateController {
-  const key = `${scope.blueprintCourseId}:${scope.isExercise}:${scope.cursor}:${scope.take}:${scope.page ?? 1}`
+  const kind = 'kind' in scope ? scope.kind : scope.isExercise
+  const key = `${scope.blueprintCourseId}:${kind}:${scope.cursor}:${scope.take}:${scope.page ?? 1}`
   const [stored, setStored] = useState({ key, value: emptyState })
 
   useEffect(() => {
