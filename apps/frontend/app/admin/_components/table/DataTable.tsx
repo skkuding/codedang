@@ -207,15 +207,23 @@ export function DataTable<TData extends { id: number }, TRoute extends string>({
                         bodyStyleMap[size],
                         isSelectColumn
                           ? 'w-[1%] whitespace-nowrap p-0'
-                          : 'md:p-4'
+                          : 'md:p-4',
+                        cell.column.id === 'code' && 'md:pl-0'
                       )}
                     >
                       <div
                         className={cn(
-                          'flex justify-center whitespace-nowrap',
+                          'relative flex justify-center whitespace-nowrap',
                           isSelectColumn && 'w-14',
-                          bodyStyle[cell.column.id]
+                          bodyStyle[cell.column.id],
+                          cell.column.id === 'code' && 'justify-start'
                         )}
+                        style={{
+                          paddingLeft:
+                            cell.column.id === 'select'
+                              ? `${row.depth * 38}px`
+                              : `${row.depth * 19}px`
+                        }}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
