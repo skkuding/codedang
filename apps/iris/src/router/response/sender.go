@@ -77,12 +77,12 @@ func newEncoder(path constants.MessageType, messageID string, data []byte) (enco
 func (s *Sender) Send(result taskresult.Message, messageType ...constants.MessageType) bool {
 	typeName := s.responseType(messageType...)
 	if result.EncodedResponse != nil {
-		return s.deliver(Response{Message: result.EncodedResponse, Type: typeName})
+		return s.deliver(Response{Message: result.EncodedResponse, Type: string(typeName)})
 	}
 
 	data, err := s.encoder.Marshal(result.Result, result.Err)
 	if err == nil {
-		return s.deliver(Response{Message: data, Type: typeName})
+		return s.deliver(Response{Message: data, Type: string(typeName)})
 	}
 
 	s.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal response for path %s with id %s: %v", s.path, s.messageID, err))
@@ -91,7 +91,7 @@ func (s *Sender) Send(result taskresult.Message, messageType ...constants.Messag
 		s.logger.Log(logger.ERROR, fmt.Sprintf("failed to marshal fallback response for path %s with id %s: %v", s.path, s.messageID, fallbackErr))
 		return false
 	}
-	return s.deliver(Response{Message: fallback, Type: typeName})
+	return s.deliver(Response{Message: fallback, Type: string(typeName)})
 }
 
 func (s *Sender) responseType(messageType ...constants.MessageType) constants.MessageType {

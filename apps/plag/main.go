@@ -9,8 +9,7 @@ import (
 	"github.com/joho/godotenv"
 
 	instrumentation "github.com/skkuding/codedang/apps/plag/src"
-	"github.com/skkuding/codedang/apps/plag/src/connector"
-	"github.com/skkuding/codedang/apps/plag/src/connector/rabbitmq"
+	"github.com/skkuding/codedang/apps/plag/src/connector/mq"
 	"github.com/skkuding/codedang/apps/plag/src/handler"
 	"github.com/skkuding/codedang/apps/plag/src/loader"
 	"github.com/skkuding/codedang/apps/plag/src/router"
@@ -45,7 +44,6 @@ func main() {
 
 	env := Env(utils.Getenv("APP_ENV", "stage"))
 	logProvider := logger.NewLogger(logger.Console, env == Production)
-
 	ctx := context.Background()
 	if env == "stage" {
 		logProvider.Log(logger.INFO, "Running in stage mode")
@@ -96,36 +94,8 @@ func main() {
 
 	logProvider.Log(logger.INFO, "Server Started")
 
-	// amqps://skku:1234@broker-id.mq.us-west-2.amazonaws.com:5671
-	var uri string
-	if utils.Getenv("RABBITMQ_SSL", "") == "true" {
-		uri = "amqps://"
-	} else {
-		uri = "amqp://"
-	}
-	uri +=
-		utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_USER", logProvider) + ":" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_PASS", logProvider) + "@" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_HOST", logProvider) + ":" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_PORT", logProvider) + "/" +
-			utils.MustGetenvOrElseThrow("RABBITMQ_DEFAULT_VHOST", logProvider)
-
-	go connector.Factory(
-		connector.RABBIT_MQ,
-		connector.Providers{Router: routeProvider, Logger: logProvider},
-		rabbitmq.ConsumerConfig{
-			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("CHECK_CONSUMER_CONNECTION_NAME", logProvider),
-			QueueName:      utils.MustGetenvOrElseThrow("CHECK_QUEUE_NAME", logProvider), // 큐 네임 설정
-			Ctag:           utils.MustGetenvOrElseThrow("CHECK_TAG", logProvider),
-		},
-		rabbitmq.ProducerConfig{
-			AmqpURI:        uri,
-			ConnectionName: utils.MustGetenvOrElseThrow("CHECK_PRODUCER_CONNECTION_NAME", logProvider),
-			ExchangeName:   utils.MustGetenvOrElseThrow("CHECK_EXCHANGE_NAME", logProvider),
-			RoutingKey:     utils.MustGetenvOrElseThrow("CHECK_RESULT_ROUTING_KEY", logProvider),
-		},
-	).Connect(context.Background())
+	mqConnector := mq.NewConnector(routeProvider, logProvider)
+	go mqConnector.Connect(ctx)
 
 	select {}
 }

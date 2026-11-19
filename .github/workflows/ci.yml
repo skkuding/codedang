@@ -84,10 +84,12 @@ jobs:
               - 'apps/backend/**'
               - 'pnpm-lock.yaml'
             iris:
+              - 'packages/go/common/**'
               - *ci_workflow_path
               - 'codecov.yml'
               - 'apps/iris/**'
             plag:
+              - 'packages/go/common/**'
               - *ci_workflow_path
               - 'apps/plag/**'
             runner_backend:
@@ -97,12 +99,14 @@ jobs:
               - *ci_workflow_path
               - 'apps/runner/pod-manager/**'
             go_lint:
+              - 'packages/go/common/**'
               - *ci_workflow_path
               - 'apps/iris/**'
               - 'apps/plag/**'
               - 'apps/runner/backend/**'
               - 'apps/runner/pod-manager/**'
             go_toolchain:
+              - 'packages/go/common/**'
               - *ci_workflow_path
               - 'apps/iris/**'
               - 'apps/plag/**'
@@ -265,11 +269,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/iris/go.mod
-          cache-dependency-path: apps/iris/go.sum
+          cache-dependency-path: |
+            apps/iris/go.sum
+            packages/go/common/go.sum
 
       - name: Check Style (Go)
         run: |
-          if [ -n "$(gofmt -l apps/iris apps/plag apps/runner/backend apps/runner/pod-manager)" ]; then
+          if [ -n "$(gofmt -l packages/go/common apps/iris apps/plag apps/runner/backend apps/runner/pod-manager)" ]; then
             echo "Go files must be formatted with gofmt. Please run:"
             echo "  go fmt ./..."
             exit 1
@@ -434,7 +440,27 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/iris/go.mod
-          cache-dependency-path: apps/iris/go.sum
+          cache-dependency-path: |
+            apps/iris/go.sum
+            packages/go/common/go.sum
+
+      - name: Vet shared Go packages
+        run: go vet ./...
+        working-directory: ./packages/go/common
+
+      - name: Test shared Go packages with coverage
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
+        working-directory: ./packages/go/common
+
+      - name: Upload shared Go coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: packages/go/common/coverage.out
+          flags: common
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
 
       - name: Vet (Go)
         run: go vet ./...
@@ -459,6 +485,9 @@ jobs:
     needs: detect-changes
     if: needs['detect-changes'].outputs.plag == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v7
@@ -467,15 +496,27 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: apps/plag/go.mod
-          cache-dependency-path: apps/plag/go.sum
+          cache-dependency-path: |
+            apps/plag/go.sum
+            packages/go/common/go.sum
 
       - name: Vet (Go)
         run: go vet ./...
         working-directory: ./apps/plag
 
       - name: Test (Go)
-        run: go test ./...
+        run: go test -covermode=atomic -coverprofile=coverage.out ./...
         working-directory: ./apps/plag
+
+      - name: Upload Plag coverage to Codecov
+        if: github.event_name != 'merge_group'
+        uses: codecov/codecov-action@v7
+        with:
+          files: apps/plag/coverage.out
+          flags: plag
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
 
   test-runner-backend:
     name: Test Runner Backend

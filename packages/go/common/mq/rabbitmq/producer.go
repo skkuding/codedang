@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	commonlogger "github.com/skkuding/codedang/packages/go/common/logger"
+
 	amqp "github.com/rabbitmq/amqp091-go"
-	instrumentation "github.com/skkuding/codedang/apps/iris/src"
-	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
@@ -26,7 +26,7 @@ type producer struct {
 	routingKey   string
 	Done         chan error
 	publishes    chan uint64
-	logger       logger.Logger
+	logger       commonlogger.Logger
 }
 
 type ProducerConfig struct {
@@ -34,12 +34,13 @@ type ProducerConfig struct {
 	ConnectionName string
 	ExchangeName   string
 	RoutingKey     string
+	TLS            TLSConfig
 }
 
-func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
+func NewProducer(config ProducerConfig, logger commonlogger.Logger) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	amqpConfig, err := newAMQPConfig(config.ConnectionName, config.TLS)
 	if err != nil {
 		return nil, fmt.Errorf("producer: TLS config failed: %w", err)
 	}
@@ -84,18 +85,18 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 	for {
 		select {
 		case <-p.Done:
-			p.logger.Log(logger.INFO, "confirmHandler is stopping")
+			p.logger.Log(commonlogger.INFO, "confirmHandler is stopping")
 			return
 		case publishSeqNo := <-p.publishes:
 			// log.Printf("waiting for confirmation of %d", publishSeqNo)
 			m[publishSeqNo] = false
 		case confirmed := <-confirms:
-			p.logger.Log(logger.DEBUG, fmt.Sprintf("tag : %d", confirmed.DeliveryTag))
+			p.logger.Log(commonlogger.DEBUG, fmt.Sprintf("tag : %d", confirmed.DeliveryTag))
 			if confirmed.DeliveryTag > 0 {
 				if confirmed.Ack {
-					p.logger.Log(logger.DEBUG, fmt.Sprintf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag))
+					p.logger.Log(commonlogger.DEBUG, fmt.Sprintf("confirmed delivery with delivery tag: %d", confirmed.DeliveryTag))
 				} else {
-					p.logger.Log(logger.ERROR, fmt.Sprintf("failed delivery of delivery tag: %d", confirmed.DeliveryTag))
+					p.logger.Log(commonlogger.ERROR, fmt.Sprintf("failed delivery of delivery tag: %d", confirmed.DeliveryTag))
 				}
 				delete(m, confirmed.DeliveryTag)
 			} else {
@@ -110,15 +111,15 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	tracer := otel.Tracer("Producer")
 	spanCtx, childSpan := tracer.Start(
 		ctx,
-		instrumentation.GetSemanticSpanName("producer", "publish"),
+		"producer:publish",
 		trace.WithLinks(trace.Link{SpanContext: span.SpanContext()}),
 		trace.WithSpanKind(trace.SpanKindProducer),
 	)
 	defer childSpan.End()
 
 	seqNo := p.channel.GetNextPublishSeqNo()
-	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
-	p.logger.Log(logger.INFO, string(result))
+	p.logger.Log(commonlogger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
+	p.logger.Log(commonlogger.INFO, string(result))
 
 	carrier := propagation.HeaderCarrier(http.Header{})
 	otel.GetTextMapPropagator().Inject(spanCtx, carrier)
@@ -144,7 +145,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 		return fmt.Errorf("exchange publish: %s", err)
 	}
 
-	p.logger.Log(logger.DEBUG, fmt.Sprintf("published %dB OK", len(result)))
+	p.logger.Log(commonlogger.DEBUG, fmt.Sprintf("published %dB OK", len(result)))
 	p.publishes <- seqNo
 	return nil
 }

@@ -3,8 +3,9 @@ package rabbitmq
 import (
 	"fmt"
 
+	commonlogger "github.com/skkuding/codedang/packages/go/common/logger"
+
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
 type Consumer interface {
@@ -20,7 +21,7 @@ type consumer struct {
 	queueName  string
 	tag        string
 	Done       chan error
-	logger     logger.Logger
+	logger     commonlogger.Logger
 }
 
 type ConsumerConfig struct {
@@ -28,12 +29,13 @@ type ConsumerConfig struct {
 	ConnectionName string
 	QueueName      string
 	Ctag           string
+	TLS            TLSConfig
 }
 
-func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error) {
+func NewConsumer(config ConsumerConfig, logger commonlogger.Logger) (*consumer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	amqpConfig, err := newAMQPConfig(config.ConnectionName, config.TLS)
 	if err != nil {
 		return nil, fmt.Errorf("consumer: TLS config failed: %w", err)
 	}
@@ -90,7 +92,7 @@ func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
 
 func (c *consumer) CleanUp() error {
 
-	c.logger.Log(logger.DEBUG, "consumer clean up")
+	c.logger.Log(commonlogger.DEBUG, "consumer clean up")
 	// Close channel
 	if err := c.channel.Cancel(c.tag, true); err != nil {
 		return fmt.Errorf("Consumer cancel failed: %w", err)
@@ -100,7 +102,7 @@ func (c *consumer) CleanUp() error {
 	if err := c.connection.Close(); err != nil {
 		return fmt.Errorf("AMQP connection close error: %s", err)
 	}
-	defer c.logger.Log(logger.INFO, "RabbitMQ connection clear done")
+	defer c.logger.Log(commonlogger.INFO, "RabbitMQ connection clear done")
 
 	// wait for handle() to exit
 	return <-c.Done

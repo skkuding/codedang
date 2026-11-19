@@ -1,4 +1,4 @@
-package router
+package response
 
 import (
 	"bytes"
@@ -9,14 +9,14 @@ import (
 	"github.com/skkuding/codedang/apps/plag/src/handler"
 )
 
-type Response struct {
+type CheckResponse struct {
 	CheckId         int                `json:"checkId"`
 	CheckResultCode handler.ResultCode `json:"resultCode"`
 	CheckResult     json.RawMessage    `json:"checkResult"`
 	Error           string             `json:"error"`
 }
 
-func NewResponse(id string, result json.RawMessage, err error) *Response {
+func NewCheckResponse(id string, result json.RawMessage, err error) *CheckResponse {
 	resultCode := handler.CHECKED
 	errMessage := ""
 
@@ -30,7 +30,7 @@ func NewResponse(id string, result json.RawMessage, err error) *Response {
 	}
 
 	_id, _ := strconv.Atoi(id)
-	return &Response{
+	return &CheckResponse{
 		CheckId:         _id,
 		CheckResultCode: resultCode,
 		CheckResult:     result,
@@ -47,7 +47,7 @@ func JSONMarshal(t interface{}) ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-func (r *Response) Marshal() []byte {
+func (r *CheckResponse) Marshal() []byte {
 
 	if res, err := JSONMarshal(r); err != nil {
 		// Error on marshaling router response means that

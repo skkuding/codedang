@@ -11,9 +11,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.33
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.84.1
 	github.com/lib/pq v1.10.9
-	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/skkuding/codedang/iris v0.0.0-20240305172235-94f43878c03d
+	github.com/skkuding/codedang/packages/go/common v0.0.0
 	go.opentelemetry.io/contrib/bridges/otelzap v0.12.0
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.13.0
@@ -27,6 +28,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.37.0
 	go.uber.org/zap v1.27.0
 )
+
+replace github.com/skkuding/codedang/packages/go/common => ../../packages/go/common
 
 require (
 	github.com/joho/godotenv v1.5.1
