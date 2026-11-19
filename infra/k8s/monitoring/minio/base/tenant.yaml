@@ -8,6 +8,10 @@ metadata:
   labels:
     app: minio
 spec:
+  # MinIO no longer publishes server images, so the operator's default minio/minio image can no
+  # longer be pulled. Run PGSTY Silo (MinIO fork, drop-in compatible) RELEASE.2026-08-06T00-00-00Z,
+  # the same digest as stage's silo-shadow (infra/k8s/minio/silo-statefulset.yaml).
+  image: docker.io/pgsty/silo@sha256:29a498b24669cae1fed11c1a2fb2b3d73c68829a0a9c0b14e71b386671d38fac
   features:
     bucketDNS: false # use path-style access to be compatible with Loki/Tempo/Pyroscope S3 config
   users:
