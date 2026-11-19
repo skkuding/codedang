@@ -1,7 +1,10 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { BlueprintCourseService } from './blueprint-course.service'
-import { BlueprintCourseInput } from './model/blueprint-course.input'
+import {
+  BlueprintCourseInput,
+  UpdateBlueprintCourseInput
+} from './model/blueprint-course.input'
 import {
   BlueprintCourseDetailOutput,
   BlueprintCourseListItemOutput,
@@ -51,6 +54,27 @@ export class BlueprintCourseResolver {
   ) {
     return await this.blueprintCourseService.getBlueprintCourse(
       blueprintCourseId,
+      req.user
+    )
+  }
+
+  /**
+   * Blueprint 강좌를 수정하고 공통 필드를 모든 Section에 반영합니다.
+   * 인가는 서비스의 Blueprint leader 검사가 담당합니다.
+   *
+   * @return the updated Blueprint course.
+   */
+  @Mutation(() => BlueprintCourseOutput)
+  @UseDisableAdminGuard()
+  async updateBlueprintCourse(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintCourseId', { type: () => Int })
+    blueprintCourseId: number,
+    @Args('input') input: UpdateBlueprintCourseInput
+  ) {
+    return await this.blueprintCourseService.updateBlueprintCourse(
+      blueprintCourseId,
+      input,
       req.user
     )
   }

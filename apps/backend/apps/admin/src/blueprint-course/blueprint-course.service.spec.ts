@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
 import { Role } from '@prisma/client'
 import { expect } from 'chai'
@@ -12,7 +13,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from './blueprint-access.service'
 import { BlueprintCourseService } from './blueprint-course.service'
-import { BlueprintCourseInput } from './model/blueprint-course.input'
+import {
+  BlueprintCourseInput,
+  UpdateBlueprintCourseInput
+} from './model/blueprint-course.input'
 
 const userId = 1
 const user = new AuthenticatedUser(userId, 'professor', Role.User)
@@ -44,8 +48,16 @@ const db = {
   blueprintCourse: {
     create: stub(),
     findMany: stub(),
-    findUnique: stub()
-  }
+    findUnique: stub(),
+    update: stub()
+  },
+  courseInfo: {
+    updateMany: stub()
+  },
+  // batch transaction: 전달된 쿼리를 순서대로 실행한 결과를 돌려줍니다.
+  $transaction: stub().callsFake((queries: Promise<unknown>[]) =>
+    Promise.all(queries)
+  )
 }
 
 describe('BlueprintCourseService', () => {
@@ -68,6 +80,9 @@ describe('BlueprintCourseService', () => {
     db.blueprintCourse.create.reset()
     db.blueprintCourse.findMany.reset()
     db.blueprintCourse.findUnique.reset()
+    db.blueprintCourse.update.reset()
+    db.courseInfo.updateMany.reset()
+    db.$transaction.resetHistory()
   })
 
   it('should be defined', () => {
@@ -301,6 +316,212 @@ describe('BlueprintCourseService', () => {
     })
   })
 
+  describe('updateBlueprintCourse', () => {
+    const blueprintCourseId = 7
+    const leaderAccess = { createdById: userId, courseInfo: [] }
+    const updated = { ...createdBlueprintCourse, id: blueprintCourseId }
+
+    const allowLeader = () => {
+      db.blueprintCourse.findUnique.resolves(leaderAccess)
+      db.blueprintCourse.update.resolves(updated)
+      db.courseInfo.updateMany.resolves({ count: 2 })
+    }
+
+    const expectNoWrite = () => {
+      expect(db.blueprintCourse.update.called).to.be.false
+      expect(db.courseInfo.updateMany.called).to.be.false
+      expect(db.$transaction.called).to.be.false
+    }
+
+    for (const [name, emptyInput] of [
+      ['an empty object', {}],
+      ['only omitted fields', { courseTitle: undefined, email: undefined }]
+    ] as const) {
+      it(`should reject ${name} before checking access or writing`, async () => {
+        allowLeader()
+
+        await expect(
+          service.updateBlueprintCourse(
+            blueprintCourseId,
+            emptyInput as UpdateBlueprintCourseInput,
+            user
+          )
+        ).to.be.rejectedWith(BadRequestException)
+        expect(db.blueprintCourse.findUnique.called).to.be.false
+        expectNoWrite()
+      })
+    }
+
+    it('should throw ForbiddenAccessException and not write for a non-leader', async () => {
+      db.blueprintCourse.findUnique.resolves({
+        createdById: 99,
+        courseInfo: []
+      })
+
+      await expect(
+        service.updateBlueprintCourse(
+          blueprintCourseId,
+          { semester: '2027 Spring' },
+          user
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expectNoWrite()
+    })
+
+    it('should throw EntityNotExistException and not write for a missing blueprint', async () => {
+      db.blueprintCourse.findUnique.resolves(null)
+
+      await expect(
+        service.updateBlueprintCourse(
+          blueprintCourseId,
+          { semester: '2027 Spring' },
+          user
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+      expectNoWrite()
+    })
+
+    it('should update the blueprint and all sections with the same provided common fields in one transaction', async () => {
+      allowLeader()
+
+      const res = await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { semester: '2027 Spring', week: 15, professor: '이교수' },
+        user
+      )
+
+      const data = { semester: '2027 Spring', week: 15, professor: '이교수' }
+      expect(res).to.equal(updated)
+      expect(db.$transaction.calledOnce).to.be.true
+      expect(db.$transaction.firstCall.args[0]).to.have.length(2)
+      expect(db.blueprintCourse.update.firstCall.args[0]).to.deep.equal({
+        where: { id: blueprintCourseId },
+        data
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0]).to.deep.equal({
+        where: { blueprintCourseId },
+        data
+      })
+    })
+
+    it('should update the blueprint before the sections', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { courseNum: 'SWE3003' },
+        user
+      )
+
+      expect(db.blueprintCourse.update.calledBefore(db.courseInfo.updateMany))
+        .to.be.true
+    })
+
+    it('should save courseTitle only on the blueprint without touching sections', async () => {
+      allowLeader()
+
+      const res = await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { courseTitle: '새 강좌명' },
+        user
+      )
+
+      expect(res).to.equal(updated)
+      expect(db.blueprintCourse.update.firstCall.args[0]).to.deep.equal({
+        where: { id: blueprintCourseId },
+        data: { courseTitle: '새 강좌명' }
+      })
+      expect(db.courseInfo.updateMany.called).to.be.false
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('should keep courseTitle out of the section update', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { courseTitle: '새 강좌명', semester: '2027 Spring' },
+        user
+      )
+
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal({
+        courseTitle: '새 강좌명',
+        semester: '2027 Spring'
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal({
+        semester: '2027 Spring'
+      })
+    })
+
+    it('should keep null to delete optional fields and drop omitted fields', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { email: null, website: undefined, phoneNum: '010-0000-0000' },
+        user
+      )
+
+      const data = { email: null, phoneNum: '010-0000-0000' }
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal(
+        data
+      )
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal(
+        data
+      )
+    })
+
+    it('should sync every common field and allow values equal to the current ones', async () => {
+      allowLeader()
+      const { courseTitle, ...common } = input
+
+      await service.updateBlueprintCourse(blueprintCourseId, input, user)
+
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal({
+        courseTitle,
+        ...common
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal(
+        common
+      )
+    })
+
+    it('should ignore section-only fields that are not part of the input type', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        {
+          semester: '2027 Spring',
+          classNum: 3,
+          groupName: 'x',
+          config: {}
+        } as UpdateBlueprintCourseInput,
+        user
+      )
+
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal({
+        semester: '2027 Spring'
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal({
+        semester: '2027 Spring'
+      })
+    })
+
+    it('should propagate a transaction failure', async () => {
+      allowLeader()
+      db.courseInfo.updateMany.rejects(new Error('section update failed'))
+
+      await expect(
+        service.updateBlueprintCourse(
+          blueprintCourseId,
+          { semester: '2027 Spring' },
+          user
+        )
+      ).to.be.rejectedWith('section update failed')
+    })
+  })
+
   describe('createBlueprintCourse', () => {
     it('should create blueprint course with requester as creator', async () => {
       db.user.findUnique.resolves({ canCreateCourse: true })
@@ -399,4 +620,72 @@ describe('BlueprintCourseInput', () => {
 
     expect(errors.map((error) => error.property)).to.deep.equal(['week'])
   })
+})
+
+describe('UpdateBlueprintCourseInput', () => {
+  const validateInput = (value: object) =>
+    validate(plainToInstance(UpdateBlueprintCourseInput, value))
+  const failedProperties = async (value: object) =>
+    (await validateInput(value)).map((error) => error.property)
+
+  it('should pass an empty object (rejected later by the service)', async () => {
+    expect(await validateInput({})).to.be.empty
+  })
+
+  it('should pass when every field is provided', async () => {
+    expect(await validateInput(input)).to.be.empty
+  })
+
+  for (const field of [
+    'courseTitle',
+    'courseNum',
+    'semester',
+    'professor'
+  ] as const) {
+    it(`should pass when only ${field} is provided`, async () => {
+      expect(await validateInput({ [field]: input[field] })).to.be.empty
+    })
+
+    for (const invalid of [null, '', '   ', '\t', '\n ']) {
+      it(`should reject ${field} = ${JSON.stringify(invalid)}`, async () => {
+        expect(await failedProperties({ [field]: invalid })).to.deep.equal([
+          field
+        ])
+      })
+    }
+
+    it(`should keep surrounding spaces in ${field}`, async () => {
+      const value = `  ${input[field]}  `
+      const instance = plainToInstance(UpdateBlueprintCourseInput, {
+        [field]: value
+      })
+
+      expect(await validate(instance)).to.be.empty
+      expect(instance[field]).to.equal(value)
+    })
+  }
+
+  for (const invalid of [null, 0, -1, 1.5, '16']) {
+    it(`should reject week = ${JSON.stringify(invalid)}`, async () => {
+      expect(await failedProperties({ week: invalid })).to.deep.equal(['week'])
+    })
+  }
+
+  it('should pass week = 1', async () => {
+    expect(await validateInput({ week: 1 })).to.be.empty
+  })
+
+  for (const field of ['email', 'website', 'office', 'phoneNum'] as const) {
+    it(`should allow null to delete ${field}`, async () => {
+      expect(await validateInput({ [field]: null })).to.be.empty
+    })
+
+    for (const invalid of ['', '   ', '\t']) {
+      it(`should reject ${field} = ${JSON.stringify(invalid)}`, async () => {
+        expect(await failedProperties({ [field]: invalid })).to.deep.equal([
+          field
+        ])
+      })
+    }
+  }
 })

@@ -1,0 +1,35 @@
+meta {
+  name: Update Blueprint Course - Invalid Input
+  type: graphql
+  seq: 10
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateBlueprintCourse(
+      blueprintCourseId: 1
+      input: { courseTitle: null, semester: "   ", email: "" }
+    ) { id }
+  }
+}
+
+tests {
+  test("Rejects null, blank and empty values", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("BAD_REQUEST");
+    expect(body.data).to.equal(null);
+  });
+}
+
+docs {
+  Required fields reject null, empty and whitespace-only strings.
+  Optional fields accept null (clear) but reject empty and whitespace-only strings.
+}

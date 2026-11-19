@@ -1,0 +1,51 @@
+meta {
+  name: Update Blueprint Course
+  type: graphql
+  seq: 7
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateBlueprintCourse(
+      blueprintCourseId: {{blueprintCourseId}}
+      input: { semester: "2027 Spring", professor: "Bruno Professor", email: null }
+    ) {
+      id courseTitle courseNum semester week professor
+      email website office phoneNum createdById createTime updateTime
+    }
+  }
+}
+
+script:pre-request {
+  const id = Number(bru.getEnvVar("blueprintCourseId") || bru.getVar("blueprintCourseId"));
+  if (!Number.isInteger(id) || id < 1) {
+    throw new Error("Run Get Blueprint Courses with an accessible Blueprint or set blueprintCourseId.");
+  }
+  bru.setVar("blueprintCourseId", id);
+}
+
+tests {
+  test("Updates only the provided fields", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const course = body.data.updateBlueprintCourse;
+    expect(Number(course.id)).to.equal(Number(bru.getVar("blueprintCourseId")));
+    expect(course.semester).to.equal("2027 Spring");
+    expect(course.professor).to.equal("Bruno Professor");
+    expect(course.email).to.equal(null);
+    expect(course.courseTitle).to.be.a("string");
+  });
+}
+
+docs {
+  Updates common fields of an accessible Blueprint as the seeded instructor.
+  semester and professor are synced to every section; email null clears the value.
+  Run "Update Blueprint Course - Sections Synced" next to check the sections.
+}
