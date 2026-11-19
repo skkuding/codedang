@@ -14,6 +14,15 @@ generator graphql {
   // emitCompiled       = true
   emitSingle         = true
   reExport           = Single
+
+  // Problem.files 관계로 생기는 ProblemCount.files를 GraphQL에서 숨긴다.
+  // Count 타입에는 필드 주석(@HideField)이 적용되지 않아 decorate로 처리한다.
+  // output 타입의 decorate_*_type은 클래스명이 아닌 필드 타입(Int)과 매칭된다.
+  decorate_hideProblemCountFiles_type      = "Int"
+  decorate_hideProblemCountFiles_field     = "files"
+  decorate_hideProblemCountFiles_name      = "HideField"
+  decorate_hideProblemCountFiles_from      = "@nestjs/graphql"
+  decorate_hideProblemCountFiles_arguments = "[]"
 }
 
 datasource db {
@@ -307,6 +316,9 @@ model Problem {
 
   CheckRequest CheckRequest[]
 
+  /// @HideField()
+  files File[]
+
   @@map("problem")
 }
 
@@ -332,12 +344,27 @@ model UpdateHistory {
 }
 
 model File {
-  filename    String   @id @unique
-  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  filename    String     @id @unique
+  createdBy   User?      @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById Int?
-  createTime  DateTime @default(now()) @map("create_time")
+  createTime  DateTime   @default(now()) @map("create_time")
+  /// Unmanaged: 기존 방식(URL 직접 삽입) 파일, Temporary: 문제용 업로드 후 미귀속, Attached: 문제에 귀속됨
+  /// @HideField()
+  status      FileStatus @default(Unmanaged)
+  /// @HideField()
+  problem     Problem?   @relation(fields: [problemId], references: [id], onDelete: Restrict)
+  /// status가 Attached일 때만 값이 있음 (DB CHECK 제약으로 보장)
+  /// @HideField()
+  problemId   Int?       @map("problem_id")
 
+  @@index([problemId])
   @@map("file")
+}
+
+enum FileStatus {
+  Unmanaged
+  Temporary
+  Attached
 }
 
 enum Level {
