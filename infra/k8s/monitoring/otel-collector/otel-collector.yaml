@@ -4,9 +4,10 @@ metadata:
   name: simplest
   namespace: monitoring-otel
 spec:
-  # Pin the core distribution. The operator's default image is the k8s
-  # distribution, which has no prometheus exporter and fails on this config.
-  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector:0.145.0
+  # Pin the contrib distribution. It is the only published distribution that
+  # carries both the prometheus exporter and the k8sattributes processor.
+  # (core has no k8sattributes, k8s has no prometheus exporter.)
+  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.145.0
   # prometheus will scrape through this port
   ports:
     - name: metrics
@@ -24,6 +25,20 @@ spec:
             endpoint: 0.0.0.0:4317
 
     processors:
+      # Telemetry arrives with the Pod name only as host.name. This resolves the
+      # sending Pod by the source IP of the OTLP connection and attaches the
+      # standard Kubernetes resource attributes. It has to run before batch,
+      # which drops the per-connection client information it relies on.
+      k8sattributes:
+        auth_type: serviceAccount
+        extract:
+          metadata:
+            - k8s.pod.name
+            - k8s.namespace.name
+            - k8s.deployment.name
+        pod_association:
+          - sources:
+              - from: connection
       batch:
         timeout: 10s
         send_batch_size: 512
@@ -47,13 +62,13 @@ spec:
       pipelines:
         logs:
           receivers: [otlp]
-          processors: [batch]
+          processors: [k8sattributes, batch]
           exporters: [otlphttp/logs]
         metrics:
           receivers: [otlp]
-          processors: [batch]
+          processors: [k8sattributes, batch]
           exporters: [prometheus]
         traces:
           receivers: [otlp]
-          processors: [batch]
+          processors: [k8sattributes, batch]
           exporters: [otlp/trace]

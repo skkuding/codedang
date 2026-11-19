@@ -12,5 +12,14 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/instance: monitoring-otel.simplest
+      # The headless Service carries the same instance label and the same
+      # metrics port. Scraping only the base Service keeps one target per Pod,
+      # which honorLabels below depends on: two targets would emit the same
+      # series twice.
+      operator.opentelemetry.io/collector-service-type: base
   endpoints:
     - port: metrics
+      # Metrics forwarded by the collector already carry the originating
+      # service's own job and instance labels. Keep them instead of letting
+      # Prometheus overwrite job with the collector's Service name.
+      honorLabels: true
