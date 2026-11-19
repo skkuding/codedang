@@ -18,11 +18,13 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
     | 'course'
     | 'user'
   deleteTarget: (id: number, extra?: number) => Promise<TPromise>
+  size?: 'sm' | 'md' | 'lg'
   extraArg?: number // 현재는 groupId만 사용되고 있음
   getCanDelete?: (selectedRows: TData[]) => Promise<boolean>
   onSuccess?: () => void
   className?: string
   deleteItems?: string[]
+  description?: string
 }
 
 /**
@@ -44,13 +46,18 @@ interface DataTableDeleteButtonProps<TData extends { id: number }, TPromise> {
 export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   target,
   deleteTarget,
+  size,
   extraArg,
   getCanDelete,
   onSuccess,
   className,
-  deleteItems
+  deleteItems,
+  description
 }: DataTableDeleteButtonProps<TData, TPromise>) {
   const { table } = useDataTable<TData>()
+  const selectedRows = table
+    .getSelectedRowModel()
+    .flatRows.map((row) => row.original)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -59,7 +66,7 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   ) => {
     event.preventDefault()
 
-    if (table.getSelectedRowModel().rows.length === 0) {
+    if (selectedRows.length === 0) {
       toast.error(`Please select at least one ${target}`)
       return
     }
@@ -69,10 +76,6 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       return
     }
 
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original)
-
     const canDelete = await getCanDelete(selectedRows)
     if (canDelete) {
       setIsDialogOpen(true)
@@ -80,9 +83,8 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
   }
 
   const handleDeleteRows = async () => {
-    const selectedRows = table.getSelectedRowModel().rows
     const deletePromises = selectedRows.map((row) =>
-      deleteTarget(row.original.id, extraArg)
+      deleteTarget(row.id, extraArg)
     )
 
     try {
@@ -112,12 +114,13 @@ export function DataTableDeleteButton<TData extends { id: number }, TPromise>({
       type={'warning'}
       showIcon={!deleteItems}
       title={`Delete ${target}?`}
+      size={size}
       primaryButton={{
         text: 'Delete',
         onClick: handleDeleteRows
       }}
       {...(deleteItems
-        ? {}
+        ? { description }
         : {
             description: `Are you sure you want to permanently delete ${table.getSelectedRowModel().rows.length} ${target}(s)?`
           })}

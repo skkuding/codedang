@@ -26,6 +26,7 @@ interface DataTableRootProps<TData extends { id: number }, TValue> {
   enablePagination?: boolean // ✅ 추가
   className?: string
   getSubRows?: (row: TData) => TData[] | undefined
+  enableSelection?: (row: TData) => boolean
   children: ReactNode
 }
 
@@ -53,6 +54,7 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
   enablePagination = true,
   className,
   getSubRows,
+  enableSelection,
   children
 }: DataTableRootProps<TData, TValue>) {
   const defaultRowSelection = Object.fromEntries(
@@ -82,7 +84,8 @@ export function DataTableRoot<TData extends { id: number }, TValue>({
         : DEFAULT_COLUMN_VISIBILITY
     },
     autoResetPageIndex: false,
-    enableRowSelection: true,
+    enableRowSelection: (row) => enableSelection?.(row.original) ?? true,
+    enableSubRowSelection: (row) => enableSelection?.(row.original) ?? true,
     enableMultiSort: true,
     isMultiSortEvent: () => true,
     maxMultiSortColCount: 3,
