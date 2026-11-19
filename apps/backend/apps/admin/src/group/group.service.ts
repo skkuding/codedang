@@ -289,9 +289,11 @@ export class GroupService {
    * @returns 삭제된 그룹 객체
    *
    * @throws ForbiddenAccessException - 요청한 사용자가 그룹 리더가 아닌 경우
+   * @throws ConflictFoundException - Blueprint Section에 학생 학습 기록이 있는 경우
    *
    * @remarks
    * 그룹의 리더(Group Leader)만이 삭제 권한을 가집니다.
+   * Blueprint에 연결된 Section은 학습 기록이 없을 때만 삭제합니다. 일반 강좌는 기존과 같습니다.
    */
   async deleteGroup(id: number, groupType: GroupType, user: AuthenticatedUser) {
     const userGroup = await this.prisma.userGroup.findUnique({
@@ -316,12 +318,65 @@ export class GroupService {
       )
     }
 
+    if (groupType === GroupType.Course) {
+      await this.assertSectionHasNoLearningRecord(id)
+    }
+
     return await this.prisma.group.delete({
       where: {
         id
       },
       include: includeOption
     })
+  }
+
+  /**
+   * Blueprint에 연결된 Section에 학습 기록이 있으면 삭제를 막습니다.
+   * 일반 강좌(blueprintCourseId가 null)는 검사하지 않습니다.
+   *
+   * 학습 기록(작성자가 교수·조교여도 포함):
+   * - 과제 제출(Submission)
+   * - AssignmentProblemRecord의 isSubmitted = true 또는 comment 작성
+   *
+   * finalScore는 점수 일괄 확정(autoFinalizeScore)으로 제출하지 않은 Record에도 채워지므로 보지 않습니다.
+   * 가입·과제 생성 때 자동으로 만들어진 기본값 Record만 있으면 삭제할 수 있습니다.
+   */
+  private async assertSectionHasNoLearningRecord(groupId: number) {
+    const courseInfo = await this.prisma.courseInfo.findUnique({
+      where: { groupId },
+      select: { blueprintCourseId: true }
+    })
+    if (courseInfo?.blueprintCourseId == null) {
+      return
+    }
+
+    const assignmentWithLearningRecord = await this.prisma.assignment.findFirst(
+      {
+        where: {
+          groupId,
+          OR: [
+            { submission: { some: {} } },
+            {
+              assignmentRecord: {
+                some: {
+                  assignmentProblemRecord: {
+                    some: {
+                      OR: [{ isSubmitted: true }, { comment: { not: '' } }]
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        select: { id: true }
+      }
+    )
+    if (assignmentWithLearningRecord) {
+      throw new ConflictFoundException(
+        'Cannot delete a section that has learning records'
+      )
+    }
   }
 
   /**

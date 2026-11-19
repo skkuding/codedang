@@ -1,0 +1,48 @@
+meta {
+  name: Delete Blueprint Course - Has Sections
+  type: graphql
+  seq: 15
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteBlueprintCourse(blueprintCourseId: {{blueprintWithSectionsId}}) { id }
+  }
+}
+
+script:pre-request {
+  // Section 생성 API가 아직 없으므로, Section이 있는 Blueprint가 없으면 이 요청을 건너뜁니다.
+  const axios = require("axios");
+  const result = await axios.post(
+    bru.getEnvVar("gqlUrl"),
+    { query: "{ getBlueprintCourses { id sections { id } } }" },
+    { headers: { Authorization: req.getHeader("Authorization"), Cookie: req.getHeader("Cookie") }, timeout: 5000 }
+  );
+  const target = (result.data.data?.getBlueprintCourses ?? []).find((course) => course.sections.length > 0);
+  if (!target) {
+    bru.runner.skipRequest();
+    return;
+  }
+  bru.setVar("blueprintWithSectionsId", Number(target.id));
+}
+
+tests {
+  test("Rejects deleting a Blueprint that has sections", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("CONFLICT");
+    expect(body.data).to.equal(null);
+  });
+}
+
+docs {
+  Picks an accessible Blueprint that has at least one section. Skipped when none exists
+  because sections cannot be created through an API yet.
+}

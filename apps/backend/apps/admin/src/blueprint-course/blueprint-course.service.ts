@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import type { AuthenticatedUser } from '@libs/auth'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  ConflictFoundException,
+  EntityNotExistException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from './blueprint-access.service'
 import type {
@@ -228,5 +232,54 @@ export class BlueprintCourseService {
       })
     ])
     return updated
+  }
+
+  /**
+   * Section이 없는 Blueprint 강좌를 삭제합니다.
+   *
+   * - Section이 하나라도 있으면 삭제하지 않습니다. Section은 기존 강좌 삭제로 먼저 지워야 합니다.
+   * - BlueprintAssignment와 BlueprintAssignmentProblem은 FK CASCADE로 함께 삭제됩니다.
+   * - 확인 이후 Section이 동시에 생성되면 course_info FK(RESTRICT)가 삭제를 막습니다.
+   *   이때 Section이 실제로 있는지 다시 확인해 409로 바꾸고, 다른 FK 오류는 그대로 전달합니다.
+   *
+   * @returns 삭제된 Blueprint 강좌
+   * @throws EntityNotExistException - Blueprint가 존재하지 않는 경우
+   * @throws ForbiddenAccessException - Blueprint leader가 아닌 경우
+   * @throws ConflictFoundException - Blueprint에 Section이 있는 경우
+   */
+  async deleteBlueprintCourse(
+    blueprintCourseId: number,
+    user: AuthenticatedUser
+  ) {
+    await this.blueprintAccessService.assertBlueprintLeader(
+      user,
+      blueprintCourseId
+    )
+    await this.assertNoSection(blueprintCourseId)
+
+    try {
+      return await this.prisma.blueprintCourse.delete({
+        where: { id: blueprintCourseId }
+      })
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2003'
+      ) {
+        await this.assertNoSection(blueprintCourseId)
+      }
+      throw error
+    }
+  }
+
+  private async assertNoSection(blueprintCourseId: number) {
+    const sectionCount = await this.prisma.courseInfo.count({
+      where: { blueprintCourseId }
+    })
+    if (sectionCount > 0) {
+      throw new ConflictFoundException(
+        'Cannot delete a blueprint course that has sections'
+      )
+    }
   }
 }

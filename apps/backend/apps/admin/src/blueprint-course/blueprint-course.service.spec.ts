@@ -1,12 +1,13 @@
 import { BadRequestException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Role } from '@prisma/client'
+import { Prisma, Role } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import { stub } from 'sinon'
 import { AuthenticatedUser } from '@libs/auth'
 import {
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
@@ -49,10 +50,12 @@ const db = {
     create: stub(),
     findMany: stub(),
     findUnique: stub(),
-    update: stub()
+    update: stub(),
+    delete: stub()
   },
   courseInfo: {
-    updateMany: stub()
+    updateMany: stub(),
+    count: stub()
   },
   // batch transaction: 전달된 쿼리를 순서대로 실행한 결과를 돌려줍니다.
   $transaction: stub().callsFake((queries: Promise<unknown>[]) =>
@@ -82,6 +85,8 @@ describe('BlueprintCourseService', () => {
     db.blueprintCourse.findUnique.reset()
     db.blueprintCourse.update.reset()
     db.courseInfo.updateMany.reset()
+    db.blueprintCourse.delete.reset()
+    db.courseInfo.count.reset()
     db.$transaction.resetHistory()
   })
 
@@ -519,6 +524,150 @@ describe('BlueprintCourseService', () => {
           user
         )
       ).to.be.rejectedWith('section update failed')
+    })
+  })
+
+  describe('deleteBlueprintCourse', () => {
+    const blueprintCourseId = 7
+    const deleted = { ...createdBlueprintCourse, id: blueprintCourseId }
+    const foreignKeyError = () =>
+      new Prisma.PrismaClientKnownRequestError(
+        'Foreign key constraint violated',
+        { code: 'P2003', clientVersion: '6.13.0' }
+      )
+
+    const allowCreator = () =>
+      db.blueprintCourse.findUnique.resolves({
+        createdById: userId,
+        courseInfo: []
+      })
+
+    it('should delete a blueprint without sections and return it', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      db.blueprintCourse.delete.resolves(deleted)
+
+      const res = await service.deleteBlueprintCourse(blueprintCourseId, user)
+
+      expect(res).to.equal(deleted)
+      expect(db.courseInfo.count.firstCall.args[0]).to.deep.equal({
+        where: { blueprintCourseId }
+      })
+      expect(db.blueprintCourse.delete.firstCall.args[0]).to.deep.equal({
+        where: { id: blueprintCourseId }
+      })
+    })
+
+    it('should check access and sections before deleting', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      db.blueprintCourse.delete.resolves(deleted)
+
+      await service.deleteBlueprintCourse(blueprintCourseId, user)
+
+      expect(db.blueprintCourse.findUnique.calledBefore(db.courseInfo.count)).to
+        .be.true
+      expect(db.courseInfo.count.calledBefore(db.blueprintCourse.delete)).to.be
+        .true
+    })
+
+    for (const [name, accessor, access] of [
+      [
+        'an admin',
+        new AuthenticatedUser(userId, 'admin', Role.Admin),
+        { createdById: 99, courseInfo: [] }
+      ],
+      [
+        'a super admin',
+        new AuthenticatedUser(userId, 'superadmin', Role.SuperAdmin),
+        { createdById: 99, courseInfo: [] }
+      ],
+      [
+        'a section leader',
+        user,
+        { createdById: 99, courseInfo: [{ groupId: 3 }] }
+      ]
+    ] as const) {
+      it(`should allow ${name} to delete`, async () => {
+        db.blueprintCourse.findUnique.resolves(access)
+        db.courseInfo.count.resolves(0)
+        db.blueprintCourse.delete.resolves(deleted)
+
+        expect(
+          await service.deleteBlueprintCourse(blueprintCourseId, accessor)
+        ).to.equal(deleted)
+      })
+    }
+
+    it('should throw ForbiddenAccessException and not delete for a non-leader', async () => {
+      db.blueprintCourse.findUnique.resolves({
+        createdById: 99,
+        courseInfo: []
+      })
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.courseInfo.count.called).to.be.false
+      expect(db.blueprintCourse.delete.called).to.be.false
+    })
+
+    it('should throw EntityNotExistException and not delete for a missing blueprint', async () => {
+      db.blueprintCourse.findUnique.resolves(null)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.blueprintCourse.delete.called).to.be.false
+    })
+
+    it('should throw ConflictFoundException and not delete when sections exist', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(2)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(db.blueprintCourse.delete.called).to.be.false
+    })
+
+    it('should convert a section foreign key failure into ConflictFoundException', async () => {
+      allowCreator()
+      // 확인 때는 0개였지만 삭제 직전에 Section이 생성되어 RESTRICT에 걸린 경우
+      db.courseInfo.count.onFirstCall().resolves(0)
+      db.courseInfo.count.onSecondCall().resolves(1)
+      db.blueprintCourse.delete.rejects(foreignKeyError())
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(db.courseInfo.count.calledTwice).to.be.true
+    })
+
+    it('should rethrow a foreign key failure that is not caused by sections', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      const error = foreignKeyError()
+      db.blueprintCourse.delete.rejects(error)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(error)
+    })
+
+    it('should rethrow other database errors without checking sections again', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      const error = new Prisma.PrismaClientKnownRequestError(
+        'Record to delete does not exist',
+        { code: 'P2025', clientVersion: '6.13.0' }
+      )
+      db.blueprintCourse.delete.rejects(error)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(error)
+      expect(db.courseInfo.count.calledOnce).to.be.true
     })
   })
 

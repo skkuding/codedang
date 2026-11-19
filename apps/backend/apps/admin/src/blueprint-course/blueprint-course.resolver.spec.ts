@@ -47,7 +47,8 @@ const blueprintCourseService = {
   createBlueprintCourse: stub(),
   getBlueprintCourses: stub(),
   getBlueprintCourse: stub(),
-  updateBlueprintCourse: stub()
+  updateBlueprintCourse: stub(),
+  deleteBlueprintCourse: stub()
 }
 
 describe('BlueprintCourseResolver', () => {
@@ -69,6 +70,7 @@ describe('BlueprintCourseResolver', () => {
     blueprintCourseService.getBlueprintCourses.reset()
     blueprintCourseService.getBlueprintCourse.reset()
     blueprintCourseService.updateBlueprintCourse.reset()
+    blueprintCourseService.deleteBlueprintCourse.reset()
   })
 
   it('should be defined', () => {
@@ -184,6 +186,42 @@ describe('BlueprintCourseResolver', () => {
       await expect(
         resolver.updateBlueprintCourse(req, 17, updateInput)
       ).to.be.rejectedWith('Access denied')
+    })
+  })
+
+  describe('deleteBlueprintCourse', () => {
+    it('should delegate the course ID and full authenticated user', async () => {
+      blueprintCourseService.deleteBlueprintCourse.resolves(
+        createdBlueprintCourse
+      )
+
+      expect(await resolver.deleteBlueprintCourse(req, 17)).to.equal(
+        createdBlueprintCourse
+      )
+      expect(
+        blueprintCourseService.deleteBlueprintCourse.calledOnceWithExactly(
+          17,
+          user
+        )
+      ).to.be.true
+    })
+
+    it('should allow regular users through the admin guard', () => {
+      expect(
+        Reflect.getMetadata(
+          ADMIN_NOT_NEEDED_KEY,
+          BlueprintCourseResolver.prototype.deleteBlueprintCourse
+        )
+      ).to.equal(true)
+    })
+
+    it('should propagate service failures', async () => {
+      blueprintCourseService.deleteBlueprintCourse.rejects(
+        new Error('Blueprint has sections')
+      )
+      await expect(resolver.deleteBlueprintCourse(req, 17)).to.be.rejectedWith(
+        'Blueprint has sections'
+      )
     })
   })
 
@@ -557,6 +595,14 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
       ['office', 'String'],
       ['phoneNum', 'String']
     ])
+  })
+
+  it('should expose deleteBlueprintCourse returning the deleted course', () => {
+    const field = schema.getMutationType()!.getFields().deleteBlueprintCourse
+    expect(String(field.type)).to.equal('BlueprintCourseOutput!')
+    expect(field.args.map((arg) => [arg.name, String(arg.type)])).to.deep.equal(
+      [['blueprintCourseId', 'Int!']]
+    )
   })
 
   it('should not expose fields that the service does not populate', () => {

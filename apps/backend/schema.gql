@@ -2685,6 +2685,7 @@ type Mutation {
   createTestcases(input: CreateTestcasesInput!): [ProblemTestcaseId!]!
   createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
+  deleteBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseOutput!
   deleteContest(contestId: Int!): Contest!
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!

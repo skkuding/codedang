@@ -1,0 +1,39 @@
+meta {
+  name: Delete Blueprint Course - Setup
+  type: graphql
+  seq: 13
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    createBlueprintCourse(input: {
+      courseTitle: "Bruno Delete Target"
+      courseNum: "BRU3299"
+      semester: "2026 Fall"
+      week: 16
+      professor: "Bruno Instructor"
+    }) {
+      id courseTitle
+    }
+  }
+}
+
+tests {
+  test("Creates a Blueprint without sections to delete", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    bru.setVar("deleteBlueprintCourseId", Number(body.data.createBlueprintCourse.id));
+  });
+}
+
+docs {
+  Creates a new Blueprint for "Delete Blueprint Course" so that the request never deletes
+  a Blueprint used by other requests. Use only against a local test database.
+}
