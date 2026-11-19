@@ -14,5 +14,12 @@ export const blueprintKeys = {
       ...blueprintKeys.course(blueprintCourseId),
       'assignment',
       blueprintAssignmentId
+    ] as const,
+  edit: (blueprintId: number, assignmentId: number) =>
+    [...blueprintKeys.assignment(blueprintId, assignmentId), 'edit'] as const,
+  deletionImpact: (blueprintId: number, assignmentId: number) =>
+    [
+      ...blueprintKeys.assignment(blueprintId, assignmentId),
+      'deletion-impact'
     ] as const
 }

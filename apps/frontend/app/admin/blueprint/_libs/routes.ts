@@ -77,6 +77,15 @@ export function blueprintCreateHref(
   return `/admin/blueprint/${blueprintId}/${kind}/create${listQuery(location)}` as Route
 }
 
+export function blueprintEditHref(
+  blueprintId: number,
+  kind: BlueprintContentKind,
+  assignmentId: number,
+  location: BlueprintListLocation
+): Route {
+  return `/admin/blueprint/${blueprintId}/${kind}/${assignmentId}/edit${listQuery(location)}` as Route
+}
+
 export function blueprintScope(
   blueprintId: number,
   kind: BlueprintContentKind,

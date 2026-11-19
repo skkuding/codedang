@@ -41,6 +41,7 @@ interface BlueprintCreateProblemsProps {
   disabled?: boolean
   errors?: Readonly<Record<string, string>>
   problemCatalog: BlueprintProblemCatalogController
+  problemChangesAllowed?: boolean
 }
 
 const catalogMessages: Partial<
@@ -71,7 +72,8 @@ export function BlueprintCreateProblems({
   isExercise,
   disabled = false,
   errors,
-  problemCatalog
+  problemCatalog,
+  problemChangesAllowed = true
 }: BlueprintCreateProblemsProps) {
   const id = useId()
   const editButtonRef = useRef<HTMLButtonElement>(null)
@@ -83,13 +85,14 @@ export function BlueprintCreateProblems({
   const catalogReady =
     problemCatalog.status === 'ready' && !problemCatalog.isLoadingMore
   const catalogError = catalogMessages[problemCatalog.status]
+  const compositionDisabled = disabled || !problemChangesAllowed
   const error = errors?.problems
   const problemById = new Map(catalogue.map((problem) => [problem.id, problem]))
   const unresolvedIds = pending.filter(
     (problemId) => !problemById.has(problemId)
   )
   const canApply =
-    !disabled &&
+    !compositionDisabled &&
     catalogReady &&
     pending.length <= PROBLEM_IMPORT_LIMIT &&
     unresolvedIds.length === 0
@@ -110,6 +113,9 @@ export function BlueprintCreateProblems({
     problemId: number,
     changes: Partial<BlueprintDraftProblem>
   ) {
+    if (!problemChangesAllowed && 'score' in changes) {
+      return
+    }
     onChange({
       ...draft,
       problems: draft.problems.map((problem) =>
@@ -119,6 +125,9 @@ export function BlueprintCreateProblems({
   }
 
   function changeDialog(nextOpen: boolean) {
+    if (nextOpen && compositionDisabled) {
+      return
+    }
     if (nextOpen) {
       setPending(draft.problems.map((problem) => problem.problemId))
       setQuery('')
@@ -178,7 +187,7 @@ export function BlueprintCreateProblems({
               <Button
                 type="button"
                 variant="outline"
-                disabled={disabled}
+                disabled={compositionDisabled}
                 onClick={() => {
                   onChange({
                     ...draft,
@@ -196,7 +205,7 @@ export function BlueprintCreateProblems({
               ref={editButtonRef}
               type="button"
               className="text-sub4_sb_14 h-[38px] gap-1 rounded-lg px-[10px] py-2"
-              disabled={disabled}
+              disabled={compositionDisabled}
               onClick={() => changeDialog(true)}
             >
               <EditIcon className="shrink-0" aria-hidden="true" />
@@ -204,6 +213,12 @@ export function BlueprintCreateProblems({
             </Button>
           </div>
         </div>
+        {!problemChangesAllowed && (
+          <p role="status" className="text-body2_m_14 mb-3 text-gray-600">
+            Adding or removing problems and changing scores is locked until
+            learning-record permission is confirmed.
+          </p>
+        )}
         {error && (
           <p role="alert" className="text-body2_m_14 mb-3 text-red-500">
             {error}
@@ -215,7 +230,7 @@ export function BlueprintCreateProblems({
               <TableHead scope="col" className="w-14 p-0">
                 <Checkbox
                   aria-label="Select all added problems"
-                  disabled={disabled || draft.problems.length === 0}
+                  disabled={compositionDisabled || draft.problems.length === 0}
                   checked={
                     (draft.problems.length > 0 &&
                       selectedIds.length === draft.problems.length) ||
@@ -261,7 +276,7 @@ export function BlueprintCreateProblems({
                   <TableCell className="h-[57px] w-14 p-0 text-center md:p-0">
                     <Checkbox
                       aria-label={`Select added problem ${title}`}
-                      disabled={disabled}
+                      disabled={compositionDisabled}
                       checked={selectedIds.includes(problem.problemId)}
                       onCheckedChange={(checked) =>
                         setSelected((current) =>
@@ -290,7 +305,7 @@ export function BlueprintCreateProblems({
                         value={
                           Number.isFinite(problem.score) ? problem.score : ''
                         }
-                        disabled={disabled}
+                        disabled={compositionDisabled}
                         className="h-[38px] rounded-full px-3 text-center"
                         onChange={(event) =>
                           updateProblem(problem.problemId, {
@@ -489,7 +504,7 @@ export function BlueprintCreateProblems({
             aria-label="Search loaded problems"
             placeholder="Search loaded problems"
             value={query}
-            disabled={disabled}
+            disabled={compositionDisabled}
             onChange={(event) => setQuery(event.currentTarget.value)}
           />
           <p className="text-body2_m_14 text-color-neutral-60">
@@ -530,7 +545,7 @@ export function BlueprintCreateProblems({
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={disabled}
+                    disabled={compositionDisabled}
                     onClick={() =>
                       setPending((current) =>
                         current.filter((value) => value !== problemId)
@@ -559,7 +574,7 @@ export function BlueprintCreateProblems({
                   aria-label={`Include ${problem.title}`}
                   checked={pending.includes(problem.id)}
                   disabled={
-                    disabled ||
+                    compositionDisabled ||
                     !catalogReady ||
                     (!pending.includes(problem.id) &&
                       pending.length >= PROBLEM_IMPORT_LIMIT)
