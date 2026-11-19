@@ -160,7 +160,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
 
   const getFilteredMainNavItems = () => {
     const items: NavItem[] = []
-    const isAdmin = session?.user?.role !== 'User'
+    const isAdmin = Boolean(session) && session?.user?.role !== 'User'
 
     if (isAdmin) {
       items.push(
