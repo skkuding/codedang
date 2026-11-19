@@ -105,6 +105,8 @@ describe('Blueprint creation input and confirmation', () => {
       expect(
         within(dialog).getAllByText(/2026-11-20 10:00 → 2026-11-21 10:00/)
       ).toHaveLength(3)
+      expect(within(dialog).getByText('Section 1')).toBeTruthy()
+      expect(within(dialog).getAllByText('Due: None')).toHaveLength(3)
       fireEvent.submit(form)
       expect(screen.getAllByRole('dialog')).toHaveLength(1)
       const confirm = within(dialog).getByRole('button', { name: 'Confirm' })

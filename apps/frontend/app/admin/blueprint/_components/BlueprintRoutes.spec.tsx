@@ -21,6 +21,7 @@ import type {
   BlueprintDataSource,
   BlueprintReadResult
 } from '../_libs/types'
+import { deferred } from '../_test/deferred'
 import { BlueprintDataSourceProvider } from './BlueprintDataSourceProvider'
 import { useBlueprintNoticeWorkspace } from './BlueprintNoticeWorkspace'
 import {
@@ -412,19 +413,12 @@ describe('Blueprint routed workspace', () => {
 
   it('shows a pending adapter read and then renders the returned page', async () => {
     const source = createSource()
-    let complete:
-      | ((result: BlueprintReadResult<BlueprintAssignmentPage>) => void)
-      | undefined
-    source.readAssignments.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          complete = resolve
-        })
-    )
+    const pending = deferred<BlueprintReadResult<BlueprintAssignmentPage>>()
+    source.readAssignments.mockImplementation(() => pending.promise)
     renderRoutes(source)
     await screen.findByText('[ADAPTER-31] Adapter course')
     expect(screen.getByText('Loading Blueprint content…')).toBeTruthy()
-    complete?.({
+    pending.resolve({
       status: 'success',
       data: { items: [assignment()], nextCursor: null }
     })
