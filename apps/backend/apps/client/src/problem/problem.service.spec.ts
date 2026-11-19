@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { ConfigService } from '@nestjs/config'
 import type { TestingModule } from '@nestjs/testing'
 import { Test } from '@nestjs/testing'
 import { faker } from '@faker-js/faker'
@@ -247,13 +248,19 @@ const db = {
 
 describe('ProblemService', () => {
   let service: ProblemService
+  let config: ConfigService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProblemService, { provide: PrismaService, useValue: db }]
+      providers: [
+        ProblemService,
+        { provide: PrismaService, useValue: db },
+        ConfigService
+      ]
     }).compile()
 
     service = module.get<ProblemService>(ProblemService)
+    config = module.get<ConfigService>(ConfigService)
   })
 
   it('should be defined', () => {
@@ -311,9 +318,30 @@ describe('ProblemService', () => {
       expect(result).to.deep.equal(
         plainToInstance(ProblemResponseDto, {
           ...mockProblem,
+          attachments: [],
           tags: [mockProblemTag.tag]
         })
       )
+    })
+
+    it('should return attachments of the problem with public URLs', async () => {
+      const filename = '0f8fad5b-d9cb-469f-a165-70867728950e'
+      const configStub = stub(config, 'get').callsFake((key: string) =>
+        key === 'MEDIA_CDN_URL' ? 'https://media.codedang.com' : undefined
+      )
+      db.problem.findUniqueOrThrow.resolves({
+        ...mockProblem,
+        files: [{ filename }]
+      })
+      db.problemTag.findMany.resolves([mockProblemTag])
+
+      const result = await service.getProblem(problemId)
+
+      expect(result).to.not.have.property('files')
+      expect(result.attachments).to.deep.equal([
+        { id: filename, url: `https://media.codedang.com/${filename}` }
+      ])
+      configStub.restore()
     })
 
     it('should throw PrismaClientKnownRequestError when the problem does not exist', async () => {
@@ -368,7 +396,8 @@ describe('ContestProblemService', () => {
             get: () => []
           })
         },
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        ConfigService
       ]
     }).compile()
 
@@ -643,7 +672,8 @@ describe('AssignmentProblemService', () => {
             get: () => []
           })
         },
-        { provide: PrismaService, useValue: db }
+        { provide: PrismaService, useValue: db },
+        ConfigService
       ]
     }).compile()
 
@@ -795,7 +825,11 @@ describe('AssignmentProblemService', () => {
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, {
           ...mockAssignmentProblem,
-          problem: { ...mockAssignmentProblem.problem, tags: [mockTag] }
+          problem: {
+            ...mockAssignmentProblem.problem,
+            attachments: [],
+            tags: [mockTag]
+          }
         })
       )
       db.problemTag.findMany.resetBehavior()
@@ -816,7 +850,11 @@ describe('AssignmentProblemService', () => {
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, {
           ...mockAssignmentProblem,
-          problem: { ...mockAssignmentProblem.problem, tags: [mockTag] }
+          problem: {
+            ...mockAssignmentProblem.problem,
+            attachments: [],
+            tags: [mockTag]
+          }
         })
       )
 
@@ -864,6 +902,7 @@ describe('WorkbookProblemService', () => {
         WorkbookService,
         GroupService,
         { provide: PrismaService, useValue: db },
+        ConfigService,
         {
           provide: CACHE_MANAGER,
           useFactory: () => ({
@@ -1008,7 +1047,11 @@ describe('WorkbookProblemService', () => {
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, {
           ...mockWorkbookProblem,
-          problem: { ...mockWorkbookProblem.problem, tags: [mockTag] }
+          problem: {
+            ...mockWorkbookProblem.problem,
+            attachments: [],
+            tags: [mockTag]
+          }
         })
       )
       isVisibleSpy.restore()
@@ -1032,7 +1075,11 @@ describe('WorkbookProblemService', () => {
         // Deprecated
         plainToInstance(_RelatedProblemResponseDto, {
           ...mockWorkbookProblem,
-          problem: { ...mockWorkbookProblem.problem, tags: [mockTag] }
+          problem: {
+            ...mockWorkbookProblem.problem,
+            attachments: [],
+            tags: [mockTag]
+          }
         })
       )
       isVisibleSpy.restore()
