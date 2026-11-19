@@ -84,7 +84,7 @@ export function Modal({
         onPointerDownOutside={onClose}
         onEscapeKeyDown={onClose}
       >
-        <DialogHeader className="flex flex-col items-center justify-center space-y-0">
+        <DialogHeader className="flex flex-col items-center justify-center gap-[6px] space-y-0">
           {type === 'warning' && (
             <WarningIcon className="text-error size-[42px]" />
           )}
