@@ -1948,6 +1948,11 @@ export class CourseService {
    * @param content 댓글 내용
    * @returns 생성된 CourseQnAComment
    * @throws {EntityNotExistException} Course 또는 QnA가 존재하지 않을 때
+   * @throws {ForbiddenAccessException} 강좌 멤버가 아니거나, 타인의 비공개 Q&A에 작성하려는 경우
+   *
+   * @remarks
+   * 강좌 멤버만 댓글을 작성할 수 있으며, 비공개 Q&A에는 작성자 본인과 강좌 리더만 작성할 수 있습니다.
+   * 비멤버에게는 Q&A 존재 여부를 노출하지 않도록 멤버십을 Q&A 조회보다 먼저 검사합니다.
    */
   async createCourseQnAComment(
     userId: number,
@@ -1963,20 +1968,32 @@ export class CourseService {
       throw new EntityNotExistException('Course')
     }
 
+    const membership = await this.prisma.userGroup.findUnique({
+      where: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        userId_groupId: { userId, groupId }
+      },
+      select: { isGroupLeader: true }
+    })
+    if (!membership) {
+      throw new ForbiddenAccessException('Not a member of this course')
+    }
+    const isCourseStaff = membership.isGroupLeader
+
     const qna = await this.prisma.courseQnA.findUnique({
       where: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         groupId_order: { groupId, order }
-      }
+      },
+      select: { id: true, isPrivate: true, createdById: true }
     })
     if (!qna) {
       throw new EntityNotExistException('CourseQnA')
     }
 
-    const isCourseStaff =
-      (await this.prisma.userGroup.findFirst({
-        where: { userId, groupId, isGroupLeader: true }
-      })) !== null
+    if (qna.isPrivate && !isCourseStaff && qna.createdById !== userId) {
+      throw new ForbiddenAccessException('This is a private question')
+    }
 
     return await this.prisma.$transaction(async (tx) => {
       const maxOrder = await tx.courseQnAComment.aggregate({

@@ -9,14 +9,15 @@ import chaiExclude from 'chai-exclude'
 import * as sinon from 'sinon'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import {
   PrismaService,
   PrismaTestService,
   type FlatTransactionClient
 } from '@libs/prisma'
-import { GroupService } from './group.service'
+import { CourseService, GroupService } from './group.service'
 import type { UserGroupData } from './interface/user-group-data.interface'
 
 chai.use(chaiExclude)
@@ -346,6 +347,237 @@ describe('GroupService', () => {
       const res = await service.getGroupLeaders(2)
 
       expect(res).to.deep.equal(['instructor', 'user01'])
+    })
+  })
+})
+
+describe('CourseService', () => {
+  let service: CourseService
+  let prisma: PrismaTestService
+  let transaction: FlatTransactionClient
+
+  before(async function () {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CourseService,
+        PrismaTestService,
+        {
+          provide: PrismaService,
+          useExisting: PrismaTestService
+        }
+      ]
+    }).compile()
+    service = module.get<CourseService>(CourseService)
+    prisma = module.get<PrismaTestService>(PrismaTestService)
+  })
+
+  beforeEach(async () => {
+    transaction = await prisma.$begin()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(service as any).prisma = transaction
+  })
+
+  afterEach(async () => {
+    await transaction.$rollback()
+  })
+
+  after(async () => {
+    await prisma.$disconnect()
+  })
+
+  describe('createCourseQnAComment', () => {
+    // seed: 그룹 2(정보보호개론)는 Course이며 user01은 리더, user02/user03은 일반 멤버, contestAdmin은 비멤버
+    const courseId = 2
+    const privateOrder = 1001
+    const publicOrder = 1002
+    const content = 'comment for authorization test'
+
+    let leaderId: number
+    let authorId: number
+    let memberId: number
+    let nonMemberId: number
+    let privateQnAId: number
+    let publicQnAId: number
+
+    const getUserId = async (username: string) =>
+      (
+        await transaction.user.findUniqueOrThrow({
+          where: { username },
+          select: { id: true }
+        })
+      ).id
+
+    beforeEach(async () => {
+      leaderId = await getUserId('user01')
+      authorId = await getUserId('user02')
+      memberId = await getUserId('user03')
+      nonMemberId = await getUserId('contestAdmin')
+
+      // 거부 시 상태가 바뀌지 않았는지 구분할 수 있도록 기본값(false, 빈 readBy)과 다른 상태로 만든다.
+      const createQnA = (order: number, isPrivate: boolean) =>
+        transaction.courseQnA.create({
+          data: {
+            groupId: courseId,
+            createdById: authorId,
+            order,
+            title: `authorization test qna ${order}`,
+            content: 'authorization test qna content',
+            isPrivate,
+            isResolved: true,
+            readBy: [authorId]
+          }
+        })
+      privateQnAId = (await createQnA(privateOrder, true)).id
+      publicQnAId = (await createQnA(publicOrder, false)).id
+    })
+
+    const expectUnchanged = async (qnaId: number) => {
+      const qna = await transaction.courseQnA.findUniqueOrThrow({
+        where: { id: qnaId },
+        select: { isResolved: true, readBy: true }
+      })
+      expect(qna).to.deep.equal({ isResolved: true, readBy: [authorId] })
+      expect(
+        await transaction.courseQnAComment.count({
+          where: { courseQnAId: qnaId }
+        })
+      ).to.equal(0)
+    }
+
+    const expectCommented = async (
+      qnaId: number,
+      commenterId: number,
+      isCourseStaff: boolean
+    ) => {
+      const comments = await transaction.courseQnAComment.findMany({
+        where: { courseQnAId: qnaId },
+        select: { createdById: true, isCourseStaff: true, order: true }
+      })
+      expect(comments).to.deep.equal([
+        { createdById: commenterId, isCourseStaff, order: 1 }
+      ])
+      const qna = await transaction.courseQnA.findUniqueOrThrow({
+        where: { id: qnaId },
+        select: { isResolved: true, readBy: true }
+      })
+      expect(qna).to.deep.equal({
+        isResolved: isCourseStaff,
+        readBy: [commenterId]
+      })
+    }
+
+    it('should forbid a non-member from commenting on a public QnA', async () => {
+      await expect(
+        service.createCourseQnAComment(
+          nonMemberId,
+          courseId,
+          publicOrder,
+          content
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      await expectUnchanged(publicQnAId)
+    })
+
+    it('should forbid a non-member from commenting on a private QnA', async () => {
+      await expect(
+        service.createCourseQnAComment(
+          nonMemberId,
+          courseId,
+          privateOrder,
+          content
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      await expectUnchanged(privateQnAId)
+    })
+
+    it("should forbid a member from commenting on another user's private QnA", async () => {
+      await expect(
+        service.createCourseQnAComment(
+          memberId,
+          courseId,
+          privateOrder,
+          content
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      await expectUnchanged(privateQnAId)
+    })
+
+    it('should forbid the author who left the course', async () => {
+      await transaction.userGroup.delete({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          userId_groupId: { userId: authorId, groupId: courseId }
+        }
+      })
+
+      await expect(
+        service.createCourseQnAComment(
+          authorId,
+          courseId,
+          privateOrder,
+          content
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      await expectUnchanged(privateQnAId)
+    })
+
+    it('should forbid a non-member even if the QnA does not exist', async () => {
+      await expect(
+        service.createCourseQnAComment(nonMemberId, courseId, 99999, content)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+    })
+
+    it('should allow the author to comment on own private QnA', async () => {
+      const comment = await service.createCourseQnAComment(
+        authorId,
+        courseId,
+        privateOrder,
+        content
+      )
+
+      expect(comment.content).to.equal(content)
+      await expectCommented(privateQnAId, authorId, false)
+    })
+
+    it('should allow a course leader to comment on a private QnA', async () => {
+      await service.createCourseQnAComment(
+        leaderId,
+        courseId,
+        privateOrder,
+        content
+      )
+
+      await expectCommented(privateQnAId, leaderId, true)
+    })
+
+    it('should allow a member to comment on a public QnA', async () => {
+      await service.createCourseQnAComment(
+        memberId,
+        courseId,
+        publicOrder,
+        content
+      )
+
+      await expectCommented(publicQnAId, memberId, false)
+    })
+
+    it('should throw EntityNotExistException when the QnA does not exist', async () => {
+      await expect(
+        service.createCourseQnAComment(memberId, courseId, 99999, content)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should throw EntityNotExistException when the course does not exist', async () => {
+      await expect(
+        service.createCourseQnAComment(memberId, 99999, privateOrder, content)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should not resolve a QnA of another course with the same order', async () => {
+      // seed: 그룹 1의 order 2 QnA는 존재하지만 그룹 2에는 없다
+      await expect(
+        service.createCourseQnAComment(memberId, courseId, 2, content)
+      ).to.be.rejectedWith(EntityNotExistException)
     })
   })
 })
