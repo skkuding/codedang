@@ -142,7 +142,7 @@ export class AssignmentService {
           where: { id: createdAssignment.id }
         })
       }
-      throw new UnprocessableDataException(error.message)
+      throw error
     }
   }
 
@@ -254,42 +254,38 @@ export class AssignmentService {
       }
     }
 
-    try {
-      const updatedAssignment = await this.prisma.assignment.update({
-        where: {
-          id: assignment.id
-        },
-        data: {
-          title: assignment.title,
-          ...assignment
-        }
+    const updatedAssignment = await this.prisma.assignment.update({
+      where: {
+        id: assignment.id
+      },
+      data: {
+        title: assignment.title,
+        ...assignment
+      }
+    })
+
+    const isRevealingFinalScore =
+      assignment.isFinalScoreVisible &&
+      assignment.isFinalScoreVisible !== assignmentFound.isFinalScoreVisible
+
+    if (isRevealingFinalScore) {
+      this.eventEmitter.emit('assignment.graded', {
+        assignmentId: assignment.id
       })
-
-      const isRevealingFinalScore =
-        assignment.isFinalScoreVisible &&
-        assignment.isFinalScoreVisible !== assignmentFound.isFinalScoreVisible
-
-      if (isRevealingFinalScore) {
-        this.eventEmitter.emit('assignment.graded', {
-          assignmentId: assignment.id
-        })
-      }
-
-      const isDueTimeChanged =
-        assignment.dueTime !== undefined &&
-        assignment.dueTime !== assignmentFound.dueTime
-
-      if (isDueTimeChanged) {
-        this.eventEmitter.emit('assignment.updated', {
-          assignmentId: assignment.id,
-          dueTime: assignment.dueTime ?? assignment.endTime
-        })
-      }
-
-      return updatedAssignment
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
     }
+
+    const isDueTimeChanged =
+      assignment.dueTime !== undefined &&
+      assignment.dueTime !== assignmentFound.dueTime
+
+    if (isDueTimeChanged) {
+      this.eventEmitter.emit('assignment.updated', {
+        assignmentId: assignment.id,
+        dueTime: assignment.dueTime ?? assignment.endTime
+      })
+    }
+
+    return updatedAssignment
   }
 
   async deleteAssignment(groupId: number, assignmentId: number) {
@@ -324,19 +320,15 @@ export class AssignmentService {
       await this.removeProblemsFromAssignment(groupId, assignmentId, problemIds)
     }
 
-    try {
-      const deletedAssignment = await this.prisma.assignment.delete({
-        where: {
-          id: assignmentId
-        }
-      })
+    const deletedAssignment = await this.prisma.assignment.delete({
+      where: {
+        id: assignmentId
+      }
+    })
 
-      this.eventEmitter.emit('assignment.deleted', deletedAssignment.id)
+    this.eventEmitter.emit('assignment.deleted', deletedAssignment.id)
 
-      return deletedAssignment
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
-    }
+    return deletedAssignment
   }
 
   async importProblemsToAssignment(
@@ -388,59 +380,55 @@ export class AssignmentService {
         continue
       }
 
-      try {
-        const [assignmentProblem] = await this.prisma.$transaction([
-          this.prisma.assignmentProblem.create({
-            data: {
-              // 원래 id: 'temp'이었는데, assignmentProblem db schema field가 바뀌어서
-              // 임시 방편으로 order: 0으로 설정합니다.
-              order: 0,
-              assignmentId,
-              problemId,
-              score,
-              solutionReleaseTime
-            }
-          }),
-          this.prisma.problem.updateMany({
-            where: {
-              id: problemId,
-              OR: [
-                {
-                  visibleLockTime: {
-                    equals: MIN_DATE
-                  }
-                },
-                {
-                  visibleLockTime: {
-                    equals: MAX_DATE
-                  }
-                },
-                {
-                  visibleLockTime: {
-                    lte: assignment.endTime
-                  }
+      const [assignmentProblem] = await this.prisma.$transaction([
+        this.prisma.assignmentProblem.create({
+          data: {
+            // 원래 id: 'temp'이었는데, assignmentProblem db schema field가 바뀌어서
+            // 임시 방편으로 order: 0으로 설정합니다.
+            order: 0,
+            assignmentId,
+            problemId,
+            score,
+            solutionReleaseTime
+          }
+        }),
+        this.prisma.problem.updateMany({
+          where: {
+            id: problemId,
+            OR: [
+              {
+                visibleLockTime: {
+                  equals: MIN_DATE
                 }
-              ]
-            },
-            data: {
-              visibleLockTime: assignment.endTime
-            }
-          }),
-          this.prisma.problem.update({
-            where: {
-              id: problemId
-            },
-            data: {
-              sharedGroups: {
-                connect: [{ id: groupId }]
+              },
+              {
+                visibleLockTime: {
+                  equals: MAX_DATE
+                }
+              },
+              {
+                visibleLockTime: {
+                  lte: assignment.endTime
+                }
               }
+            ]
+          },
+          data: {
+            visibleLockTime: assignment.endTime
+          }
+        }),
+        this.prisma.problem.update({
+          where: {
+            id: problemId
+          },
+          data: {
+            sharedGroups: {
+              connect: [{ id: groupId }]
             }
-          })
-        ])
-        assignmentProblems.push(assignmentProblem)
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
+          }
+        })
+      ])
+      assignmentProblems.push(assignmentProblem)
 
       const assignmentParticipants =
         await this.prisma.assignmentRecord.findMany({
@@ -532,46 +520,42 @@ export class AssignmentService {
         visibleLockTime = latestAssignment.endTime
       }
 
-      try {
-        const [, assignmentProblem] = await this.prisma.$transaction([
-          this.prisma.problem.updateMany({
-            where: {
-              id: problemId,
-              visibleLockTime: {
-                lte: assignment.endTime
-              }
-            },
-            data: {
-              visibleLockTime
+      const [, assignmentProblem] = await this.prisma.$transaction([
+        this.prisma.problem.updateMany({
+          where: {
+            id: problemId,
+            visibleLockTime: {
+              lte: assignment.endTime
             }
-          }),
-          this.prisma.assignmentProblem.delete({
-            where: {
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              assignmentId_problemId: {
-                assignmentId,
-                problemId
-              }
+          },
+          data: {
+            visibleLockTime
+          }
+        }),
+        this.prisma.assignmentProblem.delete({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            assignmentId_problemId: {
+              assignmentId,
+              problemId
             }
-          }),
-          this.prisma.problem.update({
-            where: {
-              id: problemId
-            },
-            data: {
-              sharedGroups: {
-                // TODO: 하나의 Group에 2개의 assignment가 있고 이 두 과제가 같은 문제를 공유하는 경우, 하나의 assignment에서 problem을 삭제하면 sharedGroups도 삭제되지만 실제로는 나머지 하나의 assignment에 포함되어있으므로 sharedGroups를 disconnect하면 안됨.
-                // TODO: 해당 Group의 하나의 assignment에만 포함되어있을 때 sharedGroups를 삭제하도록 수정해야함.
-                disconnect: [{ id: groupId }]
-              }
+          }
+        }),
+        this.prisma.problem.update({
+          where: {
+            id: problemId
+          },
+          data: {
+            sharedGroups: {
+              // TODO: 하나의 Group에 2개의 assignment가 있고 이 두 과제가 같은 문제를 공유하는 경우, 하나의 assignment에서 problem을 삭제하면 sharedGroups도 삭제되지만 실제로는 나머지 하나의 assignment에 포함되어있으므로 sharedGroups를 disconnect하면 안됨.
+              // TODO: 해당 Group의 하나의 assignment에만 포함되어있을 때 sharedGroups를 삭제하도록 수정해야함.
+              disconnect: [{ id: groupId }]
             }
-          })
-        ])
+          }
+        })
+      ])
 
-        assignmentProblems.push(assignmentProblem)
-      } catch (error) {
-        throw new UnprocessableDataException(error.message)
-      }
+      assignmentProblems.push(assignmentProblem)
     }
 
     return assignmentProblems
@@ -698,57 +682,53 @@ export class AssignmentService {
     const { id, createTime, updateTime, title, ...assignmentDataToCopy } =
       assignmentFound
 
-    try {
-      const [newAssignment, newAssignmentProblems, newAssignmentRecords] =
-        await this.prisma.$transaction(async (tx) => {
-          // 1. copy assignment
-          const newAssignment = await tx.assignment.create({
-            data: {
-              ...assignmentDataToCopy,
-              title: 'Copy of ' + title,
-              createdById: userId,
-              groupId,
-              isVisible: newVisible
-            }
-          })
-
-          // 2. copy assignment problems
-          const newAssignmentProblems = await Promise.all(
-            assignmentProblemsFound.map((assignmentProblem) =>
-              tx.assignmentProblem.create({
-                data: {
-                  order: assignmentProblem.order,
-                  assignmentId: newAssignment.id,
-                  problemId: assignmentProblem.problemId,
-                  score: assignmentProblem.score,
-                  solutionReleaseTime: assignmentProblem.solutionReleaseTime
-                }
-              })
-            )
-          )
-
-          // 3. copy assignment records (users who participated in the assignment)
-          const newAssignmentRecords = await Promise.all(
-            userAssignmentRecords.map((userAssignmentRecord) =>
-              tx.assignmentRecord.create({
-                data: {
-                  assignmentId: newAssignment.id,
-                  userId: userAssignmentRecord.userId
-                }
-              })
-            )
-          )
-
-          return [newAssignment, newAssignmentProblems, newAssignmentRecords]
+    const [newAssignment, newAssignmentProblems, newAssignmentRecords] =
+      await this.prisma.$transaction(async (tx) => {
+        // 1. copy assignment
+        const newAssignment = await tx.assignment.create({
+          data: {
+            ...assignmentDataToCopy,
+            title: 'Copy of ' + title,
+            createdById: userId,
+            groupId,
+            isVisible: newVisible
+          }
         })
 
-      return {
-        assignment: newAssignment,
-        problems: newAssignmentProblems,
-        records: newAssignmentRecords
-      }
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
+        // 2. copy assignment problems
+        const newAssignmentProblems = await Promise.all(
+          assignmentProblemsFound.map((assignmentProblem) =>
+            tx.assignmentProblem.create({
+              data: {
+                order: assignmentProblem.order,
+                assignmentId: newAssignment.id,
+                problemId: assignmentProblem.problemId,
+                score: assignmentProblem.score,
+                solutionReleaseTime: assignmentProblem.solutionReleaseTime
+              }
+            })
+          )
+        )
+
+        // 3. copy assignment records (users who participated in the assignment)
+        const newAssignmentRecords = await Promise.all(
+          userAssignmentRecords.map((userAssignmentRecord) =>
+            tx.assignmentRecord.create({
+              data: {
+                assignmentId: newAssignment.id,
+                userId: userAssignmentRecord.userId
+              }
+            })
+          )
+        )
+
+        return [newAssignment, newAssignmentProblems, newAssignmentRecords]
+      })
+
+    return {
+      assignment: newAssignment,
+      problems: newAssignmentProblems,
+      records: newAssignmentRecords
     }
   }
 
