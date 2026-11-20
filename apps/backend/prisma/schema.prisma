@@ -167,9 +167,10 @@ model Group {
 }
 
 model GroupWhitelist {
-  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId   Int    @map("group_id")
-  studentId String @map("student_id")
+  group       Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int     @map("group_id")
+  studentId   String  @map("student_id")
+  studentName String? @map("student_name")
 
   @@id([groupId, studentId])
   @@map("group_whitelist")

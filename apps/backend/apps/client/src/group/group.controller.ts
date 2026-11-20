@@ -32,6 +32,7 @@ import type {
   CreateCourseNoticeCommentDto,
   UpdateCourseNoticeCommentDto
 } from './dto/courseNotice.dto'
+import { JoinCourseDto } from './dto/join-course.dto'
 import {
   CreateCourseQnADto,
   CreateCourseQnACommentDto,
@@ -112,12 +113,14 @@ export class CourseController {
   async joinCourseById(
     @Req() req: AuthenticatedRequest,
     @Param('groupId', GroupIDPipe) groupId: number,
-    @Query('invitation') invitation: string
+    @Query('invitation') invitation: string,
+    @Body() joinCourseDto: JoinCourseDto
   ) {
     return await this.groupService.joinGroupById(
       req.user.id,
       groupId,
-      invitation
+      invitation,
+      joinCourseDto.studentId
     )
   }
 

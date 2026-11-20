@@ -1,15 +1,23 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
+import type KeyvRedis from '@keyv/redis'
+import { createKeyv } from '@keyv/redis'
 import { GroupType, Prisma } from '@prisma/client'
-import type { Cache } from 'cache-manager'
+import { createCache, type Cache } from 'cache-manager'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import chaiExclude from 'chai-exclude'
 import * as sinon from 'sinon'
+import { invitationCodeKey, studentRetryKey } from '@libs/cache'
+import {
+  MAX_STUDENT_RETRY_COUNT,
+  STUDENT_RETRY_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
-  EntityNotExistException
+  EntityNotExistException,
+  ForbiddenAccessException
 } from '@libs/exception'
 import {
   PrismaService,
@@ -252,7 +260,12 @@ describe('GroupService', () => {
     it('should return {isJoined: true} when group not set as requireApprovalBeforeJoin', async () => {
       groupId = await createTestGroup()
       sandbox.stub(cache, 'get').resolves(groupId)
-      const res = await service.joinGroupById(userId, groupId, 'invitationCode')
+      const res = await service.joinGroupById(
+        userId,
+        groupId,
+        'invitationCode',
+        '2024000000'
+      )
       const userGroupData: UserGroupData = {
         userId,
         groupId,
@@ -271,6 +284,220 @@ describe('GroupService', () => {
         })
     })
 
+    describe('whitelist retry limit', () => {
+      const listedStudentId = '2024000000'
+      const wrongStudentId = '2024999999'
+      const invitationCode = 'invitationCode'
+
+      let redisCache: Cache
+      let redis: Awaited<ReturnType<KeyvRedis<unknown>['getClient']>>
+      let originalCacheManager: Cache
+      let retryKey: string
+
+      const setAccountStudentId = (studentId: string) =>
+        transaction.user.update({
+          where: { id: userId },
+          data: { studentId }
+        })
+
+      const join = (studentId: string) =>
+        service.joinGroupById(userId, groupId, invitationCode, studentId)
+
+      const findMembership = () =>
+        transaction.userGroup.findUnique({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            userId_groupId: { userId, groupId }
+          }
+        })
+
+      before(async () => {
+        const host = process.env.REDIS_HOST ?? 'localhost'
+        const port = process.env.REDIS_PORT ?? '6380'
+        const password = process.env.REDIS_PASSWORD
+        const keyv = createKeyv(
+          password
+            ? `redis://:${password}@${host}:${port}/0`
+            : `redis://${host}:${port}/0`,
+          { throwOnErrors: true, throwOnConnectError: true }
+        )
+        redisCache = createCache({ stores: [keyv] })
+        redis = await (keyv.store as KeyvRedis<unknown>).getClient()
+      })
+
+      after(async () => {
+        await redisCache.disconnect()
+      })
+
+      beforeEach(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        originalCacheManager = (service as any).cacheManager
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(service as any).cacheManager = redisCache
+
+        groupId = await createTestGroup()
+        await transaction.groupWhitelist.create({
+          data: { groupId, studentId: listedStudentId }
+        })
+        await setAccountStudentId(listedStudentId)
+
+        retryKey = studentRetryKey(groupId, userId)
+        await redis.del(retryKey)
+        await redisCache.set(invitationCodeKey(invitationCode), groupId)
+      })
+
+      afterEach(async () => {
+        await redis.del([retryKey, invitationCodeKey(invitationCode)])
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(service as any).cacheManager = originalCacheManager
+      })
+
+      const whitelistCases = [
+        {
+          description:
+            'join when the submitted ID matches the listed account ID',
+          accountStudentId: listedStudentId,
+          submittedStudentId: listedStudentId,
+          shouldJoin: true
+        },
+        {
+          description:
+            'reject an incorrect ID even when the account ID is listed',
+          accountStudentId: listedStudentId,
+          submittedStudentId: wrongStudentId,
+          shouldJoin: false
+        },
+        {
+          description:
+            'reject another listed student ID when the account ID is unlisted',
+          accountStudentId: '2024000001',
+          submittedStudentId: listedStudentId,
+          shouldJoin: false
+        },
+        {
+          description: 'reject a matching account ID that is not listed',
+          accountStudentId: '2024000001',
+          submittedStudentId: '2024000001',
+          shouldJoin: false
+        }
+      ]
+
+      for (const testCase of whitelistCases) {
+        it(`should ${testCase.description}`, async () => {
+          await setAccountStudentId(testCase.accountStudentId)
+
+          const result = join(testCase.submittedStudentId)
+
+          if (testCase.shouldJoin) {
+            expect((await result).isJoined).to.equal(true)
+            expect(await redis.get(retryKey)).to.equal(null)
+          } else {
+            await expect(result).to.be.rejectedWith(
+              ForbiddenAccessException,
+              'Whitelist violation'
+            )
+            expect(await redis.get(retryKey)).to.equal('1')
+            expect(await service.getUserRetryCount(userId, groupId)).to.equal(1)
+          }
+
+          expect((await findMembership()) !== null).to.equal(
+            testCase.shouldJoin
+          )
+        })
+      }
+
+      it('should reject the correct ID after three failed attempts', async () => {
+        for (let i = 0; i < MAX_STUDENT_RETRY_COUNT; i++) {
+          await expect(join(wrongStudentId)).to.be.rejectedWith(
+            ForbiddenAccessException,
+            'Whitelist violation'
+          )
+        }
+
+        await expect(join(listedStudentId)).to.be.rejectedWith(
+          ForbiddenAccessException,
+          'Join request count exceed'
+        )
+        expect(await redis.get(retryKey)).to.equal(
+          String(MAX_STUDENT_RETRY_COUNT)
+        )
+        expect(await findMembership()).to.equal(null)
+      })
+
+      it('should not count more than three concurrent failed attempts', async () => {
+        // 테스트는 하나의 Prisma interactive transaction(단일 커넥션)을 공유하므로
+        // joinGroupById를 동시에 호출하면 Prisma 쿼리가 충돌합니다.
+        // 원자성이 필요한 Redis 증가 로직을 직접 동시에 호출해 검증합니다.
+        const attempts = MAX_STUDENT_RETRY_COUNT + 2
+
+        const counts = await Promise.all(
+          Array.from({ length: attempts }, () =>
+            service.incrementRetryCount(userId, groupId)
+          )
+        )
+
+        expect([...counts].sort((a, b) => a - b)).to.deep.equal([
+          ...Array(attempts - MAX_STUDENT_RETRY_COUNT).fill(-1),
+          ...Array.from({ length: MAX_STUDENT_RETRY_COUNT }, (_, i) => i + 1)
+        ])
+        expect(await redis.get(retryKey)).to.equal(
+          String(MAX_STUDENT_RETRY_COUNT)
+        )
+        expect(await service.getUserRetryCount(userId, groupId)).to.equal(
+          MAX_STUDENT_RETRY_COUNT
+        )
+
+        await expect(join(listedStudentId)).to.be.rejectedWith(
+          ForbiddenAccessException,
+          'Join request count exceed'
+        )
+        expect(await findMembership()).to.equal(null)
+      })
+
+      it('should expire the retry count from the first failed attempt', async () => {
+        await expect(join(wrongStudentId)).to.be.rejectedWith(
+          'Whitelist violation'
+        )
+        const firstTtl = await redis.pTTL(retryKey)
+        expect(firstTtl).to.be.greaterThan(0)
+        expect(firstTtl).to.be.at.most(STUDENT_RETRY_EXPIRE_TIME)
+
+        await expect(join(wrongStudentId)).to.be.rejectedWith(
+          'Whitelist violation'
+        )
+        expect(await redis.pTTL(retryKey)).to.be.at.most(firstTtl)
+      })
+
+      it('should allow the correct ID again after the retry count expires', async () => {
+        for (let i = 0; i < MAX_STUDENT_RETRY_COUNT; i++) {
+          await expect(join(wrongStudentId)).to.be.rejectedWith(
+            'Whitelist violation'
+          )
+        }
+        await expect(join(listedStudentId)).to.be.rejectedWith(
+          'Join request count exceed'
+        )
+
+        // 15분을 기다리는 대신 남은 만료 시간을 줄여 만료를 재현합니다.
+        await redis.pExpire(retryKey, 1)
+        await new Promise((resolve) => setTimeout(resolve, 20))
+
+        expect(await service.getUserRetryCount(userId, groupId)).to.equal(0)
+        expect((await join(listedStudentId)).isJoined).to.equal(true)
+      })
+
+      it('should reset a non-integer retry value instead of failing', async () => {
+        await redis.set(retryKey, JSON.stringify({ value: 2 }))
+
+        expect(await service.getUserRetryCount(userId, groupId)).to.equal(0)
+        await expect(join(wrongStudentId)).to.be.rejectedWith(
+          ForbiddenAccessException,
+          'Whitelist violation'
+        )
+        expect(await redis.get(retryKey)).to.equal('1')
+      })
+    })
+
     it('should throw ConflictFoundException when user is already group memeber', async () => {
       groupId = await createTestGroup()
       sandbox.stub(cache, 'get').resolves(groupId)
@@ -285,7 +512,7 @@ describe('GroupService', () => {
       })
 
       await expect(
-        service.joinGroupById(userId, groupId, 'invitationCode')
+        service.joinGroupById(userId, groupId, 'invitationCode', '2024000000')
       ).to.be.rejectedWith(ConflictFoundException)
     })
   })
@@ -347,5 +574,44 @@ describe('GroupService', () => {
 
       expect(res).to.deep.equal(['instructor', 'user01'])
     })
+  })
+})
+
+describe('GroupService join retry race', () => {
+  it('should reject joining when the retry limit is reached after the initial check', async () => {
+    const userId = 7
+    const groupId = 3
+    const prisma = {
+      group: {
+        findUniqueOrThrow: sinon.stub().resolves({
+          config: { requireApprovalBeforeJoin: false }
+        })
+      },
+      userGroup: { findUnique: sinon.stub().resolves(null) },
+      groupWhitelist: {
+        findFirst: sinon.stub().resolves({ studentId: '2024000000' })
+      },
+      user: {
+        findUniqueOrThrow: sinon.stub().resolves({ studentId: '2024000000' })
+      }
+    }
+    const cache = { get: sinon.stub().resolves(groupId) }
+    const service = new GroupService(
+      prisma as unknown as PrismaService,
+      cache as unknown as Cache
+    )
+    const retryCount = sinon
+      .stub(service, 'getUserRetryCount')
+      .resolves(MAX_STUDENT_RETRY_COUNT - 1)
+    const increment = sinon.stub(service, 'incrementRetryCount').resolves(-1)
+    const createMembership = sinon.stub(service, 'createUserGroup')
+
+    await expect(
+      service.joinGroupById(userId, groupId, 'invitationCode', '2024999999')
+    ).to.be.rejectedWith(ForbiddenAccessException, 'Join request count exceed')
+
+    expect(retryCount.calledOnceWithExactly(userId, groupId)).to.be.true
+    expect(increment.calledOnceWithExactly(userId, groupId)).to.be.true
+    expect(createMembership.notCalled).to.be.true
   })
 })

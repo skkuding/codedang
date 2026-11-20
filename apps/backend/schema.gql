@@ -1601,6 +1601,7 @@ input CourseInput {
   phoneNum: String
   professor: String!
   semester: String!
+  studentWhitelist: [StudentWhitelistInput!]!
   website: String
   week: Int!
 }
@@ -2005,6 +2006,7 @@ input DuplicateCourseInput {
   classNum: Int!
   courseNum: String!
   semester: String!
+  studentWhitelist: [StudentWhitelistInput!]!
 }
 
 type DuplicatedAssignmentResponse {
@@ -2278,6 +2280,7 @@ type GroupWhitelist {
   group: Group!
   groupId: Int!
   studentId: String!
+  studentName: String
 }
 
 type GroupWhitelistAvgAggregate {
@@ -2288,16 +2291,19 @@ type GroupWhitelistCountAggregate {
   _all: Int!
   groupId: Int!
   studentId: Int!
+  studentName: Int!
 }
 
 type GroupWhitelistMaxAggregate {
   groupId: Int
   studentId: String
+  studentName: String
 }
 
 type GroupWhitelistMinAggregate {
   groupId: Int
   studentId: String
+  studentName: String
 }
 
 type GroupWhitelistSumAggregate {
@@ -3608,7 +3614,7 @@ type Query {
   getTestcase(testcaseId: Int!): ProblemTestcase!
   getUserByEmailOrStudentId(email: String, groupId: Int!, studentId: String): [User!]!
   getUsers(cursor: Int, take: Int! = 10): [User!]!
-  getWhitelist(groupId: Int!): [String!]!
+  getWhitelist(groupId: Int!): [GroupWhitelist!]!
   getWorkbookProblems(groupId: Int!, workbookId: Int!): [WorkbookProblem!]!
   overviewCheckByAssignmentProblemId(assignmentId: Int!, cursor: Int, groupId: Int!, problemId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
   overviewCheckByRequestId(checkId: Int!, cursor: Int, groupId: Int!, take: Int! = 50): [GetCheckResultSummaryOutput!]!
@@ -3673,6 +3679,11 @@ input Snippet {
 input Solution {
   code: String!
   language: Language!
+}
+
+input StudentWhitelistInput {
+  studentId: String!
+  studentName: String!
 }
 
 type StudyInfo {

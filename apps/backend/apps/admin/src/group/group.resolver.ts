@@ -3,6 +3,7 @@ import {
   CourseNotice,
   Group,
   GroupType,
+  GroupWhitelist,
   UserGroup,
   CourseQnA,
   CourseQnAComment
@@ -218,7 +219,7 @@ export class WhitelistResolver {
     return await this.whitelistService.deleteWhitelist(groupId)
   }
 
-  @Query(() => [String])
+  @Query(() => [GroupWhitelist])
   async getWhitelist(
     @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number
   ) {
