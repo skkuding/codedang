@@ -14,14 +14,8 @@ ARG app_env
 
 ENV APP_ENV=${app_env}
 
-# The eMudhra intermediate CA compromise requires a patched trust store even
-# though Go performs its own SPKI-based block. Fail the build rather than ship
-# an image with an older ca-certificates package.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates \
-  && installed="$(dpkg-query -W -f='${Version}' ca-certificates)" \
-  && dpkg --compare-versions "$installed" ge '20260816ubuntu0.24.04.1' \
-  && echo "ca-certificates ${installed}" \
   && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
