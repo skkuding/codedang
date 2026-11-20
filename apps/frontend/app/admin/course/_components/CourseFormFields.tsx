@@ -3,10 +3,19 @@
 import type { SemesterSeason } from '@/types/type'
 import { useState } from 'react'
 import { FormSection } from '../../_components/FormSection'
+import { ContactForm } from './ContactForm'
 import { DropdownForm } from './DropdownForm'
 import { InputForm } from './InputForm'
 
-export function CourseFormFields() {
+type CourseFormFieldsProps = {
+  showSection?: boolean
+  showContact?: boolean
+}
+
+export function CourseFormFields({
+  showSection = true,
+  showContact = true
+}: CourseFormFieldsProps) {
   const [courseNumber, setCourseNumber] = useState('')
 
   const handleCourseNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,13 +76,15 @@ export function CourseFormFields() {
           onChange={handleCourseNumberChange}
         />
       </div>
-      <InputForm
-        placeholder="1"
-        name="classNum"
-        label="Class Section"
-        type="number"
-        maxLength={2}
-      />
+      {showSection && (
+        <InputForm
+          placeholder="1"
+          name="classNum"
+          label="Class Section"
+          type="number"
+          maxLength={2}
+        />
+      )}
       <DropdownForm
         name="week"
         label="Week"
@@ -86,63 +97,7 @@ export function CourseFormFields() {
         items={semesterItems}
         placeholder={semesterItems[0]}
       />
-      <span className="whitespace-nowrap text-lg">Contact</span>
-      <div className="bg-color-neutral-99 flex flex-col gap-[10px] rounded-[10px] p-5">
-        <div className="flex items-end gap-2">
-          <InputForm
-            label="Email"
-            placeholder="example"
-            name="emailLocal"
-            type="text"
-            className="w-[45%]"
-          />
-          <span className="select-none py-[10px]">@</span>
-          <InputForm
-            placeholder="skku.edu"
-            name="emailDomain"
-            type="text"
-            className="w-[55%]"
-          />
-        </div>
-        <div className="flex items-end gap-2">
-          <InputForm
-            label="Phone Number"
-            placeholder="010"
-            name="phoneNum1"
-            type="text"
-            maxLength={3}
-            className="w-[28%]"
-          />
-          <span className="select-none py-[10px]">-</span>
-          <InputForm
-            placeholder="1234"
-            name="phoneNum2"
-            type="text"
-            maxLength={4}
-            className="w-[36%]"
-          />
-          <span className="select-none py-[10px]">-</span>
-          <InputForm
-            placeholder="5678"
-            name="phoneNum3"
-            type="text"
-            maxLength={4}
-            className="w-[36%]"
-          />
-        </div>
-        <InputForm
-          label="Office"
-          placeholder="제2공학관 26B12A호"
-          name="office"
-          type="text"
-        />
-        <InputForm
-          label="Website"
-          placeholder="https://example.com"
-          name="website"
-          type="text"
-        />
-      </div>
+      {showContact && <ContactForm />}
     </div>
   )
 }
