@@ -26,5 +26,6 @@ export const GqlErrorCodeMapTable: Partial<Record<HttpStatus, string>> = {
   [HttpStatus.FORBIDDEN]: GraphQLErrorCode.forbidden,
   [HttpStatus.NOT_FOUND]: GraphQLErrorCode.notFound,
   [HttpStatus.CONFLICT]: GraphQLErrorCode.conflict,
-  [HttpStatus.UNPROCESSABLE_ENTITY]: GraphQLErrorCode.unprocessable
+  [HttpStatus.UNPROCESSABLE_ENTITY]: GraphQLErrorCode.unprocessable,
+  [HttpStatus.INTERNAL_SERVER_ERROR]: GraphQLErrorCode.internalServerError
 }
