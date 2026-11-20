@@ -1,0 +1,79 @@
+meta {
+  name: Update Blueprint Course - Fixture Sections Synced
+  type: graphql
+  seq: 21
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getBlueprintCourse(blueprintCourseId: {{fixtureBlueprintCourseId}}) {
+      id courseTitle courseNum semester week professor email website office phoneNum
+      sections {
+        id groupName config
+        courseInfo {
+          blueprintCourseId classNum
+          courseNum semester week professor email website office phoneNum
+        }
+      }
+    }
+  }
+}
+
+script:pre-request {
+  if (!bru.getVar("fixtureBlueprintCourseId") || !bru.getVar("fixtureSectionsBefore")) {
+    throw new Error('Run "Update Blueprint Course - Fixture Sections" first.');
+  }
+}
+
+tests {
+  test("Fixture Blueprint has sections", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const sections = body.data.getBlueprintCourse.sections;
+    expect(sections.length).to.be.greaterThan(0);
+    const before = bru.getVar("fixtureSectionsBefore");
+    expect(sections.map((section) => section.id)).to.have.members(before.map((section) => section.id));
+  });
+
+  test("Every section has the updated common fields", function () {
+    const course = res.getBody().data.getBlueprintCourse;
+    expect(course.semester).to.equal(bru.getVar("fixtureSemester"));
+    expect(course.sections.length).to.be.greaterThan(0);
+    for (const section of course.sections) {
+      expect(section.courseInfo.blueprintCourseId).to.equal(Number(course.id));
+      expect(section.courseInfo.semester).to.equal(bru.getVar("fixtureSemester"));
+      expect(section.courseInfo.week).to.equal(15);
+      expect(section.courseInfo.professor).to.equal("Fixture Synced Professor");
+      expect(section.courseInfo.email).to.equal(null);
+      expect(section.courseInfo.office).to.equal("Fixture Synced Office");
+      for (const field of ["courseNum", "semester", "week", "professor", "email", "website", "office", "phoneNum"]) {
+        expect(section.courseInfo[field], field).to.equal(course[field]);
+      }
+    }
+  });
+
+  test("Section-only fields and courseTitle are not synced", function () {
+    const course = res.getBody().data.getBlueprintCourse;
+    const before = bru.getVar("fixtureSectionsBefore");
+    expect(course.courseTitle).to.equal(bru.getVar("fixtureCourseTitle"));
+    for (const section of course.sections) {
+      const previous = before.find((item) => item.id === section.id);
+      expect(section.groupName).to.equal(previous.groupName);
+      expect(section.groupName).to.not.equal(course.courseTitle);
+      expect(section.config).to.deep.equal(previous.config);
+      expect(section.courseInfo.classNum).to.equal(previous.courseInfo.classNum);
+    }
+  });
+}
+
+docs {
+  Run after "Update Blueprint Course - Fixture Sections".
+  Fails instead of passing when the fixture Blueprint has no sections.
+}
