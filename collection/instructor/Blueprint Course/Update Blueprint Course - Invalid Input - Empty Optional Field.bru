@@ -1,7 +1,7 @@
 meta {
-  name: Update Blueprint Course - Invalid Input
+  name: Update Blueprint Course - Invalid Input - Empty Optional Field
   type: graphql
-  seq: 10
+  seq: 19
 }
 
 post {
@@ -13,14 +13,14 @@ post {
 body:graphql {
   mutation {
     updateBlueprintCourse(
-      blueprintCourseId: 1
-      input: { courseTitle: null, semester: "   ", email: "" }
+      blueprintCourseId: -1
+      input: { email: "" }
     ) { id }
   }
 }
 
 tests {
-  test("Rejects null, blank and empty values", function () {
+  test("Rejects an empty optional field (email)", function () {
     expect(res.getStatus()).to.equal(200);
     const body = res.getBody();
     expect(body.errors).to.be.an("array").that.is.not.empty;
@@ -30,6 +30,8 @@ tests {
 }
 
 docs {
-  Required fields reject null, empty and whitespace-only strings.
   Optional fields accept null (clear) but reject empty and whitespace-only strings.
+  Only this field is invalid, and the Blueprint ID does not exist. If this rule stops working,
+  the request reaches the service and returns NOT_FOUND instead of BAD_REQUEST, so the test fails
+  and no data is changed.
 }

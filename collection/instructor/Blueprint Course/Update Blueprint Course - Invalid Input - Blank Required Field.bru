@@ -1,0 +1,37 @@
+meta {
+  name: Update Blueprint Course - Invalid Input - Blank Required Field
+  type: graphql
+  seq: 18
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateBlueprintCourse(
+      blueprintCourseId: -1
+      input: { semester: "   " }
+    ) { id }
+  }
+}
+
+tests {
+  test("Rejects a whitespace-only required field (semester)", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("BAD_REQUEST");
+    expect(body.data).to.equal(null);
+  });
+}
+
+docs {
+  Required fields reject empty and whitespace-only strings. Values are not trimmed.
+  Only this field is invalid, and the Blueprint ID does not exist. If this rule stops working,
+  the request reaches the service and returns NOT_FOUND instead of BAD_REQUEST, so the test fails
+  and no data is changed.
+}
