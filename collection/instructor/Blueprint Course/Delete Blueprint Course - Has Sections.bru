@@ -1,0 +1,58 @@
+meta {
+  name: Delete Blueprint Course - Has Sections
+  type: graphql
+  seq: 15
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteBlueprintCourse(blueprintCourseId: {{blueprintWithSectionsId}}) { id }
+  }
+}
+
+script:pre-request {
+  // Section 생성 API가 아직 없으므로, 조회는 성공했지만 Section이 있는 Blueprint가 없을 때만 건너뜁니다.
+  // 조회 실패나 응답 형식 오류는 건너뛰지 않고 실패로 처리합니다.
+  const axios = require("axios");
+  const result = await axios.post(
+    bru.getEnvVar("gqlUrl"),
+    { query: "{ getBlueprintCourses { id sections { id } } }" },
+    { headers: { Authorization: req.getHeader("Authorization"), Cookie: req.getHeader("Cookie") }, timeout: 5000 }
+  );
+  const { data, errors } = result.data ?? {};
+  if (Array.isArray(errors) && errors.length > 0) {
+    throw new Error(`getBlueprintCourses failed: ${errors[0].extensions?.code ?? ""} ${errors[0].message}`);
+  }
+  const courses = data?.getBlueprintCourses;
+  if (!Array.isArray(courses) || !courses.every((course) => Array.isArray(course?.sections))) {
+    throw new Error("getBlueprintCourses returned an unexpected shape: expected an array of courses with sections.");
+  }
+  const target = courses.find((course) => course.sections.length > 0);
+  if (!target) {
+    bru.runner.skipRequest();
+    return;
+  }
+  bru.setVar("blueprintWithSectionsId", Number(target.id));
+}
+
+tests {
+  test("Rejects deleting a Blueprint that has sections", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("CONFLICT");
+    expect(body.data).to.equal(null);
+  });
+}
+
+docs {
+  Picks an accessible Blueprint that has at least one section. Skipped only when the lookup
+  succeeds and none exists, because sections cannot be created through an API yet.
+  A failed lookup (GraphQL errors) or an unexpected response shape fails the request.
+}

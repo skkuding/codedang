@@ -78,4 +78,23 @@ export class BlueprintCourseResolver {
       req.user
     )
   }
+
+  /**
+   * Section이 없는 Blueprint 강좌를 삭제합니다.
+   * 인가는 서비스의 Blueprint leader 검사가 담당합니다.
+   *
+   * @return the deleted Blueprint course.
+   */
+  @Mutation(() => BlueprintCourseOutput)
+  @UseDisableAdminGuard()
+  async deleteBlueprintCourse(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintCourseId', { type: () => Int })
+    blueprintCourseId: number
+  ) {
+    return await this.blueprintCourseService.deleteBlueprintCourse(
+      blueprintCourseId,
+      req.user
+    )
+  }
 }
