@@ -2717,6 +2717,7 @@ type Mutation {
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
   updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
   updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
+  updateBlueprintCourse(blueprintCourseId: Int!, input: UpdateBlueprintCourseInput!): BlueprintCourseOutput!
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
@@ -4572,6 +4573,18 @@ input UpdateAssignmentProblemRecordInput {
   finalScore: Float
   problemId: Int!
   userId: Int!
+}
+
+input UpdateBlueprintCourseInput {
+  courseNum: String
+  courseTitle: String
+  email: String
+  office: String
+  phoneNum: String
+  professor: String
+  semester: String
+  website: String
+  week: Int
 }
 
 input UpdateContestInput {

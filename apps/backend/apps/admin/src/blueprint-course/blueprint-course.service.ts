@@ -1,9 +1,43 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import type { AuthenticatedUser } from '@libs/auth'
 import { EntityNotExistException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from './blueprint-access.service'
-import type { BlueprintCourseInput } from './model/blueprint-course.input'
+import type {
+  BlueprintCourseInput,
+  UpdateBlueprintCourseInput
+} from './model/blueprint-course.input'
+
+/**
+ * Blueprint에서만 수정하고 모든 Section의 CourseInfo로 단방향 동기화하는 공통 필드입니다.
+ * courseTitle은 Blueprint에만 저장하므로 포함하지 않습니다.
+ */
+const SECTION_COMMON_FIELDS = [
+  'courseNum',
+  'semester',
+  'week',
+  'professor',
+  'email',
+  'website',
+  'office',
+  'phoneNum'
+] as const
+
+/**
+ * 입력에서 생략된(undefined) 필드만 제외합니다. null은 "값 삭제"이므로 유지합니다.
+ */
+const pickProvided = <T extends object, K extends keyof T>(
+  source: T,
+  keys: readonly K[]
+): Partial<Pick<T, K>> => {
+  const picked: Partial<Pick<T, K>> = {}
+  for (const key of keys) {
+    if (source[key] !== undefined) {
+      picked[key] = source[key]
+    }
+  }
+  return picked
+}
 
 @Injectable()
 export class BlueprintCourseService {
@@ -143,5 +177,56 @@ export class BlueprintCourseService {
         memberNum: group._count.userGroup
       }))
     }
+  }
+
+  /**
+   * Blueprint 강좌를 수정하고, 입력된 공통 필드를 모든 Section의 CourseInfo에 반영합니다.
+   *
+   * - 입력에 있는 필드만 수정합니다. null은 선택 필드의 값을 지웁니다.
+   * - courseTitle은 Blueprint에만 저장하고, Section 고유 필드(groupName, classNum, config)는 바꾸지 않습니다.
+   * - Blueprint 수정과 Section 반영은 하나의 transaction이라 함께 성공하거나 함께 롤백됩니다.
+   *   Blueprint 행을 먼저 수정해 행 잠금을 잡고, course_info는 그다음에 수정합니다.
+   *
+   * @returns 수정된 Blueprint 강좌
+   * @throws BadRequestException - 수정할 필드가 하나도 없는 경우
+   * @throws EntityNotExistException - Blueprint가 존재하지 않는 경우
+   * @throws ForbiddenAccessException - Blueprint leader가 아닌 경우
+   */
+  async updateBlueprintCourse(
+    blueprintCourseId: number,
+    input: UpdateBlueprintCourseInput,
+    user: AuthenticatedUser
+  ) {
+    const sectionData = pickProvided(input, SECTION_COMMON_FIELDS)
+    const blueprintData = {
+      ...pickProvided(input, ['courseTitle'] as const),
+      ...sectionData
+    }
+    if (Object.keys(blueprintData).length === 0) {
+      throw new BadRequestException('At least one field must be provided')
+    }
+
+    await this.blueprintAccessService.assertBlueprintLeader(
+      user,
+      blueprintCourseId
+    )
+
+    const updateBlueprint = this.prisma.blueprintCourse.update({
+      where: { id: blueprintCourseId },
+      data: blueprintData
+    })
+
+    if (Object.keys(sectionData).length === 0) {
+      return await updateBlueprint
+    }
+
+    const [updated] = await this.prisma.$transaction([
+      updateBlueprint,
+      this.prisma.courseInfo.updateMany({
+        where: { blueprintCourseId },
+        data: sectionData
+      })
+    ])
+    return updated
   }
 }

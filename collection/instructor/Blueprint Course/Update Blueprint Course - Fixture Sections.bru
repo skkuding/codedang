@@ -1,0 +1,85 @@
+meta {
+  name: Update Blueprint Course - Fixture Sections
+  type: graphql
+  seq: 20
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    updateBlueprintCourse(
+      blueprintCourseId: {{fixtureBlueprintCourseId}}
+      input: {
+        courseTitle: "{{fixtureCourseTitle}}"
+        semester: "{{fixtureSemester}}"
+        week: 15
+        professor: "Fixture Synced Professor"
+        email: null
+        office: "Fixture Synced Office"
+      }
+    ) {
+      id courseTitle courseNum semester week professor email website office phoneNum
+    }
+  }
+}
+
+script:pre-request {
+  // Section 생성 API가 아직 없으므로 blueprint-sections.fixture.sql로 만든 Blueprint(BRU3201)를 사용합니다.
+  const axios = require("axios");
+  const post = async (query) =>
+    (
+      await axios.post(
+        bru.getEnvVar("gqlUrl"),
+        { query },
+        { headers: { Authorization: req.getHeader("Authorization"), Cookie: req.getHeader("Cookie") }, timeout: 5000 }
+      )
+    ).data;
+
+  const list = await post("{ getBlueprintCourses { id courseNum } }");
+  const fixture = (list.data?.getBlueprintCourses ?? []).find((course) => course.courseNum === "BRU3201");
+  if (!fixture) {
+    throw new Error('Load "blueprint-sections.fixture.sql" into the local test database first.');
+  }
+
+  const detail = await post(
+    `{ getBlueprintCourse(blueprintCourseId: ${Number(fixture.id)}) { sections { id groupName config courseInfo { classNum } } } }`
+  );
+  const sections = detail.data?.getBlueprintCourse?.sections ?? [];
+  if (sections.length === 0) {
+    throw new Error('The fixture Blueprint has no sections. Reload "blueprint-sections.fixture.sql".');
+  }
+
+  // 수정 전 Section 고유 필드를 저장해 두고, 동기화 후에도 바뀌지 않았는지 확인합니다.
+  bru.setVar("fixtureBlueprintCourseId", Number(fixture.id));
+  bru.setVar("fixtureSectionsBefore", sections);
+  const stamp = Date.now();
+  bru.setVar("fixtureCourseTitle", `Bruno Sections Fixture ${stamp}`);
+  bru.setVar("fixtureSemester", `Fixture ${stamp}`);
+}
+
+tests {
+  test("Updates the fixture Blueprint with the provided fields", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const course = body.data.updateBlueprintCourse;
+    expect(Number(course.id)).to.equal(Number(bru.getVar("fixtureBlueprintCourseId")));
+    expect(course.courseTitle).to.equal(bru.getVar("fixtureCourseTitle"));
+    expect(course.semester).to.equal(bru.getVar("fixtureSemester"));
+    expect(course.week).to.equal(15);
+    expect(course.professor).to.equal("Fixture Synced Professor");
+    expect(course.email).to.equal(null);
+    expect(course.office).to.equal("Fixture Synced Office");
+  });
+}
+
+docs {
+  Requires "blueprint-sections.fixture.sql" (a Blueprint with two sections) in the local test database.
+  Uses new semester and courseTitle values on every run, so the sync check below cannot pass on stale data.
+  Run "Update Blueprint Course - Fixture Sections Synced" next.
+}

@@ -12,6 +12,7 @@ import {
   getNamedType,
   graphql,
   isObjectType,
+  type GraphQLInputObjectType,
   type GraphQLObjectType,
   type GraphQLSchema
 } from 'graphql'
@@ -20,7 +21,10 @@ import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
 import { ADMIN_NOT_NEEDED_KEY } from '../../../../libs/auth/src/guard.decorator'
 import { BlueprintCourseResolver } from './blueprint-course.resolver'
 import { BlueprintCourseService } from './blueprint-course.service'
-import type { BlueprintCourseInput } from './model/blueprint-course.input'
+import type {
+  BlueprintCourseInput,
+  UpdateBlueprintCourseInput
+} from './model/blueprint-course.input'
 
 const user = new AuthenticatedUser(1, 'professor', Role.User)
 const req = { user } as AuthenticatedRequest
@@ -42,7 +46,8 @@ const createdBlueprintCourse = {
 const blueprintCourseService = {
   createBlueprintCourse: stub(),
   getBlueprintCourses: stub(),
-  getBlueprintCourse: stub()
+  getBlueprintCourse: stub(),
+  updateBlueprintCourse: stub()
 }
 
 describe('BlueprintCourseResolver', () => {
@@ -63,6 +68,7 @@ describe('BlueprintCourseResolver', () => {
     blueprintCourseService.createBlueprintCourse.reset()
     blueprintCourseService.getBlueprintCourses.reset()
     blueprintCourseService.getBlueprintCourse.reset()
+    blueprintCourseService.updateBlueprintCourse.reset()
   })
 
   it('should be defined', () => {
@@ -137,6 +143,47 @@ describe('BlueprintCourseResolver', () => {
       await expect(resolver.getBlueprintCourses(req)).to.be.rejectedWith(
         'Query failed'
       )
+    })
+  })
+
+  describe('updateBlueprintCourse', () => {
+    const updateInput: UpdateBlueprintCourseInput = {
+      semester: '2027 Spring',
+      email: null
+    }
+
+    it('should delegate the course ID, input and full authenticated user', async () => {
+      const updated = { ...createdBlueprintCourse, semester: '2027 Spring' }
+      blueprintCourseService.updateBlueprintCourse.resolves(updated)
+
+      expect(
+        await resolver.updateBlueprintCourse(req, 17, updateInput)
+      ).to.equal(updated)
+      expect(
+        blueprintCourseService.updateBlueprintCourse.calledOnceWithExactly(
+          17,
+          updateInput,
+          user
+        )
+      ).to.be.true
+    })
+
+    it('should allow regular users through the admin guard', () => {
+      expect(
+        Reflect.getMetadata(
+          ADMIN_NOT_NEEDED_KEY,
+          BlueprintCourseResolver.prototype.updateBlueprintCourse
+        )
+      ).to.equal(true)
+    })
+
+    it('should propagate service failures', async () => {
+      blueprintCourseService.updateBlueprintCourse.rejects(
+        new Error('Access denied')
+      )
+      await expect(
+        resolver.updateBlueprintCourse(req, 17, updateInput)
+      ).to.be.rejectedWith('Access denied')
     })
   })
 
@@ -479,6 +526,37 @@ describe('BlueprintCourseResolver GraphQL schema', () => {
     })
     expect(result.errors).to.equal(undefined)
     expect(result.data?.getBlueprintCourses).to.deep.equal([])
+  })
+
+  it('should expose updateBlueprintCourse with an all-optional input', () => {
+    const field = schema.getMutationType()!.getFields().updateBlueprintCourse
+    expect(String(field.type)).to.equal('BlueprintCourseOutput!')
+    expect(field.args.map((arg) => [arg.name, String(arg.type)])).to.deep.equal(
+      [
+        ['blueprintCourseId', 'Int!'],
+        ['input', 'UpdateBlueprintCourseInput!']
+      ]
+    )
+
+    const inputType = schema.getType(
+      'UpdateBlueprintCourseInput'
+    ) as GraphQLInputObjectType
+    const fields = Object.values(inputType.getFields()).map((inputField) => [
+      inputField.name,
+      String(inputField.type)
+    ])
+    // 모든 필드를 생략할 수 있어야 하고, Section 고유 필드는 받지 않습니다.
+    expect(fields).to.have.deep.members([
+      ['courseTitle', 'String'],
+      ['courseNum', 'String'],
+      ['semester', 'String'],
+      ['week', 'Int'],
+      ['professor', 'String'],
+      ['email', 'String'],
+      ['website', 'String'],
+      ['office', 'String'],
+      ['phoneNum', 'String']
+    ])
   })
 
   it('should not expose fields that the service does not populate', () => {
