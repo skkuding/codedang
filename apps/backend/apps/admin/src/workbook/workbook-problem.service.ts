@@ -13,7 +13,7 @@ export class WorkbookProblemService {
    * @param {number} groupId Group ID
    * @param {number} workbookId Workbook ID
    * @returns The workbookProblems in the workbook
-   * @throws {NotFoundException} If the group with groupId has no workbook with workbookId
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the group with groupId has no workbook with workbookId
    */
   async getWorkbookProblems(
     groupId: number,
@@ -39,7 +39,7 @@ export class WorkbookProblemService {
    * @param {number} workbookId Workbook ID
    * @param {number[]} orders problemIds in the new order (must include every problem in the workbook)
    * @returns The reordered workbookProblems
-   * @throws {NotFoundException} If the group with groupId has no workbook with workbookId
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the group with groupId has no workbook with workbookId
    * @throws {UnprocessableDataException} If the length of orders differs from the number of problems in the workbook
    */
   async updateWorkbookProblemsOrder(

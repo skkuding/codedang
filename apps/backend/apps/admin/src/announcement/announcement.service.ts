@@ -14,7 +14,7 @@ export class AnnouncementService {
    * @param {number} contestId Contest ID
    * @param {CreateAnnouncementInput} input Announcement content and the order of the problem to link (problemOrder)
    * @returns The created announcement
-   * @throws {NotFoundException} Thrown in the following cases:
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 in the following cases:
    * - The contest with contestId does not exist
    * - No contest problem exists at problemOrder
    */
@@ -54,7 +54,7 @@ export class AnnouncementService {
    *
    * @param {number} contestId Contest ID
    * @returns Announcements with problemOrder (null for announcements not linked to a problem)
-   * @throws {NotFoundException} If the contest with contestId does not exist
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the contest with contestId does not exist
    */
   async getAnnouncementsByContestId(contestId: number) {
     await this.prisma.contest.findUniqueOrThrow({ where: { id: contestId } })
@@ -88,7 +88,7 @@ export class AnnouncementService {
    * @param {number} contestId Contest ID
    * @param {number} id Announcement ID
    * @returns The announcement
-   * @throws {NotFoundException} Thrown in the following cases:
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 in the following cases:
    * - The contest with contestId does not exist
    * - The announcement with id does not exist
    */
@@ -106,7 +106,7 @@ export class AnnouncementService {
    * @param {number} contestId Contest ID
    * @param {UpdateAnnouncementInput} input ID of the announcement to update and the data to change
    * @returns The updated announcement
-   * @throws {NotFoundException} Thrown in the following cases:
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 in the following cases:
    * - The contest with contestId does not exist
    * - The announcement with input.id does not exist
    */
@@ -127,7 +127,7 @@ export class AnnouncementService {
    * @param {number} contestId Contest ID
    * @param {number} id ID of the announcement to delete
    * @returns The deleted announcement
-   * @throws {NotFoundException} Thrown in the following cases:
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 in the following cases:
    * - The contest with contestId does not exist
    * - The announcement with id does not exist
    */

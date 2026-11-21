@@ -13,7 +13,7 @@ export class AnnouncementService {
    *
    * @param {number} contestId Contest ID
    * @returns Announcements with problemOrder instead of problemId
-   * @throws {NotFoundException} If the contest with contestId does not exist
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the contest with contestId does not exist
    */
   async getContestAnnouncements(
     contestId: number
