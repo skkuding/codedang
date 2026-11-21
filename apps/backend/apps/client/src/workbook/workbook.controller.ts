@@ -18,7 +18,7 @@ export class WorkbookController {
   constructor(private readonly workbookService: WorkbookService) {}
 
   /**
-   * 그룹에 속한 공개 문제집 목록을 조회합니다.
+   * Gets the visible workbooks of a group.
    */
   @Get()
   async getWorkbooks(
@@ -35,7 +35,7 @@ export class WorkbookController {
   }
 
   /**
-   * 공개된 문제집의 정보와 포함된 문제 목록을 조회합니다.
+   * Gets a visible workbook and its problems.
    */
   @Get(':workbookId')
   async getWorkbook(

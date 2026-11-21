@@ -10,7 +10,7 @@ export class AnnouncementController {
   constructor(private readonly announcementService: AnnouncementService) {}
 
   /**
-   * 대회의 공지 목록을 최신순으로 조회합니다.
+   * Gets the announcements of a contest, newest first.
    */
   @Get()
   async getAnnouncements(

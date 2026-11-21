@@ -12,7 +12,7 @@ export class AnnouncementResolver {
   constructor(private readonly announcementService: AnnouncementService) {}
 
   /**
-   * 대회에 새로운 공지를 생성합니다.
+   * Creates a new announcement for a contest.
    */
   @Mutation(() => Announcement)
   async createAnnouncement(
@@ -24,7 +24,7 @@ export class AnnouncementResolver {
   }
 
   /**
-   * 대회의 공지 목록을 최신순으로 조회합니다.
+   * Gets the announcements of a contest, newest first.
    */
   @Query(() => [AnnouncementWithProblemOrder], {
     name: 'announcementByContestId'
@@ -36,7 +36,7 @@ export class AnnouncementResolver {
   }
 
   /**
-   * 특정 공지를 조회합니다.
+   * Gets a single announcement.
    */
   @Query(() => Announcement, { name: 'announcement' })
   async getAnnouncementById(
@@ -47,7 +47,7 @@ export class AnnouncementResolver {
   }
 
   /**
-   * 공지 내용을 수정합니다.
+   * Updates an announcement.
    */
   @Mutation(() => Announcement)
   async updateAnnouncement(
@@ -59,7 +59,7 @@ export class AnnouncementResolver {
   }
 
   /**
-   * 공지를 삭제합니다.
+   * Deletes an announcement.
    */
   @Mutation(() => Announcement)
   async removeAnnouncement(

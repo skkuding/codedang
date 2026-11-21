@@ -24,7 +24,7 @@ export class WorkbookProblemResolver {
   ) {}
 
   /**
-   * 그룹에 속한 문제집의 문제 목록을 조회합니다.
+   * Gets the problems of a workbook in a group.
    */
   @Query(() => [WorkbookProblem], { name: 'getWorkbookProblems' })
   async getWorkbookProblems(
@@ -39,7 +39,7 @@ export class WorkbookProblemResolver {
   }
 
   /**
-   * 문제집에 포함된 문제들의 순서를 변경합니다.
+   * Changes the order of the problems in a workbook.
    */
   @Mutation(() => [WorkbookProblem])
   async updateWorkbookProblemsOrder(
@@ -57,7 +57,7 @@ export class WorkbookProblemResolver {
   }
 
   /**
-   * workbookProblem에 연결된 문제의 상세 정보를 조회합니다.
+   * Gets the details of the problem linked to a workbookProblem.
    */
   @ResolveField('problem', () => ProblemWithIsVisible)
   async getProblem(@Parent() workbookProblem: WorkbookProblem) {

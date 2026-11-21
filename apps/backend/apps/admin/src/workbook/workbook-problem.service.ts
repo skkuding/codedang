@@ -8,12 +8,12 @@ export class WorkbookProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 그룹에 속한 문제집의 문제 목록을 조회합니다.
+   * Gets the problems of a workbook in a group.
    *
-   * @param {number} groupId 그룹 ID
-   * @param {number} workbookId 문제집 ID
-   * @returns 문제집에 포함된 workbookProblem 목록
-   * @throws {NotFoundException} groupId 그룹에 workbookId에 해당하는 문제집이 없는 경우 발생합니다.
+   * @param {number} groupId Group ID
+   * @param {number} workbookId Workbook ID
+   * @returns The workbookProblems in the workbook
+   * @throws {NotFoundException} If the group with groupId has no workbook with workbookId
    */
   async getWorkbookProblems(
     groupId: number,
@@ -32,15 +32,15 @@ export class WorkbookProblemService {
   }
 
   /**
-   * 문제집에 포함된 문제들의 순서를 변경합니다.
-   * orders에 나열된 problemId의 위치(인덱스 + 1)가 각 문제의 새로운 순서가 됩니다.
+   * Changes the order of the problems in a workbook.
+   * Each problem's new order is the position of its problemId in orders (index + 1).
    *
-   * @param {number} groupId 그룹 ID
-   * @param {number} workbookId 문제집 ID
-   * @param {number[]} orders 변경할 순서대로 나열한 problemId 목록 (문제집의 모든 문제를 포함해야 함)
-   * @returns 순서가 변경된 workbookProblem 목록
-   * @throws {NotFoundException} groupId 그룹에 workbookId에 해당하는 문제집이 없는 경우 발생합니다.
-   * @throws {UnprocessableDataException} orders의 길이가 문제집의 문제 수와 다른 경우 발생합니다.
+   * @param {number} groupId Group ID
+   * @param {number} workbookId Workbook ID
+   * @param {number[]} orders problemIds in the new order (must include every problem in the workbook)
+   * @returns The reordered workbookProblems
+   * @throws {NotFoundException} If the group with groupId has no workbook with workbookId
+   * @throws {UnprocessableDataException} If the length of orders differs from the number of problems in the workbook
    */
   async updateWorkbookProblemsOrder(
     groupId: number,
