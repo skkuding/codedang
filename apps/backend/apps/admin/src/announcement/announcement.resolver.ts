@@ -11,6 +11,9 @@ import { UpdateAnnouncementInput } from './model/update-announcement.input'
 export class AnnouncementResolver {
   constructor(private readonly announcementService: AnnouncementService) {}
 
+  /**
+   * Creates a new announcement for a contest.
+   */
   @Mutation(() => Announcement)
   async createAnnouncement(
     @Args('contestId', { type: () => Int }) contestId: number,
@@ -20,6 +23,9 @@ export class AnnouncementResolver {
     return await this.announcementService.createAnnouncement(contestId, input)
   }
 
+  /**
+   * Gets the announcements of a contest, newest first.
+   */
   @Query(() => [AnnouncementWithProblemOrder], {
     name: 'announcementByContestId'
   })
@@ -29,6 +35,9 @@ export class AnnouncementResolver {
     return await this.announcementService.getAnnouncementsByContestId(contestId)
   }
 
+  /**
+   * Gets a single announcement.
+   */
   @Query(() => Announcement, { name: 'announcement' })
   async getAnnouncementById(
     @Args('contestId', { type: () => Int }) contestId: number,
@@ -37,6 +46,9 @@ export class AnnouncementResolver {
     return await this.announcementService.getAnnouncementById(contestId, id)
   }
 
+  /**
+   * Updates an announcement.
+   */
   @Mutation(() => Announcement)
   async updateAnnouncement(
     @Args('contestId', { type: () => Int }) contestId: number,
@@ -46,6 +58,9 @@ export class AnnouncementResolver {
     return await this.announcementService.updateAnnouncement(contestId, input)
   }
 
+  /**
+   * Deletes an announcement.
+   */
   @Mutation(() => Announcement)
   async removeAnnouncement(
     @Args('contestId', { type: () => Int }) contestId: number,

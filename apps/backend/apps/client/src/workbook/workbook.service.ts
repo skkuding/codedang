@@ -7,6 +7,14 @@ import { PrismaService } from '@libs/prisma'
 export class WorkbookService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Gets the visible (isVisible) workbooks of a group with cursor-based pagination.
+   *
+   * @param {number | null} cursor Pagination cursor (ID of the last fetched workbook)
+   * @param {number} take Number of workbooks to fetch
+   * @param {number} groupId Group ID
+   * @returns Workbooks (`data`) and the total number of visible workbooks (`total`)
+   */
   async getWorkbooksByGroupId(
     cursor: number | null,
     take: number,
@@ -39,6 +47,14 @@ export class WorkbookService {
     return { data: workbooks, total }
   }
 
+  /**
+   * Gets a visible workbook and its problems.
+   *
+   * @param {number} workbookId Workbook ID
+   * @param {number} groupId Group ID
+   * @returns Workbook ID, title, and problems (problem ID, title, and tag names)
+   * @throws {EntityNotExistException} If the workbook does not exist in the group or is not visible
+   */
   async getWorkbook(
     workbookId: number,
     groupId: number
@@ -84,6 +100,13 @@ export class WorkbookService {
     }
   }
 
+  /**
+   * Checks whether a workbook in a group is visible.
+   *
+   * @param {number} id Workbook ID
+   * @param {number} groupId Group ID
+   * @returns true if a visible workbook exists, otherwise false
+   */
   async isVisible(id: number, groupId: number): Promise<boolean> {
     return !!(await this.prisma.workbook.count({
       where: { id, groupId, isVisible: true }

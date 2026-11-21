@@ -8,6 +8,10 @@ import { AnnouncementService } from './announcement.service'
 export class AnnouncementController {
   private readonly logger = new Logger(AnnouncementController.name)
   constructor(private readonly announcementService: AnnouncementService) {}
+
+  /**
+   * Gets the announcements of a contest, newest first.
+   */
   @Get()
   async getAnnouncements(
     @Query('contestId', IDValidationPipe) contestId: number

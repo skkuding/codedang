@@ -7,6 +7,14 @@ import { PrismaService } from '@libs/prisma'
 export class WorkbookProblemService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Gets the problems of a workbook in a group.
+   *
+   * @param {number} groupId Group ID
+   * @param {number} workbookId Workbook ID
+   * @returns The workbookProblems in the workbook
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the group with groupId has no workbook with workbookId
+   */
   async getWorkbookProblems(
     groupId: number,
     workbookId: number
@@ -23,6 +31,17 @@ export class WorkbookProblemService {
     return workbookProblems
   }
 
+  /**
+   * Changes the order of the problems in a workbook.
+   * Each problem's new order is the position of its problemId in orders (index + 1).
+   *
+   * @param {number} groupId Group ID
+   * @param {number} workbookId Workbook ID
+   * @param {number[]} orders problemIds in the new order (must include every problem in the workbook)
+   * @returns The reordered workbookProblems
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the group with groupId has no workbook with workbookId
+   * @throws {UnprocessableDataException} If the length of orders differs from the number of problems in the workbook
+   */
   async updateWorkbookProblemsOrder(
     groupId: number,
     workbookId: number,
