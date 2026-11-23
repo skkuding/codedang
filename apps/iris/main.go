@@ -37,6 +37,8 @@ const (
 	Stage      Env = "stage"
 )
 
+// healthCheckHandler answers the stage health check with 200 OK and allows
+// cross-origin GET requests.
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -49,6 +51,11 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// main wires the testcase loaders, sandbox, task factories, and router, then
+// consumes judge requests from RabbitMQ until the process exits.
+// It serves pprof on :6060 and, in stage only, the health check on :3404.
+// It exits if a required environment variable is missing or a data source
+// cannot be created.
 func main() {
 	godotenv.Load()
 

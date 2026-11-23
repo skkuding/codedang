@@ -36,6 +36,9 @@ type ProducerConfig struct {
 	RoutingKey     string
 }
 
+// NewProducer dials RabbitMQ to publish results to config.ExchangeName with
+// config.RoutingKey. The channel is opened later by OpenChannel.
+// It returns an error if the TLS config cannot be built or the dial fails.
 func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
@@ -59,6 +62,8 @@ func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error)
 	}, nil
 }
 
+// OpenChannel opens the publish channel in confirm mode and starts
+// confirmHandler.
 func (p *producer) OpenChannel() error {
 	var err error
 
@@ -79,6 +84,9 @@ func (p *producer) OpenChannel() error {
 	return nil
 }
 
+// confirmHandler logs each broker confirmation, at error level for a nack,
+// until a value is sent on Done. Nacked messages are not republished.
+// It panics on delivery tag 0, which it also receives once confirms is closed.
 func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 	m := make(map[uint64]bool)
 	for {
@@ -105,6 +113,10 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 	}
 }
 
+// Publish sends result as a persistent JSON message with messageType as its
+// AMQP type and the trace context in its headers. It does not wait for the
+// broker to confirm the message.
+// It returns an error if the publish fails.
 func (p *producer) Publish(result []byte, ctx context.Context, messageType string) error {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.Tracer("Producer")
@@ -149,6 +161,8 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	return nil
 }
 
+// CleanUp closes the channel and connection, then blocks until a value is
+// sent on Done.
 func (p *producer) CleanUp() error {
 	if err := p.channel.Close(); err != nil {
 		return fmt.Errorf("channel close failed: %s", err)

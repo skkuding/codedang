@@ -15,6 +15,8 @@ const (
 
 var src = rand.NewSource(time.Now().UnixNano())
 
+// RandString returns a random string of n ASCII letters. It is not safe for
+// concurrent use or for secrets.
 func RandString(n int) string {
 
 	b := make([]byte, n)

@@ -30,6 +30,9 @@ type ConsumerConfig struct {
 	Ctag           string
 }
 
+// NewConsumer dials RabbitMQ to consume config.QueueName. The channel is
+// opened later by OpenChannel.
+// It returns an error if the TLS config cannot be built or the dial fails.
 func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
@@ -52,6 +55,9 @@ func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error)
 	}, nil
 }
 
+// OpenChannel opens the consume channel with a prefetch count of 1. Because a
+// message is acked only after it is handled, each worker handles one message
+// at a time.
 func (c *consumer) OpenChannel() error {
 	var err error
 
@@ -69,6 +75,8 @@ func (c *consumer) OpenChannel() error {
 	return nil
 }
 
+// Subscribe starts consuming the queue with manual acks and returns the
+// delivery channel. OpenChannel must be called first.
 func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
 
 	// Subscribe queue for consume messages
@@ -88,6 +96,8 @@ func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
 	return messages, nil
 }
 
+// CleanUp cancels the consumer and closes the connection, then blocks until a
+// value is sent on Done.
 func (c *consumer) CleanUp() error {
 
 	c.logger.Log(logger.DEBUG, "consumer clean up")

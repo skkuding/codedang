@@ -17,6 +17,11 @@ type S3reader struct {
 	bucket string
 }
 
+// NewS3DataSource returns a reader for bucket in ap-northeast-2.
+// When MINIO_ENDPOINT_URL is set, it uses that endpoint with path-style
+// addressing and unsets AWS_PROFILE and AWS_DEFAULT_PROFILE.
+// It returns an error if the AWS config cannot be loaded or the bucket is not
+// accessible.
 func NewS3DataSource(bucket string) (*S3reader, error) {
 	endpoint := os.Getenv("MINIO_ENDPOINT_URL")
 	if endpoint != "" {
@@ -50,6 +55,11 @@ func NewS3DataSource(bucket string) (*S3reader, error) {
 	return &S3reader{client: client, bucket: bucket}, nil
 }
 
+// Get reads each <problemId>/<id>.in object and its .out pair. A testcase is
+// hidden when its .in object has the tag hidden=true. The result is not
+// ordered, and only the first 1,000 objects of the problem are listed.
+// It returns an error if no testcase is found, an ID is not an integer, or an
+// object cannot be read.
 func (s *S3reader) Get(problemId string) ([]ElementOut, error) {
 	output, err := s.client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(s.bucket),

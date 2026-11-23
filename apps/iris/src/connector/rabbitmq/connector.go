@@ -30,6 +30,8 @@ type connector struct {
 	logger   logger.Logger
 }
 
+// NewConnector returns a connector that passes consumed messages to router
+// and publishes the results with producer.
 func NewConnector(
 	consumer Consumer,
 	producer Producer,
@@ -39,6 +41,10 @@ func NewConnector(
 	return &connector{consumer, producer, router, make(chan error), logger}
 }
 
+// Connect opens the consumer and producer channels and handles each message
+// in its own goroutine. It blocks until the delivery channel closes, then
+// cleans up both sides.
+// It panics if a channel cannot be opened or the queue cannot be subscribed.
 func (c *connector) Connect(ctx context.Context) {
 	defer func() {
 		c.consumer.CleanUp()
@@ -77,8 +83,15 @@ func (c *connector) Connect(ctx context.Context) {
 	// }
 }
 
+// Disconnect does nothing; Connect cleans up when the delivery channel closes.
 func (c *connector) Disconnect() {}
 
+// handle routes one message, publishes every result the router sends, and
+// then acks the message. It continues the trace from the message headers.
+//
+// A message without a type or message ID is not routed and gets an error
+// response instead. The message is acked without retry even when publishing
+// fails or handling exceeds IRIS_MESSAGE_TIMEOUT_MS (default 10 minutes).
 func (c *connector) handle(message amqp.Delivery, ctx context.Context) {
 	carrier := convertTableToHeaderCarrier(message.Headers)
 
@@ -144,6 +157,8 @@ drain:
 	}
 }
 
+// messageTimeoutFromEnv reads IRIS_MESSAGE_TIMEOUT_MS and uses 10 minutes when
+// it is unset. It returns an error if the value is not a positive integer.
 func messageTimeoutFromEnv() (time.Duration, error) {
 	raw := os.Getenv(MessageTimeoutEnv)
 	if raw == "" {

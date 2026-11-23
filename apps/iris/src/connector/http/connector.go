@@ -9,6 +9,8 @@ type connector struct {
 	logger logger.Logger
 }
 
+// NewConnector returns an HTTP connector. It is a placeholder; Factory does
+// not create it yet.
 func NewConnector(
 	logger logger.Logger,
 ) *connector {

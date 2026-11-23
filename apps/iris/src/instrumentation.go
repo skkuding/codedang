@@ -33,6 +33,8 @@ var (
 	loggerProvider *otel_log.LoggerProvider
 )
 
+// newResource describes this process to OpenTelemetry with the service name
+// and process, host, container, and OS attributes.
 func newResource(ctx context.Context, serviceName string) (*resource.Resource, error) {
 	attrs := []resource.Option{
 		resource.WithAttributes(semconv.ServiceName(serviceName)),
@@ -51,7 +53,14 @@ func newResource(ctx context.Context, serviceName string) (*resource.Resource, e
 	return res, nil
 }
 
-// serviceName은 OTEL_SERVICE_NAME 환경변수가 있으면 그 값으로 덮인다
+// Init sets up the global OpenTelemetry trace, metric, and log providers,
+// which export over OTLP gRPC. Only the first call initializes them.
+// OTEL_SERVICE_NAME, if set, overrides serviceName. Metrics are exported every
+// 3 seconds.
+//
+// The returned shutdown flushes and stops every provider created so far.
+// It returns an error if the resource or an exporter cannot be created;
+// providers set up before the failure stay registered.
 func Init(ctx context.Context, serviceName string) (shutdown func(context.Context) error, err error) {
 	initOnce.Do(func() {
 		res, rErr := newResource(ctx, serviceName)
@@ -125,6 +134,10 @@ func Init(ctx context.Context, serviceName string) (shutdown func(context.Contex
 
 // TODO: 가능하면 어플리케이션 레벨이 아니라 ADOT Collector으로 수집
 // TODO - Int64ObservableGauge를 Meter로 추상화할 수 있었으면 합니다.
+
+// GetMemoryMeter registers the memory.heap gauge, which reports the bytes of
+// allocated heap objects. It exits the process if the gauge cannot be
+// registered.
 func GetMemoryMeter(meter metric.Meter) {
 	if _, err := meter.Int64ObservableGauge(
 		"memory.heap",
@@ -144,6 +157,10 @@ func GetMemoryMeter(meter metric.Meter) {
 }
 
 // TODO: 가능하면 어플리케이션 레벨이 아니라 ADOT Collector으로 수집
+
+// GetCPUMeter registers the cpu.usage gauge, which reports the total usage of
+// all CPUs in percent. Each observation blocks for duration while it samples.
+// It exits the process if the gauge cannot be registered.
 func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 	// 일단 전체 CPU Usage를 추적합니다.
 	// 추후에, CPU별로 Usage 추적이 필요할 경우 true로 설정합니다.
@@ -166,6 +183,7 @@ func GetCPUMeter(meter metric.Meter, duration time.Duration) {
 	}
 }
 
+// GetSemanticSpanName returns a span name in the "package:function" form.
 func GetSemanticSpanName(packageName, functionName string) string {
 	return fmt.Sprintf("%s:%s", packageName, functionName)
 }

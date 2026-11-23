@@ -37,6 +37,8 @@ type taskResult struct {
 	messageType []constants.MessageType
 }
 
+// NewRouter returns a router that creates tasks with the given factories and
+// runs them with runner.
 func NewRouter(
 	runner *handler.TaskRunner,
 	judgeTaskFactory *judge.Factory,
@@ -57,6 +59,13 @@ func NewRouter(
 	}
 }
 
+// Route creates the task for message type path, runs it, and sends each
+// result to out in the response format of path.
+//
+// If the task cannot be created, such as for an invalid body or a check
+// request, which is not implemented yet, it sends an error response. For
+// judge and run requests it also sends a submission result carrying the error.
+// It sends nothing for an unknown path and stops sending when ctx is done.
 func (r *router) Route(path constants.MessageType, id string, data []byte, out chan<- response.Response, ctx context.Context) {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
@@ -146,6 +155,8 @@ func (r *router) Route(path constants.MessageType, id string, data []byte, out c
 	r.logger.Log(logger.DEBUG, "Router done...")
 }
 
+// isSubmissionTask reports whether path is a judge or run request and returns
+// the message type of its submission result.
 func isSubmissionTask(path constants.MessageType) (bool, constants.MessageType) {
 	switch path {
 	case constants.Run, constants.UserTestCase:
@@ -157,6 +168,8 @@ func isSubmissionTask(path constants.MessageType) (bool, constants.MessageType) 
 	}
 }
 
+// errHandle logs err at the level of its TaskError, or at error level
+// otherwise. A nil err is ignored.
 func (r *router) errHandle(err error) {
 	if err != nil {
 		var te *handler.TaskError
