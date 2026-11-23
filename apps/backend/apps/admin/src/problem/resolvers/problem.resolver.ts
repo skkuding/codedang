@@ -25,8 +25,13 @@ import {
   FilterProblemsInput,
   UpdateProblemInput
 } from '../model/problem.input'
-import { ProblemWithIsVisible } from '../model/problem.output'
-import { ProblemService, TagService, TestcaseService } from '../services'
+import { AttachmentUrl, ProblemWithIsVisible } from '../model/problem.output'
+import {
+  ProblemAttachmentService,
+  ProblemService,
+  TagService,
+  TestcaseService
+} from '../services'
 
 @Resolver(() => ProblemWithIsVisible)
 @UseDisableAdminGuard()
@@ -34,7 +39,8 @@ export class ProblemResolver {
   constructor(
     private readonly problemService: ProblemService,
     private readonly tagService: TagService,
-    private readonly testcaseService: TestcaseService
+    private readonly testcaseService: TestcaseService,
+    private readonly problemAttachmentService: ProblemAttachmentService
   ) {}
 
   @Mutation(() => ProblemWithIsVisible)
@@ -104,6 +110,11 @@ export class ProblemResolver {
   @ResolveField('tag', () => [ProblemTag])
   async getProblemTags(@Parent() problem: ProblemWithIsVisible) {
     return await this.tagService.getProblemTags(problem.id)
+  }
+
+  @ResolveField('attachments', () => [AttachmentUrl])
+  async getAttachments(@Parent() problem: ProblemWithIsVisible) {
+    return await this.problemAttachmentService.getAttachments(problem.id)
   }
 
   @ResolveField('testcase', () => [ProblemTestcase])

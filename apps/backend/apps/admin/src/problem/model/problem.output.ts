@@ -10,6 +10,15 @@ export class ProblemWithIsVisible extends OmitType(Problem, [
 }
 
 @ObjectType()
+export class AttachmentUrl {
+  @Field(() => String)
+  id: string
+
+  @Field(() => String)
+  url: string
+}
+
+@ObjectType()
 export class ProblemTestcaseId {
   @Field(() => Number)
   testcaseId!: number
