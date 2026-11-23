@@ -28,6 +28,7 @@ import { AdminController } from './admin.controller'
 import { AdminService } from './admin.service'
 import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
+import { BlueprintAssignmentProblemModule } from './blueprint-assignment-problem/blueprint-assignment-problem.module'
 import { BlueprintAssignmentModule } from './blueprint-assignment/blueprint-assignment.module'
 import { BlueprintCourseModule } from './blueprint-course/blueprint-course.module'
 import { ContestModule } from './contest/contest.module'
@@ -85,6 +86,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     GroupModule,
     BlueprintCourseModule,
     BlueprintAssignmentModule,
+    BlueprintAssignmentProblemModule,
     CheckModule,
     UserModule,
     AnnouncementModule,
