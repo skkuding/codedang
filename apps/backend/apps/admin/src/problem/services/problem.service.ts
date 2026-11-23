@@ -736,15 +736,16 @@ export class ProblemService {
           )
           const prevIds = this.problemAttachmentService.extractIds(current)
           const nextIds = this.problemAttachmentService.extractIds(nextFields)
-          const { added, removed } = this.problemAttachmentService.diff(
+          const { removed } = this.problemAttachmentService.diff(
             prevIds,
             nextIds
           )
 
+          // Validate every id the saved body keeps, not only the added ones
           await this.problemAttachmentService.attach(tx, {
             problemId: id,
             userId,
-            ids: added
+            ids: nextIds
           })
           deletableFiles = this.problemAttachmentService.excludeReferenced(
             nextFields,

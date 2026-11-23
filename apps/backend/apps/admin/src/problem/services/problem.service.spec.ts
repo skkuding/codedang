@@ -426,9 +426,34 @@ describe('ProblemService', () => {
       )
 
       expect(db.$queryRaw.called).to.be.true
-      expect(attach.firstCall.args[1].ids).to.deep.equal([addedId])
+      expect(attach.firstCall.args[1].ids).to.deep.equal([addedId, keptId])
       expect(findDeletable.firstCall.args[2]).to.deep.equal([removedId])
       expect(deleteRecords.firstCall.args[2]).to.deep.equal([removedId])
+    })
+
+    it('should attach an id the saved body keeps even when it was not attached before', async () => {
+      const retainedId = '0f8fad5b-d9cb-469f-a165-70867728950e'
+      db.problem.findFirstOrThrow.resolves(problems[0])
+      db.problem.findUniqueOrThrow.resolves({
+        ...problems[0],
+        description: `<img data-attachment-id="${retainedId}">`
+      })
+      db.problem.update.resolves(problems[0])
+      const attach = stub(problemAttachmentService, 'attach').resolves()
+      stub(problemAttachmentService, 'findDeletable').resolves([])
+      stub(problemAttachmentService, 'deleteRecords').resolves()
+
+      await service.updateProblem(
+        { id: problemId, inputDescription: '<p>revised</p>' },
+        user[0].role!,
+        user[0].id!
+      )
+
+      expect(attach.firstCall.args[1]).to.deep.equal({
+        problemId,
+        userId: user[0].id!,
+        ids: [retainedId]
+      })
     })
 
     it('should reject replacing an attachment id with its storage URL', async () => {
