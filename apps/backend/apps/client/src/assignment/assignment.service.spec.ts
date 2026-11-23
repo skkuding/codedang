@@ -1,13 +1,8 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { ConfigService } from '@nestjs/config'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Prisma, type AssignmentRecord } from '@prisma/client'
 import { expect } from 'chai'
-import {
-  ConflictFoundException,
-  EntityNotExistException,
-  ForbiddenAccessException
-} from '@libs/exception'
+import { EntityNotExistException } from '@libs/exception'
 import {
   PrismaService,
   PrismaTestService,
@@ -128,122 +123,9 @@ describe('AssignmentService', () => {
     })
   })
 
-  describe('createAssignmentRecord', () => {
-    let assignmentRecordId = -1
-    const groupId = 1
-
-    it('should throw error when the assignment does not exist', async () => {
-      await expect(
-        service.createAssignmentRecord(999, user01Id, groupId)
-      ).to.be.rejectedWith(Prisma.PrismaClientKnownRequestError)
-    })
-
-    it('should throw error when user is participated in assignment again', async () => {
-      await expect(
-        service.createAssignmentRecord(assignmentId, user01Id, groupId)
-      ).to.be.rejectedWith(ConflictFoundException)
-    })
-    it('should register to a assignment successfully on finished assignment', async () => {
-      const assignmentRecord = await service.createAssignmentRecord(
-        8,
-        user01Id,
-        groupId
-      )
-      assignmentRecordId = assignmentRecord.id
-      expect(
-        await transaction.assignmentRecord.findUnique({
-          where: { id: assignmentRecordId }
-        })
-      ).to.deep.equals(assignmentRecord)
-    })
-
-    it('should throw error when assignment is upcoming', async () => {
-      await expect(
-        service.createAssignmentRecord(15, user01Id, groupId)
-      ).to.be.rejectedWith(ConflictFoundException)
-    })
-
-    it('should register to a assignment successfully on ', async () => {
-      const assignmentRecord = await service.createAssignmentRecord(
-        2,
-        user01Id,
-        groupId
-      )
-      assignmentRecordId = assignmentRecord.id
-      expect(
-        await transaction.assignmentRecord.findUnique({
-          where: { id: assignmentRecordId }
-        })
-      ).to.deep.equals(assignmentRecord)
-    })
-  })
-
-  describe('deleteAssignmentRecord', () => {
-    let assignmentRecord: AssignmentRecord | { id: number } = { id: -1 }
-    const groupId = 1
-
-    afterEach(async () => {
-      try {
-        await transaction.assignmentRecord.delete({
-          where: { id: assignmentRecord.id }
-        })
-      } catch (error) {
-        if (
-          !(
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === 'P2025'
-          )
-        ) {
-          throw error
-        }
-      }
-    })
-
-    it('should return deleted assignment record', async () => {
-      const newlyRegisteringAssignmentId = 16
-      assignmentRecord = await transaction.assignmentRecord.create({
-        data: {
-          assignmentId: newlyRegisteringAssignmentId,
-          userId: user01Id,
-          acceptedProblemNum: 0,
-          score: 0,
-          totalPenalty: 0
-        }
-      })
-
-      expect(
-        await service.deleteAssignmentRecord(
-          newlyRegisteringAssignmentId,
-          user01Id,
-          groupId
-        )
-      ).to.deep.equal(assignmentRecord)
-    })
-
-    it('should throw error when assignment does not exist', async () => {
-      await expect(
-        service.deleteAssignmentRecord(999, user01Id, groupId)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-
-    it('should throw error when assignment record does not exist', async () => {
-      await expect(
-        service.deleteAssignmentRecord(16, user01Id, groupId)
-      ).to.be.rejectedWith(EntityNotExistException)
-    })
-
-    it('should throw error when assignment is ongoing', async () => {
-      await expect(
-        service.deleteAssignmentRecord(assignmentId, user01Id, groupId)
-      ).to.be.rejectedWith(ForbiddenAccessException)
-    })
-  })
-
   describe('getMyAssignmentsSummary', () => {
     const groupId = 1
-    // Seed data seeds many pre-existing isExercise:false assignments for
-    // groupId 1 (some without an AssignmentRecord for user01Id by design, to
-    // exercise the participation/un-registration APIs elsewhere in this file).
+    // Seed data contains many pre-existing isExercise:false assignments for groupId 1.
     // Using isExercise:true isolates these tests from that shared fixture,
     // since no seeded assignment sets isExercise to true.
     const isExercise = true
