@@ -219,14 +219,13 @@ describe('FileService', () => {
         problemId: null
       }
       const prisma = {
-        problem: { findFirst: stub().resolves(null) },
         file: {
           findFirst: stub().resolves(file),
-          deleteMany: stub().resolves({ count: 1 }),
-          create: stub().resolves()
+          deleteMany: stub(),
+          delete: stub()
         }
       }
-      const storage = { deleteFile: stub().resolves() }
+      const storage = { deleteFile: stub() }
       const service = new FileService(
         prisma as unknown as PrismaService,
         storage as unknown as StorageService,
@@ -235,86 +234,45 @@ describe('FileService', () => {
       return { service, prisma, storage, file }
     }
 
-    it('should delete a temporary file from the database and storage', async () => {
-      const { service, prisma, storage } = setup(FileStatus.Temporary)
-
-      await service.deleteFile(FILENAME, USER_ID)
-
-      expect(prisma.file.deleteMany.firstCall.args[0].where).to.deep.equal({
-        filename: FILENAME,
-        status: FileStatus.Temporary,
-        createdById: USER_ID
-      })
-      expect(storage.deleteFile.calledOnceWithExactly(FILENAME)).to.be.true
-    })
-
-    it('should keep a temporary file that a saved problem still references', async () => {
-      const { service, prisma, storage } = setup(FileStatus.Temporary)
-      prisma.problem.findFirst.resolves({ id: 7 })
-
-      await expect(service.deleteFile(FILENAME, USER_ID)).to.be.rejectedWith(
-        UnprocessableDataException
-      )
-      expect(prisma.problem.findFirst.firstCall.args[0].where).to.deep.equal({
-        OR: [
-          { description: { contains: FILENAME, mode: 'insensitive' } },
-          { inputDescription: { contains: FILENAME, mode: 'insensitive' } },
-          { outputDescription: { contains: FILENAME, mode: 'insensitive' } }
-        ]
-      })
+    const expectNothingDeleted = (
+      prisma: ReturnType<typeof setup>['prisma'],
+      storage: ReturnType<typeof setup>['storage']
+    ) => {
       expect(prisma.file.deleteMany.called).to.be.false
+      expect(prisma.file.delete.called).to.be.false
       expect(storage.deleteFile.called).to.be.false
-    })
+    }
 
-    it('should restore the record when the storage deletion fails', async () => {
-      const { service, prisma, storage, file } = setup(FileStatus.Temporary)
-      storage.deleteFile.rejects(new Error('storage down'))
+    for (const status of [FileStatus.Temporary, FileStatus.Unmanaged]) {
+      it(`should keep a ${status} file and return it`, async () => {
+        const { service, prisma, storage, file } = setup(status)
 
-      await expect(service.deleteFile(FILENAME, USER_ID)).to.be.rejectedWith(
-        UnprocessableDataException
-      )
-      expect(prisma.file.create.firstCall.args[0].data).to.deep.equal({
-        filename: FILENAME,
-        createdById: USER_ID,
-        createTime: file!.createTime,
-        status: FileStatus.Temporary
+        expect(await service.deleteFile(FILENAME, USER_ID)).to.equal(file)
+        expect(
+          prisma.file.findFirst.calledOnceWithExactly({
+            where: { filename: FILENAME, createdById: USER_ID }
+          })
+        ).to.be.true
+        expectNothingDeleted(prisma, storage)
       })
-    })
+    }
 
     it('should reject attached files', async () => {
-      const { service, prisma } = setup(FileStatus.Attached)
+      const { service, prisma, storage } = setup(FileStatus.Attached)
 
       await expect(service.deleteFile(FILENAME, USER_ID)).to.be.rejectedWith(
         UnprocessableDataException
       )
-      expect(prisma.file.deleteMany.called).to.be.false
-    })
-
-    it('should keep unmanaged files', async () => {
-      const { service, prisma, storage } = setup(FileStatus.Unmanaged)
-
-      await service.deleteFile(FILENAME, USER_ID)
-
-      expect(prisma.file.deleteMany.called).to.be.false
-      expect(storage.deleteFile.called).to.be.false
+      expectNothingDeleted(prisma, storage)
     })
 
     it("should reject a missing file or another user's file", async () => {
-      const { service } = setup(null)
+      const { service, prisma, storage } = setup(null)
 
       await expect(service.deleteFile(FILENAME, USER_ID)).to.be.rejectedWith(
         UnprocessableDataException
       )
-    })
-
-    it('should reject when the file changed before deletion', async () => {
-      const { service, prisma, storage } = setup(FileStatus.Temporary)
-      prisma.file.deleteMany.resolves({ count: 0 })
-
-      await expect(service.deleteFile(FILENAME, USER_ID)).to.be.rejectedWith(
-        UnprocessableDataException
-      )
-      expect(storage.deleteFile.called).to.be.false
+      expectNothingDeleted(prisma, storage)
     })
   })
 })

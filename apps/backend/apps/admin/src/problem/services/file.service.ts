@@ -13,7 +13,6 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 import type { UploadFileInput } from '../model/problem.input'
-import { PROBLEM_ATTACHMENT_FIELDS } from './problem-attachment.service'
 
 @Injectable()
 export class FileService {
@@ -121,50 +120,10 @@ export class FileService {
       )
     }
 
-    // HOTFIX: Unmanaged files may be shared by multiple bodies, so keep them.
-    if (file.status === FileStatus.Unmanaged) {
-      return file
-    }
-
-    // A saved body can reference a Temporary file that was never attached
-    // (e.g. saved before attachment handling), so never delete it then.
-    const referencingProblem = await this.prisma.problem.findFirst({
-      where: {
-        OR: PROBLEM_ATTACHMENT_FIELDS.map((field) => ({
-          [field]: { contains: filename, mode: 'insensitive' as const }
-        }))
-      },
-      select: { id: true }
-    })
-    if (referencingProblem) {
-      throw new UnprocessableDataException(
-        `File is still referenced by problem ${referencingProblem.id}`
-      )
-    }
-
-    const { count } = await this.prisma.file.deleteMany({
-      where: { filename, status: FileStatus.Temporary, createdById: userId }
-    })
-    if (!count) {
-      throw new UnprocessableDataException('File is no longer deletable')
-    }
-
-    try {
-      await this.storageService.deleteFile(filename)
-    } catch (error) {
-      // Restore the Temporary row so the same request can retry the deletion
-      await this.prisma.file.create({
-        data: {
-          filename: file.filename,
-          createdById: file.createdById,
-          createTime: file.createTime,
-          status: FileStatus.Temporary
-        }
-      })
-      throw new UnprocessableDataException(
-        `Failed to delete file from storage: ${error.message}`
-      )
-    }
+    // HOTFIX: Temporary and Unmanaged files are not deleted here, because a
+    // saved body may still reference them in a form this check cannot see.
+    // Attached files are removed through problem update and delete, and
+    // unreferenced files are left to a separate orphan cleanup.
     return file
   }
 
