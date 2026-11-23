@@ -147,7 +147,11 @@ export class TestcaseService {
   }
 
   /** @deprecated Testcases are going to be stored in S3, not database. Please check `createTestcases` */
-  async createTestcasesLegacy(problemId: number, testcases: Array<Testcase>) {
+  async createTestcasesLegacy(
+    problemId: number,
+    testcases: Array<Testcase>,
+    tx: Prisma.TransactionClient = this.prisma
+  ) {
     const sample: Testcase[] = []
     const hidden: Testcase[] = []
 
@@ -165,7 +169,7 @@ export class TestcaseService {
       orderedTestcases.map(async (tc) => {
         const fraction = this.convertToFraction(tc)
 
-        const problemTestcase = await this.prisma.problemTestcase.create({
+        const problemTestcase = await tx.problemTestcase.create({
           data: {
             problemId,
             input: tc.input,
@@ -222,16 +226,18 @@ export class TestcaseService {
    * @param {boolean} isSampleUploadedByZip : Sample Testcase가 zip업로드에 의해 변경되었으면 true
    * @param {boolean} isHiddenUploadedByZip : Hidden Testcase가 zip업로드에 의해 변경되었으면 true
    * @param {Array[Testcase]} testcases : 동기화할 testcase 배열
+   * @param {Prisma.TransactionClient} tx : caller's transaction client; runs without a transaction when omitted
    * @returns {Promise<void>}
    */
   async syncTestcases(
     problemId: number,
     isSampleUploadedByZip: boolean,
     isHiddenUploadedByZip: boolean,
-    testcases: Array<Testcase>
+    testcases: Array<Testcase>,
+    tx: Prisma.TransactionClient = this.prisma
   ) {
     // 기존에 존재하던 유효한 TC 모두 가져옴
-    const existing = await this.prisma.problemTestcase.findMany({
+    const existing = await tx.problemTestcase.findMany({
       where: {
         problemId,
         isOutdated: false
@@ -261,7 +267,7 @@ export class TestcaseService {
     if (outdated.length > 0) {
       await Promise.all(
         outdated.map((tc) =>
-          this.prisma.problemTestcase.update({
+          tx.problemTestcase.update({
             where: {
               id: tc.id
             },
@@ -291,7 +297,7 @@ export class TestcaseService {
             existingTc.scoreWeightDenominator !== tc.scoreWeightDenominator ||
             existingTc.scoreWeightNumerator !== tc.scoreWeightNumerator)
         ) {
-          await this.prisma.problemTestcase.update({
+          await tx.problemTestcase.update({
             where: {
               id: tc.id
             },
@@ -308,7 +314,7 @@ export class TestcaseService {
           const input = isUploadedByZip ? existingTc.input : tc.input
           const output = isUploadedByZip ? existingTc.output : tc.output
 
-          const created = await this.prisma.problemTestcase.create({
+          const created = await tx.problemTestcase.create({
             data: {
               problemId,
               input,
@@ -323,7 +329,7 @@ export class TestcaseService {
         }
       } else {
         // 새로운 TC => 그냥 Create
-        const created = await this.prisma.problemTestcase.create({
+        const created = await tx.problemTestcase.create({
           data: {
             problemId,
             input: tc.input,
@@ -351,14 +357,14 @@ export class TestcaseService {
       ...hidden.map((tc, i) => ({ ...tc, order: i + 1 }))
     ]
 
-    await this.prisma.problem.update({
+    await tx.problem.update({
       where: { id: problemId },
       data: { isHiddenUploadedByZip, isSampleUploadedByZip }
     })
 
     await Promise.all(
       orderedTestcases.map((tc) =>
-        this.prisma.problemTestcase.update({
+        tx.problemTestcase.update({
           where: { id: tc.id },
           data: { order: tc.order }
         })

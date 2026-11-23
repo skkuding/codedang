@@ -104,41 +104,51 @@ export class FileService {
   }
 
   async deleteFile(filename: string, userId: number) {
-    const deletedFile = await this.prisma.$transaction(async (tx) => {
-      const fileExists = await tx.file.findFirst({
-        where: {
-          filename,
-          createdById: userId
-        }
-      })
-
-      if (!fileExists) {
-        throw new UnprocessableDataException(
-          'File not found or you do not have permission to delete this file'
-        )
-      }
-      // HOTFIX: Disable attachment deletion to prevent data loss.
-      /*
-
-      const file = await tx.file.delete({
-        where: {
-          filename,
-          createdById: userId
-        }
-      })
-
-      try {
-        await this.storageService.deleteFile(filename)
-      } catch (error) {
-        throw new UnprocessableDataException(
-          `Failed to delete file from storage: ${error.message}`
-        )
-      }
-      */
-      return fileExists
+    const file = await this.prisma.file.findFirst({
+      where: { filename, createdById: userId }
     })
 
-    return deletedFile
+    if (!file) {
+      throw new UnprocessableDataException(
+        'File not found or you do not have permission to delete this file'
+      )
+    }
+
+    if (file.status === FileStatus.Attached) {
+      throw new UnprocessableDataException(
+        'Attached files are deleted by updating or deleting the problem'
+      )
+    }
+
+    // HOTFIX: Unmanaged files may be shared by multiple bodies, so keep them.
+    if (file.status === FileStatus.Unmanaged) {
+      return file
+    }
+
+    const { count } = await this.prisma.file.deleteMany({
+      where: { filename, status: FileStatus.Temporary, createdById: userId }
+    })
+    if (!count) {
+      throw new UnprocessableDataException('File is no longer deletable')
+    }
+
+    try {
+      await this.storageService.deleteFile(filename)
+    } catch (error) {
+      // Restore the Temporary row so the same request can retry the deletion
+      await this.prisma.file.create({
+        data: {
+          filename: file.filename,
+          createdById: file.createdById,
+          createTime: file.createTime,
+          status: FileStatus.Temporary
+        }
+      })
+      throw new UnprocessableDataException(
+        `Failed to delete file from storage: ${error.message}`
+      )
+    }
+    return file
   }
 
   async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
