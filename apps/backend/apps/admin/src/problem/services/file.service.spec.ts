@@ -219,6 +219,7 @@ describe('FileService', () => {
         problemId: null
       }
       const prisma = {
+        problem: { findFirst: stub().resolves(null) },
         file: {
           findFirst: stub().resolves(file),
           deleteMany: stub().resolves({ count: 1 }),
@@ -245,6 +246,24 @@ describe('FileService', () => {
         createdById: USER_ID
       })
       expect(storage.deleteFile.calledOnceWithExactly(FILENAME)).to.be.true
+    })
+
+    it('should keep a temporary file that a saved problem still references', async () => {
+      const { service, prisma, storage } = setup(FileStatus.Temporary)
+      prisma.problem.findFirst.resolves({ id: 7 })
+
+      await expect(service.deleteFile(FILENAME, USER_ID)).to.be.rejectedWith(
+        UnprocessableDataException
+      )
+      expect(prisma.problem.findFirst.firstCall.args[0].where).to.deep.equal({
+        OR: [
+          { description: { contains: FILENAME, mode: 'insensitive' } },
+          { inputDescription: { contains: FILENAME, mode: 'insensitive' } },
+          { outputDescription: { contains: FILENAME, mode: 'insensitive' } }
+        ]
+      })
+      expect(prisma.file.deleteMany.called).to.be.false
+      expect(storage.deleteFile.called).to.be.false
     })
 
     it('should restore the record when the storage deletion fails', async () => {

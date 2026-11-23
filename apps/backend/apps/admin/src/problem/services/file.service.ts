@@ -13,6 +13,7 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
 import type { UploadFileInput } from '../model/problem.input'
+import { PROBLEM_ATTACHMENT_FIELDS } from './problem-attachment.service'
 
 @Injectable()
 export class FileService {
@@ -123,6 +124,22 @@ export class FileService {
     // HOTFIX: Unmanaged files may be shared by multiple bodies, so keep them.
     if (file.status === FileStatus.Unmanaged) {
       return file
+    }
+
+    // A saved body can reference a Temporary file that was never attached
+    // (e.g. saved before attachment handling), so never delete it then.
+    const referencingProblem = await this.prisma.problem.findFirst({
+      where: {
+        OR: PROBLEM_ATTACHMENT_FIELDS.map((field) => ({
+          [field]: { contains: filename, mode: 'insensitive' as const }
+        }))
+      },
+      select: { id: true }
+    })
+    if (referencingProblem) {
+      throw new UnprocessableDataException(
+        `File is still referenced by problem ${referencingProblem.id}`
+      )
     }
 
     const { count } = await this.prisma.file.deleteMany({
