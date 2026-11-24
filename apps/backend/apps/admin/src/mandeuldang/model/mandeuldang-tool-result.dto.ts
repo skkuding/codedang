@@ -2,17 +2,38 @@ import { Type } from 'class-transformer'
 import {
   IsArray,
   IsBoolean,
+  IsDefined,
   IsNumber,
+  IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested
 } from 'class-validator'
 
-export class GeneratorJudgeResultDto {
+export class GeneratorTestcaseErrorDto {
   @IsNumber()
-  generatedTestCases!: number
+  index!: number
+
+  @IsString()
+  message!: string
+
+  @IsOptional()
+  @IsString()
+  stderr?: string
+}
+
+export class GeneratorToolResultDto {
+  @IsNumber()
+  generatedCount!: number
 
   @IsNumber()
-  totalTestCases!: number
+  requestedCount!: number
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GeneratorTestcaseErrorDto)
+  errors?: GeneratorTestcaseErrorDto[]
 }
 
 export class GeneratorResultDto {
@@ -20,11 +41,19 @@ export class GeneratorResultDto {
   messageId!: string
 
   @IsNumber()
+  problemId!: number
+
+  @IsString()
+  toolType!: string
+
+  @IsNumber()
   resultCode!: number
 
+  @ValidateIf((msg) => msg.resultCode === 0)
+  @IsDefined()
   @ValidateNested()
-  @Type(() => GeneratorJudgeResultDto)
-  judgeResult!: GeneratorJudgeResultDto
+  @Type(() => GeneratorToolResultDto)
+  toolResult?: GeneratorToolResultDto
 
   @IsString()
   error!: string
@@ -32,15 +61,23 @@ export class GeneratorResultDto {
 
 export class ValidatorTestcaseResultDto {
   @IsNumber()
-  id!: number
+  testcaseId!: number
 
   @IsBoolean()
   isValid!: boolean
+
+  @IsOptional()
+  @IsString()
+  message?: string
+
+  @IsOptional()
+  @IsString()
+  stderr?: string
 }
 
-export class ValidatorJudgeResultDto {
+export class ValidatorToolResultDto {
   @IsBoolean()
-  isValid!: boolean
+  isAllValid!: boolean
 
   @IsNumber()
   testcaseCount!: number
@@ -56,11 +93,19 @@ export class ValidatorResultDto {
   messageId!: string
 
   @IsNumber()
+  problemId!: number
+
+  @IsString()
+  toolType!: string
+
+  @IsNumber()
   resultCode!: number
 
+  @ValidateIf((msg) => msg.resultCode === 0)
+  @IsDefined()
   @ValidateNested()
-  @Type(() => ValidatorJudgeResultDto)
-  judgeResult!: ValidatorJudgeResultDto
+  @Type(() => ValidatorToolResultDto)
+  toolResult?: ValidatorToolResultDto
 
   @IsString()
   error!: string
