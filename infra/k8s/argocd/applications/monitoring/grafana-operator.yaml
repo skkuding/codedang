@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: grafana-operator
+  namespace: argocd
+spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+    - list:
+        elements:
+          - env: stage
+            branch: main
+          - env: production
+            branch: release
+  template:
+    metadata:
+      name: 'grafana-operator-{{.env}}'
+      labels:
+        app.kubernetes.io/environment: '{{.env}}'
+    spec:
+      project: default
+      sources:
+        - repoURL: ghcr.io/grafana/helm-charts
+          chart: grafana-operator
+          targetRevision: '5.25.0'
+          helm:
+            releaseName: grafana-operator
+            valueFiles:
+              - '$codedang/infra/k8s/monitoring/grafana-operator/values.yaml'
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          ref: codedang
+        - repoURL: https://github.com/skkuding/codedang
+          targetRevision: '{{.branch}}'
+          path: infra/k8s/monitoring/grafana-operator
+      destination:
+        name: '{{.env}}'
+        namespace: monitoring-grafana
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
