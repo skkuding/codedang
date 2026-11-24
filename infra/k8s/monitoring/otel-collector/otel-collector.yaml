@@ -40,9 +40,11 @@ spec:
           - sources:
               - from: connection
       # The prometheus exporter turns every resource attribute into a label on
-      # every series. These are SDK detector values no dashboard or alert reads,
-      # and process.pid changes on each restart, starting new series. Metrics
-      # only: logs and traces keep them for debugging.
+      # every series. These are SDK detector values no dashboard or alert reads.
+      # container.id also changes when a container restarts inside the same Pod,
+      # starting new series. host.name stays: apps send no service.instance.id,
+      # so it is what tells replicas apart when k8sattributes cannot resolve the
+      # Pod. Metrics only: logs and traces keep everything for debugging.
       resource/drop-unused:
         attributes:
           - pattern: ^process\.
@@ -50,6 +52,12 @@ spec:
           - pattern: ^os\.
             action: delete
           - pattern: ^telemetry\.sdk\.
+            action: delete
+          - key: container.id
+            action: delete
+          - key: host.arch
+            action: delete
+          - key: host.id
             action: delete
       batch:
         timeout: 10s
