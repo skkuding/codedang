@@ -23,3 +23,14 @@ spec:
       # service's own job and instance labels. Keep them instead of letting
       # Prometheus overwrite job with the collector's Service name.
       honorLabels: true
+      # namespace and pod are still the collector's target labels, since the
+      # forwarded metrics carry no labels by those names. Fill them from the
+      # sending Pod's attributes (set by k8sattributes) so they match metrics
+      # scraped from the app directly.
+      metricRelabelings:
+        - sourceLabels: [k8s_namespace_name]
+          regex: (.+)
+          targetLabel: namespace
+        - sourceLabels: [k8s_pod_name]
+          regex: (.+)
+          targetLabel: pod
