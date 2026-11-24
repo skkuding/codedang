@@ -21,9 +21,12 @@ defaultRules:
 prometheus:
   prometheusSpec:
     retention: 90d
-    # local-path does not enforce the PVC size below, so this is the actual
-    # cap on disk usage. Whichever limit is reached first drops the oldest
-    # blocks. Prometheus reads size units as powers of two (20GB = 20GiB).
+    # local-path does not enforce the PVC size below, so this is what bounds
+    # disk usage. It is a retention threshold, not a hard cap: Prometheus
+    # drops the oldest persisted blocks once the total (WAL and head chunks
+    # included) passes it, so usage can briefly run above it. Whichever of
+    # retention and retentionSize is reached first applies. Size units are
+    # powers of two (20GB = 20GiB).
     retentionSize: 20GB
     # Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
     nodeSelector:
