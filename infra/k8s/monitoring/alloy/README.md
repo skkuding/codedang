@@ -30,14 +30,15 @@ hour behind the stream's newest entry.
 
 ## Endpoint probing
 
-`prometheus.exporter.blackbox` requests nine in-cluster HTTP addresses every
+`prometheus.exporter.blackbox` requests seven in-cluster HTTP addresses every
 30 seconds and `prometheus.scrape` remote-writes the result to the Prometheus
 receiver. Each probe carries `job="blackbox"` and `instance=<target name>`,
 so `probe_success` and `probe_duration_seconds` are queryable per address.
 
 The targets are the Services whose outage changes what someone can do:
-`client-api`, `admin-api` and `frontend` for users, and `loki`, `tempo`,
-`pyroscope`, `prometheus`, `alertmanager` and `grafana` for operators. Iris
+`admin-api` for users, and `loki`, `tempo`, `pyroscope`, `prometheus`,
+`alertmanager` and `grafana` for operators. `client-api` and `frontend` are
+not probed yet because neither has a health route. Iris
 and Plag are not probed: both consume RabbitMQ and expose no Service, so the
 only HTTP port is the Iris pprof debug server, which says nothing about the
 judge pipeline. Alloy does not probe itself, because a dead Alloy sends no

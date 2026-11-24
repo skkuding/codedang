@@ -103,22 +103,9 @@ modules:
 `
 
   targets = [
-    // client-api has no health route. /api/internal/prisma answers 200 from
-    // process state without touching the database, and Prometheus already
-    // scrapes it through the client-api ServiceMonitor.
-    {
-      name    = "client-api",
-      address = "http://client-api-server.client-api.svc.cluster.local:4000/api/internal/prisma",
-      module  = "http_2xx",
-    },
     {
       name    = "admin-api",
       address = "http://admin-api-server.admin-api.svc.cluster.local:3000/health/ready",
-      module  = "http_2xx",
-    },
-    {
-      name    = "frontend",
-      address = "http://frontend.frontend.svc.cluster.local:5525/",
       module  = "http_2xx",
     },
     {
@@ -154,8 +141,8 @@ modules:
   ]
 }
 
-// before: job="integrations/blackbox/client-api", instance="<component id>"
-// after:  job="blackbox", instance="client-api"
+// before: job="integrations/blackbox/admin-api", instance="<component id>"
+// after:  job="blackbox", instance="admin-api"
 discovery.relabel "blackbox" {
   targets = prometheus.exporter.blackbox.cluster_endpoints.targets
 
