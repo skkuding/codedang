@@ -7,14 +7,15 @@ data "sentry_project_error_monitor" "frontend" {
   depends_on = [sentry_project.frontend]
 }
 
-# Emails new and regressed frontend issues. Remove it if issue notifications
-# become too noisy; uptime alerts are declared separately.
+# Emails new and regressed frontend issues from production. Remove it if issue
+# notifications become too noisy.
 resource "sentry_alert" "frontend_issues" {
   organization = data.sentry_organization.skkuding.slug
-  name         = "frontend: new or regressed issues"
+  name         = "codedang-frontend: new or regressed issues"
 
   monitor_ids       = [data.sentry_project_error_monitor.frontend.id]
   frequency_minutes = 30
+  environment       = "production"
 
   trigger_conditions = [
     { first_seen_event = {} },
