@@ -1,0 +1,295 @@
+---
+# 이 playbook은 대상이 서버가 아닌, 로컬 PC입니다.
+# 로컬에 설치된 kubectl, awscli를 통해 원격으로 서버를 세팅합니다.
+
+# 필요한 로컬 도구(kubectl, helm, aws, kubeseal, jq, python kubernetes, collections)를 먼저 확인한다.
+# 하나라도 없으면 여기서 실패하고 아래 bootstrap은 실행되지 않는다. (자동 설치는 하지 않는다)
+# --tags 로 일부만 실행해도 확인은 항상 수행한다.
+- name: Check local tools
+  ansible.builtin.import_playbook: 10_check_tools.yml
+  tags: always
+
+# Codedang Kubernetes 클러스터의 필수 운영 구성요소를 초기화한다.
+# kubeconfig와 AWS 자격 증명을 가진 관리 머신에서 실행해야 한다.
+- name: Bootstrap the Codedang Kubernetes cluster
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    # 배포 환경과 대상 kubeconfig context를 실행 환경에서 가져온다.
+    # CLUSTER_CONTEXT가 비어 있으면 kubeconfig의 current-context를 사용한다.
+    codedang_environment: "{{ lookup('ansible.builtin.env', 'ENVIRONMENT') | default('production', true) }}"
+    cluster_context: "{{ lookup('ansible.builtin.env', 'CLUSTER_CONTEXT') | default('', true) }}"
+    skip_argocd: "{{ lookup('ansible.builtin.env', 'SKIP_ARGOCD') | default('false', true) | bool }}"
+    # 지정하면 S3 대신 이 로컬 파일에서 키를 복원한다.
+    # `kubectl get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o yaml` 형식(List)이다.
+    # 예: 클러스터 이전 직전에 백업한 secrets/sealed-secrets-keys.yaml
+    sealed_secrets_keys_file: "{{ lookup('ansible.builtin.env', 'SEALED_SECRETS_KEYS_FILE') | default('', true) }}"
+
+    # Sealed Secrets 복호화 키 백업 위치다. 클러스터의 sealed-secrets-backup CronJob이 매월 올린다.
+    # (infra/k8s/sealed-secrets-backup, infra/aws/sealed-secrets-backup/s3.tf)
+    # 특정 시점으로 복원하려면 SEALED_SECRETS_S3_URI에 snapshots/<timestamp>.json 경로를 지정한다.
+    sealed_secrets_s3_uri: >-
+      {{ lookup('ansible.builtin.env', 'SEALED_SECRETS_S3_URI')
+         | default('s3://codedang-sealed-secrets-backup/' ~ codedang_environment ~ '/latest.json', true) }}
+    sealed_secrets_s3_region: ap-northeast-2
+    infra_dir: '{{ playbook_dir }}/../..'
+    argocd_application_file: '{{ infra_dir }}/k8s/argocd/applications/argocd.yaml'
+
+  # 잘못된 대상에 리소스를 배포하지 않도록 실제 변경 전에 실행 조건을 검증한다.
+  pre_tasks:
+    # --tags 로 일부만 실행해도 검증은 항상 수행한다.
+    - name: Validate bootstrap configuration
+      tags: always
+      ansible.builtin.assert:
+        that:
+          - codedang_environment in ['production', 'stage']
+        fail_msg: "codedang_environment must be either 'production' or 'stage'."
+
+    - name: Verify access to the Kubernetes cluster
+      tags: always
+      ansible.builtin.command:
+        argv: "{{ ['kubectl'] + (['--context', cluster_context] if cluster_context | length > 0 else []) + ['cluster-info'] }}"
+      changed_when: false
+
+  tasks:
+    # Git에 저장된 SealedSecret을 복호화할 controller와 암호화 키를 준비한다.
+    - name: Configure Sealed Secrets
+      tags: sealed_secrets
+      block:
+        - name: Read Sealed Secrets keys from S3
+          when: sealed_secrets_keys_file | length == 0
+          ansible.builtin.command:
+            argv:
+              - aws
+              - s3
+              - cp
+              - '{{ sealed_secrets_s3_uri }}'
+              - '-'
+              - --region
+              - '{{ sealed_secrets_s3_region }}'
+              - --no-progress
+          register: sealed_secrets_keys_raw
+          changed_when: false
+          failed_when: false
+          # 키 내용이 Ansible 로그에 노출되지 않도록 한다.
+          no_log: true
+
+        # 위 태스크는 no_log라 실패 원인이 가려지므로, 키가 없는 stderr만 따로 보여준다.
+        - name: Fail if the S3 download failed
+          when:
+            - sealed_secrets_keys_file | length == 0
+            - sealed_secrets_keys_raw.rc != 0
+          ansible.builtin.fail:
+            msg: 'Failed to download {{ sealed_secrets_s3_uri }}: {{ sealed_secrets_keys_raw.stderr }}'
+
+        - name: Parse the Sealed Secrets key backup
+          when: sealed_secrets_keys_file | length == 0
+          ansible.builtin.set_fact:
+            sealed_secrets_keys: "{{ (sealed_secrets_keys_raw.stdout | from_json)['items'] }}"
+          # 파싱된 각 항목은 tls.key를 포함하는 Kubernetes Secret 리소스다.
+          no_log: true
+
+        - name: Read Sealed Secrets keys from the local backup file
+          when: sealed_secrets_keys_file | length > 0
+          ansible.builtin.set_fact:
+            sealed_secrets_keys: "{{ (lookup('ansible.builtin.file', sealed_secrets_keys_file) | from_yaml)['items'] }}"
+          no_log: true
+
+        - name: Validate the Sealed Secrets key backup
+          ansible.builtin.assert:
+            that:
+              - sealed_secrets_keys | length > 0
+            fail_msg: 'The key backup does not contain any Sealed Secrets keys.'
+          no_log: true
+
+        - name: Restore Sealed Secrets encryption keys
+          kubernetes.core.k8s:
+            state: present
+            context: '{{ cluster_context | default(omit, true) }}'
+            # 다른 클러스터에서 export한 객체의 uid/resourceVersion 등은 버리고 필요한 필드만 쓴다.
+            definition:
+              apiVersion: v1
+              kind: Secret
+              type: '{{ item.type }}'
+              metadata:
+                name: '{{ item.metadata.name }}'
+                namespace: "{{ item.metadata.namespace | default('kube-system') }}"
+                labels: '{{ item.metadata.labels | default({}) }}'
+              data: '{{ item.data }}'
+          loop: '{{ sealed_secrets_keys }}'
+          loop_control:
+            label: "{{ item.metadata.name | default('sealed-secrets-key') }}"
+          # 반복 항목과 모듈 결과에도 tls.key가 나타나지 않도록 한다.
+          no_log: true
+          notify: Restart Sealed Secrets controller
+
+        # 키를 먼저 넣고 controller를 설치한다. controller가 먼저 뜨면 키가 없다고 보고
+        # 백업에 없는 새 키를 만들고, 이후 새 SealedSecret을 그 키로 암호화하기 때문이다.
+        - name: Add the Sealed Secrets Helm repository
+          kubernetes.core.helm_repository:
+            name: sealed-secrets
+            # bitnami-labs.github.io/sealed-secrets 는 404를 반환한다.
+            repo_url: https://bitnami.github.io/sealed-secrets
+
+        - name: Install the Sealed Secrets controller
+          kubernetes.core.helm:
+            name: sealed-secrets
+            chart_ref: sealed-secrets/sealed-secrets
+            # Argo CD가 관리하는 버전(k8s/argocd/applications/sealed-secrets.yaml)과 맞춘다.
+            chart_version: 2.17.3
+            release_namespace: kube-system
+            kube_context: '{{ cluster_context | default(omit, true) }}'
+            wait: true
+            timeout: 5m0s
+            update_repo_cache: true
+
+        - name: Apply pending Sealed Secrets restart before verification
+          # controller가 복원된 키를 읽은 상태에서 인증서를 검증하도록 handler를 즉시 실행한다.
+          ansible.builtin.meta: flush_handlers
+
+        - name: Verify the Sealed Secrets controller certificate
+          ansible.builtin.command:
+            argv: >-
+              {{ ['kubeseal', '--fetch-cert',
+                  '--controller-name=sealed-secrets',
+                  '--controller-namespace=kube-system']
+                 + (['--context', cluster_context] if cluster_context | length > 0 else []) }}
+          changed_when: false
+
+    # 중앙 Argo CD가 원격 관리하는 클러스터에서는 이 블록을 생략할 수 있다.
+    - name: Configure Argo CD
+      when: not (skip_argocd | bool)
+      tags: argocd
+      block:
+        - name: Read the Argo CD self-management application
+          ansible.builtin.slurp:
+            src: '{{ argocd_application_file }}'
+          register: argocd_application_raw
+
+        - name: Parse the Argo CD chart version
+          ansible.builtin.set_fact:
+            # 최초 설치 버전과 이후 GitOps 관리 버전이 같도록 Application 명세에서 읽는다.
+            argocd_chart_version: >-
+              {{ ((argocd_application_raw.content | b64decode | from_yaml).spec.sources
+                  | selectattr('chart', 'defined')
+                  | selectattr('chart', 'equalto', 'argo-cd')
+                  | first).targetRevision }}
+
+        - name: Ensure the Argo CD namespace exists
+          kubernetes.core.k8s:
+            state: present
+            context: '{{ cluster_context | default(omit, true) }}'
+            definition:
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: argocd
+
+        - name: Add the Argo Helm repository
+          kubernetes.core.helm_repository:
+            name: argo
+            repo_url: https://argoproj.github.io/argo-helm
+
+        - name: Install Argo CD for initial bootstrap
+          kubernetes.core.helm:
+            # self-management Application을 적용하기 전에 Argo CD CRD와 핵심 구성요소를 생성한다.
+            name: argocd
+            chart_ref: argo/argo-cd
+            chart_version: '{{ argocd_chart_version }}'
+            # self-management Application과 같은 values를 써야 한다. 기본값으로 설치하면
+            # extraObjects의 cluster-production Secret이 없어서 Application의 destination(name: production)을
+            # 찾지 못하고(InvalidSpecError) Argo CD가 자기 자신을 sync하지 못한다.
+            values_files:
+              - '{{ infra_dir }}/k8s/argocd/values.yaml'
+            release_namespace: argocd
+            kube_context: '{{ cluster_context | default(omit, true) }}'
+            wait: true
+            timeout: 10m0s
+            update_repo_cache: true
+
+        - name: Enable Argo CD self-management
+          kubernetes.core.k8s:
+            # 이 Application이 생성된 이후 Argo CD 자신의 설정도 Git 상태로 관리된다.
+            state: present
+            context: '{{ cluster_context | default(omit, true) }}'
+            src: '{{ argocd_application_file }}'
+
+        - name: Wait for the Argo CD server
+          kubernetes.core.k8s_info:
+            api_version: apps/v1
+            kind: Deployment
+            name: argocd-server
+            namespace: argocd
+            context: '{{ cluster_context | default(omit, true) }}'
+          register: argocd_server
+          # 10초 간격으로 최대 10분 동안 available replica를 기다린다.
+          until:
+            - argocd_server.resources | length == 1
+            - argocd_server.resources[0].status.availableReplicas | default(0) >= 1
+          retries: 60
+          delay: 10
+
+        - name: Wait for the Argo CD application controller
+          kubernetes.core.k8s_info:
+            api_version: apps/v1
+            kind: StatefulSet
+            name: argocd-application-controller
+            namespace: argocd
+            context: '{{ cluster_context | default(omit, true) }}'
+          register: argocd_application_controller
+          # StatefulSet controller도 최대 10분 동안 준비 상태를 확인한다.
+          until:
+            - argocd_application_controller.resources | length == 1
+            - argocd_application_controller.resources[0].status.readyReplicas | default(0) >= 1
+          retries: 60
+          delay: 10
+
+        - name: Read Argo CD applications
+          kubernetes.core.k8s_info:
+            api_version: argoproj.io/v1alpha1
+            kind: Application
+            namespace: argocd
+            context: '{{ cluster_context | default(omit, true) }}'
+          register: argocd_applications
+
+        - name: Report Argo CD applications
+          ansible.builtin.debug:
+            msg: >-
+              Argo CD applications: {{ argocd_applications.resources
+              | map(attribute='metadata.name') | list | join(', ') }}
+
+    # 완료 메시지를 출력하기 전에 controller가 실제 가용 상태인지 마지막으로 확인한다.
+    - name: Verify the Sealed Secrets controller
+      kubernetes.core.k8s_info:
+        api_version: apps/v1
+        kind: Deployment
+        name: sealed-secrets
+        namespace: kube-system
+        context: '{{ cluster_context | default(omit, true) }}'
+      register: sealed_secrets_controller
+      failed_when: >-
+        sealed_secrets_controller.resources | length != 1 or
+        (sealed_secrets_controller.resources[0].status.availableReplicas | default(0)) < 1
+
+    - name: Report bootstrap completion
+      ansible.builtin.debug:
+        msg: >-
+          Bootstrap completed for {{ codedang_environment }}.
+          {{ 'Sealed Secrets is ready; Argo CD was skipped.' if (skip_argocd | bool)
+             else 'Sealed Secrets and Argo CD are ready.' }}
+
+  handlers:
+    # 키 Secret이 변경된 경우에만 controller를 재시작하고 rollout 완료까지 기다린다.
+    - name: Restart the Sealed Secrets controller deployment
+      ansible.builtin.command:
+        argv: "{{ ['kubectl'] + (['--context', cluster_context] if cluster_context | length > 0 else []) + ['rollout', 'restart', 'deployment/sealed-secrets', '--namespace', 'kube-system'] }}"
+      changed_when: true
+      listen: Restart Sealed Secrets controller
+
+    - name: Wait for the Sealed Secrets controller rollout
+      ansible.builtin.command:
+        argv: "{{ ['kubectl'] + (['--context', cluster_context] if cluster_context | length > 0 else []) + ['rollout', 'status', 'deployment/sealed-secrets', '--namespace', 'kube-system', '--timeout=2m'] }}"
+      changed_when: false
+      listen: Restart Sealed Secrets controller

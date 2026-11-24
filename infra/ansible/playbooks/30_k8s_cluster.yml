@@ -1,0 +1,428 @@
+---
+# Debian 13 서버에 kubeadm Kubernetes 클러스터를 구성한다.
+#
+#   ansible-playbook -i inventory/stage playbooks/30_k8s_cluster.yml --ask-become-pass
+#
+# 1. 모든 노드: hostname, swap off, 커널 모듈/sysctl, containerd 2.x, kubelet/kubeadm/kubectl
+# 2. 첫 control-plane: kubeadm init, Flannel 설치, 관리 PC에 kubeconfig 저장
+# 3. 나머지 노드: kubeadm join (control-plane / worker)
+# 이미 구성된 노드는 건너뛰므로 여러 번 실행해도 된다.
+# 클러스터 변수(k8s_*)와 노드별 node_name은 inventory/<env>/hosts에 있다.
+# 노드 IP(node_ip)는 호스트 이름의 DNS A 레코드에서 가져온다. (playbooks/group_vars/k8s_cluster.yml)
+# 클러스터 위 구성요소(sealed-secrets, Argo CD)는 playbooks/40_bootstrap_cluster.yml이 담당한다.
+
+# ======================================================================
+- name: Prepare Kubernetes nodes
+  hosts: k8s_cluster
+  become: true
+  vars:
+    # control-plane endpoint 이름은 첫 control-plane IP를 가리킨다. (추가 IP를 받으면 VIP로 바꾼다)
+    k8s_control_plane_endpoint_ip: "{{ hostvars[groups['k8s_control_plane'][0]].node_ip }}"
+    k8s_minor: "v{{ k8s_version.split('.')[:2] | join('.') }}"
+    k8s_package_revision: '1.1'
+    deb_arch: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}[ansible_facts['architecture']] }}"
+    node_packages: [
+        ca-certificates,
+        curl,
+        gnupg,
+        jq,
+        conntrack,
+        socat,
+        ethtool,
+        ipset,
+        iptables,
+        ebtables,
+        open-iscsi,
+        nfs-common,
+        cryptsetup
+      ] # 마지막 3개는 Longhorn 요구사항
+    kernel_modules: [overlay, br_netfilter, iscsi_tcp, dm_crypt]
+    sysctls:
+      net.bridge.bridge-nf-call-iptables: 1
+      net.bridge.bridge-nf-call-ip6tables: 1
+      net.ipv4.ip_forward: 1
+      fs.inotify.max_user_instances: 8192 # promtail/alloy 등
+      fs.inotify.max_user_watches: 524288
+
+  tasks:
+    - name: Validate inventory variables
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Debian'
+          - node_name is defined
+          - node_ip is match('^\\d+\\.\\d+\\.\\d+\\.\\d+$')
+          - k8s_version is defined and k8s_control_plane_endpoint is defined
+          - k8s_pod_subnet is defined and k8s_service_subnet is defined
+        fail_msg: >-
+          Debian 노드, inventory의 node_name과 k8s_* 변수가 필요하고,
+          {{ inventory_hostname }}의 DNS A 레코드가 IP 하나로 조회되어야 한다. (node_ip={{ node_ip }})
+
+    # ---------- host ----------
+    - name: Set hostname to the Kubernetes node name
+      ansible.builtin.hostname:
+        name: '{{ node_name }}'
+
+    - name: Map node name and control-plane endpoint in /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '\s{{ item.name | regex_escape }}$'
+        line: '{{ item.ip }} {{ item.name }}'
+      loop:
+        - {ip: '{{ node_ip }}', name: '{{ node_name }}'}
+        - {
+            ip: '{{ k8s_control_plane_endpoint_ip }}',
+            name: '{{ k8s_control_plane_endpoint }}'
+          }
+
+    - name: Install node packages
+      ansible.builtin.apt:
+        name: '{{ node_packages }}'
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Disable swap now
+      ansible.builtin.command: swapoff -a
+      when: ansible_facts['swaptotal_mb'] | int > 0
+      changed_when: true
+
+    - name: Disable swap in fstab
+      ansible.builtin.replace:
+        path: /etc/fstab
+        regexp: '^([^#].*\sswap\s.*)$'
+        replace: '# \1'
+
+    - name: Load kernel modules at boot
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: "{{ kernel_modules | join('\n') }}\n"
+        mode: '0644'
+
+    - name: Load kernel modules now
+      community.general.modprobe:
+        name: '{{ item }}'
+      loop: '{{ kernel_modules }}'
+
+    - name: Apply sysctl settings
+      ansible.posix.sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_file: /etc/sysctl.d/99-kubernetes.conf
+      loop: '{{ sysctls | dict2items }}'
+
+    - name: Enable iscsid (Longhorn)
+      ansible.builtin.systemd:
+        name: iscsid
+        enabled: true
+        state: started
+
+    # ---------- apt repositories ----------
+    - name: Ensure /etc/apt/keyrings exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add apt keys (Docker for containerd.io, Kubernetes)
+      ansible.builtin.get_url:
+        url: '{{ item.url }}'
+        dest: '{{ item.dest }}'
+        mode: '0644'
+      loop:
+        - {
+            url: https://download.docker.com/linux/debian/gpg,
+            dest: /etc/apt/keyrings/docker.asc
+          }
+        - {
+            url: 'https://pkgs.k8s.io/core:/stable:/{{ k8s_minor }}/deb/Release.key',
+            dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+          }
+
+    - name: Add apt repositories
+      ansible.builtin.copy:
+        dest: '{{ item.dest }}'
+        content: "{{ item.line }}\n"
+        mode: '0644'
+      loop:
+        - dest: /etc/apt/sources.list.d/docker.list
+          line: "deb [arch={{ deb_arch }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+        - dest: /etc/apt/sources.list.d/kubernetes.list
+          line: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/{{ k8s_minor }}/deb/ /'
+
+    # ---------- containerd ----------
+    # Debian 기본 containerd 1.7은 Kubernetes 1.36부터 지원되지 않으므로 containerd.io(2.x)를 쓴다.
+    - name: Install containerd
+      ansible.builtin.apt:
+        name: containerd.io
+        update_cache: true
+
+    - name: Check whether containerd config has the CRI runtime section
+      ansible.builtin.command: grep -q SystemdCgroup /etc/containerd/config.toml
+      register: containerd_cri_config
+      changed_when: false
+      failed_when: false
+
+    # containerd.io 패키지 기본 config.toml은 CRI 플러그인을 끈다(disabled_plugins = ["cri"]).
+    - name: Generate the default containerd config
+      ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
+      when: containerd_cri_config.rc != 0
+      changed_when: true
+      notify: Restart containerd
+
+    - name: Use the systemd cgroup driver
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup = false'
+        replace: 'SystemdCgroup = true'
+      notify: Restart containerd
+
+    - name: Enable containerd
+      ansible.builtin.systemd:
+        name: containerd
+        enabled: true
+        state: started
+
+    # ---------- kubelet / kubeadm / kubectl ----------
+    - name: Unhold Kubernetes packages for install/upgrade
+      ansible.builtin.dpkg_selections:
+        name: '{{ item }}'
+        selection: install
+      loop: [kubelet, kubeadm, kubectl]
+      failed_when: false
+
+    - name: Install kubelet, kubeadm, kubectl {{ k8s_version }}
+      ansible.builtin.apt:
+        name: "{{ ['kubelet', 'kubeadm', 'kubectl'] | product(['=' ~ k8s_version ~ '-' ~ k8s_package_revision]) | map('join') | list }}"
+        update_cache: true
+        allow_downgrade: true
+
+    - name: Hold Kubernetes packages
+      ansible.builtin.dpkg_selections:
+        name: '{{ item }}'
+        selection: hold
+      loop: [kubelet, kubeadm, kubectl]
+
+    - name: Enable kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        enabled: true
+
+  handlers:
+    - name: Restart containerd
+      ansible.builtin.systemd:
+        name: containerd
+        state: restarted
+
+# ======================================================================
+- name: Initialize the first control-plane node
+  hosts: k8s_control_plane[0]
+  become: true
+  vars:
+    kubeconfig: /etc/kubernetes/admin.conf
+    flannel_version: v0.28.10
+    local_kubeconfig: '~/.kube/{{ k8s_cluster_name }}.conf'
+    k8s_control_plane_endpoint_ip: '{{ node_ip }}'
+  tasks:
+    - name: Check whether the cluster is already initialized
+      ansible.builtin.stat:
+        path: '{{ kubeconfig }}'
+      register: admin_conf
+
+    - name: Write kubeadm init configuration
+      ansible.builtin.copy:
+        dest: /etc/kubernetes/kubeadm-init.yaml
+        mode: '0600'
+        content: |
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: InitConfiguration
+          localAPIEndpoint:
+            advertiseAddress: "{{ node_ip }}"
+            bindPort: 6443
+          nodeRegistration:
+            name: "{{ node_name }}"
+            criSocket: unix:///run/containerd/containerd.sock
+            kubeletExtraArgs:
+              - name: node-ip
+                value: "{{ node_ip }}"
+            # k3s처럼 control-plane에도 워크로드를 배치한다.
+            taints: []
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: ClusterConfiguration
+          clusterName: {{ k8s_cluster_name }}
+          kubernetesVersion: v{{ k8s_version }}
+          controlPlaneEndpoint: {{ k8s_control_plane_endpoint }}:6443
+          networking:
+            podSubnet: {{ k8s_pod_subnet }}
+            serviceSubnet: {{ k8s_service_subnet }}
+            dnsDomain: cluster.local
+          apiServer:
+            certSANs:
+          {% for san in ([k8s_control_plane_endpoint, k8s_control_plane_endpoint_ip]
+                         + (groups['k8s_control_plane'] | map('extract', hostvars, 'node_ip') | list)
+                         + (groups['k8s_control_plane'] | map('extract', hostvars, 'node_name') | list)) | unique %}
+              - "{{ san }}"
+          {% endfor %}
+          ---
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          kind: KubeletConfiguration
+          cgroupDriver: systemd
+          ---
+          apiVersion: kubeproxy.config.k8s.io/v1alpha1
+          kind: KubeProxyConfiguration
+          mode: iptables
+
+    - name: Run kubeadm init
+      ansible.builtin.command: kubeadm init --config /etc/kubernetes/kubeadm-init.yaml --upload-certs
+      when: not admin_conf.stat.exists
+      register: kubeadm_init
+      changed_when: true
+
+    - name: Show kubeadm init output
+      ansible.builtin.debug:
+        var: kubeadm_init.stdout_lines
+      when: kubeadm_init is changed
+
+    - name: Install kubeconfig for {{ ansible_user }}
+      ansible.builtin.shell: |
+        install -d -m 0700 -o {{ ansible_user }} -g {{ ansible_user }} ~{{ ansible_user }}/.kube
+        install -m 0600 -o {{ ansible_user }} -g {{ ansible_user }} {{ kubeconfig }} ~{{ ansible_user }}/.kube/config
+      changed_when: true
+
+    # ---------- CNI: Flannel ----------
+    - name: Download Flannel {{ flannel_version }}
+      ansible.builtin.get_url:
+        url: 'https://github.com/flannel-io/flannel/releases/download/{{ flannel_version }}/kube-flannel.yml'
+        dest: /etc/kubernetes/kube-flannel.yml
+        mode: '0644'
+
+    - name: Set Flannel network to the pod subnet
+      ansible.builtin.replace:
+        path: /etc/kubernetes/kube-flannel.yml
+        regexp: '"Network": "[0-9./]+"'
+        replace: '"Network": "{{ k8s_pod_subnet }}"'
+
+    - name: Apply Flannel
+      ansible.builtin.command: kubectl --kubeconfig {{ kubeconfig }} apply -f /etc/kubernetes/kube-flannel.yml
+      register: flannel_apply
+      changed_when: "'created' in flannel_apply.stdout or 'configured' in flannel_apply.stdout"
+
+    - name: Wait for the first node to become Ready
+      ansible.builtin.command: kubectl --kubeconfig {{ kubeconfig }} wait --for=condition=Ready node/{{ node_name }} --timeout=300s
+      changed_when: false
+
+    # ---------- 관리 PC kubeconfig ----------
+    - name: Read admin kubeconfig
+      ansible.builtin.slurp:
+        src: '{{ kubeconfig }}'
+      register: admin_conf_content
+      no_log: true
+
+    - name: Save kubeconfig on the management machine
+      # 관리 PC는 endpoint 이름을 모르므로 IP로 접속하게 바꾼다.
+      ansible.builtin.copy:
+        content: >-
+          {{ (admin_conf_content.content | b64decode)
+             | regex_replace('server: https://[^\n]+', 'server: https://' ~ k8s_control_plane_endpoint_ip ~ ':6443') }}
+        dest: '{{ local_kubeconfig }}'
+        mode: '0600'
+      delegate_to: localhost
+      become: false
+      no_log: true
+
+    # ---------- join 정보 ----------
+    - name: Create a bootstrap token
+      ansible.builtin.command: kubeadm token create --ttl 1h --print-join-command
+      register: join_command
+      changed_when: true
+      no_log: true
+
+    - name: Upload control-plane certificates and get the certificate key
+      ansible.builtin.command: kubeadm init phase upload-certs --upload-certs
+      register: upload_certs
+      changed_when: true
+      no_log: true
+      when: groups['k8s_control_plane'] | length > 1
+
+    - name: Store join credentials
+      ansible.builtin.set_fact:
+        join_token: "{{ join_command.stdout | regex_search('--token\\s+(\\S+)', '\\1') | first }}"
+        join_ca_hash: "{{ join_command.stdout | regex_search('--discovery-token-ca-cert-hash\\s+(\\S+)', '\\1') | first }}"
+        join_certificate_key: "{{ (upload_certs.stdout_lines | default([''])) | last }}"
+      no_log: true
+
+# ======================================================================
+- name: Join the remaining nodes
+  hosts: k8s_cluster:!k8s_control_plane[0]
+  become: true
+  serial: 1
+  vars:
+    first_cp: "{{ groups['k8s_control_plane'][0] }}"
+    is_control_plane: "{{ inventory_hostname in groups['k8s_control_plane'] }}"
+  tasks:
+    - name: Check whether the node already joined
+      ansible.builtin.stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: Join the node
+      when: not kubelet_conf.stat.exists
+      block:
+        - name: Write kubeadm join configuration
+          ansible.builtin.copy:
+            dest: /etc/kubernetes/kubeadm-join.yaml
+            mode: '0600'
+            content: |
+              apiVersion: kubeadm.k8s.io/v1beta4
+              kind: JoinConfiguration
+              discovery:
+                bootstrapToken:
+                  apiServerEndpoint: {{ k8s_control_plane_endpoint }}:6443
+                  token: "{{ hostvars[first_cp].join_token }}"
+                  caCertHashes:
+                    - "{{ hostvars[first_cp].join_ca_hash }}"
+              nodeRegistration:
+                name: "{{ node_name }}"
+                criSocket: unix:///run/containerd/containerd.sock
+                kubeletExtraArgs:
+                  - name: node-ip
+                    value: "{{ node_ip }}"
+                taints: []
+              {% if is_control_plane | bool %}
+              controlPlane:
+                localAPIEndpoint:
+                  advertiseAddress: "{{ node_ip }}"
+                  bindPort: 6443
+                certificateKey: "{{ hostvars[first_cp].join_certificate_key }}"
+              {% endif %}
+          no_log: true
+
+        - name: Run kubeadm join
+          ansible.builtin.command: kubeadm join --config /etc/kubernetes/kubeadm-join.yaml
+          changed_when: true
+
+      always:
+        - name: Remove the join configuration (contains a token)
+          ansible.builtin.file:
+            path: /etc/kubernetes/kubeadm-join.yaml
+            state: absent
+
+    - name: Wait for the node to become Ready
+      ansible.builtin.command: kubectl --kubeconfig /etc/kubernetes/admin.conf wait --for=condition=Ready node/{{ node_name }} --timeout=300s
+      delegate_to: '{{ first_cp }}'
+      changed_when: false
+
+# ======================================================================
+- name: Verify the cluster
+  hosts: k8s_control_plane[0]
+  become: true
+  tasks:
+    - name: List nodes
+      ansible.builtin.command: kubectl --kubeconfig /etc/kubernetes/admin.conf get nodes -o wide
+      register: nodes
+      changed_when: false
+
+    - name: Show nodes
+      ansible.builtin.debug:
+        msg:
+          "{{ nodes.stdout_lines + ['', 'kubeconfig: ~/.kube/' ~ k8s_cluster_name ~ '.conf',
+          'Next: playbooks/40_bootstrap_cluster.yml (sealed-secrets keys, Argo CD)'] }}"

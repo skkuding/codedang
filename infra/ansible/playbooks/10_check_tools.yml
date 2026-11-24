@@ -1,0 +1,119 @@
+---
+# 클러스터 관리에 필요한 도구가 로컬 PC에 있는지 확인한다. (아무것도 설치하지 않는다)
+# OS마다 설치 방법이 달라서 설치는 각자 하고, 이 플레이북은 설치된 것과 필요한 것을 보여준다.
+#
+#   ansible-playbook playbooks/10_check_tools.yml
+#
+# 하나라도 없으면 마지막에 실패(rc != 0)한다.
+- name: Check cluster management tools on this machine
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    cli_tools:
+      - name: kubectl
+        version_cmd: kubectl version --client
+        install: https://kubernetes.io/docs/tasks/tools/
+      - name: helm
+        version_cmd: helm version --short
+        install: https://helm.sh/docs/intro/install/
+      - name: aws
+        version_cmd: aws --version
+        install: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+      - name: kubeseal
+        version_cmd: kubeseal --version
+        install: https://github.com/bitnami-labs/sealed-secrets#kubeseal
+      - name: jq
+        version_cmd: jq --version
+        install: https://jqlang.org/download/
+    # 40_bootstrap_cluster.yml의 kubernetes.core 모듈과 30_k8s_cluster.yml의 dig lookup이 쓰는 Python 패키지
+    python_modules:
+      - name: kubernetes
+        install: '{{ ansible_playbook_python }} -m pip install kubernetes (또는 OS 패키지: python3-kubernetes 등)'
+      - name: dns
+        install: '{{ ansible_playbook_python }} -m pip install dnspython (또는 OS 패키지: python3-dnspython 등)'
+    required_collections:
+      - ansible.posix
+      - community.general
+      - kubernetes.core
+
+  tasks:
+    - name: Check CLI tools
+      ansible.builtin.shell: |
+        set -o pipefail
+        command -v {{ item.name }} >/dev/null || exit 127
+        {{ item.version_cmd }} 2>&1 | head -1
+      args:
+        executable: /bin/bash
+      loop: '{{ cli_tools }}'
+      loop_control:
+        label: '{{ item.name }}'
+      register: cli_results
+      changed_when: false
+      failed_when: false
+
+    - name: Check Python modules
+      ansible.builtin.command:
+        argv:
+          - '{{ ansible_playbook_python }}'
+          - -c
+          - "import {{ item.name }} as m; print(getattr(m, '__version__', 'installed'))"
+      loop: '{{ python_modules }}'
+      loop_control:
+        label: '{{ item.name }}'
+      register: python_results
+      changed_when: false
+      failed_when: false
+
+    - name: Check Ansible collections
+      ansible.builtin.shell: |
+        set -o pipefail
+        ansible-galaxy collection list {{ item }} 2>/dev/null | awk '$1 == "{{ item }}" {print $2; found=1} END {exit !found}' | head -1
+      args:
+        executable: /bin/bash
+      loop: '{{ required_collections }}'
+      register: collection_results
+      changed_when: false
+      failed_when: false
+
+    - name: Build the report
+      ansible.builtin.set_fact:
+        installed: >-
+          {{ (cli_results.results | selectattr('rc', 'equalto', 0)
+               | map(attribute='item.name')
+               | zip(cli_results.results | selectattr('rc', 'equalto', 0) | map(attribute='stdout'))
+               | map('join', ': ') | list)
+             + (python_results.results | selectattr('rc', 'equalto', 0)
+               | map(attribute='item.name') | map('regex_replace', '^', 'python ')
+               | zip(python_results.results | selectattr('rc', 'equalto', 0) | map(attribute='stdout'))
+               | map('join', ': ') | list)
+             + (collection_results.results | selectattr('rc', 'equalto', 0)
+               | map(attribute='item')
+               | zip(collection_results.results | selectattr('rc', 'equalto', 0) | map(attribute='stdout'))
+               | map('join', ': ') | list) }}
+        missing: >-
+          {{ (cli_results.results | rejectattr('rc', 'equalto', 0)
+               | map(attribute='item') | map(attribute='name')
+               | zip(cli_results.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='install'))
+               | map('join', '  ->  ') | list)
+             + (python_results.results | rejectattr('rc', 'equalto', 0)
+               | map(attribute='item') | map(attribute='name') | map('regex_replace', '^', 'python ')
+               | zip(python_results.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='install'))
+               | map('join', '  ->  ') | list)
+             + (collection_results.results | rejectattr('rc', 'equalto', 0)
+               | map(attribute='item')
+               | map('regex_replace', '$', '  ->  ansible-galaxy collection install -r requirements.yml')
+               | list) }}
+
+    - name: Installed
+      ansible.builtin.debug:
+        msg: "{{ installed if installed | length > 0 else ['(없음)'] }}"
+
+    - name: Missing (install these)
+      ansible.builtin.debug:
+        msg: "{{ missing if missing | length > 0 else ['(없음) 모든 도구가 준비됨'] }}"
+
+    - name: Fail when something is missing
+      ansible.builtin.fail:
+        msg: "{{ missing | length }}개 항목이 없습니다. 위 'Missing' 목록을 참고해 설치하세요."
+      when: missing | length > 0
