@@ -39,6 +39,18 @@ spec:
         pod_association:
           - sources:
               - from: connection
+      # The prometheus exporter turns every resource attribute into a label on
+      # every series. These are SDK detector values no dashboard or alert reads,
+      # and process.pid changes on each restart, starting new series. Metrics
+      # only: logs and traces keep them for debugging.
+      resource/drop-unused:
+        attributes:
+          - pattern: ^process\.
+            action: delete
+          - pattern: ^os\.
+            action: delete
+          - pattern: ^telemetry\.sdk\.
+            action: delete
       batch:
         timeout: 10s
         send_batch_size: 512
@@ -66,7 +78,7 @@ spec:
           exporters: [otlphttp/logs]
         metrics:
           receivers: [otlp]
-          processors: [k8sattributes, batch]
+          processors: [k8sattributes, resource/drop-unused, batch]
           exporters: [prometheus]
         traces:
           receivers: [otlp]
