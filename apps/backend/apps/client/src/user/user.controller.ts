@@ -7,10 +7,17 @@ import {
   Res,
   Controller,
   Delete,
-  Query
+  Query,
+  UnauthorizedException,
+  createParamDecorator,
+  type ExecutionContext
 } from '@nestjs/common'
 import { Request, type Response } from 'express'
-import { AuthenticatedRequest, AuthNotNeededIfPublic } from '@libs/auth'
+import {
+  AuthenticatedRequest,
+  AuthNotNeededIfPublic,
+  UserNullWhenAuthFailedIfPublic
+} from '@libs/auth'
 import { DeleteUserDto } from './dto/deleteUser.dto'
 import { EmailAuthenticationPinDto } from './dto/email-auth-pin.dto'
 import { NewPasswordDto } from './dto/newPassword.dto'
@@ -20,6 +27,16 @@ import { UpdateUserDto } from './dto/updateUser.dto'
 import { UserEmailDto } from './dto/userEmail.dto'
 import { UsernameDto } from './dto/username.dto'
 import { UserService } from './user.service'
+
+// The reverse proxy sets X-Real-IP to the client address. Without a proxy (local), use the socket address.
+export const getClientIp = (req: Request): string => {
+  const realIp = req.headers['x-real-ip']
+  return (typeof realIp === 'string' && realIp) || req.ip || ''
+}
+
+const ClientIp = createParamDecorator((_: unknown, ctx: ExecutionContext) =>
+  getClientIp(ctx.switchToHttp().getRequest<Request>())
+)
 
 @Controller('user')
 export class UserController {
@@ -73,9 +90,19 @@ export class UserController {
   }
 
   @Get('email')
-  @AuthNotNeededIfPublic()
-  async getUsernameByEmail(@Query() userEmailDto: UserEmailDto) {
-    return await this.userService.getUsernameByEmail(userEmailDto)
+  @UserNullWhenAuthFailedIfPublic()
+  async getUsernameByEmail(
+    @Req() req: AuthenticatedRequest,
+    @Query() userEmailDto: UserEmailDto,
+    @ClientIp() ip: string
+  ) {
+    if (req.user) {
+      return await this.userService.getUsernameByEmail(userEmailDto)
+    }
+    if (req.headers.authorization) {
+      throw new UnauthorizedException()
+    }
+    return await this.userService.sendUsernameByEmail(userEmailDto, ip)
   }
 
   @Patch('')
@@ -97,13 +124,19 @@ export class EmailAuthenticationController {
   }
 
   @Post('send-email/password-reset')
-  async sendPinForPasswordReset(@Body() userEmailDto: UserEmailDto) {
-    return await this.userService.sendPinForPasswordReset(userEmailDto)
+  async sendPinForPasswordReset(
+    @Body() userEmailDto: UserEmailDto,
+    @ClientIp() ip: string
+  ) {
+    return await this.userService.sendPinForPasswordReset(userEmailDto, ip)
   }
 
   @Post('send-email/register-new')
-  async sendPinForRegisterNewEmail(@Body() userEmailDto: UserEmailDto) {
-    return await this.userService.sendPinForRegisterNewEmail(userEmailDto)
+  async sendPinForRegisterNewEmail(
+    @Body() userEmailDto: UserEmailDto,
+    @ClientIp() ip: string
+  ) {
+    return await this.userService.sendPinForRegisterNewEmail(userEmailDto, ip)
   }
 
   @Post('verify-pin')

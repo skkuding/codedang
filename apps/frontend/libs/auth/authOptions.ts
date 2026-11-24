@@ -1,6 +1,7 @@
 import type { NextAuthOptions, Session, User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { safeFetcher } from '../utils'
 import { authorize } from './authorize'
 
 export const authOptions: NextAuthOptions = {
@@ -47,6 +48,20 @@ export const authOptions: NextAuthOptions = {
       }
 
       return session
+    }
+  },
+  events: {
+    signOut: async ({ token }: { token: JWT }) => {
+      try {
+        await safeFetcher.post('auth/logout', {
+          headers: {
+            Authorization: token.accessToken,
+            Cookie: `refresh_token=${token.refreshToken}`
+          }
+        })
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 }

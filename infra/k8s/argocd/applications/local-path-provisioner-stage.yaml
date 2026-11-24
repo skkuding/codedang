@@ -1,0 +1,41 @@
+# local-path StorageClass for the kubeadm stage cluster.
+# k3s ships local-path-provisioner built in; kubeadm does not. Most PVCs use `local-path`,
+# and minio's `local-path-retain` StorageClass relies on the rancher.io/local-path provisioner.
+# Volumes are stored under /opt/local-path-provisioner on each node.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: local-path-provisioner-stage
+  namespace: argocd
+  annotations:
+    # Before any app that creates a PVC
+    argocd.argoproj.io/sync-wave: '-3'
+  labels:
+    app.kubernetes.io/environment: 'stage'
+spec:
+  project: default
+  source:
+    # The chart is not published to a Helm repository, so use it from the Git tag.
+    repoURL: https://github.com/rancher/local-path-provisioner
+    path: deploy/chart/local-path-provisioner
+    # Same version as production's k3s
+    targetRevision: v0.0.36
+    helm:
+      releaseName: local-path-provisioner
+      valuesObject:
+        storageClass:
+          name: local-path
+          # Same as k3s: PVCs without storageClassName use local-path
+          defaultClass: true
+          # Must match the provisioner of local-path-retain (minio/silo-storage-class.yaml)
+          provisionerName: rancher.io/local-path
+  destination:
+    namespace: kube-system
+    name: stage
+  syncPolicy:
+    automated:
+      # Prune disabled: requires manual review before removing resources
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

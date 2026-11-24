@@ -1,8 +1,9 @@
 'use client'
 
 import { cn } from '@/libs/utils'
+import ArrowDownIcon from '@/public/icons/arrow-bottom-thin.svg'
+import ArrowTopIcon from '@/public/icons/arrow-top.svg'
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { ChevronDown, ChevronUp } from 'lucide-react'
 import * as React from 'react'
 import { IoIosRadioButtonOff, IoIosRadioButtonOn } from 'react-icons/io'
 
@@ -26,7 +27,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
+      <ArrowDownIcon className="size-4 opacity-50" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -44,7 +45,7 @@ const SelectScrollUpButton = React.forwardRef<
     )}
     {...props}
   >
-    <ChevronUp className="h-4 w-4" />
+    <ArrowTopIcon className="size-4 opacity-50" />
   </SelectPrimitive.ScrollUpButton>
 ))
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
@@ -61,7 +62,7 @@ const SelectScrollDownButton = React.forwardRef<
     )}
     {...props}
   >
-    <ChevronDown className="h-4 w-4" />
+    <ArrowDownIcon className="size-4 opacity-50" />
   </SelectPrimitive.ScrollDownButton>
 ))
 SelectScrollDownButton.displayName =
@@ -139,7 +140,7 @@ const SelectItem = React.forwardRef<
     {...props}
   >
     {showSelectIcon && (
-      <span className="mr-[14px] flex items-center justify-center">
+      <span className="mx-2 my-2 flex items-center justify-center">
         <IoIosRadioButtonOff className="h-5 w-5 text-gray-400" />
         <SelectPrimitive.ItemIndicator className="absolute">
           <IoIosRadioButtonOn className="text-primary h-5 w-5" />

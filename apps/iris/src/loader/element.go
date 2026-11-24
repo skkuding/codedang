@@ -15,3 +15,11 @@ type ElementOut struct {
 	Out    string `json:"out"`
 	Hidden bool   `json:"hidden"`
 }
+
+type ElementType int8
+
+const (
+	ALL ElementType = 0 + iota
+	PUBLIC_ONLY
+	HIDDEN_ONLY
+)

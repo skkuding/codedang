@@ -53,6 +53,10 @@ persistence:
   enabled: true
   size: 10Gi
 
+# Stage keeps every non-Longhorn (local-path) volume on skkuding-1.
+nodeSelector:
+  kubernetes.io/hostname: skkuding-1
+
 admin:
   existingSecret: grafana-admin-user
   userKey: ADMIN_USER

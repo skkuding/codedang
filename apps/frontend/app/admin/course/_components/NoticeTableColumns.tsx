@@ -3,7 +3,7 @@
 import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableColumnHeader'
 import { cn, dateFormatter } from '@/libs/utils'
 import PenIcon from '@/public/icons/pen.svg'
-import TrashcanGrayIcon from '@/public/icons/trashcan2-gray.svg'
+import TrashcanGrayIcon from '@/public/icons/trashcan.svg'
 import type { CourseNoticeListItem } from '@/types/type'
 import type { ColumnDef } from '@tanstack/react-table'
 
