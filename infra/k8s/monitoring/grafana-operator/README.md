@@ -25,9 +25,11 @@ The Discord agent runs in the stage cluster and needs both the stage and the
 production token, so `ai-agent` exists in both Grafana instances.
 
 Copy each token by hand from `grafana-ai-agent-token` into the agent's own
-Secret. The operator revokes the token and issues a new one when that Secret
-is deleted or the token settings change. The copied value then stops working
-without any error, so copy the new value again after such a change.
+Secret. The operator revokes the token and issues a new one when
+`grafana-ai-agent-token` in `monitoring-grafana` is deleted or the token
+settings change. Deleting the agent's copy does not revoke anything. After a
+reissue the copied value stops working without any error, so copy the new
+value again.
 
 Grafana OSS has no per-datasource permissions, so this Viewer token can query
 every datasource: production Loki logs, which include emails and student IDs,
