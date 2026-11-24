@@ -21,6 +21,10 @@ defaultRules:
 prometheus:
   prometheusSpec:
     retention: 90d
+    # local-path does not enforce the PVC size below, so this is the actual
+    # cap on disk usage. Whichever limit is reached first drops the oldest
+    # blocks. Prometheus reads size units as powers of two (20GB = 20GiB).
+    retentionSize: 20GB
     enableRemoteWriteReceiver: true
     storageSpec:
       volumeClaimTemplate:
