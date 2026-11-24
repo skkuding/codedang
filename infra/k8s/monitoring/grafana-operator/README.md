@@ -18,3 +18,18 @@ the account is gone.
 | Account    | Role   | Token Secret             | Used by         |
 | ---------- | ------ | ------------------------ | --------------- |
 | `ai-agent` | Viewer | `grafana-ai-agent-token` | Discord agent   |
+
+## Discord agent token
+
+The Discord agent runs in the stage cluster and needs both the stage and the
+production token, so `ai-agent` exists in both Grafana instances.
+
+Copy each token by hand from `grafana-ai-agent-token` into the agent's own
+Secret. The operator revokes the token and issues a new one when that Secret
+is deleted or the token settings change. The copied value then stops working
+without any error, so copy the new value again after such a change.
+
+Grafana OSS has no per-datasource permissions, so this Viewer token can query
+every datasource: production Loki logs, which include emails and student IDs,
+CloudWatch, and the stage database view. The agent, not Grafana, decides what
+reaches Discord.
