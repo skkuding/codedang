@@ -70,13 +70,14 @@ export class ApiError extends Error {
   }
 
   public static convertApolloError(apolloError: ApolloError): ApiError {
+    // Empty when the request failed at the network layer.
     const e = apolloError.graphQLErrors[0]
     const apiError = new ApiError(
       apolloError.name,
-      e.extensions
+      e?.extensions
         ? `${String(e.extensions.code)}: ${apolloError.message}`
-        : '',
-      e.path ? String(e.path[0]) : ''
+        : apolloError.message,
+      e?.path ? String(e.path[0]) : ''
     )
     return apiError
   }

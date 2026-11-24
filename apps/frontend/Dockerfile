@@ -33,14 +33,23 @@ ARG BASEURL
 ARG GQL_BASEURL
 ARG RUNNER_BASEURL
 ARG ADMIN_REST_URL
+# Sentry stays off when SENTRY_DSN is empty (e.g. PR preview builds).
+ARG SENTRY_DSN
+ARG SENTRY_ENVIRONMENT
 
 ENV NEXT_PUBLIC_BASEURL=${BASEURL}
 ENV NEXT_PUBLIC_GQL_BASEURL=${GQL_BASEURL}
 ENV NEXT_PUBLIC_RUNNER_BASEURL=${RUNNER_BASEURL}
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_ADMIN_REST_URL=${ADMIN_REST_URL}
+ENV NEXT_PUBLIC_SENTRY_DSN=${SENTRY_DSN}
+ENV NEXT_PUBLIC_SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
 
-RUN --mount=type=cache,target=/build/apps/frontend/.next/cache pnpm build
+# The source map upload token is a build secret so it never lands in an image
+# layer. Without it the build skips source maps.
+RUN --mount=type=cache,target=/build/apps/frontend/.next/cache \
+    --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    pnpm build
 
 ### PRODUCTION ###
 FROM base AS production
