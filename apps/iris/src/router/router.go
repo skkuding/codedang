@@ -19,7 +19,7 @@ import (
 )
 
 type Router interface {
-	Route(path constants.MessageType, id string, data []byte, resultChan chan<- response.Response, ctx context.Context)
+	Route(path string, id string, data []byte, resultChan chan<- response.Response, ctx context.Context)
 }
 
 type router struct {
@@ -57,7 +57,22 @@ func NewRouter(
 	}
 }
 
-func (r *router) Route(path constants.MessageType, id string, data []byte, out chan<- response.Response, ctx context.Context) {
+func (r *router) Route(path string, id string, data []byte, out chan<- response.Response, ctx context.Context) {
+	if path == "" {
+		out <- response.Response{
+			Message: response.NewJudgeResponse("", nil, fmt.Errorf("type(message property) must not be empty")).Marshal(),
+			Type:    string(constants.Default),
+		}
+		return
+	}
+	if id == "" {
+		out <- response.Response{
+			Message: response.NewJudgeResponse("", nil, fmt.Errorf("message_id(message property) must not be empty")).Marshal(),
+			Type:    path,
+		}
+		return
+	}
+	pathType := constants.MessageType(path)
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.GetTracerProvider().Tracer("Router Tracer")
 	newCtx, childSpan := tracer.Start(
@@ -78,40 +93,40 @@ func (r *router) Route(path constants.MessageType, id string, data []byte, out c
 	var task handler.Task
 	var taskErr error
 
-	r.logger.Log(logger.INFO, fmt.Sprintf("%s message received", path))
-	switch path {
+	r.logger.Log(logger.INFO, fmt.Sprintf("%s message received", pathType))
+	switch pathType {
 	case constants.Judge, constants.SpecialJudge:
-		task, taskErr = r.judgeTaskFactory.Create(string(path), data)
+		task, taskErr = r.judgeTaskFactory.Create(string(pathType), data)
 	case constants.Run, constants.UserTestCase:
-		task, taskErr = r.runTaskFactory.Create(string(path), data)
+		task, taskErr = r.runTaskFactory.Create(string(pathType), data)
 	case constants.Generate:
-		task, taskErr = r.generateTaskFactory.Create(string(path), data)
+		task, taskErr = r.generateTaskFactory.Create(string(pathType), data)
 	case constants.Validate:
-		task, taskErr = r.validateTaskFactory.Create(string(path), data)
+		task, taskErr = r.validateTaskFactory.Create(string(pathType), data)
 	case constants.Check:
-		// task, taskErr = r.checkTaskFactory.Create(path, data)
+		// task, taskErr = r.checkTaskFactory.Create(pathType, data)
 		// TODO: implement check factory
 		taskErr = fmt.Errorf("check handler not implemented yet")
 	default:
-		taskErr = fmt.Errorf("invalid request type: %s", path)
+		taskErr = fmt.Errorf("invalid request type: %s", pathType)
 	}
 
-	sender, responseErr := response.NewSender(ctx, out, path, id, data, r.logger)
+	sender, responseErr := response.NewSender(ctx, out, pathType, id, data, r.logger)
 	if responseErr != nil {
 		if sender == nil {
-			r.logger.Log(logger.ERROR, fmt.Sprintf("unsupported response path %s with id %s: %v", path, id, responseErr))
+			r.logger.Log(logger.ERROR, fmt.Sprintf("unsupported response path %s with id %s: %v", pathType, id, responseErr))
 			return
 		}
-		r.logger.Log(logger.WARN, fmt.Sprintf("failed to decode response metadata for path %s with id %s: %v", path, id, responseErr))
+		r.logger.Log(logger.WARN, fmt.Sprintf("failed to decode response metadata for path %s with id %s: %v", pathType, id, responseErr))
 	}
 
 	if taskErr != nil {
-		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", path, taskErr))
+		r.logger.Log(logger.ERROR, fmt.Sprintf("Error creating task for path %s: %v", pathType, taskErr))
 		r.errHandle(taskErr)
 		if !sender.Send(handler.ResultMessage{Err: taskErr}) {
 			return
 		}
-		if ok, msgType := isSubmissionTask(path); ok {
+		if ok, msgType := isSubmissionTask(pathType); ok {
 			judgeResponse := response.NewJudgeResponse(id, nil, taskErr)
 			sender.Send(handler.ResultMessage{
 				EncodedResponse: response.NewSubmissionResponse(id, []*response.JudgeResponse{judgeResponse}).Marshal(),
@@ -121,12 +136,12 @@ func (r *router) Route(path constants.MessageType, id string, data []byte, out c
 	}
 
 	if task == nil {
-		r.logger.Log(logger.WARN, fmt.Sprintf("Task factory returned nil for path %s with id %s", path, id))
+		r.logger.Log(logger.WARN, fmt.Sprintf("Task factory returned nil for path %s with id %s", pathType, id))
 	} else {
-		r.logger.Log(logger.INFO, fmt.Sprintf("Task successfully created for path %s with id %s: %s", path, id, task.GetDebugString()))
+		r.logger.Log(logger.INFO, fmt.Sprintf("Task successfully created for path %s with id %s: %s", pathType, id, task.GetDebugString()))
 	}
 
-	r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", path, id))
+	r.logger.Log(logger.INFO, fmt.Sprintf("Running task for path %s with id %s", pathType, id))
 	go func() {
 		defer close(taskResultChan)
 		r.runner.Run(newCtx, id, task, func(result handler.ResultMessage, messageType ...constants.MessageType) {

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/skkuding/codedang/apps/plag/src/common/constants"
+	commonlogger "github.com/skkuding/codedang/packages/go/common/logger"
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/trace"
@@ -13,13 +14,13 @@ import (
 )
 
 type Mode int
-type Level string
+type Level = commonlogger.Level
 
 const (
-	DEBUG Level = "Debug"
-	INFO  Level = "Info"
-	WARN  Level = "Warn"
-	ERROR Level = "Error"
+	DEBUG = commonlogger.DEBUG
+	INFO  = commonlogger.INFO
+	WARN  = commonlogger.WARN
+	ERROR = commonlogger.ERROR
 )
 
 const (
@@ -27,15 +28,13 @@ const (
 	Console
 )
 
-type Logger interface {
-	Log(level Level, msg string)
-	Panic(msg string)
-	LogWithContext(level Level, msg string, ctx context.Context)
-}
+type Logger = commonlogger.Logger
 
 type logger struct {
 	zap *zap.Logger
 }
+
+var _ commonlogger.Logger = (*logger)(nil)
 
 func NewLogger(mode Mode, isProduction bool) *logger {
 	var zapLogger *zap.Logger

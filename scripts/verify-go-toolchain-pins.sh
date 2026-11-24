@@ -11,6 +11,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 modules=(
+  packages/go/common
   apps/iris
   apps/plag
   apps/runner/backend
