@@ -1,10 +1,10 @@
 # Sentry
 
-sentry.io `skkuding` 조직의 설정(팀, 프로젝트, DSN, 알림, 업타임 모니터)을 Terraform으로 관리합니다.
+sentry.io `skkuding` 조직의 설정(팀, 프로젝트, DSN, 알림)을 Terraform으로 관리합니다.
 
 ## 실행 전 준비
 
-- **`SENTRY_AUTH_TOKEN`**: Sentry의 `terraform` Internal Integration에서 본인 토큰을 발급받아 `.envrc.local`에 넣으세요. 방법은 루트의 `.envrc.local.example`에 있습니다.
+- **`TF_VAR_sentry_token`**: Sentry의 `terraform` Internal Integration에서 본인 토큰을 발급받아 `.envrc.local`에 넣으세요. 방법은 루트의 `.envrc.local.example`에 있습니다.
   - 토큰은 사람마다 따로 발급합니다. 공유하지 말고, 그만둔 사람의 토큰은 Sentry에서 삭제하세요.
 - **AWS 자격 증명**: state가 S3(`codedang-tf-state`)에 있습니다.
 

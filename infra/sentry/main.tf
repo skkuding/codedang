@@ -17,8 +17,16 @@ terraform {
   }
 }
 
-# Reads the token from SENTRY_AUTH_TOKEN (see .envrc.local.example).
-provider "sentry" {}
+# Not SENTRY_AUTH_TOKEN: the Sentry CLI and the Next.js build plugin read that
+# name too, and this token is only for Terraform (see .envrc.local.example).
+variable "sentry_token" {
+  type      = string
+  sensitive = true
+}
+
+provider "sentry" {
+  token = var.sentry_token
+}
 
 data "sentry_organization" "skkuding" {
   slug = "skkuding"

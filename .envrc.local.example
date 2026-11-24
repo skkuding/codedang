@@ -12,4 +12,4 @@ export GRAFANA_STAGE_TOKEN=""
 # Sentry > Settings > Developer Settings > Custom Integrations 의
 # "terraform" Internal Integration 에서 본인 토큰을 새로 발급해 넣습니다.
 # 발급은 Sentry 조직의 Owner·Manager만 가능하니 인프라팀에 문의하세요.
-export SENTRY_AUTH_TOKEN=""
+export TF_VAR_sentry_token=""
