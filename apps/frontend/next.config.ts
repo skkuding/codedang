@@ -109,6 +109,9 @@ export default withSentryConfig(withBundleAnalyzer(withPWA(nextConfig)), {
   authToken: sentryAuthToken,
   // The hook only instruments navigations for tracing, which is off.
   suppressOnRouterTransitionStartWarning: true,
+  // Also upload maps of shared chunks: every map under static/ is deleted
+  // after upload, not only the page chunks uploaded by default.
+  widenClientFileUpload: true,
   sourcemaps: {
     // Without a token nothing is uploaded, so do not generate source maps
     // either: they would otherwise be served to users.

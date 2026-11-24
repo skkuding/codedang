@@ -32,7 +32,9 @@ export class ApiError extends Error {
     return `${ApiError.statusName[status]} (${status})`
   }
 
-  public static convertHttpError(httpError: HTTPError): ApiError {
+  public static async convertHttpError(
+    httpError: HTTPError
+  ): Promise<ApiError> {
     const statusCode = httpError.response.status
     const apiError = new ApiError(
       httpError.name,
@@ -40,7 +42,11 @@ export class ApiError extends Error {
       httpError.request.url
     )
     apiError.status = statusCode
-    apiError.responseData = httpError.response.clone().json()
+    try {
+      apiError.responseData = await httpError.response.clone().json()
+    } catch {
+      // Not JSON (e.g. an HTML error page from the proxy) or already read.
+    }
     apiError.method = httpError.request.method
     return apiError
   }

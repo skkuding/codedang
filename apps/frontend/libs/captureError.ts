@@ -11,6 +11,10 @@ const captureAPIError = (error: ApiError) => {
   })
 }
 
+const captureHttpError = async (error: HTTPError) => {
+  captureAPIError(await ApiError.convertHttpError(error))
+}
+
 const captureGlobalError = (error: Error) => {
   withScope((scope) => {
     scope.setLevel('error')
@@ -21,8 +25,7 @@ const captureGlobalError = (error: Error) => {
 
 export const captureError = (e: unknown) => {
   if (e instanceof HTTPError) {
-    const apiError = ApiError.convertHttpError(e)
-    captureAPIError(apiError)
+    void captureHttpError(e)
   } else if (e instanceof TimeoutError) {
     const apiError = ApiError.convertTimeoutError(e)
     captureAPIError(apiError)
