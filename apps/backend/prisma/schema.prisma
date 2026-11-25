@@ -447,7 +447,7 @@ model Assignment {
   assignmentRecord  AssignmentRecord[]
   submission        Submission[]
   testSubmission    TestSubmission[]
-  CheckRequest      CheckRequest[]
+  checkRequest      CheckRequestAssignment[]
   courseQnA         CourseQnA[]
 
   @@index([groupId, week])
@@ -847,28 +847,38 @@ model TestSubmission {
 }
 
 model CheckRequest {
-  id                 Int               @id @default(autoincrement())
+  id                 Int                      @id @default(autoincrement())
   // 검사 결과는 S3에 저장되며 checkId가 폴더명이 됩니다
   // 따라서 S3 경로는 저장하지 않습니다
-  problem            Problem           @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  problemId          Int               @map("problem_id")
-  user               User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId             Int?              @map("user_id")
+  problem            Problem                  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId          Int                      @map("problem_id")
+  user               User?                    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?                     @map("user_id")
   language           Language
-  enableMerging      Boolean           @map("enable_merging")
-  minTokens          Int               @map("min_tokens")
-  useJplagClustering Boolean           @map("use_jplag_clustering")
-  assignment         Assignment?       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  assignmentId       Int?              @map("assignment_id")
-  contest            Contest?          @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  contestId          Int?              @map("contest_id")
-  workbook           Workbook?         @relation(fields: [workbookId], references: [id])
-  workbookId         Int?              @map("workbook_id")
-  createTime         DateTime          @default(now()) @map("create_time")
+  enableMerging      Boolean                  @map("enable_merging")
+  minTokens          Int                      @map("min_tokens")
+  useJplagClustering Boolean                  @map("use_jplag_clustering")
+  assignments        CheckRequestAssignment[]
+  contest            Contest?                 @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  contestId          Int?                     @map("contest_id")
+  workbook           Workbook?                @relation(fields: [workbookId], references: [id])
+  workbookId         Int?                     @map("workbook_id")
+  createTime         DateTime                 @default(now()) @map("create_time")
   result             CheckResultStatus
   CheckResult        CheckResult[]
 
   @@map("check_request")
+}
+
+model CheckRequestAssignment {
+  checkRequest   CheckRequest @relation(fields: [checkRequestId], references: [id], onDelete: Cascade)
+  checkRequestId Int          @map("check_request_id")
+  assignment     Assignment   @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  assignmentId   Int          @map("assignment_id")
+
+  @@id([checkRequestId, assignmentId])
+  @@index([assignmentId])
+  @@map("check_request_assignment")
 }
 
 enum CheckResultStatus {

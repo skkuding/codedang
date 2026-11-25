@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { AMQPModule } from '@libs/amqp'
 import { RolesModule } from '@libs/auth'
 import { StorageModule } from '@libs/storage'
+import { CheckAdminResolver } from './check-admin.resolver'
 import { CheckPublicationService } from './check-pub.service'
 import { CheckSubscriptionService } from './check-sub.service'
 import { CheckResolver } from './check.resolver'
@@ -16,6 +17,7 @@ import { FileService } from './file.service'
     CheckPublicationService,
     CheckSubscriptionService,
     CheckResolver,
+    CheckAdminResolver,
     FileService
   ]
 })
