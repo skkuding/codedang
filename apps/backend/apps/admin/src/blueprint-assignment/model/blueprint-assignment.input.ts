@@ -3,7 +3,8 @@ import {
   GraphQLISODateTime,
   InputType,
   Int,
-  OmitType
+  OmitType,
+  PartialType
 } from '@nestjs/graphql'
 import { Type } from 'class-transformer'
 import {
@@ -64,6 +65,29 @@ export class BlueprintAssignmentSectionInput extends BlueprintAssignmentSectionS
   @Field(() => GraphQLISODateTime)
   @IsDate()
   endTime!: Date
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  @IsOptional()
+  @IsDate()
+  dueTime?: Date | null
+}
+
+@InputType()
+export class BlueprintAssignmentSectionUpdateInput extends BlueprintAssignmentSectionSettingsInput {
+  @Field(() => Int)
+  @IsInt()
+  @Min(1)
+  groupId!: number
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  @ValidateIf(isProvided)
+  @IsDate()
+  startTime?: Date
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  @ValidateIf(isProvided)
+  @IsDate()
+  endTime?: Date
 
   @Field(() => GraphQLISODateTime, { nullable: true })
   @IsOptional()
@@ -133,4 +157,36 @@ export class CreateBlueprintAssignmentInput extends OmitType(
   @ValidateNested({ each: true })
   @Type(() => BlueprintAssignmentSectionInput)
   sections!: BlueprintAssignmentSectionInput[]
+}
+
+@InputType()
+export class UpdateBlueprintAssignmentInput extends PartialType(
+  OmitType(CreateBlueprintAssignmentInput, [
+    'operationId',
+    'sections',
+    'isVisible',
+    'isRankVisible',
+    'isJudgeResultVisible'
+  ] as const),
+  { skipNullProperties: false }
+) {
+  @Field(() => String)
+  @IsUUID()
+  operationId!: string
+
+  @Field(() => Int)
+  @IsInt()
+  @Min(1)
+  expectedRevision!: number
+
+  // A patch list for existing linked copies, never a new selection of import targets.
+  @Field(() => [BlueprintAssignmentSectionUpdateInput], { nullable: true })
+  @ValidateIf(isProvided)
+  @IsArray()
+  @ArrayUnique(
+    (section: BlueprintAssignmentSectionUpdateInput) => section.groupId
+  )
+  @ValidateNested({ each: true })
+  @Type(() => BlueprintAssignmentSectionUpdateInput)
+  sections?: BlueprintAssignmentSectionUpdateInput[]
 }

@@ -751,12 +751,29 @@ type BlueprintAssignmentSectionProblemOutput {
   updateTime: DateTime!
 }
 
+input BlueprintAssignmentSectionUpdateInput {
+  dueTime: DateTime
+  endTime: DateTime
+  groupId: Int!
+  isFinalScoreVisible: Boolean
+  isJudgeResultVisible: Boolean
+  isRankVisible: Boolean
+  isVisible: Boolean
+  startTime: DateTime
+}
+
 type BlueprintAssignmentSumAggregate {
   blueprintCourseId: Int
   createdById: Int
   id: Int
   revision: Int
   week: Int
+}
+
+type BlueprintAssignmentUnlinkResult {
+  blueprintAssignmentId: Int
+  groupId: Int!
+  id: ID!
 }
 
 type BlueprintCourse {
@@ -2803,11 +2820,13 @@ type Mutation {
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
   toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
+  unlinkBlueprintAssignment(assignmentId: Int!, groupId: Int!): BlueprintAssignmentUnlinkResult!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
   updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
   updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
+  updateBlueprintAssignment(blueprintAssignmentId: Int!, input: UpdateBlueprintAssignmentInput!): BlueprintAssignmentOutput!
   updateBlueprintCourse(blueprintCourseId: Int!, input: UpdateBlueprintCourseInput!): BlueprintCourseOutput!
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
@@ -4666,6 +4685,18 @@ input UpdateAssignmentProblemRecordInput {
   finalScore: Float
   problemId: Int!
   userId: Int!
+}
+
+input UpdateBlueprintAssignmentInput {
+  autoFinalizeScore: Boolean
+  description: String
+  enableCopyPaste: Boolean
+  expectedRevision: Int!
+  isExercise: Boolean
+  operationId: String!
+  sections: [BlueprintAssignmentSectionUpdateInput!]
+  title: String
+  week: Float
 }
 
 input UpdateBlueprintCourseInput {

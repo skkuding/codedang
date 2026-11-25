@@ -99,3 +99,10 @@ export class BlueprintAssignmentOutput extends PickType(BlueprintAssignment, [
   @Field(() => [BlueprintAssignmentSectionOutput])
   assignment!: BlueprintAssignmentSectionOutput[]
 }
+
+@ObjectType()
+export class BlueprintAssignmentUnlinkResult extends PickType(Assignment, [
+  'id',
+  'groupId',
+  'blueprintAssignmentId'
+] as const) {}

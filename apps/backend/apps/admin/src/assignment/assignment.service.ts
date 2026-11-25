@@ -11,6 +11,19 @@ import {
   UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import {
+  AssignmentEventService,
+  type AssignmentLifecycleEvent
+} from './assignment-event.service'
+import {
+  assertAssignmentUnlinked,
+  lockBlueprintAssignment
+} from './assignment-link'
+import { lockAssignmentProblems } from './assignment-problem-access'
+import {
+  ASSIGNMENT_SECTION_SETTING_KEYS,
+  updateAssignmentSectionSettings
+} from './assignment-section-settings'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
 import type { AssignmentProblemInput } from './model/assignment-problem.input'
 import type {
@@ -156,6 +169,7 @@ export class AssignmentService {
       },
       select: {
         groupId: true,
+        blueprintAssignmentId: true,
         startTime: true,
         endTime: true,
         dueTime: true,
@@ -176,6 +190,41 @@ export class AssignmentService {
       throw new ForbiddenAccessException(
         'You can only access assignment in your own group'
       )
+    }
+
+    if (assignmentFound.blueprintAssignmentId != null) {
+      const allowed: readonly string[] = ASSIGNMENT_SECTION_SETTING_KEYS
+      if (
+        Object.entries(assignment).some(
+          ([key, value]) =>
+            key !== 'id' && value !== undefined && !allowed.includes(key)
+        )
+      ) {
+        assertAssignmentUnlinked(assignmentFound)
+      }
+      const pending: AssignmentLifecycleEvent[] = []
+      const updated = await this.prisma.$transaction(async (tx) => {
+        await lockBlueprintAssignment(
+          tx,
+          assignmentFound.blueprintAssignmentId!
+        )
+        await tx.$queryRaw`SELECT id FROM assignment WHERE id = ${assignment.id} FOR UPDATE`
+        const current = await tx.assignment.findFirstOrThrow({
+          where: { id: assignment.id, groupId },
+          include: { assignmentProblem: true }
+        })
+        if (
+          assignment.endTime !== undefined &&
+          assignment.endTime.getTime() !== current.endTime.getTime()
+        )
+          await lockAssignmentProblems(
+            tx,
+            current.assignmentProblem.map(({ problemId }) => problemId)
+          )
+        return updateAssignmentSectionSettings(tx, current, assignment, pending)
+      })
+      await new AssignmentEventService(this.eventEmitter).publish(pending)
+      return updated
     }
 
     const isEndTimeChanged =
@@ -303,6 +352,7 @@ export class AssignmentService {
             problemId: true
           }
         },
+        blueprintAssignmentId: true,
         groupId: true
       }
     })
@@ -366,6 +416,8 @@ export class AssignmentService {
         'You can only access assignment in your own group'
       )
     }
+
+    assertAssignmentUnlinked(assignment)
 
     const assignmentProblems: AssignmentProblem[] = []
 
@@ -491,6 +543,8 @@ export class AssignmentService {
         'You can only access assignment in your own group'
       )
     }
+
+    assertAssignmentUnlinked(assignment)
 
     const assignmentProblems: AssignmentProblem[] = []
 
@@ -705,6 +759,7 @@ export class AssignmentService {
           const newAssignment = await tx.assignment.create({
             data: {
               ...assignmentDataToCopy,
+              blueprintAssignmentId: null,
               title: 'Copy of ' + title,
               createdById: userId,
               groupId,

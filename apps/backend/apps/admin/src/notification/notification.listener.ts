@@ -45,7 +45,7 @@ export class NotificationListener {
 
   @OnEvent('assignment.graded')
   async handleAssignmentGraded(payload: { assignmentId: number }) {
-    this.notificationService.notifyAssignmentGraded(payload.assignmentId)
+    await this.notificationService.notifyAssignmentGraded(payload.assignmentId)
   }
 
   @OnEvent('assignment.created')
@@ -53,7 +53,7 @@ export class NotificationListener {
     assignmentId: number
     dueTime: Date
   }) {
-    this.notificationService.notifyAssignmentCreated(payload.assignmentId)
+    await this.notificationService.notifyAssignmentCreated(payload.assignmentId)
 
     if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
 
