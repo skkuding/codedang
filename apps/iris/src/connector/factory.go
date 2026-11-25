@@ -22,6 +22,14 @@ const (
 	CONSOLE   Module = "Console"
 )
 
+// Factory creates the connector for module c.
+// For RABBIT_MQ, args must be a rabbitmq.ConsumerConfig followed by a
+// rabbitmq.ProducerConfig, and both connections are opened here.
+//
+// It panics in the following cases:
+//   - args do not match the configs above
+//   - A RabbitMQ connection cannot be opened
+//   - c is HTTP, FILE, or CONSOLE, which are not implemented, or is unknown
 func Factory(c Module, p Providers, args ...any) Connector {
 	switch c {
 	case RABBIT_MQ:

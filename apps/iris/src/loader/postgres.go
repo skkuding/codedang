@@ -18,6 +18,11 @@ type Postgres struct {
 	logger logger.Logger
 }
 
+// NewPostgresDataSource returns a Postgres source for DATABASE_URL. It does
+// not connect until the first query. DATABASE_CONNECTION_LIMIT, if set, caps
+// the open connections.
+// It returns an error if the URL is invalid or the limit is not a positive
+// integer.
 func NewPostgresDataSource(logProvider logger.Logger) (*Postgres, error) {
 	connStr := os.Getenv("DATABASE_URL")
 	data, err := parseDatabaseURL(connStr)
@@ -40,6 +45,11 @@ func NewPostgresDataSource(logProvider logger.Logger) (*Postgres, error) {
 	return &Postgres{client: db, logger: logProvider}, nil
 }
 
+// parseDatabaseURL converts a Prisma DATABASE_URL into a lib/pq connection
+// string. It drops the Prisma-only schema parameter and defaults sslmode to
+// disable.
+// It returns an error if the scheme is not postgres or postgresql, or if
+// sslmode is not disable, require, verify-ca, or verify-full.
 func parseDatabaseURL(databaseURL string) (string, error) {
 	parsed, err := url.Parse(databaseURL)
 	if err != nil {
@@ -67,6 +77,15 @@ func parseDatabaseURL(databaseURL string) (string, error) {
 }
 
 // todo: need to introduce prisma like ORM
+
+// Save replaces the current testcases of one problem with elements in a
+// single transaction. Existing testcases are marked outdated, not deleted.
+// Element IDs are ignored; Postgres assigns new ones. Empty elements is a
+// no-op.
+//
+// It returns an error in the following cases:
+//   - elements belong to more than one problem
+//   - A database step fails; the transaction is rolled back
 func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
 	start := time.Now()
 	p.logger.Log(logger.INFO, fmt.Sprintf("sql.save.start items=%d", len(elements)))
@@ -137,6 +156,10 @@ func (p *Postgres) Save(ctx context.Context, elements []ElementIn) error {
 	return nil
 }
 
+// Get returns the current testcases of problem key, filtered by eType and
+// ordered public first, then by ID.
+// It returns an error if eType is invalid, the query fails, or no testcase is
+// found.
 func (p *Postgres) Get(ctx context.Context, key string, eType ElementType) ([]ElementOut, error) {
 	const base = `SELECT id, input, output, is_hidden_testcase
 FROM public.problem_testcase

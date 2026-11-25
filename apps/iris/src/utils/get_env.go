@@ -7,7 +7,8 @@ import (
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 )
 
-// 필수 환경변수가 설정되어 있는지 확인하고, 설정되어 있지 않으면 프로그램을 종료합니다.
+// MustGetenvOrElseThrow returns the value of key. It exits the process if key
+// is unset or empty.
 func MustGetenvOrElseThrow(key string, logProvider logger.Logger) string {
 
 	value, ok := os.LookupEnv(key)
@@ -18,6 +19,8 @@ func MustGetenvOrElseThrow(key string, logProvider logger.Logger) string {
 	return value
 }
 
+// Getenv returns the value of key, or fallback if key is unset. An empty value
+// is returned as is.
 func Getenv(key, fallback string) string {
 	value, ok := os.LookupEnv(key)
 	if !ok {

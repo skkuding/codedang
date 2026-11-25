@@ -18,6 +18,10 @@ type Client interface {
 	QueueBind(queueName string, bindingKey string, exchangeName string) error
 }
 
+// newAMQPConfig returns the AMQP config that names the connection.
+// When RABBITMQ_SSL is "true", it trusts only the CA at rabbitMQCAPath and
+// requires TLS 1.2 or later.
+// It returns an error if the CA certificate cannot be read or parsed.
 func newAMQPConfig(connectionName string) (amqp.Config, error) {
 	config := amqp.Config{
 		Properties: amqp.NewConnectionProperties(),
