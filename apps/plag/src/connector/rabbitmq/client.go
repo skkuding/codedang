@@ -18,6 +18,8 @@ type Client interface {
 	QueueBind(queueName string, bindingKey string, exchangeName string) error
 }
 
+// Inject configuration dependencies to test TLS setup and error handling
+// without relying on environment variables or system certificate files.
 type amqpConfigDeps struct {
 	getenv      func(string) string
 	readFile    func(string) ([]byte, error)
