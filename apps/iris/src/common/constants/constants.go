@@ -28,8 +28,11 @@ const LIBJUDGER_PATH = SANDBOX_BASE + "/libjudger.so"
 const JAVA_POLICY_PATH = SANDBOX_BASE + "/policy/java_policy"
 
 // const BASE_DIR = "/go/src/workspace/results"
-// Submissions run as an unprivileged user (libjudger defaults to uid 65534),
-// which must be able to read interpreted sources and the .pyc that
+// Submissions run as nobody:nogroup, passed to libjudger explicitly.
+const SANDBOX_UID = 65534
+const SANDBOX_GID = 65534
+
+// The SANDBOX_UID user must be able to read interpreted sources and the .pyc that
 // py_compile derives from the source's mode, but must not list result dirs.
 const BASE_DIR_MODE = 0711
 const BASE_FILE_MODE = 0644
