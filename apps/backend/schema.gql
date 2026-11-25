@@ -3988,6 +3988,8 @@ type Query {
   getAssignmentSubmissions(cursor: Int, groupId: Int!, input: GetAssignmentSubmissionsInput!, order: String, take: Int = 10): [AssignmentSubmission!]!
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
+  getBlueprintAssignment(blueprintAssignmentId: Int!): BlueprintAssignmentOutput!
+  getBlueprintAssignments(blueprintCourseId: Int!, cursor: Int, isExercise: Boolean! = false, search: String, take: Int! = 10): [BlueprintAssignmentOutput!]!
   getBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseDetailOutput!
   getBlueprintCourses: [BlueprintCourseListItemOutput!]!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!

@@ -6,7 +6,10 @@ import {
 } from '@prisma/client'
 import { createHash } from 'crypto'
 import type { AuthenticatedUser } from '@libs/auth'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  UnprocessableDataException,
+  EntityNotExistException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
   AssignmentEventService,
@@ -51,6 +54,58 @@ export class BlueprintAssignmentService {
       blueprintAssignmentProblem,
       assignment: copies
     }
+  }
+
+  async getAssignments(
+    user: AuthenticatedUser,
+    blueprintCourseId: number,
+    isExercise = false,
+    take = 10,
+    cursor?: number,
+    search?: string
+  ) {
+    await this.access.assertBlueprintLeader(user, blueprintCourseId)
+    if (!Number.isInteger(take) || take < 1 || take > 100)
+      throw new UnprocessableDataException('take must be between 1 and 100')
+    const rows = await this.prisma.blueprintAssignment.findMany({
+      where: {
+        blueprintCourseId,
+        isExercise,
+        ...(cursor ? { id: { lt: cursor } } : {}),
+        ...(search ? { title: { contains: search, mode: 'insensitive' } } : {})
+      },
+      orderBy: { id: 'desc' },
+      take,
+      include: this.contentInclude
+    })
+    return rows.map((row) => this.output(row))
+  }
+
+  async getAssignment(
+    user: AuthenticatedUser,
+    blueprintCourseId: number,
+    id: number
+  ) {
+    await this.access.assertBlueprintLeader(user, blueprintCourseId)
+    return this.output(
+      await this.prisma.blueprintAssignment.findFirstOrThrow({
+        where: { id, blueprintCourseId },
+        include: this.contentInclude
+      })
+    )
+  }
+
+  private async findCourseId(id: number) {
+    const source = await this.prisma.blueprintAssignment.findUnique({
+      where: { id },
+      select: { blueprintCourseId: true }
+    })
+    if (!source) throw new EntityNotExistException('BlueprintAssignment')
+    return source.blueprintCourseId
+  }
+
+  async getAssignmentById(user: AuthenticatedUser, id: number) {
+    return this.getAssignment(user, await this.findCourseId(id), id)
   }
 
   async save(

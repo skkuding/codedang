@@ -146,6 +146,50 @@ integration('Blueprint Assignment database transactions', () => {
     await db.$disconnect()
   })
 
+  const addProblemFixture = async (
+    source: Awaited<ReturnType<typeof service.save>>
+  ) => {
+    await db.$transaction(async (tx) => {
+      await tx.blueprintAssignmentProblem.create({
+        data: {
+          blueprintAssignmentId: source.id,
+          problemId,
+          order: 0,
+          score: 10
+        }
+      })
+      for (const [index, copy] of source.assignment.entries()) {
+        await tx.assignmentProblem.create({
+          data: {
+            assignmentId: copy.id,
+            problemId,
+            order: 0,
+            score: 10,
+            solutionReleaseTime: new Date(`2027-01-0${index + 2}`)
+          }
+        })
+        await tx.assignmentProblemRecord.create({
+          data: {
+            assignmentId: copy.id,
+            problemId,
+            userId: user.id
+          }
+        })
+      }
+      await tx.problem.update({
+        where: { id: problemId },
+        data: {
+          sharedGroups: {
+            connect: source.assignment.map((copy) => ({ id: copy.groupId }))
+          },
+          visibleLockTime: new Date(
+            Math.max(...source.assignment.map((copy) => Number(copy.endTime)))
+          )
+        }
+      })
+    })
+  }
+
   const sourceCount = () =>
     db.blueprintAssignment.count({ where: { blueprintCourseId: courseId } })
 
@@ -461,6 +505,42 @@ integration('Blueprint Assignment database transactions', () => {
     expect(await receiptCount()).to.equal(0)
   })
 
+  it('retains searchable, paginated Assignment and Exercise reads', async () => {
+    await service.save(user, courseId, {
+      ...input,
+      title: 'First'
+    })
+    const newer = await service.save(user, courseId, {
+      ...input,
+      operationId: randomUUID(),
+      title: 'Newest'
+    })
+    await service.save(user, courseId, {
+      ...input,
+      operationId: randomUUID(),
+      isExercise: true
+    })
+    const page = await service.getAssignments(user, courseId, false, 1)
+    expect(page[0].id).to.equal(newer.id)
+    expect(
+      (await service.getAssignments(user, courseId, false, 1, page[0].id))[0]
+        .title
+    ).to.equal('First')
+    expect(
+      (
+        await service.getAssignments(
+          user,
+          courseId,
+          false,
+          10,
+          undefined,
+          'NEW'
+        )
+      )[0].title
+    ).to.equal('Newest')
+    expect(await service.getAssignments(user, courseId, true)).to.have.length(1)
+  })
+
   it('publishes lifecycle events only after all source and copy writes have committed', async () => {
     const seen: number[] = []
     emitter.on('assignment.created', async (event) => {
@@ -496,6 +576,31 @@ integration('Blueprint Assignment database transactions', () => {
     } finally {
       emitter.off('assignment.created', listener)
     }
+  })
+
+  it('reads Problem-owned rows in details without recomputing or changing per-section release times', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const detail = await service.getAssignment(user, courseId, source.id)
+    expect(
+      detail.blueprintAssignmentProblem.map(
+        ({ problemId: id, score, order }) => ({
+          id,
+          score,
+          order
+        })
+      )
+    ).to.deep.equal([{ id: problemId, score: 10, order: 0 }])
+    expect(
+      detail.assignment.map((copy) =>
+        copy.problems[0].solutionReleaseTime?.toISOString()
+      )
+    ).to.deep.equal(['2027-01-02T00:00:00.000Z', '2027-01-03T00:00:00.000Z'])
+    expect(
+      await db.blueprintAssignmentProblem.count({
+        where: { blueprintAssignmentId: source.id }
+      })
+    ).to.equal(1)
   })
 
   it('creates each section with its schedule and defaults, honoring explicit per-section false values', async () => {
