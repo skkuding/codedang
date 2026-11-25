@@ -555,6 +555,7 @@ type BlueprintAssignment {
   isJudgeResultVisible: Boolean!
   isRankVisible: Boolean!
   isVisible: Boolean!
+  revision: Int!
   title: String!
   updateTime: DateTime!
   week: Int!
@@ -564,6 +565,7 @@ type BlueprintAssignmentAvgAggregate {
   blueprintCourseId: Float
   createdById: Float
   id: Float
+  revision: Float
   week: Float
 }
 
@@ -585,6 +587,7 @@ type BlueprintAssignmentCountAggregate {
   isJudgeResultVisible: Int!
   isRankVisible: Int!
   isVisible: Int!
+  revision: Int!
   title: Int!
   updateTime: Int!
   week: Int!
@@ -602,6 +605,7 @@ type BlueprintAssignmentMaxAggregate {
   isJudgeResultVisible: Boolean
   isRankVisible: Boolean
   isVisible: Boolean
+  revision: Int
   title: String
   updateTime: DateTime
   week: Int
@@ -619,9 +623,30 @@ type BlueprintAssignmentMinAggregate {
   isJudgeResultVisible: Boolean
   isRankVisible: Boolean
   isVisible: Boolean
+  revision: Int
   title: String
   updateTime: DateTime
   week: Int
+}
+
+type BlueprintAssignmentOutput {
+  assignment: [BlueprintAssignmentSectionOutput!]!
+  autoFinalizeScore: Boolean!
+  blueprintAssignmentProblem: [BlueprintAssignmentProblemSummary!]!
+  blueprintCourseId: Int!
+  createTime: DateTime!
+  createdById: Int
+  description: String!
+  enableCopyPaste: Boolean!
+  id: ID!
+  isExercise: Boolean!
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  revision: Int!
+  title: String!
+  updateTime: DateTime!
+  week: Int!
 }
 
 type BlueprintAssignmentProblem {
@@ -677,10 +702,60 @@ type BlueprintAssignmentProblemSumAggregate {
   score: Int
 }
 
+type BlueprintAssignmentProblemSummary {
+  blueprintAssignmentId: Int!
+  createTime: DateTime!
+  order: Int!
+  problemId: Int!
+  score: Int!
+  updateTime: DateTime!
+}
+
+input BlueprintAssignmentSectionInput {
+  dueTime: DateTime
+  endTime: DateTime!
+  groupId: Int!
+  isFinalScoreVisible: Boolean
+  isJudgeResultVisible: Boolean
+  isRankVisible: Boolean
+  isVisible: Boolean
+  startTime: DateTime!
+}
+
+type BlueprintAssignmentSectionOutput {
+  autoFinalizeScore: Boolean!
+  description: String!
+  dueTime: DateTime
+  enableCopyPaste: Boolean!
+  endTime: DateTime!
+  groupId: Int!
+  id: ID!
+  isExercise: Boolean!
+  isFinalScoreVisible: Boolean!
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  problems: [BlueprintAssignmentSectionProblemOutput!]!
+  startTime: DateTime!
+  title: String!
+  week: Int!
+}
+
+type BlueprintAssignmentSectionProblemOutput {
+  assignmentId: Int!
+  createTime: DateTime!
+  order: Int!
+  problemId: Int!
+  score: Int!
+  solutionReleaseTime: DateTime
+  updateTime: DateTime!
+}
+
 type BlueprintAssignmentSumAggregate {
   blueprintCourseId: Int
   createdById: Int
   id: Int
+  revision: Int
   week: Int
 }
 
@@ -2245,6 +2320,20 @@ input CreateAssignmentInput {
   week: Float!
 }
 
+input CreateBlueprintAssignmentInput {
+  autoFinalizeScore: Boolean
+  description: String!
+  enableCopyPaste: Boolean
+  isExercise: Boolean
+  isJudgeResultVisible: Boolean!
+  isRankVisible: Boolean!
+  isVisible: Boolean!
+  operationId: String!
+  sections: [BlueprintAssignmentSectionInput!]!
+  title: String!
+  week: Int!
+}
+
 input CreateContestInput {
   description: String
   enableCopyPaste: Boolean
@@ -2673,6 +2762,7 @@ type Mutation {
   cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
+  createBlueprintAssignment(blueprintCourseId: Int!, input: CreateBlueprintAssignmentInput!): BlueprintAssignmentOutput!
   createBlueprintCourse(input: BlueprintCourseInput!): BlueprintCourseOutput!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!

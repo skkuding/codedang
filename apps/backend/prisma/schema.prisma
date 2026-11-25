@@ -493,6 +493,7 @@ model Assignment {
 }
 
 model BlueprintAssignment {
+  revision             Int             @default(1)
   id                   Int             @id @default(autoincrement())
   blueprintCourse      BlueprintCourse @relation(fields: [blueprintCourseId], references: [id], onDelete: Cascade)
   blueprintCourseId    Int             @map("blueprint_course_id")
@@ -1290,4 +1291,19 @@ model StudyInfo {
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@map("study_info")
+}
+
+// Successful atomic-request receipts survive unlink/deletion; failed saves leave no receipt.
+/// @ObjectType({ isAbstract: true })
+model BlueprintAssignmentSave {
+  id                    String   @id
+  userId                Int      @map("user_id")
+  blueprintCourseId     Int      @map("blueprint_course_id")
+  blueprintAssignmentId Int      @map("blueprint_assignment_id")
+  revision              Int
+  requestHash           String   @map("request_hash")
+  createTime            DateTime @default(now()) @map("create_time")
+
+  @@index([blueprintAssignmentId])
+  @@map("blueprint_assignment_save")
 }
