@@ -45,6 +45,8 @@ func (c *connector) Connect(ctx context.Context) {
 	})
 }
 
+// Inject message dispatch to test the connection lifecycle
+// independently of asynchronous message handling.
 func (c *connector) connect(ctx context.Context, dispatch func(amqp.Delivery, context.Context)) {
 	defer func() {
 		c.consumer.CleanUp()

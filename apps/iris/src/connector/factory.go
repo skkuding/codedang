@@ -22,6 +22,8 @@ const (
 	CONSOLE   Module = "Console"
 )
 
+// Inject constructors to test factory assembly and error handling
+// without establishing RabbitMQ connections.
 type factoryConstructors struct {
 	newConsumer  func(rabbitmq.ConsumerConfig, logger.Logger) (rabbitmq.Consumer, error)
 	newProducer  func(rabbitmq.ProducerConfig, logger.Logger) (rabbitmq.Producer, error)

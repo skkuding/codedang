@@ -34,6 +34,8 @@ func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error)
 	return newConsumer(config, logger, newAMQPConfig, amqp.DialConfig)
 }
 
+// Inject configuration and dial functions to test consumer initialization
+// without connecting to a RabbitMQ broker.
 func newConsumer(
 	config ConsumerConfig,
 	logger logger.Logger,
@@ -65,6 +67,8 @@ func (c *consumer) OpenChannel() error {
 	return c.openChannel((*amqp.Connection).Channel, (*amqp.Channel).Qos)
 }
 
+// Inject AMQP operations to test channel initialization and QoS setup
+// without a live broker.
 func (c *consumer) openChannel(
 	open func(*amqp.Connection) (*amqp.Channel, error),
 	qos func(*amqp.Channel, int, int, bool) error,
@@ -90,6 +94,7 @@ func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
 	return c.subscribe((*amqp.Channel).Consume)
 }
 
+// Inject the consume operation to test subscription arguments and errors.
 func (c *consumer) subscribe(
 	consume func(*amqp.Channel, string, string, bool, bool, bool, bool, amqp.Table) (<-chan amqp.Delivery, error),
 ) (<-chan amqp.Delivery, error) {
@@ -116,6 +121,7 @@ func (c *consumer) CleanUp() error {
 	return c.cleanUp((*amqp.Channel).Cancel, (*amqp.Connection).Close)
 }
 
+// Inject AMQP operations to test resource cleanup and error handling.
 func (c *consumer) cleanUp(
 	cancel func(*amqp.Channel, string, bool) error,
 	closeConnection func(*amqp.Connection) error,

@@ -40,6 +40,8 @@ func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error)
 	return newProducer(config, logger, newAMQPConfig, amqp.DialConfig)
 }
 
+// Inject configuration and dial functions to test producer initialization
+// without connecting to a RabbitMQ broker.
 func newProducer(
 	config ProducerConfig,
 	logger logger.Logger,
@@ -79,6 +81,8 @@ func (p *producer) OpenChannel() error {
 	)
 }
 
+// Inject AMQP operations and handler startup to test channel initialization
+// without a live broker or background goroutines.
 func (p *producer) openChannel(
 	open func(*amqp.Connection) (*amqp.Channel, error),
 	confirm func(*amqp.Channel, bool) error,
@@ -140,6 +144,8 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	)
 }
 
+// Inject AMQP operations to test message construction, publishing,
+// and sequence registration without a live broker.
 func (p *producer) publish(
 	result []byte,
 	ctx context.Context,
@@ -197,6 +203,7 @@ func (p *producer) CleanUp() error {
 	)
 }
 
+// Inject close operations to test resource cleanup and error handling.
 func (p *producer) cleanUp(
 	closeChannel func(*amqp.Channel) error,
 	closeConnection func(*amqp.Connection) error,
