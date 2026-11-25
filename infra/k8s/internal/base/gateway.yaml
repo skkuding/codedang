@@ -85,7 +85,6 @@ spec:
                 operator: In
                 values:
                   - kube-system
-                  - cloud-beaver
                   - frigate
                   - headlamp
                   - iris

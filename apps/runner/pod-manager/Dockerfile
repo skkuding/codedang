@@ -10,8 +10,7 @@ RUN go build -o pod-manager
 
 FROM alpine:3.21.3
 
-# The eMudhra intermediate CA compromise requires a patched trust store.
-RUN apk add --no-cache 'ca-certificates>=20261020-r0'
+RUN apk add --no-cache ca-certificates
 
 WORKDIR /app
 COPY --from=build /app/pod-manager /app/pod-manager
