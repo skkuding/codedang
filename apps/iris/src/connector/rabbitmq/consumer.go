@@ -31,13 +31,22 @@ type ConsumerConfig struct {
 }
 
 func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error) {
+	return newConsumer(config, logger, newAMQPConfig, amqp.DialConfig)
+}
+
+func newConsumer(
+	config ConsumerConfig,
+	logger logger.Logger,
+	buildConfig func(string) (amqp.Config, error),
+	dial func(string, amqp.Config) (*amqp.Connection, error),
+) (*consumer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	amqpConfig, err := buildConfig(config.ConnectionName)
 	if err != nil {
 		return nil, fmt.Errorf("consumer: TLS config failed: %w", err)
 	}
-	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
+	connection, err := dial(config.AmqpURI, amqpConfig)
 	if err != nil {
 		return nil, fmt.Errorf("consumer: dial failed: %w", err)
 	}
@@ -53,13 +62,21 @@ func NewConsumer(config ConsumerConfig, logger logger.Logger) (*consumer, error)
 }
 
 func (c *consumer) OpenChannel() error {
+	return c.openChannel((*amqp.Connection).Channel, (*amqp.Channel).Qos)
+}
+
+func (c *consumer) openChannel(
+	open func(*amqp.Connection) (*amqp.Channel, error),
+	qos func(*amqp.Channel, int, int, bool) error,
+) error {
 	var err error
 
-	if c.channel, err = c.connection.Channel(); err != nil {
+	if c.channel, err = open(c.connection); err != nil {
 		return fmt.Errorf("channel: %s", err)
 	}
 	// Set prefetchCount for consume channel
-	if err = c.channel.Qos(
+	if err = qos(
+		c.channel,
 		1,     // prefetchCount
 		0,     // prefetchSize
 		false, // global
@@ -70,10 +87,17 @@ func (c *consumer) OpenChannel() error {
 }
 
 func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
+	return c.subscribe((*amqp.Channel).Consume)
+}
+
+func (c *consumer) subscribe(
+	consume func(*amqp.Channel, string, string, bool, bool, bool, bool, amqp.Table) (<-chan amqp.Delivery, error),
+) (<-chan amqp.Delivery, error) {
 
 	// Subscribe queue for consume messages
 	// Return `<- chan Delivery`
-	messages, err := c.channel.Consume(
+	messages, err := consume(
+		c.channel,
 		c.queueName, // queue name
 		c.tag,       // consumer
 		false,       // autoAck
@@ -89,15 +113,22 @@ func (c *consumer) Subscribe() (<-chan amqp.Delivery, error) {
 }
 
 func (c *consumer) CleanUp() error {
+	return c.cleanUp((*amqp.Channel).Cancel, (*amqp.Connection).Close)
+}
+
+func (c *consumer) cleanUp(
+	cancel func(*amqp.Channel, string, bool) error,
+	closeConnection func(*amqp.Connection) error,
+) error {
 
 	c.logger.Log(logger.DEBUG, "consumer clean up")
 	// Close channel
-	if err := c.channel.Cancel(c.tag, true); err != nil {
+	if err := cancel(c.channel, c.tag, true); err != nil {
 		return fmt.Errorf("Consumer cancel failed: %w", err)
 	}
 
 	// Close Connection
-	if err := c.connection.Close(); err != nil {
+	if err := closeConnection(c.connection); err != nil {
 		return fmt.Errorf("AMQP connection close error: %s", err)
 	}
 	defer c.logger.Log(logger.INFO, "RabbitMQ connection clear done")
