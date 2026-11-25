@@ -92,8 +92,8 @@ type ExecArgs struct {
 	MemoryLimitCheckOnly bool
 	Args                 []string
 	Env                  []string
-	Uid                  int
-	Gid                  int
+	Uid                  *int
+	Gid                  *int
 }
 
 const (
@@ -133,11 +133,11 @@ func makeExecArgs(data ExecArgs) []string {
 	if !isEmptyInt(data.MaxOutputSize) {
 		argSlice = concatIntArgs(argSlice, MaxOutputSize, data.MaxOutputSize)
 	}
-	if data.Uid >= 0 && data.Uid < 65534 {
-		argSlice = concatIntArgs(argSlice, Uid, data.Uid)
+	if data.Uid != nil && *data.Uid >= 0 && *data.Uid < 65534 {
+		argSlice = concatIntArgs(argSlice, Uid, *data.Uid)
 	}
-	if data.Gid >= 0 && data.Gid < 65534 {
-		argSlice = concatIntArgs(argSlice, Gid, data.Gid)
+	if data.Gid != nil && *data.Gid >= 0 && *data.Gid < 65534 {
+		argSlice = concatIntArgs(argSlice, Gid, *data.Gid)
 	}
 	if !isEmptyString(data.ExePath) {
 		argSlice = concatStringArgs(argSlice, ExePath, data.ExePath)
