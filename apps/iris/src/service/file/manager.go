@@ -27,7 +27,7 @@ func NewFileManager(baseDir string) *fileManager {
 }
 
 func (f *fileManager) CreateDir(dir string) error {
-	if err := os.Mkdir(f.baseDir+"/"+dir, os.FileMode(constants.BASE_FILE_MODE)); err != nil {
+	if err := os.Mkdir(f.baseDir+"/"+dir, os.FileMode(constants.BASE_DIR_MODE)); err != nil {
 		return fmt.Errorf("failed to create dir: %s: %w", dir, err)
 	}
 	return nil
