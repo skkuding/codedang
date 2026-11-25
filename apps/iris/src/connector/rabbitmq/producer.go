@@ -131,6 +131,22 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 }
 
 func (p *producer) Publish(result []byte, ctx context.Context, messageType string) error {
+	return p.publish(
+		result,
+		ctx,
+		messageType,
+		(*amqp.Channel).GetNextPublishSeqNo,
+		(*amqp.Channel).PublishWithContext,
+	)
+}
+
+func (p *producer) publish(
+	result []byte,
+	ctx context.Context,
+	messageType string,
+	getNextSeqNo func(*amqp.Channel) uint64,
+	publish func(*amqp.Channel, context.Context, string, string, bool, bool, amqp.Publishing) error,
+) error {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.Tracer("Producer")
 	spanCtx, childSpan := tracer.Start(
@@ -141,7 +157,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	)
 	defer childSpan.End()
 
-	seqNo := p.channel.GetNextPublishSeqNo()
+	seqNo := getNextSeqNo(p.channel)
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
 	p.logger.Log(logger.INFO, string(result))
 
@@ -151,7 +167,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	headers := convertHeaderCarrierToTable(carrier)
 
 	// https://www.rabbitmq.com/publishers.html
-	if err := p.channel.PublishWithContext(spanCtx,
+	if err := publish(p.channel, spanCtx,
 		p.exchangeName, // publish to an exchange
 		p.routingKey,   // routing to 0 or more queues
 		false,          // mandatory
@@ -175,11 +191,21 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 }
 
 func (p *producer) CleanUp() error {
-	if err := p.channel.Close(); err != nil {
+	return p.cleanUp(
+		(*amqp.Channel).Close,
+		(*amqp.Connection).Close,
+	)
+}
+
+func (p *producer) cleanUp(
+	closeChannel func(*amqp.Channel) error,
+	closeConnection func(*amqp.Connection) error,
+) error {
+	if err := closeChannel(p.channel); err != nil {
 		return fmt.Errorf("channel close failed: %s", err)
 	}
 
-	if err := p.connection.Close(); err != nil {
+	if err := closeConnection(p.connection); err != nil {
 		return fmt.Errorf("connection close error: %s", err)
 	}
 
