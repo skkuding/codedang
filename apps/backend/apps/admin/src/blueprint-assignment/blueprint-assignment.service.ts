@@ -15,7 +15,11 @@ import {
   AssignmentEventService,
   type AssignmentLifecycleEvent
 } from '@admin/assignment/assignment-event.service'
-import { lockBlueprintAssignment } from '@admin/assignment/assignment-link'
+import { getAssignmentLearningRecords } from '@admin/assignment/assignment-learning-records'
+import {
+  lockBlueprintAssignment,
+  deleteAssignmentCopies
+} from '@admin/assignment/assignment-link'
 import { lockAssignmentProblems } from '@admin/assignment/assignment-problem-access'
 import {
   resolveAssignmentSectionSettings,
@@ -457,5 +461,71 @@ export class BlueprintAssignmentService {
         data: { blueprintAssignmentId: null }
       })
     })
+  }
+
+  async deleteAssignmentById(user: AuthenticatedUser, id: number) {
+    return this.delete(user, await this.findCourseId(id), id)
+  }
+
+  async getDeletionImpact(user: AuthenticatedUser, id: number) {
+    const blueprintCourseId = await this.findCourseId(id)
+    await this.access.assertBlueprintLeader(user, blueprintCourseId)
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.blueprintAssignment.findFirstOrThrow({
+          where: { id, blueprintCourseId }
+        })
+        const copies = await tx.assignment.findMany({
+          where: { blueprintAssignmentId: id },
+          select: { id: true, groupId: true }
+        })
+        const groupIds = [...new Set(copies.map(({ groupId }) => groupId))]
+        const [records, students] = await Promise.all([
+          getAssignmentLearningRecords(
+            tx,
+            copies.map(({ id }) => id)
+          ),
+          tx.userGroup.groupBy({
+            by: ['userId'],
+            where: { groupId: { in: groupIds }, isGroupLeader: false }
+          })
+        ])
+        return {
+          ...records,
+          deletable:
+            records.submissionCount === 0 && records.recordedStudentCount === 0,
+          sectionCount: groupIds.length,
+          assignmentCount: copies.length,
+          studentCount: students.length,
+          qnaCount: 0,
+          noticeCount: 0
+        }
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead }
+    )
+  }
+
+  async delete(user: AuthenticatedUser, blueprintCourseId: number, id: number) {
+    await this.access.assertBlueprintLeader(user, blueprintCourseId)
+    const pending: AssignmentLifecycleEvent[] = []
+    const deleted = await this.prisma.$transaction(
+      async (tx) => {
+        await lockBlueprintAssignment(tx, id)
+        const source = await tx.blueprintAssignment.findFirstOrThrow({
+          where: { id, blueprintCourseId },
+          include: this.contentInclude
+        })
+        await deleteAssignmentCopies(
+          tx,
+          source.assignment.map(({ id, groupId }) => ({ id, groupId })),
+          pending
+        )
+        await tx.blueprintAssignment.delete({ where: { id } })
+        return this.output(source)
+      },
+      { timeout: 30000 }
+    )
+    await this.events.publish(pending)
+    return deleted
   }
 }

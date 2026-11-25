@@ -2421,6 +2421,17 @@ scalar DateTime
 """An arbitrary-precision Decimal type"""
 scalar Decimal
 
+type DeletionImpact {
+  assignmentCount: Int!
+  deletable: Boolean!
+  noticeCount: Int!
+  qnaCount: Int!
+  recordedStudentCount: Int!
+  sectionCount: Int!
+  studentCount: Int!
+  submissionCount: Int!
+}
+
 type DuplicateCourse {
   copiedAssignments: [Int!]!
   duplicatedCourse: Group!
@@ -2792,6 +2803,7 @@ type Mutation {
   createTestcases(input: CreateTestcasesInput!): [ProblemTestcaseId!]!
   createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
+  deleteBlueprintAssignment(blueprintAssignmentId: Int!): BlueprintAssignmentOutput!
   deleteBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseOutput!
   deleteContest(contestId: Int!): Contest!
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
@@ -4008,6 +4020,7 @@ type Query {
   getAssignments(cursor: Int, groupId: Int!, isExercise: Boolean, take: Int! = 10): [AssignmentWithParticipants!]!
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
   getBlueprintAssignment(blueprintAssignmentId: Int!): BlueprintAssignmentOutput!
+  getBlueprintAssignmentDeletionImpact(blueprintAssignmentId: Int!): DeletionImpact!
   getBlueprintAssignments(blueprintCourseId: Int!, cursor: Int, isExercise: Boolean! = false, search: String, take: Int! = 10): [BlueprintAssignmentOutput!]!
   getBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseDetailOutput!
   getBlueprintCourses: [BlueprintCourseListItemOutput!]!

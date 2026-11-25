@@ -5,6 +5,7 @@ import {
   UseGroupLeaderGuard
 } from '@libs/auth'
 import { IDValidationPipe, CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
+import { DeletionImpact } from '@admin/assignment/model/deletion-impact.output'
 import { BlueprintAssignmentService } from './blueprint-assignment.service'
 import {
   CreateBlueprintAssignmentInput,
@@ -78,5 +79,23 @@ export class BlueprintAssignmentResolver {
     assignmentId: number
   ) {
     return this.service.unlink(groupId, assignmentId)
+  }
+
+  @Mutation(() => BlueprintAssignmentOutput)
+  deleteBlueprintAssignment(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintAssignmentId', { type: () => Int }, IDValidationPipe)
+    id: number
+  ) {
+    return this.service.deleteAssignmentById(req.user, id)
+  }
+
+  @Query(() => DeletionImpact)
+  getBlueprintAssignmentDeletionImpact(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintAssignmentId', { type: () => Int }, IDValidationPipe)
+    id: number
+  ) {
+    return this.service.getDeletionImpact(req.user, id)
   }
 }

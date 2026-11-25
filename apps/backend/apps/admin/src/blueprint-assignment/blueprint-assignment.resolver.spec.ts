@@ -32,6 +32,7 @@ describe('BlueprintAssignment GraphQL contract', () => {
     ).to.include.members([
       'createBlueprintAssignment',
       'updateBlueprintAssignment',
+      'deleteBlueprintAssignment',
       'unlinkBlueprintAssignment'
     ])
   })
@@ -131,5 +132,46 @@ describe('BlueprintAssignment GraphQL contract', () => {
       'groupId',
       'id'
     ])
+  })
+  it('uses an assignment ID for existing entities and returns a deleted entity rather than an integer', () => {
+    expect(
+      schema
+        .getQueryType()!
+        .getFields()
+        .getBlueprintAssignment.args.map(({ name }) => name)
+    ).to.deep.equal(['blueprintAssignmentId'])
+    const mutations = schema.getMutationType()!.getFields()
+    for (const name of [
+      'updateBlueprintAssignment',
+      'deleteBlueprintAssignment'
+    ]) {
+      expect(mutations[name].args.map(({ name }) => name)).not.to.include(
+        'blueprintCourseId'
+      )
+    }
+    expect(
+      getNamedType(
+        schema.getMutationType()!.getFields().deleteBlueprintAssignment.type
+      ).name
+    ).to.equal('BlueprintAssignmentOutput')
+    const impact = schema
+      .getQueryType()!
+      .getFields().getBlueprintAssignmentDeletionImpact
+    expect(impact.args.map(({ name }) => name)).to.deep.equal([
+      'blueprintAssignmentId'
+    ])
+    const fields = (getNamedType(impact.type) as GraphQLObjectType).getFields()
+    expect(Object.keys(fields).sort()).to.deep.equal(
+      [
+        'assignmentCount',
+        'deletable',
+        'noticeCount',
+        'qnaCount',
+        'recordedStudentCount',
+        'sectionCount',
+        'studentCount',
+        'submissionCount'
+      ].sort()
+    )
   })
 })

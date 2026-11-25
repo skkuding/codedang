@@ -17,6 +17,7 @@ import {
 } from './assignment-event.service'
 import {
   assertAssignmentUnlinked,
+  deleteAssignmentCopy,
   lockBlueprintAssignment
 } from './assignment-link'
 import { lockAssignmentProblems } from './assignment-problem-access'
@@ -353,7 +354,10 @@ export class AssignmentService {
           }
         },
         blueprintAssignmentId: true,
-        groupId: true
+        groupId: true,
+        group: {
+          select: { courseInfo: { select: { blueprintCourseId: true } } }
+        }
       }
     })
 
@@ -365,6 +369,20 @@ export class AssignmentService {
       throw new ForbiddenAccessException(
         'You can only access assignment in your own group'
       )
+    }
+
+    if (
+      assignment.blueprintAssignmentId != null ||
+      assignment.group?.courseInfo?.blueprintCourseId != null
+    ) {
+      const pending: AssignmentLifecycleEvent[] = []
+      const deleted = await this.prisma.$transaction(async (tx) => {
+        if (assignment.blueprintAssignmentId != null)
+          await lockBlueprintAssignment(tx, assignment.blueprintAssignmentId)
+        return deleteAssignmentCopy(tx, assignmentId, groupId, pending)
+      })
+      await new AssignmentEventService(this.eventEmitter).publish(pending)
+      return deleted
     }
 
     const problemIds = assignment.assignmentProblem.map(
