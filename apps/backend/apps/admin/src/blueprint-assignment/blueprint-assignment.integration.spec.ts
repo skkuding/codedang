@@ -262,6 +262,108 @@ integration('Blueprint Assignment database transactions', () => {
     expect(await receiptCount()).to.equal(1)
   })
 
+  it('rejects a changed request with the same operation ID without changing saved content', async () => {
+    const saved = await service.save(user, courseId, input)
+    const eventCount = published.length
+    await expect(
+      service.save(user, courseId, { ...input, title: 'Changed' })
+    ).to.be.rejectedWith('Operation ID belongs to another request')
+    expect(await service.save(user, courseId, input)).to.deep.equal(saved)
+    expect(await sourceCount()).to.equal(1)
+    expect(await copyCount()).to.equal(2)
+    expect(await receiptCount()).to.equal(1)
+    expect(published.length).to.equal(eventCount)
+  })
+
+  it('rejects operation ID reuse by another authorized section leader', async () => {
+    const saved = await service.save(user, courseId, input)
+    const tag = randomUUID()
+    const leader = await db.user.create({
+      data: { username: tag, email: `${tag}@test.invalid`, password: '' }
+    })
+    await db.userGroup.create({
+      data: { userId: leader.id, groupId: groups[0], isGroupLeader: true }
+    })
+    const eventCount = published.length
+    await expect(
+      service.save(
+        new AuthenticatedUser(leader.id, leader.username, leader.role),
+        courseId,
+        input
+      )
+    ).to.be.rejectedWith('Operation ID belongs to another request')
+    expect(await service.save(user, courseId, input)).to.deep.equal(saved)
+    expect(await sourceCount()).to.equal(1)
+    expect(await copyCount()).to.equal(2)
+    expect(await receiptCount()).to.equal(1)
+    expect(published.length).to.equal(eventCount)
+  })
+
+  for (const [label, patch, message] of [
+    ['blank title', { title: ' ' }, 'Title must contain 1 to 120 characters'],
+    [
+      'long title',
+      { title: 'A'.repeat(121) },
+      'Title must contain 1 to 120 characters'
+    ],
+    ['blank description', { description: ' ' }, 'Description is required'],
+    ['week below range', { week: 0 }, 'Invalid week'],
+    ['week above course range', { week: 100 }, 'Invalid week'],
+    ['no sections', { sections: [] }, 'Select at least one section']
+  ] as const) {
+    it(`rejects ${label} without persisting content or events`, async () => {
+      const eventCount = published.length
+      await expect(
+        service.save(user, courseId, {
+          ...input,
+          ...patch,
+          sections: patch.sections ? [...patch.sections] : input.sections
+        })
+      ).to.be.rejectedWith(message)
+      expect(await sourceCount()).to.equal(0)
+      expect(await copyCount()).to.equal(0)
+      expect(await receiptCount()).to.equal(0)
+      expect(published.length).to.equal(eventCount)
+    })
+  }
+
+  for (const [label, schedule, message] of [
+    [
+      'start equals end',
+      { endTime: new Date('2027-01-01') },
+      'The startTime must be earlier than the endTime'
+    ],
+    [
+      'due equals start',
+      { dueTime: new Date('2027-01-01') },
+      'The startTime must be earlier than the dueTime'
+    ],
+    [
+      'due precedes start',
+      { dueTime: new Date('2026-12-31') },
+      'The startTime must be earlier than the dueTime'
+    ],
+    [
+      'due exceeds end',
+      { dueTime: new Date('2027-01-04') },
+      'The dueTime must not be later than the endTime'
+    ]
+  ] as const) {
+    it(`rolls back all sections when ${label}`, async () => {
+      const eventCount = published.length
+      await expect(
+        service.save(user, courseId, {
+          ...input,
+          sections: [input.sections[0], { ...input.sections[1], ...schedule }]
+        })
+      ).to.be.rejectedWith(message)
+      expect(await sourceCount()).to.equal(0)
+      expect(await copyCount()).to.equal(0)
+      expect(await receiptCount()).to.equal(0)
+      expect(published.length).to.equal(eventCount)
+    })
+  }
+
   it('checks access and validates foreign sections, duplicate sections and schedules before saving', async () => {
     const outsider = new AuthenticatedUser(999999, 'outsider', Role.User)
     await expect(service.save(outsider, courseId, input)).to.be.rejected
