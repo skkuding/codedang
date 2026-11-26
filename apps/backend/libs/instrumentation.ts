@@ -27,11 +27,15 @@ import {
 import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import {
   AggregationType,
-  PeriodicExportingMetricReader
+  PeriodicExportingMetricReader,
+  type ViewOptions
 } from '@opentelemetry/sdk-metrics'
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node'
-import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
+import {
+  ATTR_SERVICE_NAME,
+  ATTR_SERVICE_VERSION
+} from '@opentelemetry/semantic-conventions'
 import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 /**
@@ -74,17 +78,37 @@ class Instrumentation {
       new AmqplibInstrumentation()
     ]
 
-    // nestjs-otel apiMetrics도 HttpInstrumentation과 같은 이름으로 기록하므로 한쪽만 남긴다
-    const views = [
+    const views: ViewOptions[] = [
+      // nestjs-otel apiMetrics도 HttpInstrumentation과 같은 이름으로 기록하므로 한쪽만 남긴다
       {
         meterName: 'nestjs-otel',
         instrumentName: 'http.server.duration',
         aggregation: { type: AggregationType.DROP }
+      },
+      // 엔드포인트 최적화 전후 비교가 보이도록 100~500ms 구간을 촘촘히 센다
+      {
+        meterName: '@opentelemetry/instrumentation-http',
+        instrumentName: 'http.server.duration',
+        aggregation: {
+          type: AggregationType.EXPLICIT_BUCKET_HISTOGRAM,
+          options: {
+            boundaries: [
+              0, 5, 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500, 750,
+              1000, 2500, 5000, 7500, 10000
+            ]
+          }
+        }
       }
     ]
 
+    // OTEL_RESOURCE_ATTRIBUTES는 배포 설정이 채우므로, 이미지에 빌드 시점에 넣은 버전은 따로 읽는다
+    const version = process.env.APP_VERSION
+
     Instrumentation.sdk = new NodeSDK({
-      resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),
+      resource: resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: serviceName,
+        ...(version && { [ATTR_SERVICE_VERSION]: version })
+      }),
       resourceDetectors: [
         processDetector,
         hostDetector,
