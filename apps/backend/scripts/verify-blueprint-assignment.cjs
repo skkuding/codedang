@@ -7,8 +7,10 @@ const { randomUUID } = require('crypto')
 const { Client } = require('pg')
 const dotenv = require('dotenv')
 
-async function main() {
-  const local = dotenv.parse(fs.readFileSync('.env'))
+const main = async () => {
+  const local = fs.existsSync('.env')
+    ? dotenv.parse(fs.readFileSync('.env'))
+    : {}
   const testUrl = process.env.TEST_DATABASE_URL || local.TEST_DATABASE_URL
   if (!testUrl || testUrl === (process.env.DATABASE_URL || local.DATABASE_URL))
     throw new Error('A separate TEST_DATABASE_URL is required')

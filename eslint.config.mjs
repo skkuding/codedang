@@ -65,6 +65,19 @@ export default eslintTS.config(
   /* Backend configuration */
 
   {
+    files: ['apps/backend/scripts/verify-blueprint-assignment.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      parserOptions: {
+        project: false
+      }
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
+  },
+
+  {
     files: ['apps/backend/**/*.ts'],
     rules: {
       '@typescript-eslint/naming-convention': [
