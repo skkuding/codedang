@@ -27,8 +27,7 @@ export default eslintTS.config(
       '**/*.config.{js,mjs,ts}',
       '**/worker/**/*.js',
       'infra/**/*.{js,mjs}',
-      'tests/load/**/*.js',
-      'tests/x509-distrust/**/*.mjs'
+      'tests/load/**/*.js'
     ]
   },
 

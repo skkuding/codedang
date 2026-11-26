@@ -56,7 +56,7 @@ func (*blockingSandbox) ToCompileExecArgs(string, sandbox.Language) (judger.Exec
 	return judger.ExecArgs{}, nil
 }
 
-func (*blockingSandbox) ToRunExecArgs(string, sandbox.Language, int, sandbox.Limit, bool, []string) (judger.ExecArgs, error) {
+func (*blockingSandbox) ToRunExecArgs(string, sandbox.Language, int, sandbox.Limit, bool, int, int, []string) (judger.ExecArgs, error) {
 	return judger.ExecArgs{}, nil
 }
 

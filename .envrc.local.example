@@ -6,3 +6,10 @@
 # 인프라팀 또는 운영진에게 문의하세요.
 export GRAFANA_PROD_TOKEN=""
 export GRAFANA_STAGE_TOKEN=""
+
+### Sentry Terraform 토큰 ###
+# infra/sentry 를 plan/apply 할 때만 필요합니다.
+# Sentry > Settings > Developer Settings > Custom Integrations 의
+# "terraform" Internal Integration 에서 본인 토큰을 새로 발급해 넣습니다.
+# 발급은 Sentry 조직의 Owner·Manager만 가능하니 인프라팀에 문의하세요.
+export TF_VAR_sentry_token=""

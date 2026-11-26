@@ -87,3 +87,95 @@ loki.write "loki" {
     environment = sys.env("ALLOY_ENVIRONMENT"),
   }
 }
+
+// probe 대상 주소 정의
+prometheus.exporter.blackbox "cluster_endpoints" {
+  // Cluster traffic is plaintext HTTP, so a probe never sees a certificate.
+  // preferred_ip_protocol pins IPv4 because ClusterIP DNS only answers with
+  // A records while the blackbox default prefers IPv6.
+  config = `
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      preferred_ip_protocol: ip4
+`
+
+  targets = [
+    {
+      name    = "admin-api",
+      address = "http://admin-api-server.admin-api.svc.cluster.local:3000/health/ready",
+      module  = "http_2xx",
+    },
+    {
+      name    = "loki",
+      address = "http://loki.monitoring-loki.svc.cluster.local:3100/ready",
+      module  = "http_2xx",
+    },
+    {
+      name    = "tempo",
+      address = "http://tempo.monitoring-tempo.svc.cluster.local:3200/ready",
+      module  = "http_2xx",
+    },
+    {
+      name    = "pyroscope",
+      address = "http://pyroscope.monitoring-pyroscope.svc.cluster.local:4040/ready",
+      module  = "http_2xx",
+    },
+    {
+      name    = "prometheus",
+      address = "http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/-/healthy",
+      module  = "http_2xx",
+    },
+    {
+      name    = "alertmanager",
+      address = "http://prometheus-kube-prometheus-alertmanager.monitoring-prometheus.svc.cluster.local:9093/-/healthy",
+      module  = "http_2xx",
+    },
+    {
+      name    = "grafana",
+      address = "http://grafana.monitoring-grafana.svc.cluster.local:80/api/health",
+      module  = "http_2xx",
+    },
+  ]
+}
+
+// before: job="integrations/blackbox/admin-api", instance="<component id>"
+// after:  job="blackbox", instance="admin-api"
+discovery.relabel "blackbox" {
+  targets = prometheus.exporter.blackbox.cluster_endpoints.targets
+
+  rule {
+    source_labels = ["job"]
+    regex         = "integrations/blackbox/(.+)"
+    target_label  = "instance"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "blackbox"
+  }
+}
+
+// probe 트리거 주기 설정
+prometheus.scrape "blackbox" {
+  targets    = discovery.relabel.blackbox.output
+  forward_to = [prometheus.remote_write.local.receiver]
+
+  // Longer than the 5s module timeout so a hung endpoint reports
+  // probe_success 0 instead of failing the scrape itself.
+  scrape_interval = "30s"
+  scrape_timeout  = "10s"
+}
+
+// exporter가 Alloy 안에만 있어 Prometheus가 가져갈 주소가 없으므로 push한다.
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus-kube-prometheus-prometheus.monitoring-prometheus.svc.cluster.local:9090/api/v1/write"
+  }
+
+  external_labels = {
+    environment = sys.env("ALLOY_ENVIRONMENT"),
+  }
+}
