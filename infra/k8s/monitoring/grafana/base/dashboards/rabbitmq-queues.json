@@ -3,6 +3,33 @@
   "title": "RabbitMQ Queues",
   "tags": ["rabbitmq"],
   "schemaVersion": 39,
+  "templating": {
+    "list": [
+      {
+        "name": "queue",
+        "label": "Queue",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "definition": "label_values(rabbitmq_detailed_queue_messages_ready{namespace=\"rabbitmq\",vhost=\"vh\"}, queue)",
+        "query": {
+          "query": "label_values(rabbitmq_detailed_queue_messages_ready{namespace=\"rabbitmq\",vhost=\"vh\"}, queue)",
+          "refId": "StandardVariableQuery"
+        },
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "refresh": 1,
+        "sort": 1
+      }
+    ]
+  },
   "time": {
     "from": "now-1h",
     "to": "now"
@@ -11,8 +38,8 @@
     {
       "id": 1,
       "type": "timeseries",
-      "title": "Ready messages by queue",
-      "description": "Messages waiting to be delivered to consumers.",
+      "title": "Queue backlog",
+      "description": "Ready messages are waiting for delivery. Unacked messages have been delivered and are waiting for a consumer acknowledgement.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -41,8 +68,110 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (vhost, queue) (rabbitmq_detailed_queue_messages_ready{namespace=\"rabbitmq\"})",
-          "legendFormat": "{{vhost}} / {{queue}}",
+          "expr": "sum by (vhost, queue) (rabbitmq_detailed_queue_messages_ready{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"})",
+          "legendFormat": "{{queue}} · Ready",
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (vhost, queue) (rabbitmq_detailed_queue_messages_unacked{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"})",
+          "legendFormat": "{{queue}} · Unacked",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Consumers by queue",
+      "description": "Number of registered consumer subscriptions on each queue.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (vhost, queue) (rabbitmq_detailed_queue_consumers{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"})",
+          "legendFormat": "{{queue}}",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Message rates by queue",
+      "description": "Publish counts messages routed into the queue. Deliver includes both acknowledgement modes and counts redeliveries.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "unit": "suffix: msg/s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (vhost, queue) (rate(rabbitmq_detailed_queue_exchange_messages_published_total{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{queue}} · Publish",
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (vhost, queue) (rate(rabbitmq_detailed_queue_messages_delivered_ack_total{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"}[$__rate_interval]) or label_replace(rate(rabbitmq_detailed_queue_messages_delivered_total{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"}[$__rate_interval]), \"ack_mode\", \"auto\", \"queue\", \".+\"))",
+          "legendFormat": "{{queue}} · Deliver",
+          "range": true
+        },
+        {
+          "refId": "C",
+          "expr": "sum by (vhost, queue) (rate(rabbitmq_detailed_queue_messages_acked_total{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{queue}} · ACK",
+          "range": true
+        },
+        {
+          "refId": "D",
+          "expr": "sum by (vhost, queue) (rate(rabbitmq_detailed_queue_messages_redelivered_total{namespace=\"rabbitmq\",vhost=\"vh\",queue=~\"${queue:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{queue}} · Redeliver",
           "range": true
         }
       ]
