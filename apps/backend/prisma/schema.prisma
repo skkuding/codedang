@@ -91,6 +91,7 @@ model User {
   polygonReviewedApprovals PolygonApprovalRequest[] @relation("PolygonApprovalReviewer")
   blueprintCourse          BlueprintCourse[]
   blueprintAssignment      BlueprintAssignment[]
+  blueprintNotice          BlueprintNotice[]
 
   @@map("user")
 }
@@ -217,6 +218,7 @@ model BlueprintCourse {
 
   courseInfo          CourseInfo[]
   blueprintAssignment BlueprintAssignment[]
+  blueprintNotice     BlueprintNotice[]
 
   @@index([createdById])
   @@map("blueprint_course")
@@ -252,6 +254,11 @@ model CourseNotice {
 
   CourseNoticeComment CourseNoticeComment[]
 
+  // Source notice when this is a blueprint copy, null for a regular notice
+  blueprintNotice   BlueprintNotice? @relation(fields: [blueprintNoticeId], references: [id], onDelete: Restrict)
+  blueprintNoticeId Int?             @map("blueprint_notice_id")
+
+  @@unique([blueprintNoticeId, groupId])
   @@map("course_notice")
 }
 
@@ -1306,4 +1313,37 @@ model BlueprintAssignmentSave {
 
   @@index([blueprintAssignmentId])
   @@map("blueprint_assignment_save")
+}
+
+model BlueprintNotice {
+  id                Int             @id @default(autoincrement())
+  revision          Int             @default(1)
+  blueprintCourse   BlueprintCourse @relation(fields: [blueprintCourseId], references: [id], onDelete: Cascade)
+  blueprintCourseId Int             @map("blueprint_course_id")
+  createdBy         User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById       Int?            @map("created_by_id")
+  title             String
+  content           String
+  createTime        DateTime        @default(now()) @map("create_time")
+  updateTime        DateTime        @updatedAt @map("update_time")
+
+  courseNotice CourseNotice[]
+
+  @@index([blueprintCourseId])
+  @@map("blueprint_notice")
+}
+
+// Successful atomic-request receipts survive unlink/deletion; failed saves leave no receipt.
+/// @ObjectType({ isAbstract: true })
+model BlueprintNoticeSave {
+  id                String   @id
+  userId            Int      @map("user_id")
+  blueprintCourseId Int      @map("blueprint_course_id")
+  blueprintNoticeId Int      @map("blueprint_notice_id")
+  revision          Int
+  requestHash       String   @map("request_hash")
+  createTime        DateTime @default(now()) @map("create_time")
+
+  @@index([blueprintNoticeId])
+  @@map("blueprint_notice_save")
 }
