@@ -1,9 +1,19 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
-import { CursorValidationPipe, IDValidationPipe } from '@libs/pipe'
+import {
+  AuthenticatedRequest,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
+import { CursorValidationPipe, GroupIDPipe, IDValidationPipe } from '@libs/pipe'
 import { BlueprintNoticeService } from './blueprint-notice.service'
-import { CreateBlueprintNoticeInput } from './model/blueprint-notice.input'
-import { BlueprintNoticeOutput } from './model/blueprint-notice.output'
+import {
+  CreateBlueprintNoticeInput,
+  UpdateBlueprintNoticeInput
+} from './model/blueprint-notice.input'
+import {
+  BlueprintNoticeOutput,
+  BlueprintNoticeUnlinkResult
+} from './model/blueprint-notice.output'
 
 /**
  * A blueprint has no groupId and cannot use GroupLeaderGuard, so this resolver
@@ -50,5 +60,28 @@ export class BlueprintNoticeResolver {
     blueprintNoticeId: number
   ) {
     return await this.service.getNoticeById(req.user, blueprintNoticeId)
+  }
+
+  @Mutation(() => BlueprintNoticeOutput)
+  async updateBlueprintNotice(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintNoticeId', { type: () => Int }, IDValidationPipe)
+    blueprintNoticeId: number,
+    @Args('input') input: UpdateBlueprintNoticeInput
+  ) {
+    return await this.service.updateNotice(req.user, blueprintNoticeId, input)
+  }
+
+  /**
+   * Called from the section page, so it authorizes the group leader of that section.
+   */
+  @Mutation(() => BlueprintNoticeUnlinkResult)
+  @UseGroupLeaderGuard()
+  async unlinkBlueprintNotice(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('courseNoticeId', { type: () => Int }, IDValidationPipe)
+    courseNoticeId: number
+  ) {
+    return await this.service.unlink(groupId, courseNoticeId)
   }
 }

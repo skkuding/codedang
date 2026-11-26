@@ -990,6 +990,12 @@ type BlueprintNoticeSumAggregate {
   revision: Int
 }
 
+type BlueprintNoticeUnlinkResult {
+  blueprintNoticeId: Int
+  groupId: Int!
+  id: ID!
+}
+
 type BlueprintSectionOutput {
   """
   config default value
@@ -2910,12 +2916,14 @@ type Mutation {
   removeUserFromContest(contestId: Int!, userId: Int!): UserContest!
   revokeInvitation(groupId: Int!): String!
   toggleContestQnAResolved(contestId: Int!, qnAOrder: Int!): ContestQnA!
+  unlinkBlueprintNotice(courseNoticeId: Int!, groupId: Int!): BlueprintNoticeUnlinkResult!
   updateAnnouncement(contestId: Int!, input: UpdateAnnouncementInput!): Announcement!
   updateAssignment(groupId: Int!, input: UpdateAssignmentInput!): Assignment!
   updateAssignmentProblemRecord(groupId: Int!, input: UpdateAssignmentProblemRecordInput!): AssignmentProblemRecord!
   updateAssignmentProblems(assignmentId: Int!, assignmentProblemUpdateInput: [AssignmentProblemUpdateInput!]!, groupId: Int!): [AssignmentProblem!]!
   updateAssignmentProblemsOrder(assignmentId: Int!, groupId: Int!, orders: [Int!]!): [AssignmentProblem!]!
   updateBlueprintCourse(blueprintCourseId: Int!, input: UpdateBlueprintCourseInput!): BlueprintCourseOutput!
+  updateBlueprintNotice(blueprintNoticeId: Int!, input: UpdateBlueprintNoticeInput!): BlueprintNoticeOutput!
   updateContest(contestId: Int!, input: UpdateContestInput!): Contest!
   updateContestProblemsOrder(contestId: Int!, orders: [Int!]!): [ContestProblem!]!
   updateContestProblemsScore(contestId: Int!, problemIdsWithScore: [ProblemScoreInput!]!): [ContestProblem!]!
@@ -4785,6 +4793,13 @@ input UpdateBlueprintCourseInput {
   semester: String
   website: String
   week: Int
+}
+
+input UpdateBlueprintNoticeInput {
+  content: String
+  expectedRevision: Int!
+  operationId: String!
+  title: String
 }
 
 input UpdateContestInput {

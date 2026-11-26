@@ -14,7 +14,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
 import { BlueprintNoticeService } from './blueprint-notice.service'
-import { CreateBlueprintNoticeInput } from './model/blueprint-notice.input'
+import {
+  CreateBlueprintNoticeInput,
+  UpdateBlueprintNoticeInput
+} from './model/blueprint-notice.input'
 
 const userId = 1
 const blueprintCourseId = 10
@@ -62,14 +65,20 @@ const createDb = () => {
       findUnique: stub(),
       findFirst: stub(),
       findFirstOrThrow: stub().resolves(savedNotice),
-      findUniqueOrThrow: stub().resolves(savedNotice)
+      findUniqueOrThrow: stub().resolves(savedNotice),
+      update: stub().resolves({ ...savedNotice, revision: 2 })
     },
     blueprintNoticeSave: {
       findUnique: stub().resolves(null),
       create: stub().resolves(receipt)
     },
     courseInfo: { count: stub().resolves(2) },
-    courseNotice: { createMany: stub().resolves({ count: 2 }) },
+    courseNotice: {
+      createMany: stub().resolves({ count: 2 }),
+      updateMany: stub().resolves({ count: 2 }),
+      findFirst: stub(),
+      update: stub()
+    },
     $queryRaw: stub().resolves([]),
     $transaction: stub()
   }
@@ -334,6 +343,214 @@ describe('BlueprintNoticeService', () => {
       ).to.be.rejectedWith(EntityNotExistException)
     })
   })
+
+  describe('updateNotice', () => {
+    const update: UpdateBlueprintNoticeInput = {
+      operationId: '0b6f7c3e-1d2a-4b5c-8e9f-a1b2c3d4e5f6',
+      expectedRevision: 1,
+      title: 'Final exam notice'
+    }
+
+    const allowUpdate = () => {
+      db.blueprintNotice.findUnique.resolves({ blueprintCourseId })
+      db.blueprintNotice.findFirst.resolves(savedNotice)
+      allowAccess()
+    }
+
+    it('updates the source, bumps the revision and syncs linked copies', async () => {
+      allowUpdate()
+
+      await service.updateNotice(user, savedNotice.id, update)
+
+      expect(db.blueprintNotice.update.firstCall.args[0]).to.deep.equal({
+        where: { id: savedNotice.id },
+        data: { title: update.title, revision: { increment: 1 } }
+      })
+      expect(db.courseNotice.updateMany.firstCall.args[0]).to.deep.equal({
+        where: { blueprintNoticeId: savedNotice.id },
+        data: { title: update.title, readBy: { set: [] } }
+      })
+      expect(
+        db.blueprintNoticeSave.create.firstCall.args[0].data
+      ).to.deep.include({
+        id: update.operationId,
+        blueprintNoticeId: savedNotice.id,
+        revision: 2
+      })
+      // advisory lock for the operation, then a row lock on the source
+      expect(db.$queryRaw.callCount).to.equal(2)
+    })
+
+    it('keeps read records when the submitted content is unchanged', async () => {
+      allowUpdate()
+
+      await service.updateNotice(user, savedNotice.id, {
+        ...update,
+        title: savedNotice.title,
+        content: savedNotice.content
+      })
+
+      expect(db.courseNotice.updateMany.firstCall.args[0].data).to.deep.equal({
+        title: savedNotice.title,
+        content: savedNotice.content
+      })
+    })
+
+    it('resets read records when only the content changes', async () => {
+      allowUpdate()
+
+      await service.updateNotice(user, savedNotice.id, {
+        operationId: update.operationId,
+        expectedRevision: 1,
+        content: '<p>changed</p>'
+      })
+
+      expect(db.courseNotice.updateMany.firstCall.args[0].data).to.deep.equal({
+        content: '<p>changed</p>',
+        readBy: { set: [] }
+      })
+    })
+
+    it('rejects a stale revision without writing', async () => {
+      allowUpdate()
+
+      await expect(
+        service.updateNotice(user, savedNotice.id, {
+          ...update,
+          expectedRevision: 2
+        })
+      ).to.be.rejectedWith(UnprocessableDataException, 'STALE_REVISION')
+      expect(db.blueprintNotice.update.called).to.be.false
+      expect(db.courseNotice.updateMany.called).to.be.false
+      expect(db.blueprintNoticeSave.create.called).to.be.false
+    })
+
+    it('rejects an input with neither title nor content before opening a transaction', async () => {
+      allowUpdate()
+
+      await expect(
+        service.updateNotice(user, savedNotice.id, {
+          operationId: update.operationId,
+          expectedRevision: 1
+        })
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'At least one of title or content must be provided'
+      )
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('returns the current state for a repeated request without writing again', async () => {
+      allowUpdate()
+      db.blueprintNoticeSave.findUnique.resolves({
+        ...receipt,
+        id: update.operationId,
+        requestHash: createHash('sha256')
+          .update(
+            JSON.stringify({
+              blueprintCourseId,
+              id: savedNotice.id,
+              input: update
+            })
+          )
+          .digest('hex')
+      })
+
+      const result = await service.updateNotice(user, savedNotice.id, update)
+
+      expect(result).to.deep.equal(savedNotice)
+      expect(db.blueprintNotice.update.called).to.be.false
+      expect(db.courseNotice.updateMany.called).to.be.false
+    })
+
+    it('rejects reusing a create operation ID for an update', async () => {
+      allowUpdate()
+      db.blueprintNoticeSave.findUnique.resolves(receipt)
+
+      await expect(
+        service.updateNotice(user, savedNotice.id, {
+          ...update,
+          operationId: input.operationId
+        })
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Operation ID belongs to another request'
+      )
+      expect(db.blueprintNotice.update.called).to.be.false
+    })
+
+    it('rejects a missing notice', async () => {
+      db.blueprintNotice.findUnique.resolves(null)
+
+      await expect(
+        service.updateNotice(user, savedNotice.id, update)
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('rejects a user who is not a blueprint leader', async () => {
+      db.blueprintNotice.findUnique.resolves({ blueprintCourseId })
+      denyAccess()
+
+      await expect(
+        service.updateNotice(user, savedNotice.id, update)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('returns NOT_FOUND when the notice is deleted before the row lock', async () => {
+      allowUpdate()
+      db.blueprintNotice.findFirst.resolves(null)
+
+      await expect(
+        service.updateNotice(user, savedNotice.id, update)
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.blueprintNotice.update.called).to.be.false
+    })
+  })
+
+  describe('unlink', () => {
+    const groupId = 2
+    const copy = { id: 7, groupId, blueprintNoticeId: savedNotice.id }
+
+    it('locks the source and clears the link of the copy', async () => {
+      db.courseNotice.findFirst.resolves(copy)
+      db.courseNotice.update.resolves({ ...copy, blueprintNoticeId: null })
+
+      const result = await service.unlink(groupId, copy.id)
+
+      expect(result).to.deep.equal({ ...copy, blueprintNoticeId: null })
+      expect(db.courseNotice.findFirst.firstCall.args[0].where).to.deep.equal({
+        id: copy.id,
+        groupId
+      })
+      expect(db.$queryRaw.calledOnce).to.be.true
+      expect(db.$queryRaw.calledBefore(db.courseNotice.update)).to.be.true
+      expect(db.courseNotice.update.firstCall.args[0]).to.deep.include({
+        where: { id: copy.id, groupId },
+        data: { blueprintNoticeId: null }
+      })
+    })
+
+    it('returns an already unlinked notice without locking or writing', async () => {
+      db.courseNotice.findFirst.resolves({ ...copy, blueprintNoticeId: null })
+
+      const result = await service.unlink(groupId, copy.id)
+
+      expect(result.blueprintNoticeId).to.equal(null)
+      expect(db.$queryRaw.called).to.be.false
+      expect(db.courseNotice.update.called).to.be.false
+    })
+
+    it('rejects a notice outside the section', async () => {
+      db.courseNotice.findFirst.resolves(null)
+
+      await expect(service.unlink(groupId, copy.id)).to.be.rejectedWith(
+        EntityNotExistException
+      )
+      expect(db.courseNotice.update.called).to.be.false
+    })
+  })
 })
 
 describe('CreateBlueprintNoticeInput', () => {
@@ -357,6 +574,37 @@ describe('CreateBlueprintNoticeInput', () => {
     ['duplicate sections', { sectionGroupIds: [1, 1] }, 'sectionGroupIds'],
     ['a non-positive section', { sectionGroupIds: [0] }, 'sectionGroupIds'],
     ['a non-integer section', { sectionGroupIds: [1.5] }, 'sectionGroupIds']
+  ]
+  for (const [label, value, property] of invalid) {
+    it(`rejects ${label}`, async () => {
+      expect(await errorsOf(value)).to.include(property)
+    })
+  }
+})
+
+describe('UpdateBlueprintNoticeInput', () => {
+  const base = {
+    operationId: '0b6f7c3e-1d2a-4b5c-8e9f-a1b2c3d4e5f6',
+    expectedRevision: 1
+  }
+  const errorsOf = async (value: object) =>
+    (
+      await validate(
+        plainToInstance(UpdateBlueprintNoticeInput, { ...base, ...value })
+      )
+    ).map(({ property }) => property)
+
+  it('accepts omitted title and content', async () => {
+    expect(await errorsOf({})).to.deep.equal([])
+  })
+
+  const invalid: [string, object, string][] = [
+    ['a null title', { title: null }, 'title'],
+    ['a blank title', { title: '  ' }, 'title'],
+    ['a null content', { content: null }, 'content'],
+    ['an empty content', { content: '' }, 'content'],
+    ['a zero revision', { expectedRevision: 0 }, 'expectedRevision'],
+    ['a non-UUID operation ID', { operationId: 'x' }, 'operationId']
   ]
   for (const [label, value, property] of invalid) {
     it(`rejects ${label}`, async () => {
