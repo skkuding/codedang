@@ -21,21 +21,21 @@
     k8s_minor: "v{{ k8s_version.split('.')[:2] | join('.') }}"
     k8s_package_revision: '1.1'
     deb_arch: "{{ {'x86_64': 'amd64', 'aarch64': 'arm64'}[ansible_facts['architecture']] }}"
-    node_packages: [
-        ca-certificates,
-        curl,
-        gnupg,
-        jq,
-        conntrack,
-        socat,
-        ethtool,
-        ipset,
-        iptables,
-        ebtables,
-        open-iscsi,
-        nfs-common,
-        cryptsetup
-      ] # 마지막 3개는 Longhorn 요구사항
+    # 마지막 3개는 Longhorn 요구사항
+    node_packages:
+      - ca-certificates
+      - curl
+      - gnupg
+      - jq
+      - conntrack
+      - socat
+      - ethtool
+      - ipset
+      - iptables
+      - ebtables
+      - open-iscsi
+      - nfs-common
+      - cryptsetup
     kernel_modules: [overlay, br_netfilter, iscsi_tcp, dm_crypt]
     sysctls:
       net.bridge.bridge-nf-call-iptables: 1
@@ -69,10 +69,8 @@
         line: '{{ item.ip }} {{ item.name }}'
       loop:
         - {ip: '{{ node_ip }}', name: '{{ node_name }}'}
-        - {
-            ip: '{{ k8s_control_plane_endpoint_ip }}',
-            name: '{{ k8s_control_plane_endpoint }}'
-          }
+        - ip: '{{ k8s_control_plane_endpoint_ip }}'
+          name: '{{ k8s_control_plane_endpoint }}'
 
     - name: Install node packages
       ansible.builtin.apt:
@@ -128,14 +126,10 @@
         dest: '{{ item.dest }}'
         mode: '0644'
       loop:
-        - {
-            url: https://download.docker.com/linux/debian/gpg,
-            dest: /etc/apt/keyrings/docker.asc
-          }
-        - {
-            url: 'https://pkgs.k8s.io/core:/stable:/{{ k8s_minor }}/deb/Release.key',
-            dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
-          }
+        - url: https://download.docker.com/linux/debian/gpg
+          dest: /etc/apt/keyrings/docker.asc
+        - url: 'https://pkgs.k8s.io/core:/stable:/{{ k8s_minor }}/deb/Release.key'
+          dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
 
     - name: Add apt repositories
       ansible.builtin.copy:
@@ -144,7 +138,9 @@
         mode: '0644'
       loop:
         - dest: /etc/apt/sources.list.d/docker.list
-          line: "deb [arch={{ deb_arch }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+          line: >-
+            deb [arch={{ deb_arch }} signed-by=/etc/apt/keyrings/docker.asc]
+            https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable
         - dest: /etc/apt/sources.list.d/kubernetes.list
           line: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/{{ k8s_minor }}/deb/ /'
 
@@ -280,7 +276,7 @@
     - name: Show kubeadm init output
       ansible.builtin.debug:
         var: kubeadm_init.stdout_lines
-      when: kubeadm_init is changed
+      when: not admin_conf.stat.exists
 
     - name: Install kubeconfig for {{ ansible_user }}
       ansible.builtin.shell: |

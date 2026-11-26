@@ -284,12 +284,18 @@
     # 키 Secret이 변경된 경우에만 controller를 재시작하고 rollout 완료까지 기다린다.
     - name: Restart the Sealed Secrets controller deployment
       ansible.builtin.command:
-        argv: "{{ ['kubectl'] + (['--context', cluster_context] if cluster_context | length > 0 else []) + ['rollout', 'restart', 'deployment/sealed-secrets', '--namespace', 'kube-system'] }}"
+        argv: >-
+          {{ ['kubectl']
+             + (['--context', cluster_context] if cluster_context | length > 0 else [])
+             + ['rollout', 'restart', 'deployment/sealed-secrets', '--namespace', 'kube-system'] }}
       changed_when: true
       listen: Restart Sealed Secrets controller
 
     - name: Wait for the Sealed Secrets controller rollout
       ansible.builtin.command:
-        argv: "{{ ['kubectl'] + (['--context', cluster_context] if cluster_context | length > 0 else []) + ['rollout', 'status', 'deployment/sealed-secrets', '--namespace', 'kube-system', '--timeout=2m'] }}"
+        argv: >-
+          {{ ['kubectl']
+             + (['--context', cluster_context] if cluster_context | length > 0 else [])
+             + ['rollout', 'status', 'deployment/sealed-secrets', '--namespace', 'kube-system', '--timeout=2m'] }}
       changed_when: false
       listen: Restart Sealed Secrets controller
