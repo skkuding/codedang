@@ -663,4 +663,277 @@ integration('Blueprint Notice database transactions', () => {
       })
     })
   })
+
+  describe('delete', () => {
+    const createMany = async (count: number) => {
+      const created: Awaited<ReturnType<typeof service.createNotice>>[] = []
+      for (let index = 0; index < count; index++)
+        created.push(
+          await service.createNotice(user, courseId, {
+            ...input,
+            operationId: randomUUID(),
+            title: `Notice ${index}`
+          })
+        )
+      return created
+    }
+
+    const addComments = async (courseNoticeId: number) => {
+      const visible = await db.courseNoticeComment.create({
+        data: { courseNoticeId, createdById: user.id, content: 'visible' }
+      })
+      await db.courseNoticeComment.create({
+        data: {
+          courseNoticeId,
+          createdById: user.id,
+          content: 'reply',
+          replyOnId: visible.id
+        }
+      })
+      await db.courseNoticeComment.create({
+        data: {
+          courseNoticeId,
+          createdById: user.id,
+          content: 'removed',
+          isDeleted: true
+        }
+      })
+    }
+
+    const commentCount = () =>
+      db.courseNoticeComment.count({
+        where: { courseNotice: { groupId: { in: groups } } }
+      })
+
+    it('reports the impact and deletes selected sources, linked copies and their comments', async () => {
+      const [first, second, kept] = await createMany(3)
+      await addComments(first.courseNotice[0].id)
+      await addComments(second.courseNotice[1].id)
+      await addComments(kept.courseNotice[0].id)
+      const ids = [second.id, first.id]
+
+      expect(
+        await service.getDeletionImpact(user, courseId, ids)
+      ).to.deep.equal({
+        noticeCount: 2,
+        copyCount: 4,
+        sectionCount: 2,
+        commentCount: 4
+      })
+
+      const deleted = await service.deleteNotices(user, courseId, ids)
+
+      expect(deleted.map(({ id }) => id)).to.deep.equal([second.id, first.id])
+      expect(deleted[0].courseNotice).to.have.length(2)
+      expect(await sourceCount()).to.equal(1)
+      expect(await copyCount()).to.equal(2)
+      expect(await commentCount()).to.equal(3)
+      expect(
+        await db.courseNotice.count({ where: { blueprintNoticeId: kept.id } })
+      ).to.equal(2)
+    })
+
+    it('keeps unlinked copies and success receipts', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const [detached] = created.courseNotice
+      await service.unlink(detached.groupId, detached.id)
+
+      expect(
+        (await service.getDeletionImpact(user, courseId, [created.id]))
+          .copyCount
+      ).to.equal(1)
+      await service.deleteNotices(user, courseId, [created.id])
+
+      expect(await sourceCount()).to.equal(0)
+      expect(
+        await db.courseNotice.findMany({ where: { groupId: { in: groups } } })
+      ).to.have.length(1)
+      expect(
+        (
+          await db.courseNotice.findUniqueOrThrow({
+            where: { id: detached.id }
+          })
+        ).blueprintNoticeId
+      ).to.equal(null)
+      expect(await receiptCount()).to.equal(1)
+    })
+
+    it('does not recreate a deleted notice when the old create request is resent', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      await service.deleteNotices(user, courseId, [created.id])
+
+      // The receipt still points to the deleted source, so the replay is NOT_FOUND (P2025).
+      await expect(
+        service.createNotice(user, courseId, input)
+      ).to.be.rejected.and.eventually.have.property('code', 'P2025')
+      expect(await counts()).to.deep.equal({
+        sources: 0,
+        copies: 0,
+        receipts: 1
+      })
+    })
+
+    it('deletes nothing when a notice of another blueprint is included', async () => {
+      const [mine] = await createMany(1)
+      const other = await createBlueprint(user.id)
+      const otherSection = await createSection(other.id, 1, user.id)
+      const foreign = await service.createNotice(user, other.id, {
+        ...input,
+        operationId: randomUUID(),
+        sectionGroupIds: [otherSection.id]
+      })
+
+      for (const call of [
+        () => service.getDeletionImpact(user, courseId, [mine.id, foreign.id]),
+        () => service.deleteNotices(user, courseId, [mine.id, foreign.id])
+      ])
+        await expect(call()).to.be.rejectedWith('BlueprintNotice')
+      expect(await sourceCount()).to.equal(1)
+      expect(await copyCount()).to.equal(2)
+      expect(
+        await db.blueprintNotice.count({ where: { id: foreign.id } })
+      ).to.equal(1)
+    })
+
+    it('rolls back every deleted copy when deleting the sources fails', async () => {
+      await createMany(2)
+      const before = await counts()
+      const ids = (
+        await db.blueprintNotice.findMany({
+          where: { blueprintCourseId: courseId }
+        })
+      ).map(({ id }) => id)
+      const query = db.$extends({
+        query: {
+          blueprintNotice: {
+            async deleteMany() {
+              throw new Error('source delete failed')
+            }
+          }
+        }
+      })
+      const failing = new BlueprintNoticeService(
+        query as unknown as PrismaService,
+        new BlueprintAccessService(prisma)
+      )
+
+      await expect(
+        failing.deleteNotices(user, courseId, ids)
+      ).to.be.rejectedWith('source delete failed')
+      expect(await counts()).to.deep.equal(before)
+    })
+
+    it('rejects a user who is not a blueprint leader without deleting', async () => {
+      const [created] = await createMany(1)
+      const outsider = await createUser()
+
+      for (const call of [
+        () => service.getDeletionImpact(outsider, courseId, [created.id]),
+        () => service.deleteNotices(outsider, courseId, [created.id])
+      ])
+        await expect(call()).to.be.rejectedWith(ForbiddenAccessException)
+      expect(await sourceCount()).to.equal(1)
+    })
+
+    it('serializes overlapping concurrent deletions without deadlock', async () => {
+      const [a, b, c] = await createMany(3)
+
+      const results = await Promise.allSettled([
+        service.deleteNotices(user, courseId, [c.id, a.id]),
+        service.deleteNotices(user, courseId, [a.id, b.id, c.id])
+      ])
+
+      // One request wins; the other sees a missing notice and deletes nothing.
+      expect(results.map(({ status }) => status).sort()).to.deep.equal([
+        'fulfilled',
+        'rejected'
+      ])
+      const failed = results.find(
+        (result): result is PromiseRejectedResult =>
+          result.status === 'rejected'
+      )!
+      expect(String(failed.reason)).to.include('BlueprintNotice')
+      const remaining = await db.blueprintNotice.findMany({
+        where: { blueprintCourseId: courseId }
+      })
+      expect(remaining.map(({ id }) => id)).to.satisfy(
+        (ids: number[]) =>
+          ids.length === 0 || (ids.length === 1 && ids[0] === b.id)
+      )
+    })
+
+    it('keeps a copy unlinked concurrently with the deletion', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const [, detached] = created.courseNotice
+
+      const [unlinked] = await Promise.allSettled([
+        service.unlink(detached.groupId, detached.id),
+        service.deleteNotices(user, courseId, [created.id])
+      ])
+
+      expect(await sourceCount()).to.equal(0)
+      // Unlink either commits first and keeps the copy, or waits and finds it deleted.
+      const survivors = await db.courseNotice.findMany({
+        where: { groupId: { in: groups } }
+      })
+      if (unlinked.status === 'fulfilled') {
+        expect(survivors.map(({ id }) => id)).to.deep.equal([detached.id])
+        expect(survivors[0].blueprintNoticeId).to.equal(null)
+      } else expect(survivors).to.have.length(0)
+    })
+
+    it('serves the deletion impact and bulk deletion through GraphQL', async () => {
+      const [first, second] = await createMany(2)
+      const ids = [first.id, second.id]
+
+      const impact = (await graphql(
+        `
+          query ($courseId: Int!, $ids: [Int!]!) {
+            getBlueprintNoticeDeletionImpact(
+              blueprintCourseId: $courseId
+              blueprintNoticeIds: $ids
+            ) {
+              noticeCount
+              copyCount
+              sectionCount
+              commentCount
+            }
+          }
+        `,
+        { courseId, ids }
+      )) as unknown as {
+        data?: { getBlueprintNoticeDeletionImpact: Record<string, number> }
+        errors?: unknown
+      }
+      expect(impact.errors).to.equal(undefined)
+      expect(impact.data!.getBlueprintNoticeDeletionImpact).to.deep.equal({
+        noticeCount: 2,
+        copyCount: 4,
+        sectionCount: 2,
+        commentCount: 0
+      })
+
+      const remove = `mutation ($courseId: Int!, $ids: [Int!]!) {
+        deleteBlueprintNotices(blueprintCourseId: $courseId, blueprintNoticeIds: $ids) {
+          id courseNotice { id }
+        }
+      }`
+      const empty = await graphql(remove, { courseId, ids: [] })
+      expect(empty.errors?.[0].extensions?.code).to.equal('UNPROCESSABLE')
+
+      const deleted = (await graphql(remove, { courseId, ids })) as unknown as {
+        data?: { deleteBlueprintNotices: { id: string }[] }
+        errors?: unknown
+      }
+      expect(deleted.errors).to.equal(undefined)
+      expect(
+        deleted.data!.deleteBlueprintNotices.map(({ id }) => Number(id))
+      ).to.deep.equal([second.id, first.id])
+      expect(await counts()).to.deep.equal({
+        sources: 0,
+        copies: 0,
+        receipts: 2
+      })
+    })
+  })
 })
