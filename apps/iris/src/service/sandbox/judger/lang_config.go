@@ -222,7 +222,7 @@ func (l *langConfig) ToCompileExecArgs(dir string, language sandbox.Language) (E
 	}, nil
 }
 
-func (l *langConfig) ToRunExecArgs(dir string, language sandbox.Language, order int, limit sandbox.Limit, fileIo bool, extraArgs []string) (ExecArgs, error) {
+func (l *langConfig) ToRunExecArgs(dir string, language sandbox.Language, order int, limit sandbox.Limit, fileIo bool, uid int, gid int, extraArgs []string) (ExecArgs, error) {
 	c, err := l.GetConfig(language)
 	if err != nil {
 		return ExecArgs{}, err
@@ -267,5 +267,7 @@ func (l *langConfig) ToRunExecArgs(dir string, language sandbox.Language, order 
 		SeccompRuleName:      c.SeccompRule,
 		MemoryLimitCheckOnly: c.MemoeryLimitCheckOnly,
 		Args:                 argSlice,
+		Uid:                  &uid,
+		Gid:                  &gid,
 	}, nil
 }

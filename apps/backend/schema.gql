@@ -66,11 +66,11 @@ type AnnouncementWithProblemOrder {
 }
 
 type Assignment {
-  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
+  checkRequest: [CheckRequestAssignment!]
   courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
@@ -103,9 +103,9 @@ type AssignmentAvgAggregate {
 }
 
 type AssignmentCount {
-  CheckRequest: Int!
   assignmentProblem: Int!
   assignmentRecord: Int!
+  checkRequest: Int!
   courseQnA: Int!
   submission: Int!
   testSubmission: Int!
@@ -459,11 +459,11 @@ type AssignmentSumAggregate {
 
 """assignmentWithParticipants"""
 type AssignmentWithParticipants {
-  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
+  checkRequest: [CheckRequestAssignment!]
   courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
@@ -490,11 +490,11 @@ type AssignmentWithParticipants {
 }
 
 type AssignmentWithScores {
-  CheckRequest: [CheckRequest!]
   _count: AssignmentCount!
   assignmentProblem: [AssignmentProblem!]
   assignmentRecord: [AssignmentRecord!]
   autoFinalizeScore: Boolean!
+  checkRequest: [CheckRequestAssignment!]
   courseQnA: [CourseQnA!]
   createTime: DateTime!
   createdBy: User
@@ -530,8 +530,7 @@ type AssignmentsGroupedByStatus {
 type CheckRequest {
   CheckResult: [CheckResult!]
   _count: CheckRequestCount!
-  assignment: Assignment
-  assignmentId: Int
+  assignments: [CheckRequestAssignment!]
   contest: Contest
   contestId: Int
   createTime: DateTime!
@@ -549,8 +548,40 @@ type CheckRequest {
   workbookId: Int
 }
 
-type CheckRequestAvgAggregate {
+type CheckRequestAssignment {
+  assignment: Assignment!
+  assignmentId: Int!
+  checkRequest: CheckRequest!
+  checkRequestId: Int!
+}
+
+type CheckRequestAssignmentAvgAggregate {
   assignmentId: Float
+  checkRequestId: Float
+}
+
+type CheckRequestAssignmentCountAggregate {
+  _all: Int!
+  assignmentId: Int!
+  checkRequestId: Int!
+}
+
+type CheckRequestAssignmentMaxAggregate {
+  assignmentId: Int
+  checkRequestId: Int
+}
+
+type CheckRequestAssignmentMinAggregate {
+  assignmentId: Int
+  checkRequestId: Int
+}
+
+type CheckRequestAssignmentSumAggregate {
+  assignmentId: Int
+  checkRequestId: Int
+}
+
+type CheckRequestAvgAggregate {
   contestId: Float
   id: Float
   minTokens: Float
@@ -561,11 +592,11 @@ type CheckRequestAvgAggregate {
 
 type CheckRequestCount {
   CheckResult: Int!
+  assignments: Int!
 }
 
 type CheckRequestCountAggregate {
   _all: Int!
-  assignmentId: Int!
   contestId: Int!
   createTime: Int!
   enableMerging: Int!
@@ -580,7 +611,6 @@ type CheckRequestCountAggregate {
 }
 
 type CheckRequestMaxAggregate {
-  assignmentId: Int
   contestId: Int
   createTime: DateTime
   enableMerging: Boolean
@@ -595,7 +625,6 @@ type CheckRequestMaxAggregate {
 }
 
 type CheckRequestMinAggregate {
-  assignmentId: Int
   contestId: Int
   createTime: DateTime
   enableMerging: Boolean
@@ -610,7 +639,6 @@ type CheckRequestMinAggregate {
 }
 
 type CheckRequestSumAggregate {
-  assignmentId: Int
   contestId: Int
   id: Int
   minTokens: Int
@@ -1964,6 +1992,11 @@ input CreatePlagiarismCheckInput {
   useJplagClustering: Boolean! = true
 }
 
+input CreatePlagiarismTargetsInput {
+  assignmentId: Int!
+  groupId: Int!
+}
+
 input CreateProblemInput {
   description: String!
   difficulty: Level!
@@ -2350,6 +2383,7 @@ type Match {
 type Mutation {
   autoFinalizeScore(assignmentId: Int!, groupId: Int!): Float!
   checkAssignmentSubmissions(assignmentId: Int!, groupId: Int!, input: CreatePlagiarismCheckInput!, problemId: Int!): CheckRequest!
+  checkAssignmentsSubmissions(input: CreatePlagiarismCheckInput!, problemId: Int!, targets: [CreatePlagiarismTargetsInput!]!): CheckRequest!
   cloneCourseNotices(courseNoticeIds: [Int!]!, groupId: Int!): [CourseNotice!]!
   createAnnouncement(contestId: Int!, input: CreateAnnouncementInput!): Announcement!
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!

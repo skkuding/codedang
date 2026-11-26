@@ -1,7 +1,6 @@
 # Traefik for the kubeadm stage cluster.
 # k3s ships Traefik (with Gateway API CRDs) as a built-in HelmChart; kubeadm does not,
-# so stage installs the upstream chart here. Values mirror production's k3s Traefik
-# (internal/overlays/production/traefik-config.yaml) plus the kubeadm-specific exposure below.
+# so stage installs the upstream chart here. Values mirror traefik-production.yaml.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

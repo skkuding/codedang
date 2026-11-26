@@ -1,12 +1,10 @@
 import {
   Controller,
   DefaultValuePipe,
-  Delete,
   Get,
   Param,
   ParseBoolPipe,
   ParseIntPipe,
-  Post,
   Query,
   Req
 } from '@nestjs/common'
@@ -58,67 +56,6 @@ export class AssignmentController {
     @Param('id', new RequiredIntPipe('id')) id: number
   ) {
     return await this.assignmentService.getAssignment(id, req.user.id)
-  }
-
-  /**
-   * 특정 assignment에 요청을 보낸 유저를 참여시킵니다.
-   *
-   * @param {Request} req
-   * @param {number} groupId assignment가 속한 그룹 아이디
-   * @param {number} assignmentId 유저를 참여시킬 assignment 아이디
-   * @returns 생성된 assignmentRecord를 반환합니다
-   */
-  @Post(':id/participation')
-  async participateAssignment(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', IDValidationPipe) assignmentId: number
-  ) {
-    return await this.assignmentService.createAssignmentRecord(
-      assignmentId,
-      req.user.id,
-      groupId
-    )
-  }
-
-  /**
-   * 한 그룹에서 진행 중인 모든 assignment에 요청을 보낸 유저를 참여시킵니다.
-   *
-   * @param {Request} req
-   * @param {number} groupId 그룹 아이디
-   * @returns 유저가 참여하게 된 모든 assignment의 아이디를 반환합니다.
-   */
-  @Post('/participation')
-  async participateAllOngoingAssignments(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number
-  ) {
-    return await this.assignmentService.participateAllOngoingAssignments(
-      groupId,
-      req.user.id
-    )
-  }
-
-  /**
-   * 유저를 특정 assignment에서 제외합니다.
-   * upcoming assignment에 대해서만 등록을 취소할 수 있습니다.
-   *
-   * @param {Request} req
-   * @param {number} groupId assignment가 속한 그룹 아이디
-   * @param {number} assignmentId 유저를 제외할 assignment 아이디
-   * @returns 제거된 assignment record를 반환합니다.
-   */
-  @Delete(':id/participation')
-  async deleteAssignmentRecord(
-    @Req() req: AuthenticatedRequest,
-    @Query('groupId', GroupIDPipe) groupId: number,
-    @Param('id', IDValidationPipe) assignmentId: number
-  ) {
-    return await this.assignmentService.deleteAssignmentRecord(
-      assignmentId,
-      req.user.id,
-      groupId
-    )
   }
 
   /**

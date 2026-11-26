@@ -1,0 +1,5 @@
+# Watch and hold RBAC only in monitoring-grafana, where the Grafana resource
+# and its admin Secret live.
+namespaceScope: true
+rbac:
+  useClusterRole: false

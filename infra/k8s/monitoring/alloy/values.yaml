@@ -1,4 +1,6 @@
-# This collector only pulls pprof profiles from Iris Pods.
+# This collector pulls pprof profiles from Iris Pods, watches cluster-wide
+# Kubernetes Events, and probes in-cluster HTTP endpoints. The probes use
+# static addresses, so they need no extra RBAC.
 # The River config lives in config.alloy, injected via the
 # ApplicationSet helm.fileParameters.
 crds:
