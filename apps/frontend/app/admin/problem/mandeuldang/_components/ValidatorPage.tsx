@@ -1,229 +1,97 @@
 'use client'
 
 import { Button } from '@/components/shadcn/button'
-import { cn } from '@/libs/utils'
-import FileGrayIcon from '@/public/icons/file-fill.svg'
 import TrashcanIcon from '@/public/icons/trashcan.svg'
-import UploadIcon from '@/public/icons/upload.svg'
-import { useRef, useState } from 'react'
-import { formatFileSize } from '../_libs/formatFileSize'
+import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
+import {
+  mockRunValidation,
+  mockUploadValidator
+} from '../_libs/mockVerificationApi'
 import type { MandeuldangRole } from '../_libs/permissions'
+import type { UploadedFile } from '../_libs/types'
 import { useMandeuldangPermission } from '../_libs/useMandeuldangPermission'
-
-type ValidationStatus = 'Idle' | 'Pending' | 'Running' | 'Success' | 'Failed'
-
-interface ValidatorFile {
-  name: string
-  size: number
-}
-
-interface FailedCase {
-  testcaseIndex: number
-  reason: string
-}
-
-// TODO: 실제 Validator 업로드 API 나오면 교체
-function mockUploadValidator(
-  file: File,
-  onDone: (uploaded: ValidatorFile) => void
-) {
-  setTimeout(() => {
-    onDone({ name: file.name, size: file.size })
-  }, 500)
-}
-
-// TODO: 실제 검증 실행 API 나오면 교체
-// D님의 INPUT 생성 결과(테스트케이스 개수)를 받아서 검증하는 형태가 될 예정
-function mockRunValidation(
-  onStatusChange: (status: ValidationStatus) => void,
-  onResult: (failedCases: FailedCase[]) => void
-) {
-  onStatusChange('Pending')
-
-  setTimeout(() => {
-    onStatusChange('Running')
-
-    setTimeout(() => {
-      // 더미: 10개 중 2개 실패했다고 가정
-      const dummyFailedCases: FailedCase[] = [
-        {
-          testcaseIndex: 3,
-          reason: '값 범위 초과 (제한: 1 ≤ N ≤ 100000, 실제: 150000)'
-        },
-        {
-          testcaseIndex: 7,
-          reason: '입력 형식 오류 (숫자가 와야 할 자리에 문자열 존재)'
-        }
-      ]
-
-      if (dummyFailedCases.length > 0) {
-        onStatusChange('Failed')
-        onResult(dummyFailedCases)
-      } else {
-        onStatusChange('Success')
-        onResult([])
-      }
-    }, 1500)
-  }, 300)
-}
+import { useVerification } from '../_libs/useVerification'
+import { FileInfoCard } from './FileInfoCard'
+import { FileUploadButton } from './FileUploadButton'
+import { MandeuldangRoleSwitchButton } from './MandeuldangRoleSwitchButton'
+import { SectionCard } from './SectionCard'
+import { VerificationRunCard } from './VerificationRunCard'
 
 export function ValidatorPage() {
-  // TODO: 컨테이너에서 role을 내려받는 구조로 교체
-  const [role] = useState<MandeuldangRole | null>('Owner')
-  const permissions = useMandeuldangPermission(role)
+  // TODO: 백엔드에서 role을 받아오면 임시 role state와 전환 버튼 제거
+  const [role, setRole] = useState<MandeuldangRole | null>('Owner')
+  const { canManageValidator } = useMandeuldangPermission(role)
 
-  const [validatorFile, setValidatorFile] = useState<ValidatorFile | null>(null)
-  const [status, setStatus] = useState<ValidationStatus>('Idle')
-  const [failedCases, setFailedCases] = useState<FailedCase[]>([])
-  const runIdRef = useRef(0)
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) {
-      return
+  const [validatorFile, setValidatorFile] = useState<UploadedFile | null>(null)
+  const validation = useVerification(mockRunValidation)
+  const upload = useMutation({
+    mutationFn: mockUploadValidator,
+    onSuccess: (file) => {
+      setValidatorFile(file)
+      validation.reset()
     }
+  })
 
-    mockUploadValidator(file, (uploaded) => {
-      runIdRef.current += 1
-      setValidatorFile(uploaded)
-      setStatus('Idle')
-      setFailedCases([])
-    })
+  const canModify =
+    canManageValidator && !validation.isVerifying && !upload.isPending
 
-    e.target.value = ''
-  }
-
-  const handleDeleteValidator = () => {
-    runIdRef.current += 1
+  // TODO: Validator 삭제 API 연동
+  const handleValidatorDelete = () => {
     setValidatorFile(null)
-    setStatus('Idle')
-    setFailedCases([])
-  }
-
-  const handleRunValidation = () => {
-    // 실행마다 id를 발급해서, 파일이 삭제/교체된 뒤 도착한 이전 실행 결과는 무시
-    const runId = ++runIdRef.current
-    const isCurrentRun = () => runIdRef.current === runId
-
-    mockRunValidation(
-      (nextStatus) => {
-        if (isCurrentRun()) {
-          setStatus(nextStatus)
-        }
-      },
-      (nextFailedCases) => {
-        if (isCurrentRun()) {
-          setFailedCases(nextFailedCases)
-        }
-      }
-    )
-  }
-
-  const statusBadge: Record<ValidationStatus, string> = {
-    Idle: '검증 대기',
-    Pending: '대기 중',
-    Running: '검증 실행 중',
-    Success: '검증 통과',
-    Failed: '검증 실패'
+    validation.reset()
   }
 
   return (
-    <section className="flex flex-col gap-5 rounded-2xl bg-white px-6 py-7">
-      <div className="flex flex-col gap-2">
-        <p className="text-head5_sb_24">입력 검증</p>
-        <p className="text-color-cool-neutral-40 text-body2_m_14">
-          Validator를 업로드하여 생성된 INPUT이 문제의 제약 조건을 만족하는지
-          검증하세요.
-        </p>
+    <div className="flex flex-col gap-5">
+      <div>
+        <MandeuldangRoleSwitchButton role={role} setRole={setRole} />
       </div>
 
-      {!validatorFile ? (
-        <label
-          className={cn(
-            'flex h-28 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 focus-within:ring-2',
-            permissions.isReadOnly
-              ? 'cursor-not-allowed bg-gray-50 opacity-50'
-              : 'hover:border-primary cursor-pointer'
-          )}
-        >
-          <UploadIcon width={22} height={22} className="text-gray-400" />
-          <p className="text-body2_m_14 text-color-cool-neutral-40">
-            클릭하여 Validator 파일 업로드
-          </p>
-          <input
-            type="file"
-            className="sr-only"
-            disabled={permissions.isReadOnly}
-            onChange={handleFileSelect}
+      <SectionCard
+        title="Validator 업로드"
+        description="Input 테스트케이스를 검증하는 파일 및 스크립트를 업로드하세요 (최대 한 개의 파일 업로드 가능)"
+        headerClassName="gap-[6px]"
+        actions={
+          <FileUploadButton
+            disabled={!canModify || validatorFile !== null}
+            onSelect={upload.mutate}
           />
-        </label>
-      ) : (
-        <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <FileGrayIcon className="text-color-cool-neutral-60 size-6" />
-            <div className="flex flex-col">
-              <p className="text-sub3_sb_16">{validatorFile.name}</p>
-              <p className="text-caption3_r_13 text-color-cool-neutral-60">
-                {formatFileSize(validatorFile.size)}
-              </p>
-            </div>
-          </div>
-          {!permissions.isReadOnly && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-fit p-1"
-              onClick={handleDeleteValidator}
-            >
-              <TrashcanIcon className="text-color-cool-neutral-60 size-5" />
-            </Button>
-          )}
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span
-            className={cn('text-caption3_r_13 rounded-full px-3 py-1', {
-              'bg-gray-100 text-gray-500': status === 'Idle',
-              'bg-yellow-50 text-yellow-600':
-                status === 'Pending' || status === 'Running',
-              'bg-green-50 text-green-600': status === 'Success',
-              'bg-red-50 text-red-600': status === 'Failed'
-            })}
-          >
-            {statusBadge[status]}
-          </span>
-        </div>
-
-        {!permissions.isReadOnly && (
-          <Button
-            type="button"
-            disabled={
-              !validatorFile || status === 'Pending' || status === 'Running'
+        }
+      >
+        {validatorFile && (
+          <FileInfoCard
+            file={validatorFile}
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                className="border-color-cool-neutral-80 bg-color-cool-neutral-99 h-auto shrink-0 rounded-[8px] px-4 py-3"
+                aria-label="Validator 삭제"
+                disabled={!canModify}
+                onClick={handleValidatorDelete}
+              >
+                <TrashcanIcon className="text-color-cool-neutral-60 size-5" />
+              </Button>
             }
-            onClick={handleRunValidation}
-          >
-            입력 검증 실행
-          </Button>
+          />
         )}
-      </div>
-
-      {status === 'Failed' && failedCases.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-xl bg-red-50 px-4 py-3">
-          <p className="text-sub3_sb_16 text-red-600">
-            실패한 테스트케이스 {failedCases.length}건
+        {upload.error && (
+          <p role="alert" className="text-error text-body2_m_14">
+            {upload.error.message}
           </p>
-          {failedCases.map((failedCase) => (
-            <p
-              key={failedCase.testcaseIndex}
-              className="text-caption3_r_13 text-color-cool-neutral-40"
-            >
-              TC {failedCase.testcaseIndex}: {failedCase.reason}
-            </p>
-          ))}
-        </div>
-      )}
-    </section>
+        )}
+      </SectionCard>
+
+      <VerificationRunCard
+        title="Input 검증 실행"
+        description="업로드 된 Validator 파일 토대로 Input 테스트케이스 검증을 실행합니다"
+        disabled={!canModify || validatorFile === null}
+        onVerify={validation.verify}
+        status={validation.status}
+        result={validation.result}
+        errorMessage={validation.errorMessage}
+      />
+    </div>
   )
 }
