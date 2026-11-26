@@ -224,6 +224,40 @@ integration('Blueprint Assignment database transactions', () => {
     expect(await receiptCount()).to.equal(1)
   })
 
+  it('rolls back earlier copies when a section fails the membership recheck', async () => {
+    const eventCount = published.length
+    let checks = 0
+    const query = db.$extends({
+      query: {
+        courseInfo: {
+          async findFirst({ args, query }) {
+            const section = await query(args)
+            return ++checks === 2 ? null : section
+          }
+        }
+      }
+    })
+    const failing = new BlueprintAssignmentService(
+      query as unknown as PrismaService,
+      new BlueprintAccessService(prisma),
+      events
+    )
+    await expect(failing.save(user, courseId, input)).to.be.rejectedWith(
+      'Section no longer belongs to Blueprint'
+    )
+    expect(checks).to.equal(2)
+    expect(await sourceCount()).to.equal(0)
+    expect(await copyCount()).to.equal(0)
+    expect(await receiptCount()).to.equal(0)
+    expect(
+      await db.assignmentRecord.count({ where: { userId: user.id } })
+    ).to.equal(0)
+    expect(published.length).to.equal(eventCount)
+    expect(
+      (await service.save(user, courseId, input)).assignment
+    ).to.have.length(2)
+  })
+
   it('leaves no content or events if writing the completed-request receipt fails', async () => {
     const beforeProblem = await problemState()
     const eventCount = published.length
