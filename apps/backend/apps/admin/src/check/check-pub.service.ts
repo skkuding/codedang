@@ -14,7 +14,7 @@ export class CheckPublicationService {
   async publishCheckRequestMessage({
     check
   }: {
-    check: CheckRequest
+    check: CheckRequest & { assignments: { assignmentId: number }[] }
   }): Promise<void> {
     const checkRequest = new CheckRequestMsg(
       check.problemId,
@@ -22,7 +22,7 @@ export class CheckPublicationService {
       check.minTokens,
       check.enableMerging,
       check.useJplagClustering,
-      check.assignmentId ? check.assignmentId : undefined,
+      check.assignments.map(({ assignmentId }) => assignmentId),
       check.contestId ? check.contestId : undefined,
       check.workbookId ? check.workbookId : undefined
     )

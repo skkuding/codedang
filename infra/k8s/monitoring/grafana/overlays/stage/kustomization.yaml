@@ -5,4 +5,14 @@ resources:
   - ../../base
   - admin-user.yaml
   - github-credentials.yaml
+  - database-credentials.yaml
   - alerting/discord-webhook.yaml
+
+# Custom dashboards live in this repository and are mounted into Grafana.
+configMapGenerator:
+  - name: grafana-db-dashboards
+    files:
+      - dashboards/db-browser.json
+
+generatorOptions:
+  disableNameSuffixHash: true

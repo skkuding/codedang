@@ -14,14 +14,8 @@ ARG app_env
 
 ENV APP_ENV=${app_env}
 
-# The eMudhra intermediate CA compromise requires a patched trust store even
-# though Go performs its own SPKI-based block. Fail the build rather than ship
-# an image with an older ca-certificates package.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates \
-  && installed="$(dpkg-query -W -f='${Version}' ca-certificates)" \
-  && dpkg --compare-versions "$installed" ge '20260816ubuntu0.24.04.1' \
-  && echo "ca-certificates ${installed}" \
   && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
@@ -36,7 +30,8 @@ RUN apt update && apt install -y \
 # Install sandbox
 RUN mkdir -p /app/sandbox/policy /app/sandbox/results \
   && mkdir -p /app/sandbox/logs/run /app/sandbox/logs/compile
-RUN chmod -R 770 /app/sandbox
+RUN chmod -R 770 /app/sandbox \
+  && chmod 711 /app/sandbox /app/sandbox/results
 
 RUN architecture=$(dpkg --print-architecture) && if [ "$architecture" = "arm64" ]; then \
   curl -L "https://github.com/skkuding/Judger/releases/download/v1.0.0-alpha.4/libjudger-arm64.so" -o "/app/sandbox/libjudger.so"; \

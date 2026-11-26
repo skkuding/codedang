@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/skkuding/codedang/apps/iris/src/common/constants"
 	"github.com/skkuding/codedang/apps/iris/src/service/file"
 	"github.com/skkuding/codedang/apps/iris/src/service/logger"
 	"github.com/skkuding/codedang/apps/iris/src/service/sandbox"
@@ -32,6 +33,8 @@ func (r *runner) Run(req sandbox.RunRequest, input []byte) (sandbox.RunResult, e
 			Memory:   req.MemoryLimit,
 		},
 		false,
+		constants.SANDBOX_UID,
+		constants.SANDBOX_GID,
 		req.ExtraArgs,
 	)
 	if err != nil {

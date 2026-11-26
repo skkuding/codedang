@@ -1,3 +1,4 @@
+import { server } from '@/mocks/node'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getClientSession } from './getClientSession'
 
@@ -33,5 +34,24 @@ describe('getClientSession', () => {
     const diffAuth = getClientSession()
 
     expect(await auth()).not.toBe(await diffAuth())
+  })
+
+  it('should return exactly one session when request concurrently', async () => {
+    let calls = 0
+    const onStart = ({ request }: { request: Request }) => {
+      if (new URL(request.url).pathname === '/next-auth/api/auth/session') {
+        calls++
+      }
+    }
+    server.events.on('request:start', onStart)
+
+    const session = getClientSession()
+    const [a, b, c] = await Promise.all([session(), session(), session()])
+
+    expect(calls).toBe(1)
+    expect(b).toBe(a)
+    expect(c).toBe(a)
+
+    server.events.removeListener('request:start', onStart)
   })
 })
