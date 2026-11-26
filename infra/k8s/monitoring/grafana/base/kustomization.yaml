@@ -4,3 +4,12 @@ namespace: monitoring-grafana
 
 resources:
   - namespace.yaml
+
+configMapGenerator:
+  - name: grafana-rabbitmq-queues
+    files:
+      - dashboards/rabbitmq-queues.json
+    options:
+      disableNameSuffixHash: true
+      labels:
+        grafana_dashboard: '1'

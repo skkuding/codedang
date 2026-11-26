@@ -1,0 +1,51 @@
+{
+  "uid": "rabbitmq-queues",
+  "title": "RabbitMQ Queues",
+  "tags": ["rabbitmq"],
+  "schemaVersion": 39,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Ready messages by queue",
+      "description": "Messages waiting to be delivered to consumers.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (vhost, queue) (rabbitmq_detailed_queue_messages_ready{namespace=\"rabbitmq\"})",
+          "legendFormat": "{{vhost}} / {{queue}}",
+          "range": true
+        }
+      ]
+    }
+  ]
+}
