@@ -21,3 +21,17 @@ spec:
       tlsConfig:
         insecureSkipVerify: true
       interval: 15s
+    - port: prometheus-tls
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
+      interval: 15s
+      path: /metrics/detailed
+      params:
+        family:
+          - queue_coarse_metrics
+          - queue_consumer_count
+          - queue_delivery_metrics
+          - queue_exchange_metrics
+        vhost:
+          - vh
