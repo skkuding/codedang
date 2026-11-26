@@ -40,6 +40,14 @@ func NewConnector(
 }
 
 func (c *connector) Connect(ctx context.Context) {
+	c.connect(ctx, func(message amqp.Delivery, ctx context.Context) {
+		go c.handle(message, ctx)
+	})
+}
+
+// Inject message dispatch to test the connection lifecycle
+// independently of asynchronous message handling.
+func (c *connector) connect(ctx context.Context, dispatch func(amqp.Delivery, context.Context)) {
 	defer func() {
 		c.consumer.CleanUp()
 		c.producer.CleanUp()
@@ -65,7 +73,7 @@ func (c *connector) Connect(ctx context.Context) {
 	// [handler]													  | handler -> |
 	// i.consume(messageCh, i.Done)
 	for message := range messageCh {
-		go c.handle(message, ctx)
+		dispatch(message, ctx)
 	}
 
 	c.logger.Log(logger.DEBUG, "connector done")

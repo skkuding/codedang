@@ -1,0 +1,343 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "stage DB 의 데이터를 읽기 전용으로 둘러본다. 복잡한 조회는 Explore 에서 SQL 로 한다.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "title": "SQL 직접 조회 (Explore)",
+      "type": "link",
+      "icon": "external link",
+      "tooltip": "PostgreSQL 데이터소스로 Explore 를 연다. 읽기 전용, 쿼리당 30초 제한.",
+      "url": "/explore?schemaVersion=1&panes=%7B%22db%22%3A%7B%22datasource%22%3A%22postgres%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22postgres%22%2C%22uid%22%3A%22postgres%22%7D%2C%22editorMode%22%3A%22code%22%2C%22format%22%3A%22table%22%2C%22rawQuery%22%3Atrue%2C%22rawSql%22%3A%22SELECT%20%2A%20FROM%20public.%5C%22${table:percentencode}%5C%22%20LIMIT%2050%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D",
+      "targetBlank": false,
+      "keepTime": false,
+      "includeVars": false,
+      "asDropdown": false,
+      "tags": []
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "type": "table",
+      "title": "테이블 목록",
+      "description": "public 스키마의 테이블과 뷰. 이름을 누르면 오른쪽에 그 테이블이 열린다. rows 는 대략적인 행 수이고, 뷰는 비어 있다.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT c.relname AS \"table\",\n       CASE WHEN c.relkind IN ('r', 'p')\n            THEN GREATEST(c.reltuples, 0)::bigint\n       END AS rows\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\n  AND c.relname !~ '[\"'']'\nORDER BY c.relname"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false,
+            "filterable": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rows"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "table"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "이 테이블 열기",
+                    "url": "/d/db-browser/db-browser?var-table=${__value.raw}&var-filter="
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "12.3.1"
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "$table — 데이터",
+      "description": "선택한 테이블의 행. 위쪽 변수에서 정렬 기준, 방향, 행 수, 조건을 바꾼다. 셀을 누르면 긴 값을 전부 볼 수 있다. 쿼리는 30초 안에 끝나야 한다.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 18,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT *\nFROM public.\"$table\"\nWHERE true ${filter:raw}\nORDER BY \"$order\" $dir NULLS LAST\nLIMIT $limit"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true,
+            "filterable": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "12.3.1"
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "$table — 컬럼",
+      "description": "선택한 테이블의 컬럼 이름, 타입, 빈 값 허용 여부, 기본값.",
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 18,
+        "x": 6,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT column_name AS \"column\", data_type AS type,\n       is_nullable AS nullable, column_default AS \"default\"\nFROM information_schema.columns\nWHERE table_schema = 'public' AND table_name = '$table'\nORDER BY ordinal_position"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false,
+            "filterable": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "pluginVersion": "12.3.1"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": ["codedang", "postgres"],
+  "templating": {
+    "list": [
+      {
+        "name": "table",
+        "label": "테이블",
+        "description": "조회할 테이블. 왼쪽 테이블 목록에서 이름을 눌러도 바뀐다.",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres"
+        },
+        "query": "SELECT c.relname\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\n  AND c.relname !~ '[\"'']'\nORDER BY c.relname",
+        "definition": "SELECT c.relname\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm')\n  AND has_table_privilege(c.oid, 'SELECT')\n  AND c.relname !~ '[\"'']'\nORDER BY c.relname",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "options": [],
+        "hide": 0
+      },
+      {
+        "name": "order",
+        "label": "정렬 기준",
+        "description": "정렬할 컬럼. 기본값은 기본 키(보통 id)다.",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres"
+        },
+        "query": "SELECT a.attname\nFROM pg_attribute a\nLEFT JOIN pg_index i ON i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY (i.indkey)\nWHERE a.attrelid = to_regclass(format('public.%I', '$table')) AND a.attnum > 0 AND NOT a.attisdropped\n  AND a.attname !~ '[\"'']'\nORDER BY i.indrelid IS NULL, a.attnum",
+        "definition": "SELECT a.attname\nFROM pg_attribute a\nLEFT JOIN pg_index i ON i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY (i.indkey)\nWHERE a.attrelid = to_regclass(format('public.%I', '$table')) AND a.attnum > 0 AND NOT a.attisdropped\n  AND a.attname !~ '[\"'']'\nORDER BY i.indrelid IS NULL, a.attnum",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "options": [],
+        "hide": 0
+      },
+      {
+        "name": "dir",
+        "label": "방향",
+        "description": "DESC 는 큰 값(보통 최신)부터.",
+        "type": "custom",
+        "query": "DESC,ASC",
+        "current": {
+          "text": "DESC",
+          "value": "DESC"
+        },
+        "options": [
+          {
+            "text": "DESC",
+            "value": "DESC",
+            "selected": true
+          },
+          {
+            "text": "ASC",
+            "value": "ASC",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "hide": 0
+      },
+      {
+        "name": "limit",
+        "label": "행 수",
+        "description": "가져올 최대 행 수.",
+        "type": "custom",
+        "query": "20,50,100,500",
+        "current": {
+          "text": "50",
+          "value": "50"
+        },
+        "options": [
+          {
+            "text": "20",
+            "value": "20",
+            "selected": false
+          },
+          {
+            "text": "50",
+            "value": "50",
+            "selected": true
+          },
+          {
+            "text": "100",
+            "value": "100",
+            "selected": false
+          },
+          {
+            "text": "500",
+            "value": "500",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "hide": 0
+      },
+      {
+        "name": "filter",
+        "label": "추가 조건",
+        "type": "textbox",
+        "description": "AND 로 시작하는 SQL 조건. 예: AND id = 3 / AND username LIKE 'test%'. 비우면 전체.",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "hide": 0
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": true
+  },
+  "timezone": "browser",
+  "title": "DB Browser",
+  "uid": "db-browser",
+  "version": 2
+}

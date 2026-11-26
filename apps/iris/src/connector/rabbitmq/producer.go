@@ -37,13 +37,24 @@ type ProducerConfig struct {
 }
 
 func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error) {
+	return newProducer(config, logger, newAMQPConfig, amqp.DialConfig)
+}
+
+// Inject configuration and dial functions to test producer initialization
+// without connecting to a RabbitMQ broker.
+func newProducer(
+	config ProducerConfig,
+	logger logger.Logger,
+	buildConfig func(string) (amqp.Config, error),
+	dial func(string, amqp.Config) (*amqp.Connection, error),
+) (*producer, error) {
 
 	// Create New RabbitMQ Connection (go <-> RabbitMQ)
-	amqpConfig, err := newAMQPConfig(config.ConnectionName)
+	amqpConfig, err := buildConfig(config.ConnectionName)
 	if err != nil {
 		return nil, fmt.Errorf("producer: TLS config failed: %w", err)
 	}
-	connection, err := amqp.DialConfig(config.AmqpURI, amqpConfig)
+	connection, err := dial(config.AmqpURI, amqpConfig)
 	if err != nil {
 		return nil, fmt.Errorf("producer: dial failed: %w", err)
 	}
@@ -60,21 +71,39 @@ func NewProducer(config ProducerConfig, logger logger.Logger) (*producer, error)
 }
 
 func (p *producer) OpenChannel() error {
+	return p.openChannel(
+		(*amqp.Connection).Channel,
+		(*amqp.Channel).Confirm,
+		(*amqp.Channel).NotifyPublish,
+		func(confirms chan amqp.Confirmation) {
+			go p.confirmHandler(confirms)
+		},
+	)
+}
+
+// Inject AMQP operations and handler startup to test channel initialization
+// without a live broker or background goroutines.
+func (p *producer) openChannel(
+	open func(*amqp.Connection) (*amqp.Channel, error),
+	confirm func(*amqp.Channel, bool) error,
+	notifyPublish func(*amqp.Channel, chan amqp.Confirmation) chan amqp.Confirmation,
+	startHandler func(chan amqp.Confirmation),
+) error {
 	var err error
 
-	if p.channel, err = p.connection.Channel(); err != nil {
+	if p.channel, err = open(p.connection); err != nil {
 		return fmt.Errorf("channel: %s", err)
 	}
 
 	// put this channel into confirm mode
 	// client can ensure all messages successfully received by server
-	if err := p.channel.Confirm(false); err != nil {
+	if err := confirm(p.channel, false); err != nil {
 		return fmt.Errorf("channel could not be put into confirm mode: %s", err)
 	}
 	// add listner for confirmation
-	confirms := p.channel.NotifyPublish(make(chan amqp.Confirmation, 10))
+	confirms := notifyPublish(p.channel, make(chan amqp.Confirmation, 10))
 
-	go p.confirmHandler(confirms)
+	startHandler(confirms)
 
 	return nil
 }
@@ -106,6 +135,24 @@ func (p *producer) confirmHandler(confirms chan amqp.Confirmation) {
 }
 
 func (p *producer) Publish(result []byte, ctx context.Context, messageType string) error {
+	return p.publish(
+		result,
+		ctx,
+		messageType,
+		(*amqp.Channel).GetNextPublishSeqNo,
+		(*amqp.Channel).PublishWithContext,
+	)
+}
+
+// Inject AMQP operations to test message construction, publishing,
+// and sequence registration without a live broker.
+func (p *producer) publish(
+	result []byte,
+	ctx context.Context,
+	messageType string,
+	getNextSeqNo func(*amqp.Channel) uint64,
+	publish func(*amqp.Channel, context.Context, string, string, bool, bool, amqp.Publishing) error,
+) error {
 	span := trace.SpanFromContext(ctx)
 	tracer := otel.Tracer("Producer")
 	spanCtx, childSpan := tracer.Start(
@@ -116,7 +163,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	)
 	defer childSpan.End()
 
-	seqNo := p.channel.GetNextPublishSeqNo()
+	seqNo := getNextSeqNo(p.channel)
 	p.logger.Log(logger.INFO, fmt.Sprintf("publishing %dB body", len(result)))
 	p.logger.Log(logger.INFO, string(result))
 
@@ -126,7 +173,7 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 	headers := convertHeaderCarrierToTable(carrier)
 
 	// https://www.rabbitmq.com/publishers.html
-	if err := p.channel.PublishWithContext(spanCtx,
+	if err := publish(p.channel, spanCtx,
 		p.exchangeName, // publish to an exchange
 		p.routingKey,   // routing to 0 or more queues
 		false,          // mandatory
@@ -150,11 +197,22 @@ func (p *producer) Publish(result []byte, ctx context.Context, messageType strin
 }
 
 func (p *producer) CleanUp() error {
-	if err := p.channel.Close(); err != nil {
+	return p.cleanUp(
+		(*amqp.Channel).Close,
+		(*amqp.Connection).Close,
+	)
+}
+
+// Inject close operations to test resource cleanup and error handling.
+func (p *producer) cleanUp(
+	closeChannel func(*amqp.Channel) error,
+	closeConnection func(*amqp.Connection) error,
+) error {
+	if err := closeChannel(p.channel); err != nil {
 		return fmt.Errorf("channel close failed: %s", err)
 	}
 
-	if err := p.connection.Close(); err != nil {
+	if err := closeConnection(p.connection); err != nil {
 		return fmt.Errorf("connection close error: %s", err)
 	}
 

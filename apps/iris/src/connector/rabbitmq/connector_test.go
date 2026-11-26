@@ -28,4 +28,11 @@ func TestMessageTimeoutFromEnv(t *testing.T) {
 		_, err := messageTimeoutFromEnv()
 		assert.EqualError(t, err, "must be a positive integer")
 	})
+
+	t.Run("rejects a non-numeric value", func(t *testing.T) {
+		t.Setenv(MessageTimeoutEnv, "abc")
+		timeout, err := messageTimeoutFromEnv()
+		assert.EqualError(t, err, "must be a positive integer")
+		assert.Equal(t, time.Duration(0), timeout)
+	})
 }
