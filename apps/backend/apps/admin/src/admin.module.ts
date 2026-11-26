@@ -30,6 +30,7 @@ import { AnnouncementModule } from './announcement/announcement.module'
 import { AssignmentModule } from './assignment/assignment.module'
 import { BlueprintAssignmentModule } from './blueprint-assignment/blueprint-assignment.module'
 import { BlueprintCourseModule } from './blueprint-course/blueprint-course.module'
+import { BlueprintNoticeModule } from './blueprint-notice/blueprint-notice.module'
 import { ContestModule } from './contest/contest.module'
 import { GroupModule } from './group/group.module'
 import { NotificationModule } from './notification/notification.module'
@@ -85,6 +86,7 @@ import { WorkbookModule } from './workbook/workbook.module'
     GroupModule,
     BlueprintCourseModule,
     BlueprintAssignmentModule,
+    BlueprintNoticeModule,
     CheckModule,
     UserModule,
     AnnouncementModule,

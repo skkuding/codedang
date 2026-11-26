@@ -762,6 +762,7 @@ type BlueprintAssignmentSumAggregate {
 type BlueprintCourse {
   _count: BlueprintCourseCount!
   blueprintAssignment: [BlueprintAssignment!]
+  blueprintNotice: [BlueprintNotice!]
   courseInfo: [CourseInfo!]
   courseNum: String!
   courseTitle: String!
@@ -787,6 +788,7 @@ type BlueprintCourseAvgAggregate {
 
 type BlueprintCourseCount {
   blueprintAssignment: Int!
+  blueprintNotice: Int!
   courseInfo: Int!
 }
 
@@ -808,6 +810,7 @@ type BlueprintCourseCountAggregate {
 }
 
 type BlueprintCourseDetailOutput {
+  blueprintNotice: [BlueprintNotice!]
   courseNum: String!
   courseTitle: String!
   createTime: DateTime!
@@ -877,6 +880,7 @@ type BlueprintCourseMinAggregate {
 }
 
 type BlueprintCourseOutput {
+  blueprintNotice: [BlueprintNotice!]
   courseNum: String!
   courseTitle: String!
   createTime: DateTime!
@@ -896,6 +900,94 @@ type BlueprintCourseSumAggregate {
   createdById: Int
   id: Int
   week: Int
+}
+
+type BlueprintNotice {
+  _count: BlueprintNoticeCount!
+  blueprintCourse: BlueprintCourse!
+  blueprintCourseId: Int!
+  content: String!
+  courseNotice: [CourseNotice!]
+  createTime: DateTime!
+  createdBy: User
+  createdById: Int
+  id: ID!
+  revision: Int!
+  title: String!
+  updateTime: DateTime!
+}
+
+type BlueprintNoticeAvgAggregate {
+  blueprintCourseId: Float
+  createdById: Float
+  id: Float
+  revision: Float
+}
+
+type BlueprintNoticeCopyOutput {
+  createTime: DateTime!
+  groupId: Int!
+  id: ID!
+  isFixed: Boolean!
+  isPublic: Boolean!
+  updateTime: DateTime!
+}
+
+type BlueprintNoticeCount {
+  courseNotice: Int!
+}
+
+type BlueprintNoticeCountAggregate {
+  _all: Int!
+  blueprintCourseId: Int!
+  content: Int!
+  createTime: Int!
+  createdById: Int!
+  id: Int!
+  revision: Int!
+  title: Int!
+  updateTime: Int!
+}
+
+type BlueprintNoticeMaxAggregate {
+  blueprintCourseId: Int
+  content: String
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  revision: Int
+  title: String
+  updateTime: DateTime
+}
+
+type BlueprintNoticeMinAggregate {
+  blueprintCourseId: Int
+  content: String
+  createTime: DateTime
+  createdById: Int
+  id: Int
+  revision: Int
+  title: String
+  updateTime: DateTime
+}
+
+type BlueprintNoticeOutput {
+  blueprintCourseId: Int!
+  content: String!
+  courseNotice: [BlueprintNoticeCopyOutput!]!
+  createTime: DateTime!
+  createdById: Int
+  id: ID!
+  revision: Int!
+  title: String!
+  updateTime: DateTime!
+}
+
+type BlueprintNoticeSumAggregate {
+  blueprintCourseId: Int
+  createdById: Int
+  id: Int
+  revision: Int
 }
 
 type BlueprintSectionOutput {
@@ -2003,6 +2095,8 @@ input CourseInput {
 type CourseNotice {
   CourseNoticeComment: [CourseNoticeComment!]
   _count: CourseNoticeCount!
+  blueprintNotice: BlueprintNotice
+  blueprintNoticeId: Int
   content: String!
   createTime: DateTime!
   createdBy: User
@@ -2018,6 +2112,7 @@ type CourseNotice {
 }
 
 type CourseNoticeAvgAggregate {
+  blueprintNoticeId: Float
   createdById: Float
   groupId: Float
   id: Float
@@ -2102,6 +2197,7 @@ type CourseNoticeCount {
 
 type CourseNoticeCountAggregate {
   _all: Int!
+  blueprintNoticeId: Int!
   content: Int!
   createTime: Int!
   createdById: Int!
@@ -2115,6 +2211,7 @@ type CourseNoticeCountAggregate {
 }
 
 type CourseNoticeMaxAggregate {
+  blueprintNoticeId: Int
   content: String
   createTime: DateTime
   createdById: Int
@@ -2127,6 +2224,7 @@ type CourseNoticeMaxAggregate {
 }
 
 type CourseNoticeMinAggregate {
+  blueprintNoticeId: Int
   content: String
   createTime: DateTime
   createdById: Int
@@ -2139,6 +2237,7 @@ type CourseNoticeMinAggregate {
 }
 
 type CourseNoticeSumAggregate {
+  blueprintNoticeId: Int
   createdById: Int
   groupId: Int
   id: Int
@@ -2332,6 +2431,13 @@ input CreateBlueprintAssignmentInput {
   sections: [BlueprintAssignmentSectionInput!]!
   title: String!
   week: Int!
+}
+
+input CreateBlueprintNoticeInput {
+  content: String!
+  operationId: String!
+  sectionGroupIds: [Int!]!
+  title: String!
 }
 
 input CreateContestInput {
@@ -2764,6 +2870,7 @@ type Mutation {
   createAssignment(groupId: Int!, input: CreateAssignmentInput!): Assignment!
   createBlueprintAssignment(blueprintCourseId: Int!, input: CreateBlueprintAssignmentInput!): BlueprintAssignmentOutput!
   createBlueprintCourse(input: BlueprintCourseInput!): BlueprintCourseOutput!
+  createBlueprintNotice(blueprintCourseId: Int!, input: CreateBlueprintNoticeInput!): BlueprintNoticeOutput!
   createContest(input: CreateContestInput!): Contest!
   createContestQnAComment(content: String!, contestId: Int!, order: Int!): ContestQnAComment!
   createCourse(input: CourseInput!): Group!
@@ -3990,6 +4097,8 @@ type Query {
   getAssignmentsByProblemId(problemId: Int!): AssignmentsGroupedByStatus!
   getBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseDetailOutput!
   getBlueprintCourses: [BlueprintCourseListItemOutput!]!
+  getBlueprintNotice(blueprintNoticeId: Int!): BlueprintNoticeOutput!
+  getBlueprintNotices(blueprintCourseId: Int!, cursor: Int, search: String, take: Int! = 10): [BlueprintNoticeOutput!]!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!
   getCluster(clusterId: Int!, groupId: Int!): GetClusterOutput!
@@ -4844,6 +4953,7 @@ type User {
   assignmentRecord: [AssignmentRecord!]
   blueprintAssignment: [BlueprintAssignment!]
   blueprintCourse: [BlueprintCourse!]
+  blueprintNotice: [BlueprintNotice!]
   canCreateContest: Boolean!
   canCreateCourse: Boolean!
   college: String
@@ -4989,6 +5099,7 @@ type UserCount {
   assignmentRecord: Int!
   blueprintAssignment: Int!
   blueprintCourse: Int!
+  blueprintNotice: Int!
   contest: Int!
   contestRecord: Int!
   createdCourseQnAComments: Int!
