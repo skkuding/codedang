@@ -194,7 +194,7 @@ export class BlueprintAssignmentService {
       (input.sections !== undefined && !Array.isArray(input.sections))
     )
       throw new UnprocessableDataException('sections must be an array')
-    const sections = input.sections ?? []
+    const sections = input.sections
     if (sections.length === 0)
       throw new UnprocessableDataException('Select at least one section')
     if (
@@ -246,7 +246,7 @@ export class BlueprintAssignmentService {
       isJudgeResultVisible: source.isJudgeResultVisible,
       isFinalScoreVisible: false
     }
-    const settings = resolveAssignmentSectionSettings(defaults, patch ?? {})
+    const settings = resolveAssignmentSectionSettings(defaults, patch)
     const copy = await tx.assignment.create({
       data: {
         ...content,

@@ -398,6 +398,44 @@ integration('Blueprint Assignment database transactions', () => {
     })
   }
 
+  const invalidInputs: [string, Record<string, unknown>, string][] = [
+    ...['title', 'description', 'week', 'sections'].map(
+      (key): [string, Record<string, unknown>, string] => [
+        `missing ${key}`,
+        { [key]: undefined },
+        'Create requires content and section schedules'
+      ]
+    ),
+    ...[
+      'isVisible',
+      'isRankVisible',
+      'isJudgeResultVisible',
+      'enableCopyPaste',
+      'autoFinalizeScore',
+      'isExercise'
+    ].map((key): [string, Record<string, unknown>, string] => [
+      `invalid ${key}`,
+      { [key]: 'true' },
+      `${key} must be a boolean`
+    ]),
+    ['null sections', { sections: null }, 'sections must be an array'],
+    ['object sections', { sections: {} }, 'sections must be an array']
+  ]
+  for (const [label, patch, message] of invalidInputs) {
+    it(`defensively rejects ${label} without writes or events`, async () => {
+      const eventCount = published.length
+      // Bypass GraphQL coercion deliberately to verify the service boundary.
+      const invalid = { ...input, ...patch } as CreateBlueprintAssignmentInput
+      await expect(service.save(user, courseId, invalid)).to.be.rejectedWith(
+        message
+      )
+      expect(await sourceCount()).to.equal(0)
+      expect(await copyCount()).to.equal(0)
+      expect(await receiptCount()).to.equal(0)
+      expect(published.length).to.equal(eventCount)
+    })
+  }
+
   it('checks access and validates foreign sections, duplicate sections and schedules before saving', async () => {
     const outsider = new AuthenticatedUser(999999, 'outsider', Role.User)
     await expect(service.save(outsider, courseId, input)).to.be.rejected
