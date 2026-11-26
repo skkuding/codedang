@@ -398,6 +398,8 @@ jobs:
 
       - name: Test with coverage
         run: pnpm --filter="@codedang/backend" test:coverage
+        env:
+          BLUEPRINT_TEST_DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
 
       - name: Normalize Backend coverage paths
         run: |
