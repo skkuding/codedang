@@ -5,7 +5,8 @@ import { cn } from '@/libs/utils'
 import FileGrayIcon from '@/public/icons/file-fill.svg'
 import TrashcanIcon from '@/public/icons/trashcan.svg'
 import UploadIcon from '@/public/icons/upload.svg'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { formatFileSize } from '../_libs/formatFileSize'
 import type { MandeuldangRole } from '../_libs/permissions'
 import { useMandeuldangPermission } from '../_libs/useMandeuldangPermission'
 
@@ -74,6 +75,7 @@ export function ValidatorPage() {
   const [validatorFile, setValidatorFile] = useState<ValidatorFile | null>(null)
   const [status, setStatus] = useState<ValidationStatus>('Idle')
   const [failedCases, setFailedCases] = useState<FailedCase[]>([])
+  const runIdRef = useRef(0)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -82,6 +84,7 @@ export function ValidatorPage() {
     }
 
     mockUploadValidator(file, (uploaded) => {
+      runIdRef.current += 1
       setValidatorFile(uploaded)
       setStatus('Idle')
       setFailedCases([])
@@ -91,20 +94,29 @@ export function ValidatorPage() {
   }
 
   const handleDeleteValidator = () => {
+    runIdRef.current += 1
     setValidatorFile(null)
     setStatus('Idle')
     setFailedCases([])
   }
 
   const handleRunValidation = () => {
-    mockRunValidation(setStatus, setFailedCases)
-  }
+    // 실행마다 id를 발급해서, 파일이 삭제/교체된 뒤 도착한 이전 실행 결과는 무시
+    const runId = ++runIdRef.current
+    const isCurrentRun = () => runIdRef.current === runId
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) {
-      return `${bytes} B`
-    }
-    return `${(bytes / 1024).toFixed(1)} KB`
+    mockRunValidation(
+      (nextStatus) => {
+        if (isCurrentRun()) {
+          setStatus(nextStatus)
+        }
+      },
+      (nextFailedCases) => {
+        if (isCurrentRun()) {
+          setFailedCases(nextFailedCases)
+        }
+      }
+    )
   }
 
   const statusBadge: Record<ValidationStatus, string> = {

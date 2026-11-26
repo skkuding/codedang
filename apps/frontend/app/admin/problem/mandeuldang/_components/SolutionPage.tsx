@@ -7,6 +7,7 @@ import FileGrayIcon from '@/public/icons/file-fill.svg'
 import TrashcanIcon from '@/public/icons/trashcan.svg'
 import UploadIcon from '@/public/icons/upload.svg'
 import { useRef, useState } from 'react'
+import { formatFileSize } from '../_libs/formatFileSize'
 import type { MandeuldangRole } from '../_libs/permissions'
 import { useMandeuldangPermission } from '../_libs/useMandeuldangPermission'
 import { MandeuldangRoleSwitchButton } from './MandeuldangRoleSwitchButton'
@@ -74,16 +75,6 @@ export function SolutionPage() {
 
   const handleDelete = (id: string) => {
     setSolutions((prev) => prev.filter((sol) => sol.id !== id))
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) {
-      return `${bytes} B`
-    }
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`
-    }
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
   const statusText: Record<SolutionStatus, string> = {
