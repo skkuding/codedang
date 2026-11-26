@@ -1,16 +1,28 @@
+import { ApolloDriver } from '@nestjs/apollo'
+import { ValidationPipe, type INestApplication } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { GraphQLModule } from '@nestjs/graphql'
+import { Test } from '@nestjs/testing'
 import { PrismaClient, Role, type Prisma } from '@prisma/client'
 import { expect } from 'chai'
 import { randomUUID } from 'crypto'
 import { restore } from 'sinon'
-import { AuthenticatedUser } from '@libs/auth'
+import { AuthenticatedUser, GroupLeaderGuard } from '@libs/auth'
 import { MAX_DATE } from '@libs/constants'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  AdminExceptionFilter,
+  apolloErrorFormatter,
+  ConflictFoundException,
+  ForbiddenAccessException,
+  UnprocessableDataException
+} from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { AssignmentEventService } from '@admin/assignment/assignment-event.service'
+import { assertAssignmentsHaveNoLearningRecords } from '@admin/assignment/assignment-learning-records'
 import { AssignmentProblemService } from '@admin/assignment/assignment-problem.service'
 import { AssignmentService } from '@admin/assignment/assignment.service'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
+import { BlueprintAssignmentResolver } from './blueprint-assignment.resolver'
 import { BlueprintAssignmentService } from './blueprint-assignment.service'
 import type {
   CreateBlueprintAssignmentInput,
@@ -70,6 +82,71 @@ integration('Blueprint Assignment database transactions', () => {
       where: { id },
       include: { assignmentProblem: true, assignmentRecord: true }
     })
+
+  let app: INestApplication
+
+  let graphqlUrl: string
+
+  before(async () => {
+    // Real GraphQL transport/validation/filter pipeline; identity is a fixture,
+    // while JWT verification and GroupLeaderGuard are tested separately.
+    // BlueprintAccessService runs against the real database without a mock.
+    const module = await Test.createTestingModule({
+      imports: [
+        GraphQLModule.forRoot({
+          driver: ApolloDriver,
+          autoSchemaFile: true,
+          context: () => ({ req: { user } }),
+          formatError: apolloErrorFormatter
+        })
+      ],
+      providers: [
+        BlueprintAssignmentResolver,
+        { provide: BlueprintAssignmentService, useValue: service }
+      ]
+    })
+      .overrideGuard(GroupLeaderGuard)
+      .useValue({ canActivate: () => true })
+      .compile()
+    app = module.createNestApplication()
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
+    app.useGlobalFilters(new AdminExceptionFilter())
+    await app.listen(0, '127.0.0.1')
+    graphqlUrl = (await app.getUrl()) + '/graphql'
+  })
+
+  const graphql = async (
+    query: string,
+    variables: Record<string, unknown> = {}
+  ) => {
+    const response = await fetch(graphqlUrl, {
+      method: 'POST',
+      headers: new Headers([['content-type', 'application/json']]),
+      body: JSON.stringify({ query, variables })
+    })
+    return response.json() as Promise<{
+      data?: Record<
+        string,
+        {
+          id: string
+          title: string
+          revision: number
+          deletable: boolean
+          sectionCount: number
+          assignmentCount: number
+          submissionCount: number
+          blueprintAssignmentProblem: { problemId: number }[]
+          assignment: {
+            id: string
+            groupId: number
+            isVisible: boolean
+            dueTime: string | null
+          }[]
+        }
+      >
+      errors?: { message: string; extensions?: { code?: string } }[]
+    }>
+  }
 
   beforeEach(async () => {
     const tag = randomUUID()
@@ -153,6 +230,7 @@ integration('Blueprint Assignment database transactions', () => {
   afterEach(() => restore())
 
   after(async () => {
+    if (app) await app.close()
     await db.$disconnect()
   })
 
@@ -368,6 +446,37 @@ integration('Blueprint Assignment database transactions', () => {
     ).to.equal(true)
   })
 
+  it('rolls back earlier deletions and access cleanup when a later copy deletion fails', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const before = await snapshot(source.id)
+    let calls = 0
+    const query = db.$extends({
+      query: {
+        assignment: {
+          async delete({ args, query }) {
+            const copy = await query(args)
+            if (++calls === 2) throw new Error('second deletion failed')
+            return copy
+          }
+        }
+      }
+    })
+    const failing = new BlueprintAssignmentService(
+      query as unknown as PrismaService,
+      new BlueprintAccessService(prisma),
+      events
+    )
+    await expect(failing.delete(user, courseId, source.id)).to.be.rejectedWith(
+      'second deletion failed'
+    )
+    expect(calls).to.equal(2)
+    expect(await snapshot(source.id)).to.deep.equal(before)
+    await service.delete(user, courseId, source.id)
+    expect(await sourceCount()).to.equal(0)
+    expect(await copyCount()).to.equal(0)
+  })
+
   it('leaves no content or events if writing the completed-request receipt fails', async () => {
     const beforeProblem = await problemState()
     const eventCount = published.length
@@ -422,6 +531,19 @@ integration('Blueprint Assignment database transactions', () => {
     expect(duplicate.assignment).to.have.length(1)
     expect((await getCopy(unlinked.id)).blueprintAssignmentId).to.equal(null)
     expect((await getCopy(unlinked.id)).title).to.equal('A')
+  })
+
+  it('does not recreate a deleted copy or source when the original request is resent', async () => {
+    const source = await service.save(user, courseId, input)
+    const copy = source.assignment[0]
+    await assignments.deleteAssignment(copy.groupId, copy.id)
+    expect(
+      (await service.save(user, courseId, input)).assignment
+    ).to.have.length(1)
+    await service.delete(user, courseId, source.id)
+    await expect(service.save(user, courseId, input)).to.be.rejected
+    expect(await sourceCount()).to.equal(0)
+    expect(await copyCount()).to.equal(0)
   })
 
   it('rejects changed request IDs, stale revisions and edit target reselection without writing', async () => {
@@ -533,6 +655,110 @@ integration('Blueprint Assignment database transactions', () => {
     copy = await getCopy(target.id)
     expect(copy.assignmentProblem[0].solutionReleaseTime).to.equal(null)
     expect(copy.blueprintAssignmentId).to.equal(source.id)
+  })
+
+  it('deletes only linked copies and keeps unlinked copies with their records', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const kept = source.assignment[0]
+    await service.unlink(kept.groupId, kept.id)
+    await service.delete(user, courseId, source.id)
+    expect(await copyCount()).to.equal(1)
+    expect((await getCopy(kept.id)).assignmentProblem).to.have.length(1)
+    expect(
+      await db.assignmentProblemRecord.count({
+        where: { assignmentId: kept.id }
+      })
+    ).to.equal(1)
+  })
+
+  for (const role of ['section leader', 'admin', 'superadmin'] as const) {
+    it(`allows a non-owner ${role} to read, create, update and delete like Course CRUD`, async () => {
+      const tag = randomUUID()
+      const account = await db.user.create({
+        data: {
+          username: tag,
+          email: `${tag}@test.invalid`,
+          password: '',
+          role:
+            role === 'admin'
+              ? Role.Admin
+              : role === 'superadmin'
+                ? Role.SuperAdmin
+                : Role.User
+        }
+      })
+      if (role === 'section leader') {
+        // Leadership in one section authorizes Blueprint writes to both copies.
+        await db.userGroup.create({
+          data: { userId: account.id, groupId: groups[0], isGroupLeader: true }
+        })
+      }
+      const actor = new AuthenticatedUser(
+        account.id,
+        account.username,
+        account.role
+      )
+      const created = await service.save(actor, courseId, input)
+      expect(created.assignment).to.have.length(2)
+      expect((await service.getAssignmentById(actor, created.id)).id).to.equal(
+        created.id
+      )
+      expect(await service.getAssignments(actor, courseId)).to.have.length(1)
+      expect(
+        (await service.getDeletionImpact(actor, created.id)).deletable
+      ).to.equal(true)
+      const updated = await service.updateAssignmentById(actor, created.id, {
+        operationId: randomUUID(),
+        expectedRevision: created.revision,
+        title: 'Leader update'
+      })
+      expect(
+        updated.assignment.every((copy) => copy.title === 'Leader update')
+      ).to.equal(true)
+      await service.deleteAssignmentById(actor, created.id)
+      expect(
+        await db.assignment.count({
+          where: { blueprintAssignmentId: created.id }
+        })
+      ).to.equal(0)
+    })
+  }
+
+  it('denies Blueprint reads and writes to an ordinary section member', async () => {
+    const created = await service.save(user, courseId, input)
+    const tag = randomUUID()
+    const member = await db.user.create({
+      data: {
+        username: tag,
+        email: `${tag}@test.invalid`,
+        password: '',
+        role: Role.User
+      }
+    })
+    await db.userGroup.create({
+      data: { userId: member.id, groupId: groups[0], isGroupLeader: false }
+    })
+    const actor = new AuthenticatedUser(member.id, member.username, member.role)
+    for (const action of [
+      () => service.getAssignments(actor, courseId),
+      () => service.getAssignmentById(actor, created.id),
+      () => service.getDeletionImpact(actor, created.id),
+      () =>
+        service.save(actor, courseId, { ...input, operationId: randomUUID() }),
+      () =>
+        service.updateAssignmentById(actor, created.id, {
+          operationId: randomUUID(),
+          expectedRevision: created.revision,
+          title: 'Denied'
+        }),
+      () => service.deleteAssignmentById(actor, created.id)
+    ]) {
+      await expect(action()).to.be.rejectedWith(ForbiddenAccessException)
+    }
+    expect((await service.getAssignmentById(user, created.id)).title).to.equal(
+      input.title
+    )
   })
 
   it('rolls back earlier copies when a section fails the membership recheck', async () => {
@@ -1244,5 +1470,547 @@ integration('Blueprint Assignment database transactions', () => {
           event.assignmentId === copy.id && event.name === 'assignment.graded'
       ).length
     ).to.equal(2)
+  })
+
+  const submissionData = (assignmentId: number) => ({
+    assignmentId,
+    problemId,
+    userId: user.id,
+    code: [],
+    language: 'Python3' as const,
+    result: 'Accepted' as const
+  })
+
+  for (const kind of [
+    'submission',
+    'submitted',
+    'finalScore',
+    'comment'
+  ] as const) {
+    it(`blocks source deletion for ${kind}, preserves all copies and reports the same learning record criteria`, async () => {
+      const source = await service.save(user, courseId, input)
+      await addProblemFixture(source)
+      const targetId = source.assignment[1].id
+      if (kind === 'submission')
+        await db.submission.create({ data: submissionData(targetId) })
+      else
+        await db.assignmentProblemRecord.updateMany({
+          where: { assignmentId: targetId },
+          data:
+            kind === 'submitted'
+              ? { isSubmitted: true }
+              : kind === 'finalScore'
+                ? { finalScore: 0 }
+                : { comment: 'Manual feedback' }
+        })
+      const before = await snapshot(source.id)
+      const impact = await service.getDeletionImpact(user, source.id)
+      expect(impact.deletable).to.equal(false)
+      expect(impact.submissionCount).to.equal(kind === 'submission' ? 1 : 0)
+      expect(impact.recordedStudentCount).to.equal(
+        kind === 'submission' ? 0 : 1
+      )
+      await expect(
+        service.delete(user, courseId, source.id)
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(await snapshot(source.id)).to.deep.equal(before)
+    })
+  }
+
+  it('allows deletion of empty initialized records and ignores derived AssignmentRecord totals', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    await db.assignmentRecord.updateMany({
+      where: { userId: user.id },
+      data: {
+        score: 3,
+        finalScore: 3,
+        acceptedProblemNum: 1,
+        comment: 'unused'
+      }
+    })
+    expect(
+      (await service.getDeletionImpact(user, source.id)).deletable
+    ).to.equal(true)
+    const deleted = await service.delete(user, courseId, source.id)
+    expect(deleted.id).to.equal(source.id)
+    expect(deleted.title).to.equal(source.title)
+    expect(deleted.assignment.map(({ id }) => id)).to.deep.equal(
+      source.assignment.map(({ id }) => id)
+    )
+    expect(
+      await db.assignmentProblemRecord.count({ where: { userId: user.id } })
+    ).to.equal(0)
+    expect(
+      await db.assignmentRecord.count({ where: { userId: user.id } })
+    ).to.equal(0)
+  })
+
+  it('counts distinct active students across copies and excludes leaders from enrollment counts', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const id = randomUUID()
+    const student = await db.user.create({
+      data: { username: id, email: `${id}@test.invalid`, password: '' }
+    })
+    await db.userGroup.createMany({
+      data: groups.map((groupId) => ({
+        groupId,
+        userId: student.id,
+        isGroupLeader: false
+      }))
+    })
+    await db.assignmentProblemRecord.updateMany({
+      where: { userId: user.id },
+      data: { comment: 'feedback' }
+    })
+    expect(await service.getDeletionImpact(user, source.id)).to.deep.equal({
+      deletable: false,
+      submissionCount: 0,
+      recordedStudentCount: 1,
+      sectionCount: 2,
+      assignmentCount: 2,
+      studentCount: 1,
+      qnaCount: 0,
+      noticeCount: 0
+    })
+  })
+
+  it('excludes unlinked learning records from source deletion and keeps their submissions/grades', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const kept = source.assignment[0]
+    await db.assignmentProblemRecord.updateMany({
+      where: { assignmentId: kept.id },
+      data: { finalScore: 0 }
+    })
+    const submission = await db.submission.create({
+      data: submissionData(kept.id)
+    })
+    await service.unlink(kept.groupId, kept.id)
+    expect(await service.getDeletionImpact(user, source.id)).to.deep.equal({
+      deletable: true,
+      submissionCount: 0,
+      recordedStudentCount: 0,
+      sectionCount: 1,
+      assignmentCount: 1,
+      studentCount: 0,
+      qnaCount: 0,
+      noticeCount: 0
+    })
+    await service.delete(user, courseId, source.id)
+    expect((await getCopy(kept.id)).blueprintAssignmentId).to.equal(null)
+    expect(
+      await db.submission.findUnique({ where: { id: submission.id } })
+    ).not.to.equal(null)
+    expect(
+      Number(
+        (
+          await db.assignmentProblemRecord.findFirstOrThrow({
+            where: { assignmentId: kept.id }
+          })
+        ).finalScore
+      )
+    ).to.equal(0)
+  })
+
+  it('blocks direct deletion of both linked and unlinked section copies with learning records', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const target = source.assignment[0]
+    await db.assignmentProblemRecord.updateMany({
+      where: { assignmentId: target.id },
+      data: { comment: 'keep' }
+    })
+    await expect(
+      assignments.deleteAssignment(target.groupId, target.id)
+    ).to.be.rejectedWith(ConflictFoundException)
+    await service.unlink(target.groupId, target.id)
+    await expect(
+      assignments.deleteAssignment(target.groupId, target.id)
+    ).to.be.rejectedWith(ConflictFoundException)
+    expect(
+      await db.assignment.findUnique({ where: { id: target.id } })
+    ).not.to.equal(null)
+  })
+
+  it('still detects Submission after its AssignmentProblemRecord has been removed', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const id = source.assignment[0].id
+    await db.submission.create({ data: submissionData(id) })
+    await db.assignmentProblem.deleteMany({ where: { assignmentId: id } })
+    expect(
+      await db.assignmentProblemRecord.count({ where: { assignmentId: id } })
+    ).to.equal(0)
+    expect(
+      (await service.getDeletionImpact(user, source.id)).submissionCount
+    ).to.equal(1)
+    await expect(service.delete(user, courseId, source.id)).to.be.rejectedWith(
+      ConflictFoundException
+    )
+  })
+
+  it('rechecks activity at delete time even if the previous impact query allowed deletion', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    expect(
+      (await service.getDeletionImpact(user, source.id)).deletable
+    ).to.equal(true)
+    await db.assignmentProblemRecord.updateMany({
+      where: { userId: user.id },
+      data: { isSubmitted: true }
+    })
+    await expect(service.delete(user, courseId, source.id)).to.be.rejectedWith(
+      ConflictFoundException
+    )
+  })
+
+  it('preserves ordinary Course deletion behavior even when a regular assignment has submissions', async () => {
+    const group = await db.group.create({
+      data: {
+        groupName: 'Regular Course',
+        config: {},
+        courseInfo: {
+          create: {
+            courseNum: 'REG',
+            professor: 'P',
+            semester: '2026'
+          }
+        },
+        userGroup: { create: { userId: user.id, isGroupLeader: true } }
+      }
+    })
+    const regular = await assignments.createAssignment(group.id, user.id, {
+      title: 'Regular',
+      description: 'Existing flow',
+      week: 1,
+      isVisible: true,
+      isRankVisible: true,
+      isJudgeResultVisible: true,
+      autoFinalizeScore: false,
+      startTime: input.sections[0].startTime,
+      endTime: input.sections[0].endTime,
+      dueTime: input.sections[0].dueTime ?? null
+    })
+    await db.submission.create({ data: submissionData(regular.id) })
+    await assignments.deleteAssignment(group.id, regular.id)
+    expect(
+      await db.assignment.findUnique({ where: { id: regular.id } })
+    ).to.equal(null)
+  })
+
+  it('blocks APR inserts/upserts while a guarded transaction is deciding deletion, including previously missing APR rows', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const target = source.assignment[0]
+    await db.assignmentProblemRecord.deleteMany({
+      where: { assignmentId: target.id }
+    })
+    let signalLocked!: () => void
+    let release!: () => void
+    const locked = new Promise<void>((resolve) => {
+      signalLocked = resolve
+    })
+    const released = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const guarded = db.$transaction(
+      async (tx) => {
+        await assertAssignmentsHaveNoLearningRecords(tx, [target.id])
+        signalLocked()
+        await released
+      },
+      { timeout: 10000 }
+    )
+    await locked
+    try {
+      await expect(
+        db.$transaction(async (tx) => {
+          await tx.$executeRaw`SET LOCAL lock_timeout = '100ms'`
+          await tx.assignmentProblemRecord.upsert({
+            where: {
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              assignmentId_userId_problemId: {
+                assignmentId: target.id,
+                userId: user.id,
+                problemId
+              }
+            },
+            create: {
+              assignmentId: target.id,
+              userId: user.id,
+              problemId,
+              isSubmitted: true
+            },
+            update: { isSubmitted: true }
+          })
+        })
+      ).to.be.rejected
+      await expect(
+        db.$transaction(async (tx) => {
+          await tx.$executeRaw`SET LOCAL lock_timeout = '100ms'`
+          await tx.submission.create({ data: submissionData(target.id) })
+        })
+      ).to.be.rejected
+    } finally {
+      release()
+      await guarded
+    }
+    expect(
+      await db.submission.count({ where: { assignmentId: target.id } })
+    ).to.equal(0)
+    expect(
+      await db.assignmentProblemRecord.count({
+        where: { assignmentId: target.id }
+      })
+    ).to.equal(0)
+  })
+
+  it('serializes an in-progress grade update before the learning-record check', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const target = source.assignment[0]
+    let signal!: () => void
+    let release!: () => void
+    const started = new Promise<void>((resolve) => {
+      signal = resolve
+    })
+    const released = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const grading = db.$transaction(
+      async (tx) => {
+        await tx.assignmentProblemRecord.updateMany({
+          where: { assignmentId: target.id },
+          data: { finalScore: 0 }
+        })
+        signal()
+        await released
+      },
+      { timeout: 10000 }
+    )
+    await started
+    try {
+      // The guard must block on APR row locks instead of returning a stale all-clear.
+      await expect(
+        db.$transaction(async (tx) => {
+          await tx.$executeRaw`SET LOCAL lock_timeout = '100ms'`
+          await assertAssignmentsHaveNoLearningRecords(tx, [target.id])
+        })
+      ).to.be.rejected
+    } finally {
+      release()
+      await grading
+    }
+    await expect(service.delete(user, courseId, source.id)).to.be.rejectedWith(
+      ConflictFoundException
+    )
+  })
+
+  it('serves CRUD, per-section settings, impact counts and deleted entities through POST /graphql', async () => {
+    const created = await graphql(
+      `
+        mutation ($course: Int!, $input: CreateBlueprintAssignmentInput!) {
+          createBlueprintAssignment(blueprintCourseId: $course, input: $input) {
+            id
+            revision
+            assignment {
+              id
+              groupId
+            }
+          }
+        }
+      `,
+      { course: courseId, input }
+    )
+    expect(created.errors).to.equal(undefined)
+    expect(
+      created.data!.createBlueprintAssignment.assignment.map(
+        ({ groupId }) => groupId
+      )
+    ).to.deep.equal(groups)
+    const id = Number(created.data!.createBlueprintAssignment.id)
+    const updated = await graphql(
+      `
+        mutation ($id: Int!, $input: UpdateBlueprintAssignmentInput!) {
+          updateBlueprintAssignment(blueprintAssignmentId: $id, input: $input) {
+            id
+            revision
+            title
+            assignment {
+              groupId
+              isVisible
+              dueTime
+            }
+          }
+        }
+      `,
+      {
+        id,
+        input: {
+          operationId: randomUUID(),
+          expectedRevision: 1,
+          title: 'GraphQL title',
+          sections: [{ groupId: groups[0], isVisible: false, dueTime: null }]
+        }
+      }
+    )
+    expect(updated.errors).to.equal(undefined)
+    expect(
+      updated.data!.updateBlueprintAssignment.assignment[0].isVisible
+    ).to.equal(false)
+    const detail = await graphql(
+      `
+        query ($id: Int!) {
+          getBlueprintAssignment(blueprintAssignmentId: $id) {
+            id
+            title
+            blueprintAssignmentProblem {
+              problemId
+            }
+          }
+          getBlueprintAssignmentDeletionImpact(blueprintAssignmentId: $id) {
+            deletable
+            sectionCount
+            assignmentCount
+            submissionCount
+          }
+        }
+      `,
+      { id }
+    )
+    expect(detail.errors).to.equal(undefined)
+    expect(
+      detail.data!.getBlueprintAssignmentDeletionImpact.deletable
+    ).to.equal(true)
+    expect(detail.data!.getBlueprintAssignment.title).to.equal('GraphQL title')
+    expect(
+      detail.data!.getBlueprintAssignment.blueprintAssignmentProblem
+    ).to.deep.equal([])
+    const deleted = await graphql(
+      `
+        mutation ($id: Int!) {
+          deleteBlueprintAssignment(blueprintAssignmentId: $id) {
+            id
+            title
+          }
+        }
+      `,
+      { id }
+    )
+    expect(deleted.errors).to.equal(undefined)
+    expect(Number(deleted.data!.deleteBlueprintAssignment.id)).to.equal(id)
+    expect(deleted.data!.deleteBlueprintAssignment.title).to.equal(
+      'GraphQL title'
+    )
+  })
+
+  it('maps learning conflicts and validation failures to the documented GraphQL error codes', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    await db.assignmentProblemRecord.updateMany({
+      where: { userId: user.id },
+      data: { finalScore: 0 }
+    })
+    const conflict = await graphql(
+      `
+        mutation ($id: Int!) {
+          deleteBlueprintAssignment(blueprintAssignmentId: $id) {
+            id
+          }
+        }
+      `,
+      { id: source.id }
+    )
+    expect(conflict.errors?.[0].extensions?.code).to.equal('CONFLICT')
+    const invalid = await graphql(
+      `
+        mutation ($course: Int!, $input: CreateBlueprintAssignmentInput!) {
+          createBlueprintAssignment(blueprintCourseId: $course, input: $input) {
+            id
+          }
+        }
+      `,
+      { course: courseId, input: { ...input, sections: [] } }
+    )
+    expect(invalid.errors?.[0].extensions?.code).to.equal('BAD_REQUEST')
+    const nullUpdate = await graphql(
+      `
+        mutation ($id: Int!, $input: UpdateBlueprintAssignmentInput!) {
+          updateBlueprintAssignment(blueprintAssignmentId: $id, input: $input) {
+            id
+          }
+        }
+      `,
+      {
+        id: source.id,
+        input: { operationId: randomUUID(), expectedRevision: 1, title: null }
+      }
+    )
+    expect(nullUpdate.errors?.[0].extensions?.code).to.equal('BAD_REQUEST')
+    const missing = await graphql(`
+      query {
+        getBlueprintAssignment(blueprintAssignmentId: 999999999) {
+          id
+        }
+      }
+    `)
+    expect(missing.errors?.[0].extensions?.code).to.equal('NOT_FOUND')
+    const wrongType = await graphql(`
+      query {
+        getBlueprintAssignment(blueprintAssignmentId: "invalid") {
+          id
+        }
+      }
+    `)
+    expect(wrongType.errors?.[0].extensions?.code).to.equal(
+      'GRAPHQL_VALIDATION_FAILED'
+    )
+  })
+
+  it('allows metadata edits with no linked copies while rejecting an empty initial section selection', async () => {
+    await expect(service.save(user, courseId, { ...input, sections: [] })).to.be
+      .rejected
+    const source = await service.save(user, courseId, input)
+    for (const copy of source.assignment)
+      await service.unlink(copy.groupId, copy.id)
+    const updated = await service.save(
+      user,
+      courseId,
+      {
+        operationId: randomUUID(),
+        expectedRevision: 1,
+        title: 'Independent source',
+        sections: []
+      },
+      source.id
+    )
+    expect(updated.assignment).to.have.length(0)
+    expect(updated.title).to.equal('Independent source')
+    expect(
+      (await service.getDeletionImpact(user, source.id)).sectionCount
+    ).to.equal(0)
+    await service.delete(user, courseId, source.id)
+    expect(await copyCount()).to.equal(2)
+  })
+
+  it('preserves problem sharing required by a workbook when the linked assignment is deleted', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    await db.workbook.create({
+      data: {
+        title: 'Keep problem access',
+        description: '',
+        groupId: groups[0],
+        workbookProblem: { create: { problemId, order: 0 } }
+      }
+    })
+    await service.delete(user, courseId, source.id)
+    const problem = await problemState()
+    expect(problem.sharedGroups.map(({ id }) => id)).to.deep.equal([groups[0]])
+    expect(
+      await db.blueprintAssignmentProblem.count({ where: { problemId } })
+    ).to.equal(0)
   })
 })
