@@ -3,11 +3,16 @@ import { PrismaClient, Role, type Prisma } from '@prisma/client'
 import { expect } from 'chai'
 import { randomUUID } from 'crypto'
 import { restore } from 'sinon'
-import { AuthenticatedUser } from '@libs/auth'
+import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
 import { MAX_DATE } from '@libs/constants'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { AssignmentEventService } from '@admin/assignment/assignment-event.service'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
+import { BlueprintAssignmentResolver } from './blueprint-assignment.resolver'
 import { BlueprintAssignmentService } from './blueprint-assignment.service'
 import type { CreateBlueprintAssignmentInput } from './model/blueprint-assignment.input'
 
@@ -46,6 +51,9 @@ integration('Blueprint Assignment database transactions', () => {
   )
 
   let user: AuthenticatedUser
+
+  const resolver = new BlueprintAssignmentResolver(service)
+  const request = () => ({ user }) as AuthenticatedRequest
 
   let courseId: number
 
@@ -520,16 +528,28 @@ integration('Blueprint Assignment database transactions', () => {
       operationId: randomUUID(),
       isExercise: true
     })
-    const page = await service.getAssignments(user, courseId, false, 1)
+    const page = await resolver.getBlueprintAssignments(
+      request(),
+      courseId,
+      false,
+      1
+    )
     expect(page[0].id).to.equal(newer.id)
     expect(
-      (await service.getAssignments(user, courseId, false, 1, page[0].id))[0]
-        .title
+      (
+        await resolver.getBlueprintAssignments(
+          request(),
+          courseId,
+          false,
+          1,
+          page[0].id
+        )
+      )[0].title
     ).to.equal('First')
     expect(
       (
-        await service.getAssignments(
-          user,
+        await resolver.getBlueprintAssignments(
+          request(),
           courseId,
           false,
           10,
@@ -539,6 +559,22 @@ integration('Blueprint Assignment database transactions', () => {
       )[0].title
     ).to.equal('Newest')
     expect(await service.getAssignments(user, courseId, true)).to.have.length(1)
+  })
+
+  it('rejects invalid page sizes and missing assignment IDs', async () => {
+    for (const take of [0, 101, 1.5])
+      await expect(
+        service.getAssignments(user, courseId, false, take)
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'take must be between 1 and 100'
+      )
+    await expect(
+      resolver.getBlueprintAssignment(request(), 2147483647)
+    ).to.be.rejectedWith(
+      EntityNotExistException,
+      'BlueprintAssignment does not exist'
+    )
   })
 
   it('publishes lifecycle events only after all source and copy writes have committed', async () => {
@@ -581,7 +617,7 @@ integration('Blueprint Assignment database transactions', () => {
   it('reads Problem-owned rows in details without recomputing or changing per-section release times', async () => {
     const source = await service.save(user, courseId, input)
     await addProblemFixture(source)
-    const detail = await service.getAssignment(user, courseId, source.id)
+    const detail = await resolver.getBlueprintAssignment(request(), source.id)
     expect(
       detail.blueprintAssignmentProblem.map(
         ({ problemId: id, score, order }) => ({
