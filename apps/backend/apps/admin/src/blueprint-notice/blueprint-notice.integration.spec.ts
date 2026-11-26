@@ -397,6 +397,30 @@ integration('Blueprint Notice database transactions', () => {
     expect(read.errors).to.equal(undefined)
     expect(read.data!.getBlueprintNotice.title).to.equal(input.title)
 
+    const list = `query ($id: Int!, $take: Int!, $search: String) {
+      getBlueprintNotices(blueprintCourseId: $id, take: $take, search: $search) {
+        id title courseNotice { groupId }
+      }
+    }`
+    const listed = (await graphql(list, {
+      id: courseId,
+      take: 10,
+      search: 'MIDTERM'
+    })) as unknown as {
+      data?: { getBlueprintNotices: { id: string; title: string }[] }
+      errors?: unknown
+    }
+    expect(listed.errors).to.equal(undefined)
+    expect(listed.data!.getBlueprintNotices).to.deep.equal([
+      {
+        id: notice.id,
+        title: input.title,
+        courseNotice: groups.map((groupId) => ({ groupId }))
+      }
+    ])
+    const tooMany = await graphql(list, { id: courseId, take: 101 })
+    expect(tooMany.errors?.[0].extensions?.code).to.equal('UNPROCESSABLE')
+
     const invalid = await graphql(create, {
       id: courseId,
       input: { ...input, operationId: randomUUID(), title: '   ' }
