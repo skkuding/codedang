@@ -559,6 +559,9 @@ integration('Blueprint Assignment database transactions', () => {
       )[0].title
     ).to.equal('Newest')
     expect(await service.getAssignments(user, courseId, true)).to.have.length(1)
+    expect(await service.getAssignments(user, courseId)).to.deep.equal(
+      await service.getAssignments(user, courseId, false)
+    )
   })
 
   it('rejects invalid page sizes and missing assignment IDs', async () => {
