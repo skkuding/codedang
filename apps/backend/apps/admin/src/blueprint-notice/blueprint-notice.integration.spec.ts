@@ -5,7 +5,7 @@ import { Test } from '@nestjs/testing'
 import { PrismaClient, Role, type Prisma } from '@prisma/client'
 import { expect } from 'chai'
 import { randomUUID } from 'crypto'
-import { AuthenticatedUser } from '@libs/auth'
+import { AuthenticatedUser, GroupLeaderGuard } from '@libs/auth'
 import {
   AdminExceptionFilter,
   apolloErrorFormatter,
@@ -114,7 +114,7 @@ integration('Blueprint Notice database transactions', () => {
 
   before(async () => {
     // Real GraphQL transport, validation and error formatting.
-    // The identity is a fixture; JWT verification is tested elsewhere.
+    // The identity is a fixture; JWT verification and GroupLeaderGuard are tested elsewhere.
     const module = await Test.createTestingModule({
       imports: [
         GraphQLModule.forRoot({
@@ -128,7 +128,11 @@ integration('Blueprint Notice database transactions', () => {
         BlueprintNoticeResolver,
         { provide: BlueprintNoticeService, useValue: service }
       ]
-    }).compile()
+    })
+      // GroupLeaderGuard is covered by its own tests; identity is a fixture here.
+      .overrideGuard(GroupLeaderGuard)
+      .useValue({ canActivate: () => true })
+      .compile()
     app = module.createNestApplication()
     app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
     app.useGlobalFilters(new AdminExceptionFilter())

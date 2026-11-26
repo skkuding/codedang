@@ -52,3 +52,13 @@ export class BlueprintNoticeOutput extends PickType(BlueprintNotice, [
   @Field(() => [BlueprintNoticeCopyOutput])
   courseNotice!: BlueprintNoticeCopyOutput[]
 }
+
+/**
+ * The result of an unlink. blueprintNoticeId is null afterwards.
+ */
+@ObjectType()
+export class BlueprintNoticeUnlinkResult extends PickType(CourseNotice, [
+  'id',
+  'groupId',
+  'blueprintNoticeId'
+] as const) {}

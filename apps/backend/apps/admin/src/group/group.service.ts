@@ -12,6 +12,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { GroupType, type Group } from '@admin/@generated'
+import { assertCourseNoticeUnlinked } from './course-notice-link'
 import type {
   CreateCourseNoticeInput,
   UpdateCourseNoticeInput
@@ -636,11 +637,13 @@ export class CourseNoticeService {
   /**
    * 강의 내 공지 1개를 수정합니다.
    * (제목 또는 내용이 변경되는 경우에만 읽음 기록을 초기화합니다. 고정 여부만 변경하는 경우에는 초기화하지 않습니다.)
+   * A linked copy of a blueprint notice can only change visibility and pinning; unlink it to edit the title or content.
    *
    * @param {number} groupId 강의 아이디
    * @param {number} courseNoticeId 강의 공지 아이디
    * @param {UpdateCourseNoticeInput} updateCourseNoticeInput 수정할 공지사항 내용 (title, content, isFixed, isPublic 등 옵셔널)
    * @returns {CourseNotice}
+   * @throws UnprocessableDataException - The title or content of a linked copy is being edited.
    */
   async updateCourseNotice(
     groupId: number,
@@ -654,7 +657,8 @@ export class CourseNoticeService {
       select: {
         groupId: true,
         title: true,
-        content: true
+        content: true,
+        blueprintNoticeId: true
       }
     })
 
@@ -666,6 +670,13 @@ export class CourseNoticeService {
       throw new ForbiddenAccessException(
         'You can only access course notice in your own group'
       )
+    }
+
+    if (
+      updateCourseNoticeInput.title !== undefined ||
+      updateCourseNoticeInput.content !== undefined
+    ) {
+      assertCourseNoticeUnlinked(courseNotice)
     }
 
     const isContentChanged =
