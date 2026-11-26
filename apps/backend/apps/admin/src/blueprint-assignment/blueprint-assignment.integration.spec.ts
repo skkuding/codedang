@@ -3,11 +3,16 @@ import { PrismaClient, Role, type Prisma } from '@prisma/client'
 import { expect } from 'chai'
 import { randomUUID } from 'crypto'
 import { restore } from 'sinon'
-import { AuthenticatedUser } from '@libs/auth'
+import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
 import { MAX_DATE } from '@libs/constants'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { AssignmentEventService } from '@admin/assignment/assignment-event.service'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
+import { BlueprintAssignmentResolver } from './blueprint-assignment.resolver'
 import { BlueprintAssignmentService } from './blueprint-assignment.service'
 import type { CreateBlueprintAssignmentInput } from './model/blueprint-assignment.input'
 
@@ -46,6 +51,9 @@ integration('Blueprint Assignment database transactions', () => {
   )
 
   let user: AuthenticatedUser
+
+  const resolver = new BlueprintAssignmentResolver(service)
+  const request = () => ({ user }) as AuthenticatedRequest
 
   let courseId: number
 
@@ -145,6 +153,50 @@ integration('Blueprint Assignment database transactions', () => {
   after(async () => {
     await db.$disconnect()
   })
+
+  const addProblemFixture = async (
+    source: Awaited<ReturnType<typeof service.save>>
+  ) => {
+    await db.$transaction(async (tx) => {
+      await tx.blueprintAssignmentProblem.create({
+        data: {
+          blueprintAssignmentId: source.id,
+          problemId,
+          order: 0,
+          score: 10
+        }
+      })
+      for (const [index, copy] of source.assignment.entries()) {
+        await tx.assignmentProblem.create({
+          data: {
+            assignmentId: copy.id,
+            problemId,
+            order: 0,
+            score: 10,
+            solutionReleaseTime: new Date(`2027-01-0${index + 2}`)
+          }
+        })
+        await tx.assignmentProblemRecord.create({
+          data: {
+            assignmentId: copy.id,
+            problemId,
+            userId: user.id
+          }
+        })
+      }
+      await tx.problem.update({
+        where: { id: problemId },
+        data: {
+          sharedGroups: {
+            connect: source.assignment.map((copy) => ({ id: copy.groupId }))
+          },
+          visibleLockTime: new Date(
+            Math.max(...source.assignment.map((copy) => Number(copy.endTime)))
+          )
+        }
+      })
+    })
+  }
 
   const sourceCount = () =>
     db.blueprintAssignment.count({ where: { blueprintCourseId: courseId } })
@@ -461,6 +513,73 @@ integration('Blueprint Assignment database transactions', () => {
     expect(await receiptCount()).to.equal(0)
   })
 
+  it('retains searchable, paginated Assignment and Exercise reads', async () => {
+    await service.save(user, courseId, {
+      ...input,
+      title: 'First'
+    })
+    const newer = await service.save(user, courseId, {
+      ...input,
+      operationId: randomUUID(),
+      title: 'Newest'
+    })
+    await service.save(user, courseId, {
+      ...input,
+      operationId: randomUUID(),
+      isExercise: true
+    })
+    const page = await resolver.getBlueprintAssignments(
+      request(),
+      courseId,
+      false,
+      1
+    )
+    expect(page[0].id).to.equal(newer.id)
+    expect(
+      (
+        await resolver.getBlueprintAssignments(
+          request(),
+          courseId,
+          false,
+          1,
+          page[0].id
+        )
+      )[0].title
+    ).to.equal('First')
+    expect(
+      (
+        await resolver.getBlueprintAssignments(
+          request(),
+          courseId,
+          false,
+          10,
+          undefined,
+          'NEW'
+        )
+      )[0].title
+    ).to.equal('Newest')
+    expect(await service.getAssignments(user, courseId, true)).to.have.length(1)
+    expect(await service.getAssignments(user, courseId)).to.deep.equal(
+      await service.getAssignments(user, courseId, false)
+    )
+  })
+
+  it('rejects invalid page sizes and missing assignment IDs', async () => {
+    for (const take of [0, 101, 1.5])
+      await expect(
+        service.getAssignments(user, courseId, false, take)
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'take must be between 1 and 100'
+      )
+    await expect(
+      resolver.getBlueprintAssignment(request(), 2147483647)
+    ).to.be.rejectedWith(
+      EntityNotExistException,
+      'BlueprintAssignment does not exist'
+    )
+  })
+
   it('publishes lifecycle events only after all source and copy writes have committed', async () => {
     const seen: number[] = []
     emitter.on('assignment.created', async (event) => {
@@ -496,6 +615,31 @@ integration('Blueprint Assignment database transactions', () => {
     } finally {
       emitter.off('assignment.created', listener)
     }
+  })
+
+  it('reads Problem-owned rows in details without recomputing or changing per-section release times', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const detail = await resolver.getBlueprintAssignment(request(), source.id)
+    expect(
+      detail.blueprintAssignmentProblem.map(
+        ({ problemId: id, score, order }) => ({
+          id,
+          score,
+          order
+        })
+      )
+    ).to.deep.equal([{ id: problemId, score: 10, order: 0 }])
+    expect(
+      detail.assignment.map((copy) =>
+        copy.problems[0].solutionReleaseTime?.toISOString()
+      )
+    ).to.deep.equal(['2027-01-02T00:00:00.000Z', '2027-01-03T00:00:00.000Z'])
+    expect(
+      await db.blueprintAssignmentProblem.count({
+        where: { blueprintAssignmentId: source.id }
+      })
+    ).to.equal(1)
   })
 
   it('creates each section with its schedule and defaults, honoring explicit per-section false values', async () => {
