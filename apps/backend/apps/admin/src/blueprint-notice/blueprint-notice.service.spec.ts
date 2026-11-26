@@ -66,7 +66,9 @@ const createDb = () => {
       findFirst: stub(),
       findFirstOrThrow: stub().resolves(savedNotice),
       findUniqueOrThrow: stub().resolves(savedNotice),
-      update: stub().resolves({ ...savedNotice, revision: 2 })
+      update: stub().resolves({ ...savedNotice, revision: 2 }),
+      count: stub(),
+      deleteMany: stub().resolves({ count: 1 })
     },
     blueprintNoticeSave: {
       findUnique: stub().resolves(null),
@@ -77,8 +79,11 @@ const createDb = () => {
       createMany: stub().resolves({ count: 2 }),
       updateMany: stub().resolves({ count: 2 }),
       findFirst: stub(),
-      update: stub()
+      update: stub(),
+      findMany: stub(),
+      deleteMany: stub().resolves({ count: 2 })
     },
+    courseNoticeComment: { count: stub() },
     $queryRaw: stub().resolves([]),
     $transaction: stub()
   }
@@ -549,6 +554,140 @@ describe('BlueprintNoticeService', () => {
         EntityNotExistException
       )
       expect(db.courseNotice.update.called).to.be.false
+    })
+  })
+
+  describe('deleteNotices', () => {
+    const notices = [3, 1, 2].map((id) => ({ ...savedNotice, id }))
+
+    it('locks the sources in ascending order and deletes copies before sources', async () => {
+      allowAccess()
+      db.blueprintNotice.findMany.resolves(notices)
+
+      const result = await service.deleteNotices(
+        user,
+        blueprintCourseId,
+        [3, 1, 2]
+      )
+
+      expect(result).to.deep.equal(notices)
+      // tagged template: values follow the string parts
+      expect(db.$queryRaw.firstCall.args[1]).to.deep.equal([1, 2, 3])
+      expect(db.blueprintNotice.findMany.firstCall.args[0].where).to.deep.equal(
+        { id: { in: [1, 2, 3] }, blueprintCourseId }
+      )
+      expect(db.courseNotice.deleteMany.firstCall.args[0]).to.deep.equal({
+        where: { blueprintNoticeId: { in: [1, 2, 3] } }
+      })
+      expect(db.blueprintNotice.deleteMany.firstCall.args[0]).to.deep.equal({
+        where: { id: { in: [1, 2, 3] } }
+      })
+      expect(
+        db.courseNotice.deleteMany.calledBefore(db.blueprintNotice.deleteMany)
+      ).to.be.true
+    })
+
+    it('deletes nothing when any notice is missing or belongs to another blueprint', async () => {
+      allowAccess()
+      db.blueprintNotice.findMany.resolves(notices.slice(0, 2))
+
+      await expect(
+        service.deleteNotices(user, blueprintCourseId, [1, 2, 3])
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.courseNotice.deleteMany.called).to.be.false
+      expect(db.blueprintNotice.deleteMany.called).to.be.false
+    })
+
+    it('rejects a user who is not a blueprint leader', async () => {
+      denyAccess()
+
+      await expect(
+        service.deleteNotices(user, blueprintCourseId, [1])
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.$transaction.called).to.be.false
+    })
+
+    const invalidIds: [string, number[], string][] = [
+      ['an empty list', [], 'Select at least one notice'],
+      [
+        'more than 100 notices',
+        Array.from({ length: 101 }, (_, index) => index + 1),
+        'Up to 100 notices'
+      ],
+      ['a non-positive ID', [1, 0], 'Invalid notice ID'],
+      ['a non-integer ID', [1.5], 'Invalid notice ID'],
+      ['duplicate IDs', [1, 1], 'Duplicate notice']
+    ]
+    for (const [label, ids, message] of invalidIds) {
+      it(`rejects ${label} before opening a transaction`, async () => {
+        allowAccess()
+
+        await expect(
+          service.deleteNotices(user, blueprintCourseId, ids)
+        ).to.be.rejectedWith(UnprocessableDataException, message)
+        expect(db.$transaction.called).to.be.false
+      })
+
+      it(`rejects ${label} in the deletion impact`, async () => {
+        allowAccess()
+
+        await expect(
+          service.getDeletionImpact(user, blueprintCourseId, ids)
+        ).to.be.rejectedWith(UnprocessableDataException, message)
+        expect(db.blueprintNotice.count.called).to.be.false
+      })
+    }
+  })
+
+  describe('getDeletionImpact', () => {
+    it('counts sources, copies, distinct sections and visible comments', async () => {
+      allowAccess()
+      db.blueprintNotice.count.resolves(2)
+      db.courseNotice.findMany.resolves([
+        { groupId: 2 },
+        { groupId: 3 },
+        { groupId: 2 }
+      ])
+      db.courseNoticeComment.count.resolves(4)
+
+      const result = await service.getDeletionImpact(
+        user,
+        blueprintCourseId,
+        [2, 1]
+      )
+
+      expect(result).to.deep.equal({
+        noticeCount: 2,
+        copyCount: 3,
+        sectionCount: 2,
+        commentCount: 4
+      })
+      expect(db.courseNoticeComment.count.firstCall.args[0]).to.deep.equal({
+        where: {
+          isDeleted: false,
+          courseNotice: { blueprintNoticeId: { in: [1, 2] } }
+        }
+      })
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('rejects when any notice is missing or belongs to another blueprint', async () => {
+      allowAccess()
+      db.blueprintNotice.count.resolves(1)
+
+      await expect(
+        service.getDeletionImpact(user, blueprintCourseId, [1, 2])
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.courseNotice.findMany.called).to.be.false
+    })
+
+    it('rejects a user who is not a blueprint leader', async () => {
+      denyAccess()
+
+      await expect(
+        service.getDeletionImpact(user, blueprintCourseId, [1])
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.blueprintNotice.count.called).to.be.false
     })
   })
 })

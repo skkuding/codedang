@@ -176,6 +176,87 @@ export class BlueprintNoticeService {
   }
 
   /**
+   * Deletes several blueprint notice sources and their linked copies at once.
+   *
+   * - Deletes all or nothing. Rejects the whole request if any notice is missing or belongs to another blueprint.
+   * - Locks the sources in ascending id order to avoid deadlocks between concurrent deletions and to serialize with ongoing edits and unlinks.
+   * - Comments on the copies are deleted by the FK cascade. Unlinked copies are kept.
+   * - Success receipts are kept so that resending an old create request never recreates the notice.
+   *
+   * @returns The deleted sources and their linked copies just before deletion
+   * @throws EntityNotExistException - A notice is missing or belongs to another blueprint.
+   * @throws ForbiddenAccessException - The user is not a blueprint leader.
+   * @throws UnprocessableDataException - The id list is empty, has duplicates or exceeds 100 items.
+   */
+  async deleteNotices(
+    user: AuthenticatedUser,
+    blueprintCourseId: number,
+    blueprintNoticeIds: number[]
+  ) {
+    await this.access.assertBlueprintLeader(user, blueprintCourseId)
+    const ids = this.assertNoticeIds(blueprintNoticeIds)
+
+    return await this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM blueprint_notice WHERE id = ANY(${ids}) ORDER BY id FOR UPDATE`
+      const sources = await tx.blueprintNotice.findMany({
+        where: { id: { in: ids }, blueprintCourseId },
+        orderBy: { id: 'desc' },
+        include: contentInclude
+      })
+      if (sources.length !== ids.length)
+        throw new EntityNotExistException('BlueprintNotice')
+
+      await tx.courseNotice.deleteMany({
+        where: { blueprintNoticeId: { in: ids } }
+      })
+      await tx.blueprintNotice.deleteMany({ where: { id: { in: ids } } })
+      return sources
+    })
+  }
+
+  /**
+   * Returns the impact shown in the deletion dialog. It takes no locks, so the deletion checks again.
+   *
+   * @returns The number of sources to delete, linked copies and sections deleted together, and visible comments on the copies
+   * @throws EntityNotExistException - A notice is missing or belongs to another blueprint.
+   * @throws ForbiddenAccessException - The user is not a blueprint leader.
+   * @throws UnprocessableDataException - The id list is empty, has duplicates or exceeds 100 items.
+   */
+  async getDeletionImpact(
+    user: AuthenticatedUser,
+    blueprintCourseId: number,
+    blueprintNoticeIds: number[]
+  ) {
+    await this.access.assertBlueprintLeader(user, blueprintCourseId)
+    const ids = this.assertNoticeIds(blueprintNoticeIds)
+
+    const noticeCount = await this.prisma.blueprintNotice.count({
+      where: { id: { in: ids }, blueprintCourseId }
+    })
+    if (noticeCount !== ids.length)
+      throw new EntityNotExistException('BlueprintNotice')
+
+    const [copies, commentCount] = await Promise.all([
+      this.prisma.courseNotice.findMany({
+        where: { blueprintNoticeId: { in: ids } },
+        select: { groupId: true }
+      }),
+      this.prisma.courseNoticeComment.count({
+        where: {
+          isDeleted: false,
+          courseNotice: { blueprintNoticeId: { in: ids } }
+        }
+      })
+    ])
+    return {
+      noticeCount,
+      copyCount: copies.length,
+      sectionCount: new Set(copies.map(({ groupId }) => groupId)).size,
+      commentCount
+    }
+  }
+
+  /**
    * @returns Blueprint notices with their linked copies, newest ID first.
    * @throws EntityNotExistException - The blueprint does not exist.
    * @throws ForbiddenAccessException - The user is not a blueprint leader.
@@ -282,6 +363,21 @@ export class BlueprintNoticeService {
 
   private async lockNotice(tx: Prisma.TransactionClient, id: number) {
     await tx.$queryRaw`SELECT id FROM blueprint_notice WHERE id = ${id} FOR UPDATE`
+  }
+
+  /** Validates a bulk id list and returns it in ascending order for locking. */
+  private assertNoticeIds(ids: number[]) {
+    if (ids.length === 0)
+      throw new UnprocessableDataException('Select at least one notice')
+    if (ids.length > 100)
+      throw new UnprocessableDataException(
+        'Up to 100 notices can be processed at once'
+      )
+    if (ids.some((id) => !Number.isInteger(id) || id < 1))
+      throw new UnprocessableDataException('Invalid notice ID')
+    if (new Set(ids).size !== ids.length)
+      throw new UnprocessableDataException('Duplicate notice')
+    return [...ids].sort((a, b) => a - b)
   }
 
   private assertReceipt(

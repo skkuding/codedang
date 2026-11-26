@@ -11,6 +11,7 @@ import {
   UpdateBlueprintNoticeInput
 } from './model/blueprint-notice.input'
 import {
+  BlueprintNoticeDeletionImpact,
   BlueprintNoticeOutput,
   BlueprintNoticeUnlinkResult
 } from './model/blueprint-notice.output'
@@ -83,5 +84,38 @@ export class BlueprintNoticeResolver {
     courseNoticeId: number
   ) {
     return await this.service.unlink(groupId, courseNoticeId)
+  }
+
+  /**
+   * Deletes the selected blueprint notices and their linked copies at once, all or nothing.
+   */
+  @Mutation(() => [BlueprintNoticeOutput])
+  async deleteBlueprintNotices(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintCourseId', { type: () => Int }, IDValidationPipe)
+    blueprintCourseId: number,
+    @Args('blueprintNoticeIds', { type: () => [Int] })
+    blueprintNoticeIds: number[]
+  ) {
+    return await this.service.deleteNotices(
+      req.user,
+      blueprintCourseId,
+      blueprintNoticeIds
+    )
+  }
+
+  @Query(() => BlueprintNoticeDeletionImpact)
+  async getBlueprintNoticeDeletionImpact(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintCourseId', { type: () => Int }, IDValidationPipe)
+    blueprintCourseId: number,
+    @Args('blueprintNoticeIds', { type: () => [Int] })
+    blueprintNoticeIds: number[]
+  ) {
+    return await this.service.getDeletionImpact(
+      req.user,
+      blueprintCourseId,
+      blueprintNoticeIds
+    )
   }
 }
