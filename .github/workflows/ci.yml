@@ -333,6 +333,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
       TEST_DATABASE_URL: postgresql://postgres:1234@localhost:5432/skkuding?schema=public
+      # 이 job의 PostgreSQL은 테스트 전용 일회용 서비스이므로, 개발 DB와의 비교 없이 테스트 DB 사용을 허용합니다.
+      # (apps/backend/libs/prisma/src/test-db-guard.ts)
+      TEST_DATABASE_ISOLATED: 'true'
       MINIO_ENDPOINT_URL: http://localhost:9000
       TESTCASE_BUCKET_NAME: test-bucket
       CHECK_RESULT_BUCKET_NAME: codedang-plag-checks
