@@ -949,6 +949,17 @@ type BlueprintNoticeCountAggregate {
   updateTime: Int!
 }
 
+type BlueprintNoticeDeletionImpact {
+  """Number of visible comments on the deleted copies"""
+  commentCount: Int!
+  """Number of linked section copies deleted together"""
+  copyCount: Int!
+  """Number of source notices to delete"""
+  noticeCount: Int!
+  """Number of affected sections"""
+  sectionCount: Int!
+}
+
 type BlueprintNoticeMaxAggregate {
   blueprintCourseId: Int
   content: String
@@ -2889,6 +2900,7 @@ type Mutation {
   createWhitelist(groupId: Int!, studentIds: [String!]!): Float!
   deleteAssignment(assignmentId: Int!, groupId: Int!): Assignment!
   deleteBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseOutput!
+  deleteBlueprintNotices(blueprintCourseId: Int!, blueprintNoticeIds: [Int!]!): [BlueprintNoticeOutput!]!
   deleteContest(contestId: Int!): Contest!
   deleteContestQnA(contestId: Int!, order: Int!): ContestQnA!
   deleteContestQnAComment(commentOrder: Int!, contestId: Int!, qnAOrder: Int!): ContestQnAComment!
@@ -4106,6 +4118,7 @@ type Query {
   getBlueprintCourse(blueprintCourseId: Int!): BlueprintCourseDetailOutput!
   getBlueprintCourses: [BlueprintCourseListItemOutput!]!
   getBlueprintNotice(blueprintNoticeId: Int!): BlueprintNoticeOutput!
+  getBlueprintNoticeDeletionImpact(blueprintCourseId: Int!, blueprintNoticeIds: [Int!]!): BlueprintNoticeDeletionImpact!
   getBlueprintNotices(blueprintCourseId: Int!, cursor: Int, search: String, take: Int! = 10): [BlueprintNoticeOutput!]!
   getCheckRequests(assignmentId: Int!, groupId: Int!, problemId: Int!): [CheckRequest!]!
   getCheckResultDetails(groupId: Int!, resultId: Int!): GetCheckResultDetailOutput!

@@ -1,4 +1,4 @@
-import { Field, ObjectType, PickType } from '@nestjs/graphql'
+import { Field, Int, ObjectType, PickType } from '@nestjs/graphql'
 import {
   BlueprintNotice,
   BlueprintNoticeSaveAvgAggregate,
@@ -62,3 +62,26 @@ export class BlueprintNoticeUnlinkResult extends PickType(CourseNotice, [
   'groupId',
   'blueprintNoticeId'
 ] as const) {}
+
+/**
+ * The impact shown in the blueprint notice deletion dialog.
+ * Notices have no learning records and are always deletable, so there is no deletable field.
+ */
+@ObjectType()
+export class BlueprintNoticeDeletionImpact {
+  @Field(() => Int, { description: 'Number of source notices to delete' })
+  noticeCount!: number
+
+  @Field(() => Int, {
+    description: 'Number of linked section copies deleted together'
+  })
+  copyCount!: number
+
+  @Field(() => Int, { description: 'Number of affected sections' })
+  sectionCount!: number
+
+  @Field(() => Int, {
+    description: 'Number of visible comments on the deleted copies'
+  })
+  commentCount!: number
+}
