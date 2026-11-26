@@ -74,14 +74,21 @@ class Instrumentation {
       new AmqplibInstrumentation()
     ]
 
-    // nestjs-otel apiMetrics도 HttpInstrumentation과 같은 이름으로 기록하므로 한쪽만 남긴다
+    // nestjs-otel apiMetrics 중 HttpInstrumentation과 겹치는 시간·횟수 지표는 버린다.
+    // 요청 수와 상태 코드별 응답 수는 HttpInstrumentation http.server.duration의 _count와 http_status_code 라벨로 계산한다.
+    // 요청·응답 크기 분포(http.server.request.size, http.server.response.size)는 다른 데 없어서 남긴다
     const views = [
-      {
-        meterName: 'nestjs-otel',
-        instrumentName: 'http.server.duration',
-        aggregation: { type: AggregationType.DROP }
-      }
-    ]
+      'http.server.duration',
+      'http.server.request.count',
+      'http.server.response.count',
+      'http.server.response.success.count',
+      'http.server.response.error.count',
+      'http.server.abort.count'
+    ].map((instrumentName) => ({
+      meterName: 'nestjs-otel',
+      instrumentName,
+      aggregation: { type: AggregationType.DROP }
+    }))
 
     Instrumentation.sdk = new NodeSDK({
       resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),
@@ -136,7 +143,6 @@ export default Instrumentation
 
 export const openTelemetryModuleOption = {
   metrics: {
-    hostMetrics: true,
     apiMetrics: {
       enable: true,
       ignoreRoutes: ['/favicon.ico'],
