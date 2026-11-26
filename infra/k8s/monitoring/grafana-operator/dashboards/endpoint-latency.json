@@ -207,6 +207,18 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "엔드포인트"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 420
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "요청 수"
             },
             "properties": [
@@ -355,6 +367,18 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "엔드포인트"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 420
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "요청 수"
             },
             "properties": [
@@ -375,8 +399,8 @@
         "cellHeight": "sm",
         "sortBy": [
           {
-            "displayName": "p95",
-            "desc": true
+            "displayName": "엔드포인트",
+            "desc": false
           }
         ]
       }
