@@ -133,10 +133,10 @@ func makeExecArgs(data ExecArgs) []string {
 	if !isEmptyInt(data.MaxOutputSize) {
 		argSlice = concatIntArgs(argSlice, MaxOutputSize, data.MaxOutputSize)
 	}
-	if data.Uid != nil && *data.Uid >= 0 && *data.Uid < 65534 {
+	if data.Uid != nil && *data.Uid >= 0 {
 		argSlice = concatIntArgs(argSlice, Uid, *data.Uid)
 	}
-	if data.Gid != nil && *data.Gid >= 0 && *data.Gid < 65534 {
+	if data.Gid != nil && *data.Gid >= 0 {
 		argSlice = concatIntArgs(argSlice, Gid, *data.Gid)
 	}
 	if !isEmptyString(data.ExePath) {
