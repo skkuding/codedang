@@ -70,10 +70,10 @@
         },
         "query": {
           "qryType": 1,
-          "query": "label_values(http_server_duration_milliseconds_count{job=\"$job\", http_route!~\"/api/internal/prisma|/health/ready\"}, http_route)",
+          "query": "label_values(http_server_duration_milliseconds_count{job=\"$job\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\"}, http_route)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "definition": "label_values(http_server_duration_milliseconds_count{job=\"$job\", http_route!~\"/api/internal/prisma|/health/ready\"}, http_route)",
+        "definition": "label_values(http_server_duration_milliseconds_count{job=\"$job\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\"}, http_route)",
         "refresh": 2,
         "sort": 1,
         "multi": true,
@@ -109,7 +109,7 @@
             "uid": "prometheus"
           },
           "refId": "count",
-          "expr": "sum by (http_route) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "expr": "sum by (http_route) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -121,7 +121,7 @@
             "uid": "prometheus"
           },
           "refId": "avg",
-          "expr": "sum by (http_route) (increase(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])) / sum by (http_route) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "expr": "sum by (http_route) (increase(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])) / sum by (http_route) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -133,7 +133,7 @@
             "uid": "prometheus"
           },
           "refId": "p50",
-          "expr": "histogram_quantile(0.5, sum by (le, http_route) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "expr": "histogram_quantile(0.5, sum by (le, http_route) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -145,7 +145,7 @@
             "uid": "prometheus"
           },
           "refId": "p95",
-          "expr": "histogram_quantile(0.95, sum by (le, http_route) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "expr": "histogram_quantile(0.95, sum by (le, http_route) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -156,6 +156,24 @@
         {
           "id": "merge",
           "options": {}
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "exclude",
+            "match": "any",
+            "filters": [
+              {
+                "fieldName": "Value #count",
+                "config": {
+                  "id": "lower",
+                  "options": {
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          }
         },
         {
           "id": "organize",
@@ -237,7 +255,7 @@
             "uid": "prometheus"
           },
           "refId": "count",
-          "expr": "sum by (http_route, service_version) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "expr": "sum by (http_route, service_version) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -249,7 +267,7 @@
             "uid": "prometheus"
           },
           "refId": "avg",
-          "expr": "sum by (http_route, service_version) (increase(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])) / sum by (http_route, service_version) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "expr": "sum by (http_route, service_version) (increase(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])) / sum by (http_route, service_version) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -261,7 +279,7 @@
             "uid": "prometheus"
           },
           "refId": "p50",
-          "expr": "histogram_quantile(0.5, sum by (le, http_route, service_version) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "expr": "histogram_quantile(0.5, sum by (le, http_route, service_version) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -273,7 +291,7 @@
             "uid": "prometheus"
           },
           "refId": "p95",
-          "expr": "histogram_quantile(0.95, sum by (le, http_route, service_version) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "expr": "histogram_quantile(0.95, sum by (le, http_route, service_version) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
           "editorMode": "code",
           "instant": true,
           "range": false,
@@ -284,6 +302,24 @@
         {
           "id": "merge",
           "options": {}
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "exclude",
+            "match": "any",
+            "filters": [
+              {
+                "fieldName": "Value #count",
+                "config": {
+                  "id": "lower",
+                  "options": {
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          }
         },
         {
           "id": "organize",
@@ -367,7 +403,7 @@
             "uid": "prometheus"
           },
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by (le, http_route) (rate(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le, http_route) (rate(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval])))",
           "editorMode": "code",
           "range": true,
           "legendFormat": "{{http_route}}"
@@ -416,7 +452,7 @@
             "uid": "prometheus"
           },
           "refId": "A",
-          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval])) / sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval]))",
+          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval])) / sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval]))",
           "editorMode": "code",
           "range": true,
           "legendFormat": "{{http_route}}"
@@ -465,7 +501,7 @@
             "uid": "prometheus"
           },
           "refId": "A",
-          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval]))",
+          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval]))",
           "editorMode": "code",
           "range": true,
           "legendFormat": "{{http_route}}"
