@@ -1,6 +1,6 @@
 # Grafana Operator
 
-The operator manages Grafana service accounts as code. It does not deploy
+The operator manages Grafana service accounts and dashboards as code. It does not deploy
 Grafana: the Helm release in `../grafana` still owns the Grafana Deployment,
 and the `Grafana` resource here points at it through `spec.external`,
 signing in with the existing `grafana-admin-user` Secret.
@@ -18,6 +18,19 @@ the account is gone.
 | Account    | Role   | Token Secret             | Used by         |
 | ---------- | ------ | ------------------------ | --------------- |
 | `ai-agent` | Viewer | `grafana-ai-agent-token` | Discord agent   |
+
+## Dashboards
+
+Dashboards shared by stage and production live in `dashboards/` as JSON.
+`kustomization.yaml` packs them into the `operator-dashboards` ConfigMap, and
+each `GrafanaDashboard` in `dashboards.yaml` points at one key. The `Grafana`
+resource carries the `dashboards: grafana` label that `instanceSelector`
+matches. Change a dashboard here, not in the Grafana UI: the JSON in this
+repository is the source.
+
+| Dashboard                  | File                                 |
+| -------------------------- | ------------------------------------ |
+| API 엔드포인트 응답시간     | `dashboards/endpoint-latency.json`   |
 
 ## Discord agent token
 
