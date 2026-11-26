@@ -14,9 +14,13 @@ import {
 } from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
+import { CourseNoticeService } from '@admin/group/group.service'
 import { BlueprintNoticeResolver } from './blueprint-notice.resolver'
 import { BlueprintNoticeService } from './blueprint-notice.service'
-import type { CreateBlueprintNoticeInput } from './model/blueprint-notice.input'
+import type {
+  CreateBlueprintNoticeInput,
+  UpdateBlueprintNoticeInput
+} from './model/blueprint-notice.input'
 
 const integration = process.env.BLUEPRINT_TEST_DATABASE_URL
   ? describe
@@ -38,6 +42,8 @@ integration('Blueprint Notice database transactions', () => {
     prisma,
     new BlueprintAccessService(prisma)
   )
+
+  const sectionNotices = new CourseNoticeService(prisma)
 
   let user: AuthenticatedUser
 
@@ -416,5 +422,245 @@ integration('Blueprint Notice database transactions', () => {
       }
     `)
     expect(missing.errors?.[0].extensions?.code).to.equal('NOT_FOUND')
+  })
+
+  describe('update and unlink', () => {
+    const edit = (
+      expectedRevision: number,
+      change: Omit<
+        UpdateBlueprintNoticeInput,
+        'operationId' | 'expectedRevision'
+      >
+    ): UpdateBlueprintNoticeInput => ({
+      operationId: randomUUID(),
+      expectedRevision,
+      ...change
+    })
+
+    const copiesOf = () =>
+      db.courseNotice.findMany({
+        where: { groupId: { in: groups } },
+        orderBy: { groupId: 'asc' }
+      })
+
+    it('syncs title and content to linked copies only, keeping section settings', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const [linked, detached] = created.courseNotice
+      await service.unlink(detached.groupId, detached.id)
+      await sectionNotices.updateCourseNotice(linked.groupId, linked.id, {
+        isFixed: true,
+        isPublic: false
+      })
+
+      const updated = await service.updateNotice(
+        user,
+        created.id,
+        edit(1, { title: 'Updated', content: '<p>updated</p>' })
+      )
+
+      expect(updated.revision).to.equal(2)
+      expect(updated.title).to.equal('Updated')
+      expect(updated.courseNotice.map(({ id }) => id)).to.deep.equal([
+        linked.id
+      ])
+      const [linkedRow, detachedRow] = await copiesOf()
+      expect(linkedRow).to.include({
+        title: 'Updated',
+        content: '<p>updated</p>',
+        isFixed: true,
+        isPublic: false,
+        blueprintNoticeId: created.id
+      })
+      expect(detachedRow).to.include({
+        title: input.title,
+        content: input.content,
+        blueprintNoticeId: null
+      })
+    })
+
+    it('resets read records only when the content actually changes', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      await db.courseNotice.updateMany({
+        where: { blueprintNoticeId: created.id },
+        data: { readBy: [user.id] }
+      })
+
+      await service.updateNotice(
+        user,
+        created.id,
+        edit(1, { title: input.title, content: input.content })
+      )
+      for (const copy of await copiesOf())
+        expect(copy.readBy).to.deep.equal([user.id])
+
+      await service.updateNotice(user, created.id, edit(2, { title: 'New' }))
+      for (const copy of await copiesOf()) expect(copy.readBy).to.deep.equal([])
+    })
+
+    it('rejects a stale revision without changing the source or copies', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      await service.updateNotice(user, created.id, edit(1, { title: 'First' }))
+      const before = await service.getNoticeById(user, created.id)
+
+      await expect(
+        service.updateNotice(user, created.id, edit(1, { title: 'Stale' }))
+      ).to.be.rejectedWith(UnprocessableDataException, 'STALE_REVISION')
+      expect(await service.getNoticeById(user, created.id)).to.deep.equal(
+        before
+      )
+    })
+
+    it('returns the saved state for a repeated update without applying it twice', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const request = edit(1, { title: 'Once' })
+
+      const first = await service.updateNotice(user, created.id, request)
+      const second = await service.updateNotice(user, created.id, request)
+
+      expect(second).to.deep.equal(first)
+      expect(second.revision).to.equal(2)
+      expect(await receiptCount()).to.equal(2)
+    })
+
+    it('rolls back the source when syncing the copies fails', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const before = await service.getNoticeById(user, created.id)
+      const query = db.$extends({
+        query: {
+          courseNotice: {
+            async updateMany({ args, query }) {
+              await query(args)
+              throw new Error('copy sync failed')
+            }
+          }
+        }
+      })
+      const failing = new BlueprintNoticeService(
+        query as unknown as PrismaService,
+        new BlueprintAccessService(prisma)
+      )
+      const request = edit(1, { title: 'Lost' })
+
+      await expect(
+        failing.updateNotice(user, created.id, request)
+      ).to.be.rejectedWith('copy sync failed')
+      expect(await service.getNoticeById(user, created.id)).to.deep.equal(
+        before
+      )
+      expect(await receiptCount()).to.equal(1)
+
+      // Nothing was recorded, so the same request can be resent.
+      const saved = await service.updateNotice(user, created.id, request)
+      expect(saved.title).to.equal('Lost')
+    })
+
+    it('requires unlink before a section edits the content of a copy', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const [copy] = created.courseNotice
+
+      await expect(
+        sectionNotices.updateCourseNotice(copy.groupId, copy.id, {
+          title: 'Section edit'
+        })
+      ).to.be.rejectedWith(
+        UnprocessableDataException,
+        'Confirm unlinkBlueprintNotice'
+      )
+
+      const unlinked = await service.unlink(copy.groupId, copy.id)
+      expect(unlinked).to.deep.equal({
+        id: copy.id,
+        groupId: copy.groupId,
+        blueprintNoticeId: null
+      })
+      // Unlink is idempotent.
+      expect(await service.unlink(copy.groupId, copy.id)).to.deep.equal(
+        unlinked
+      )
+
+      await sectionNotices.updateCourseNotice(copy.groupId, copy.id, {
+        title: 'Section edit'
+      })
+      await service.updateNotice(user, created.id, edit(1, { title: 'Source' }))
+      const [row] = await copiesOf()
+      expect(row.title).to.equal('Section edit')
+    })
+
+    it('rejects unlinking a notice through another section', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const [copy] = created.courseNotice
+      const otherGroup = groups.find((id) => id !== copy.groupId)!
+
+      await expect(service.unlink(otherGroup, copy.id)).to.be.rejectedWith(
+        'CourseNotice'
+      )
+      expect(
+        (await db.courseNotice.findUniqueOrThrow({ where: { id: copy.id } }))
+          .blueprintNoticeId
+      ).to.equal(created.id)
+    })
+
+    it('serializes a concurrent update and unlink without losing either', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const [linked, detached] = created.courseNotice
+
+      await Promise.all([
+        service.updateNotice(user, created.id, edit(1, { title: 'Race' })),
+        service.unlink(detached.groupId, detached.id)
+      ])
+
+      const [linkedRow, detachedRow] = await copiesOf()
+      expect(linkedRow).to.include({ id: linked.id, title: 'Race' })
+      expect(detachedRow.blueprintNoticeId).to.equal(null)
+      // Either order is valid; the copy is never half-updated.
+      expect([input.title, 'Race']).to.include(detachedRow.title)
+      expect((await service.getNoticeById(user, created.id)).revision).to.equal(
+        2
+      )
+    })
+
+    it('serves update and unlink through GraphQL', async () => {
+      const created = await service.createNotice(user, courseId, input)
+      const update = `mutation ($id: Int!, $input: UpdateBlueprintNoticeInput!) {
+        updateBlueprintNotice(blueprintNoticeId: $id, input: $input) {
+          id title revision courseNotice { id groupId }
+        }
+      }`
+
+      const updated = await graphql(update, {
+        id: created.id,
+        input: edit(1, { title: 'Via GraphQL' })
+      })
+      expect(updated.errors).to.equal(undefined)
+      expect(updated.data!.updateBlueprintNotice).to.include({
+        title: 'Via GraphQL',
+        revision: 2
+      })
+
+      const nullTitle = await graphql(update, {
+        id: created.id,
+        input: { ...edit(2, {}), title: null }
+      })
+      expect(nullTitle.errors?.[0].extensions?.code).to.equal('BAD_REQUEST')
+
+      const [copy] = created.courseNotice
+      const unlinked = await graphql(
+        `
+          mutation ($groupId: Int!, $id: Int!) {
+            unlinkBlueprintNotice(groupId: $groupId, courseNoticeId: $id) {
+              id
+              groupId
+              blueprintNoticeId
+            }
+          }
+        `,
+        { groupId: copy.groupId, id: copy.id }
+      )
+      expect(unlinked.errors).to.equal(undefined)
+      expect(unlinked.data!.unlinkBlueprintNotice).to.deep.include({
+        groupId: copy.groupId,
+        blueprintNoticeId: null
+      })
+    })
   })
 })
