@@ -332,6 +332,73 @@ describe('test-db-guard', () => {
     })
   })
 
+  describe('percent-encoded database names', () => {
+    // Prisma 6.13은 DB 이름을 디코딩하지 않으므로 `%73kkuding`과 `skkuding`은 서로 다른 DB입니다.
+    const ENCODED_DB_URL = 'postgresql://u:p@127.0.0.1:5434/%73kkuding'
+    // 사용자 이름·비밀번호의 정상적인 URL 인코딩(@, /)은 비교에 영향을 주지 않아야 합니다.
+    const ENCODED_CREDENTIALS_URL =
+      'postgresql://u%40ser:p%40ss%2Fword@127.0.0.1:5434/skkuding?schema=public'
+
+    it('should accept a plain database name', () => {
+      expect(parseDatabaseTarget(TEST_URL, 'X').database).to.equal('skkuding')
+    })
+
+    it('should reject a percent-encoded database name', () => {
+      expect(() =>
+        parseDatabaseTarget(ENCODED_DB_URL, 'TEST_DATABASE_URL')
+      ).to.throw(TestDatabaseGuardError, 'percent-encoded database name')
+    })
+
+    it('should block a percent-encoded database name in reset mode', () => {
+      expect(guard('reset', { TEST_DATABASE_URL: ENCODED_DB_URL })).to.throw(
+        TestDatabaseGuardError,
+        'percent-encoded database name'
+      )
+    })
+
+    it('should block a percent-encoded database name in connect mode', () => {
+      expect(
+        guard('connect', {
+          TEST_DATABASE_URL: TEST_URL,
+          DATABASE_URL: ENCODED_DB_URL
+        })
+      ).to.throw(TestDatabaseGuardError, 'percent-encoded database name')
+      expect(
+        guard('connect', {
+          TEST_DATABASE_URL: ENCODED_DB_URL,
+          DATABASE_URL: ENCODED_DB_URL
+        })
+      ).to.throw(TestDatabaseGuardError, 'percent-encoded database name')
+    })
+
+    it('should block a percent-encoded development DATABASE_URL in .env', () => {
+      expect(
+        guard(
+          'reset',
+          { TEST_DATABASE_URL: TEST_URL },
+          'postgresql://u:p@127.0.0.1:5433/%73kkuding'
+        )
+      ).to.throw(TestDatabaseGuardError, 'percent-encoded database name')
+    })
+
+    it('should allow URL-encoded credentials with a plain database name', () => {
+      expect(parseDatabaseTarget(ENCODED_CREDENTIALS_URL, 'X')).to.deep.equal({
+        host: 'loopback',
+        port: 5434,
+        database: 'skkuding'
+      })
+      expect(
+        guard('reset', { TEST_DATABASE_URL: ENCODED_CREDENTIALS_URL })
+      ).to.not.throw()
+      expect(
+        guard('connect', {
+          TEST_DATABASE_URL: ENCODED_CREDENTIALS_URL,
+          DATABASE_URL: TEST_URL
+        })
+      ).to.not.throw()
+    })
+  })
+
   describe('readDevelopmentDatabaseUrl', () => {
     let dir: string
 

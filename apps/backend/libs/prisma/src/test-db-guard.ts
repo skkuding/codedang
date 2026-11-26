@@ -111,11 +111,13 @@ export const parseDatabaseTarget = (
     throw new TestDatabaseGuardError(`${name} has an invalid port.`)
   }
 
-  let database: string
-  try {
-    database = decodeURIComponent(parsed.pathname.replace(/^\//, ''))
-  } catch {
-    throw new TestDatabaseGuardError(`${name} has an invalid database name.`)
+  // Prisma는 DB 이름을 percent-decoding하지 않고 경로 그대로 사용하므로,
+  // 인코딩된 DB 이름은 같은 DB를 다르게 표현할 수 있어 대상을 확정할 수 없는 것으로 보고 거부합니다.
+  const database = parsed.pathname.replace(/^\//, '')
+  if (database.includes('%')) {
+    throw new TestDatabaseGuardError(
+      `${name} has a percent-encoded database name, so the target cannot be verified.`
+    )
   }
   if (!database || database.includes('/')) {
     throw new TestDatabaseGuardError(`${name} has no database name.`)

@@ -146,6 +146,8 @@ DATABASE_URL="$TEST_DATABASE_URL" pnpm exec mocha apps/client/src/group/group.se
 - `DATABASE_URL`과 `TEST_DATABASE_URL`이 서로 다른 DB를 가리키는 경우 (예: `set -a; source .env` 후 `pnpm exec mocha` 실행)
 - `TEST_DATABASE_URL`이 `apps/backend/.env`의 `DATABASE_URL`(개발 DB)과 같은 DB를 가리키는 경우
 
+이 검사는 URL의 호스트·포트·DB 이름을 비교할 뿐, 실제 접속 대상을 확인하지는 않습니다. DNS 별칭, `/etc/hosts` 설정, 포트 포워딩 등으로 서로 다른 호스트 이름이나 포트가 같은 DB를 가리키면 판별하지 못하므로, 이런 구성을 사용한다면 테스트 DB가 개발 DB와 실제로 분리되어 있는지 직접 확인하세요.
+
 CI처럼 `apps/backend/.env`가 없고 테스트 DB가 전용·일회용인 환경에서만 `TEST_DATABASE_ISOLATED=true`를 설정합니다.
 
 ### Observability
