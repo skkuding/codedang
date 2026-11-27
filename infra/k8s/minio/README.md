@@ -1,21 +1,17 @@
-# MinIO in Kubernetes
+# Object storage in Kubernetes
 
-This deployment is intended only for stage environment.
+This deployment is intended only for the stage environment.
 
-It is ideal to use AWS S3 in stage environment, to mock as close as possible the production environment.
-However, we've decided to use on-premise MinIO in stage environment for following reasons:
+Stage uses [PGSTY Silo](https://silo.pgsty.com/), a maintained MinIO fork, as
+the application object store. Upstream MinIO community images were removed from
+Docker Hub and quay.io, so the legacy MinIO Tenant was removed after the
+cutover.
 
-- Postgres is already deployed on-premise in stage environment, so we want to keep all dependencies on-premise.
-- Save costs on AWS S3 usage.
+- `silo-statefulset.yaml` runs Silo on a retained 20Gi local-path volume.
+- `silo-services.yaml` and `httproute.yaml` expose the S3 API and console.
+- `users/*.yaml` hold the application credentials consumed by the services.
 
-Strongly recommend to use AWS S3 in production environment for better reliability and scalability.
+The MinIO Operator is still installed separately for the monitoring stack's
+`monitoring-minio` Tenant; see `infra/k8s/monitoring/minio/`.
 
-## How to setup MinIO
-
-### Install MinIO Operator
-
-Check: https://github.com/minio/operator?tab=readme-ov-file#procedure
-
-```bash
-kubectl kustomize github.com/minio/operator\?ref=v7.1.1 | kubectl apply -f -  # Replace v7.1.1 with the latest version
-```
+Strongly recommend using AWS S3 in production for reliability and scalability.
