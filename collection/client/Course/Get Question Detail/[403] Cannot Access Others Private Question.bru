@@ -12,7 +12,7 @@ get {
 
 script:pre-request {
   const login = require('./login');
-  await login.loginUser2nd(req);  // 다른 학생으로 로그인
+  await login.loginUser3rd(req);  // user03: 강의 멤버이지만 작성자(user02)도 리더도 아님
 }
 
 tests {

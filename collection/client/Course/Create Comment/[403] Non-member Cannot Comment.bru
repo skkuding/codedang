@@ -1,0 +1,41 @@
+meta {
+  name: [403] Non-member Cannot Comment
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/course/2/qna/1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "Comment from a non-member"
+  }
+}
+
+script:pre-request {
+  const login = require('./login');
+  await login.loginContestAdmin(req);  // contestAdmin: 강의 2에 가입하지 않은 일반 사용자
+}
+
+settings {
+  encodeUrl: true
+}
+
+tests {
+  test("should return 403 Forbidden", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
+
+docs {
+  # 📘 Create Comment - Non-member Cannot Comment
+
+  강의에 가입하지 않은 사용자가 댓글을 작성하려고 하면 403 Forbidden 에러가 발생합니다.
+
+  멤버십은 질문 존재 여부보다 먼저 검사하므로, 비멤버는 질문의 존재 여부와 관계없이 항상 403을 받습니다.
+  (강의 2에는 seed 질문이 없으므로 이 요청은 질문 존재 여부를 노출하지 않는지도 함께 확인합니다.)
+}
