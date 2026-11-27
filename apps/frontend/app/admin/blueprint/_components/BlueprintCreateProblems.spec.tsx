@@ -109,6 +109,8 @@ describe('Blueprint create problem selection', () => {
     )
     const { rerender } = render(tree(catalog))
     fireEvent.click(screen.getByRole('button', { name: 'Edit Problem' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Include Alpha' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Include Alpha' }))
     fireEvent.click(screen.getByRole('button', { name: 'Load more problems' }))
     expect(loadMore).toHaveBeenCalledOnce()
     rerender(tree({ ...catalog, status: 'loading', isLoadingMore: true }))
@@ -138,7 +140,8 @@ describe('Blueprint create problem selection', () => {
     ).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }))
     expect(onChange.mock.lastCall?.[0].problems).toEqual([
-      ...draft.problems,
+      { problemId: 12, score: 60, solution: 'hidden' },
+      manualAlphaProblem(),
       { problemId: 13, score: 0, solution: 'hidden' }
     ])
   })
@@ -228,10 +231,12 @@ describe('Blueprint create problem selection', () => {
 
   it.each(['Cancel', 'Escape'])(
     'keeps pending changes out of the draft until Apply and discards %s',
-    (close) => {
+    async (close) => {
       const onChange = vi.fn()
       render(<Harness onChange={onChange} />)
-      fireEvent.click(screen.getByRole('button', { name: 'Edit Problem' }))
+      const trigger = screen.getByRole('button', { name: 'Edit Problem' })
+      trigger.focus()
+      fireEvent.click(trigger)
       fireEvent.click(screen.getByRole('checkbox', { name: 'Include Alpha' }))
       expect(onChange).not.toHaveBeenCalled()
       if (close === 'Escape') {
@@ -239,10 +244,13 @@ describe('Blueprint create problem selection', () => {
       } else {
         fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
       }
-      expect(screen.queryByRole('dialog')).toBeNull()
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBeNull()
+        expect(document.activeElement).toBe(trigger)
+      })
       expect(onChange).not.toHaveBeenCalled()
 
-      fireEvent.click(screen.getByRole('button', { name: 'Edit Problem' }))
+      fireEvent.click(trigger)
       expect(
         screen
           .getByRole('checkbox', { name: 'Include Alpha' })
@@ -259,53 +267,12 @@ describe('Blueprint create problem selection', () => {
       expect(onChange.mock.lastCall?.[0].problems).toEqual([
         { problemId: 12, score: 0, solution: 'hidden' }
       ])
-      expect(screen.queryByRole('dialog')).toBeNull()
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBeNull()
+        expect(document.activeElement).toBe(trigger)
+      })
     }
   )
-
-  it.each(['Cancel', 'Apply', 'Escape'])(
-    'returns keyboard focus to Edit Problem after %s',
-    async (action) => {
-      render(<Harness />)
-      const trigger = screen.getByRole('button', { name: 'Edit Problem' })
-      trigger.focus()
-      fireEvent.click(trigger)
-      if (action === 'Escape') {
-        fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
-      } else {
-        fireEvent.click(screen.getByRole('button', { name: action }))
-      }
-      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-      expect(document.activeElement).toBe(trigger)
-    }
-  )
-
-  it('preserves existing scores and solution choices when adding a problem', () => {
-    const onChange = vi.fn()
-    render(
-      <Harness
-        initial={{
-          ...emptyBlueprintCreateDraft(),
-          problems: [manualAlphaProblem()]
-        }}
-        onChange={onChange}
-      />
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Edit Problem' }))
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Include Alpha' }))
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Include Alpha' }))
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Include Beta' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(onChange.mock.lastCall?.[0].problems).toEqual([
-      {
-        problemId: 11,
-        score: 40,
-        solution: 'manual',
-        manualReleaseTime: '2026-11-20T12:30'
-      },
-      { problemId: 12, score: 0, solution: 'hidden' }
-    ])
-  })
 
   it('removes selected problems without changing remaining entries and re-adds them with new defaults', () => {
     const onChange = vi.fn()

@@ -9,6 +9,7 @@ import {
   isCompleteBlueprintEditData,
   type BlueprintEditData
 } from '../_libs/editTypes'
+import { uniqueProblems } from '../_libs/problemImport'
 import { blueprintKeys } from '../_libs/queries'
 import { blueprintDetailHref } from '../_libs/routes'
 import { useBlueprintRead } from '../_libs/useBlueprintRead'
@@ -131,14 +132,10 @@ export function BlueprintEditRoute({ assignmentId }: { assignmentId: number }) {
                 problemChangesAllowed={problemChangesAllowed}
                 problemCatalog={{
                   ...catalog,
-                  problems: Array.from(
-                    new Map(
-                      [...data.problems, ...catalog.problems].map((problem) => [
-                        problem.id,
-                        problem
-                      ])
-                    ).values()
-                  )
+                  problems: uniqueProblems([
+                    ...data.problems,
+                    ...catalog.problems
+                  ])
                 }}
                 onCancel={back}
               />

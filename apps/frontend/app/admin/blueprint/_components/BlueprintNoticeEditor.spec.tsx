@@ -15,6 +15,7 @@ import type {
 } from '../_libs/noticeTypes'
 import { createTestOptions } from '../_test/createFixtures'
 import '../_test/createFormEnvironment'
+import { deferred } from '../_test/deferred'
 import { BlueprintNoticeDataSourceProvider } from './BlueprintNoticeDataSourceProvider'
 import { BlueprintNoticeEditor } from './BlueprintNoticeEditor'
 
@@ -359,24 +360,20 @@ describe('Blueprint Notice editor', () => {
   )
 
   it('does not mix a delayed earlier Notice into another editor', async () => {
-    let finish:
-      | ((
-          value: Awaited<ReturnType<BlueprintNoticeSource['readNotice']>>
-        ) => void)
-      | undefined
+    const pending =
+      deferred<Awaited<ReturnType<BlueprintNoticeSource['readNotice']>>>()
     const source = sourceFor()
     vi.mocked(source.readNotice).mockImplementation((_, id) =>
       id === 101
-        ? new Promise((resolve) => {
-            finish = resolve
-          })
+        ? pending.promise
         : Promise.resolve({ status: 'success', data: editData(id) })
     )
     const view = setup(source)
+    expect(source.readNotice).toHaveBeenCalledWith(51, 101)
     view.show(102)
     await screen.findByDisplayValue('Notice 102')
     await act(() => {
-      finish?.({ status: 'success', data: editData() })
+      pending.resolve({ status: 'success', data: editData() })
     })
     expect(screen.getByLabelText<HTMLInputElement>(/Title/).value).toBe(
       'Notice 102'
@@ -411,17 +408,9 @@ describe('Blueprint Notice editor', () => {
       target: { value: 'Discarded draft' }
     })
     view.show(101, false)
-    let finish:
-      | ((
-          value: Awaited<ReturnType<BlueprintNoticeSource['readNotice']>>
-        ) => void)
-      | undefined
-    vi.mocked(source.readNotice).mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          finish = resolve
-        })
-    )
+    const pending =
+      deferred<Awaited<ReturnType<BlueprintNoticeSource['readNotice']>>>()
+    vi.mocked(source.readNotice).mockImplementationOnce(() => pending.promise)
     view.show(101)
     await waitFor(() => expect(source.readNotice).toHaveBeenCalledTimes(2))
     expect(screen.queryAllByRole('textbox')).toHaveLength(0)
@@ -433,7 +422,7 @@ describe('Blueprint Notice editor', () => {
       content: '<p>Fresh body</p>'
     }
     await act(() => {
-      finish?.({ status: 'success', data: fresh })
+      pending.resolve({ status: 'success', data: fresh })
     })
     await screen.findByDisplayValue('Fresh title')
     expect(
