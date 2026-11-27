@@ -4,7 +4,8 @@ import type { AuthenticatedUser } from '@libs/auth'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { assertAssignmentsHaveNoLearningRecords } from '@admin/assignment/assignment-learning-records'
@@ -150,6 +151,120 @@ export class BlueprintAssignmentProblemService {
         orderBy: { order: 'asc' }
       })
     })
+  }
+
+  async updateBlueprintAssignmentProblems(
+    user: AuthenticatedUser,
+    blueprintAssignmentId: number,
+    problems: BlueprintAssignmentProblemInput[]
+  ) {
+    await this.assertAccess(user, blueprintAssignmentId)
+
+    return await this.prisma.$transaction(async (tx) => {
+      await lockBlueprintAssignment(tx, blueprintAssignmentId)
+
+      const copyIds = await this.getCopyIds(tx, blueprintAssignmentId)
+      // Score changes affect grading, so block them once students have started.
+      await assertAssignmentsHaveNoLearningRecords(tx, copyIds)
+
+      const current = await tx.blueprintAssignmentProblem.findMany({
+        where: { blueprintAssignmentId },
+        select: { problemId: true }
+      })
+      const imported = new Set(current.map(({ problemId }) => problemId))
+      if (problems.some(({ problemId }) => !imported.has(problemId))) {
+        throw new EntityNotExistException('BlueprintAssignmentProblem')
+      }
+
+      for (const { problemId, score } of problems) {
+        await tx.blueprintAssignmentProblem.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            blueprintAssignmentId_problemId: {
+              blueprintAssignmentId,
+              problemId
+            }
+          },
+          data: { score }
+        })
+        if (copyIds.length) {
+          await tx.assignmentProblem.updateMany({
+            where: { assignmentId: { in: copyIds }, problemId },
+            data: { score }
+          })
+        }
+      }
+
+      return await tx.blueprintAssignmentProblem.findMany({
+        where: { blueprintAssignmentId },
+        orderBy: { order: 'asc' }
+      })
+    })
+  }
+
+  async updateBlueprintAssignmentProblemsOrder(
+    user: AuthenticatedUser,
+    blueprintAssignmentId: number,
+    orders: number[]
+  ) {
+    await this.assertAccess(user, blueprintAssignmentId)
+
+    return await this.prisma.$transaction(async (tx) => {
+      await lockBlueprintAssignment(tx, blueprintAssignmentId)
+
+      const current = await tx.blueprintAssignmentProblem.findMany({
+        where: { blueprintAssignmentId },
+        select: { problemId: true }
+      })
+      // orders must list every imported problem exactly once.
+      if (
+        orders.length !== current.length ||
+        new Set(orders).size !== orders.length ||
+        current.some(({ problemId }) => !orders.includes(problemId))
+      ) {
+        throw new UnprocessableDataException(
+          'orders must contain every problem of the blueprint assignment once'
+        )
+      }
+
+      const copyIds = await this.getCopyIds(tx, blueprintAssignmentId)
+
+      for (const [order, problemId] of orders.entries()) {
+        await tx.blueprintAssignmentProblem.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            blueprintAssignmentId_problemId: {
+              blueprintAssignmentId,
+              problemId
+            }
+          },
+          data: { order }
+        })
+        if (copyIds.length) {
+          await tx.assignmentProblem.updateMany({
+            where: { assignmentId: { in: copyIds }, problemId },
+            data: { order }
+          })
+        }
+      }
+
+      return await tx.blueprintAssignmentProblem.findMany({
+        where: { blueprintAssignmentId },
+        orderBy: { order: 'asc' }
+      })
+    })
+  }
+
+  private async getCopyIds(
+    tx: Prisma.TransactionClient,
+    blueprintAssignmentId: number
+  ) {
+    const copies = await tx.assignment.findMany({
+      where: { blueprintAssignmentId },
+      select: { id: true },
+      orderBy: { id: 'asc' }
+    })
+    return copies.map(({ id }) => id)
   }
 
   // Same rule as the problem API: creator or leader of a shared group.
