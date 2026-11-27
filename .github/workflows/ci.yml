@@ -138,6 +138,9 @@ jobs:
       - name: Compile GraphQL schema
         run: pnpm --filter="@codedang/frontend" run compile
 
+      - name: Generate Next.js Page Types (frontend)
+        run: pnpm --filter="@codedang/frontend" exec next typegen
+
       - name: Check types (frontend)
         run: pnpm --filter="@codedang/frontend" exec tsc --noEmit
 
