@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
   GetObjectCommand,
@@ -157,6 +158,17 @@ export class StorageService {
       new DeleteObjectCommand({
         Bucket: this.config.get('MEDIA_BUCKET_NAME'),
         Key: filename
+      })
+    )
+  }
+
+  async copyFile(sourceFilename: string, targetFilename: string) {
+    const bucket = this.config.get('MEDIA_BUCKET_NAME')
+    await this.client.send(
+      new CopyObjectCommand({
+        Bucket: bucket,
+        Key: targetFilename,
+        CopySource: `${bucket}/${encodeURIComponent(sourceFilename)}`
       })
     )
   }
