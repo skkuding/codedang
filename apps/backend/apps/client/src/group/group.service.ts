@@ -5,6 +5,7 @@ import {
   Injectable,
   NotAcceptableException
 } from '@nestjs/common'
+import type KeyvRedis from '@keyv/redis'
 import {
   GroupType,
   Role,
@@ -13,8 +14,16 @@ import {
   QnACategory
 } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { invitationCodeKey, joinGroupCacheKey } from '@libs/cache'
-import { JOIN_GROUP_REQUEST_EXPIRE_TIME } from '@libs/constants'
+import {
+  invitationCodeKey,
+  joinGroupCacheKey,
+  studentRetryKey
+} from '@libs/cache'
+import {
+  JOIN_GROUP_REQUEST_EXPIRE_TIME,
+  MAX_STUDENT_RETRY_COUNT,
+  STUDENT_RETRY_EXPIRE_TIME
+} from '@libs/constants'
 import {
   ConflictFoundException,
   EntityNotExistException,
@@ -316,6 +325,7 @@ export class GroupService {
    * @param userId - 사용자 ID
    * @param groupId - 가입할 그룹 ID
    * @param invitation - (선택) 초대 코드
+   * @param studentId - 학생이 입력한 학번
    * @returns 가입 결과 (바로 가입되었는지 `isJoined: true`, 요청 상태인지 `isJoined: false`)
    *
    * @throws ForbiddenAccessException - 초대 코드가 유효하지 않거나, 화이트리스트에 없는 경우
@@ -329,7 +339,8 @@ export class GroupService {
   async joinGroupById(
     userId: number,
     groupId: number,
-    invitation: string
+    invitation: string,
+    studentId: string
   ): Promise<{ userGroupData: Partial<UserGroup>; isJoined: boolean }> {
     const invitedGroupId = await this.cacheManager.get<number>(
       invitationCodeKey(invitation)
@@ -409,6 +420,12 @@ export class GroupService {
       })
 
       if (whitelistExists) {
+        const joinRequestCount = await this.getUserRetryCount(userId, groupId)
+
+        if (joinRequestCount >= MAX_STUDENT_RETRY_COUNT) {
+          throw new ForbiddenAccessException('Join request count exceed')
+        }
+
         const user = await this.prisma.user.findUniqueOrThrow({
           where: { id: userId },
           select: {
@@ -423,7 +440,13 @@ export class GroupService {
           }
         })
 
-        if (!isUserWhitelisted) {
+        if (studentId !== user.studentId || !isUserWhitelisted) {
+          const count = await this.incrementRetryCount(userId, groupId)
+
+          if (count === -1) {
+            throw new ForbiddenAccessException('Join request count exceed')
+          }
+
           throw new ForbiddenAccessException('Whitelist violation')
         }
       }
@@ -502,6 +525,62 @@ export class GroupService {
         }
       }
     })
+  }
+
+  private async getRedisClient() {
+    const store = this.cacheManager.stores[0].store as KeyvRedis<unknown>
+    return await store.getClient()
+  }
+
+  async getUserRetryCount(userId: number, courseId: number) {
+    const client = await this.getRedisClient()
+    const count = Number(await client.get(studentRetryKey(courseId, userId)))
+    return Number.isInteger(count) && count > 0 ? count : 0
+  }
+
+  /**
+   * 재시도 횟수를 원자적으로 1 증가시킵니다.
+   *
+   * @returns 증가된 재시도 횟수. 이미 최대 횟수에 도달했다면 -1
+   *
+   * @remarks
+   * - 첫 실패 시점부터 `STUDENT_RETRY_EXPIRE_TIME` 동안 유지되며, 이후 실패로 만료 시간이 연장되지 않습니다.
+   */
+  async incrementRetryCount(userId: number, courseId: number) {
+    const client = await this.getRedisClient()
+
+    const result = await client.eval(
+      `
+      local raw = redis.call('GET', KEYS[1])
+      local count = tonumber(raw)
+
+      if raw and not count then
+        redis.call('DEL', KEYS[1])
+        count = 0
+      end
+
+      if (count or 0) >= tonumber(ARGV[2]) then
+        return -1
+      end
+
+      count = redis.call('INCR', KEYS[1])
+
+      if count == 1 then
+        redis.call('PEXPIRE', KEYS[1], ARGV[1])
+      end
+
+      return count
+      `,
+      {
+        keys: [studentRetryKey(courseId, userId)],
+        arguments: [
+          String(STUDENT_RETRY_EXPIRE_TIME),
+          String(MAX_STUDENT_RETRY_COUNT)
+        ]
+      }
+    )
+
+    return Number(result)
   }
 
   /**

@@ -3,7 +3,7 @@ import { Test, type TestingModule } from '@nestjs/testing'
 import { GroupType, type Group } from '@generated'
 import type { User } from '@generated'
 import { faker } from '@faker-js/faker'
-import { Role } from '@prisma/client'
+import { Role, type Prisma } from '@prisma/client'
 import type { Cache } from 'cache-manager'
 import { expect } from 'chai'
 import { spy, stub } from 'sinon'
@@ -16,6 +16,7 @@ import {
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import {
+  CourseService,
   GroupService,
   InvitationService,
   WhitelistService
@@ -31,6 +32,16 @@ const courseInput = {
   professor: '김우주',
   semester: '2025 Spring',
   week: 16,
+  studentWhitelist: [
+    {
+      studentId: '20250001',
+      studentName: '홍길동'
+    },
+    {
+      studentId: '20250002',
+      studentName: '김코딩'
+    }
+  ],
   email: 'johndoe@example.com',
   website: 'https://example.com',
   office: 'Room 301',
@@ -88,11 +99,13 @@ const group = {
   GroupWhitelist: [
     {
       groupId: faker.number.int(),
-      studentId: faker.string.numeric()
+      studentId: faker.string.numeric(),
+      studentName: faker.person.fullName()
     },
     {
       groupId: faker.number.int(),
-      studentId: faker.string.numeric()
+      studentId: faker.string.numeric(),
+      studentName: faker.person.fullName()
     }
   ],
   courseInfo
@@ -120,6 +133,10 @@ const userWithOutCanCreate: User = {
   ...user,
   canCreateCourse: false,
   canCreateContest: false
+}
+
+const whitelistServiceMock = {
+  updateWhitelist: stub().resolves()
 }
 
 const db = {
@@ -185,9 +202,13 @@ describe('GroupService', () => {
   let cache: Cache
 
   beforeEach(async () => {
+    whitelistServiceMock.updateWhitelist.reset()
+    whitelistServiceMock.updateWhitelist.resolves()
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GroupService,
+        { provide: WhitelistService, useValue: whitelistServiceMock },
         { provide: PrismaService, useValue: db },
         {
           provide: CACHE_MANAGER,
@@ -215,6 +236,25 @@ describe('GroupService', () => {
 
       const res = await service.createCourse(courseInput, userReq)
       expect(res).to.deep.equal(group)
+
+      expect(
+        whitelistServiceMock.updateWhitelist.calledOnceWithExactly(
+          group.id,
+          courseInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
+    })
+
+    it('should convert whitelist failures into an input error', async () => {
+      db.user.findUnique.resolves(user)
+      whitelistServiceMock.updateWhitelist.rejects(
+        new Error('Invalid whitelist')
+      )
+
+      await expect(
+        service.createCourse(courseInput, userReq)
+      ).to.be.rejectedWith(UnprocessableDataException, 'Invalid whitelist')
     })
 
     it('should throw error when user does not have can create course', async () => {
@@ -314,13 +354,31 @@ describe('GroupService', () => {
   })
 
   describe('updateCourse', () => {
+    it('should convert whitelist failures into an input error', async () => {
+      db.group.update.resolves(group)
+      whitelistServiceMock.updateWhitelist.rejects(
+        new Error('Invalid whitelist')
+      )
+
+      await expect(
+        service.updateCourse(groupId, courseInput)
+      ).to.be.rejectedWith(UnprocessableDataException, 'Invalid whitelist')
+    })
+
     const updated = { ...group, groupName: 'Updated' }
     it('should return updated group', async () => {
-      db.group.findFirst.resolves(null)
       db.group.update.resolves(updated)
 
       const res = await service.updateCourse(groupId, courseInput)
       expect(res).to.deep.equal(updated)
+
+      expect(
+        whitelistServiceMock.updateWhitelist.calledOnceWithExactly(
+          groupId,
+          courseInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
     })
   })
 
@@ -343,7 +401,13 @@ describe('GroupService', () => {
     const duplicateInput = {
       courseNum: 'SWE3099',
       semester: '2026 Spring',
-      classNum: 1
+      classNum: 1,
+      studentWhitelist: [
+        {
+          studentId: '20250001',
+          studentName: '홍길동'
+        }
+      ]
     }
 
     it('should throw NotFoundException if user does not exist', async () => {
@@ -375,6 +439,44 @@ describe('GroupService', () => {
         UnprocessableDataException,
         'Invalid groupId for a course'
       )
+    })
+
+    it('should convert whitelist failures during duplication into an input error', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({ ...group, assignment: [] })
+      db.group.create.resolves(group)
+      whitelistServiceMock.updateWhitelist.rejects(
+        new Error('Invalid whitelist')
+      )
+
+      await expect(
+        service.duplicateCourse(groupId, userId, duplicateInput)
+      ).to.be.rejectedWith(UnprocessableDataException, 'Invalid whitelist')
+    })
+
+    it('should use default configuration when the original configuration is null', async () => {
+      db.user.findUnique.resolves({ canCreateCourse: true })
+      db.group.findUniqueOrThrow.resolves({
+        ...group,
+        config: null,
+        assignment: []
+      })
+      db.group.create.resolves(group)
+
+      const result = await service.duplicateCourse(
+        groupId,
+        userId,
+        duplicateInput
+      )
+
+      expect(db.group.create.lastCall.args[0].data.config).to.deep.equal({
+        showOnList: true,
+        allowJoinFromSearch: true,
+        allowJoinWithURL: true,
+        requireApprovalBeforeJoin: false
+      })
+      expect(result.originAssignments).to.deep.equal([])
+      expect(result.copiedAssignments).to.deep.equal([])
     })
 
     it('should duplicate course successfully', async () => {
@@ -437,6 +539,13 @@ describe('GroupService', () => {
       expect(createCallArgs.data.courseInfo.create.classNum).to.equal(
         duplicateInput.classNum
       )
+      expect(
+        whitelistServiceMock.updateWhitelist.calledOnceWithExactly(
+          groupWithAssignment.id,
+          duplicateInput.studentWhitelist,
+          db
+        )
+      ).to.be.true
 
       // AssignmentRecord must be created against the NEW assignment id, not the
       // original one, and must carry no score/finalScore/submission history.
@@ -600,19 +709,183 @@ describe('WhitelistService', () => {
   })
 
   describe('getWhitelist', () => {
-    it('should return student Ids in the whitelist', async () => {
+    it('should return students in the whitelist', async () => {
       const groupId = faker.number.int()
       const mockData = [
-        { studentId: faker.string.numeric() },
-        { studentId: faker.string.numeric() }
+        {
+          studentId: faker.string.numeric(),
+          studentName: faker.person.fullName()
+        },
+        {
+          studentId: faker.string.numeric(),
+          studentName: faker.person.fullName()
+        }
       ]
+
       db.groupWhitelist.findMany.resolves(mockData)
+
       const res = await service.getWhitelist(groupId)
-      expect(res).to.deep.equal(mockData.map((item) => item.studentId))
+
+      expect(res).to.deep.equal(mockData)
       expect(
         db.groupWhitelist.findMany.calledWith({
           where: { groupId },
-          select: { studentId: true }
+          select: {
+            studentId: true,
+            studentName: true
+          }
+        })
+      ).to.be.true
+    })
+  })
+
+  describe('updateWhitelist', () => {
+    it('should use the last name once for duplicate student IDs', async () => {
+      const groupId = 1
+      const tx = {
+        groupWhitelist: {
+          findMany: stub().resolves([]),
+          deleteMany: stub().resolves({ count: 0 }),
+          createMany: stub().resolves({ count: 1 })
+        }
+      }
+
+      await service.updateWhitelist(
+        groupId,
+        [
+          { studentId: '20250001', studentName: 'First name' },
+          { studentId: '20250001', studentName: 'Last name' }
+        ],
+        tx as unknown as Prisma.TransactionClient
+      )
+
+      expect(
+        tx.groupWhitelist.createMany.calledOnceWithExactly({
+          data: [{ groupId, studentId: '20250001', studentName: 'Last name' }]
+        })
+      ).to.be.true
+      expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
+    })
+
+    it('should trim and deduplicate IDs while preserving leading zeros', async () => {
+      const tx = {
+        groupWhitelist: {
+          findMany: stub().resolves([
+            { studentId: '001', studentName: 'Existing student' }
+          ]),
+          deleteMany: stub().resolves({ count: 0 }),
+          createMany: stub().resolves({ count: 1 })
+        }
+      }
+
+      await service.updateWhitelist(
+        1,
+        [
+          { studentId: ' 001 ', studentName: 'Existing student' },
+          { studentId: ' 002 ', studentName: 'First name' },
+          { studentId: '\t002\n', studentName: 'Last name' }
+        ],
+        tx as unknown as Prisma.TransactionClient
+      )
+
+      expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
+      expect(
+        tx.groupWhitelist.createMany.calledOnceWithExactly({
+          data: [{ groupId: 1, studentId: '002', studentName: 'Last name' }]
+        })
+      ).to.be.true
+    })
+
+    for (const studentId of ['', ' \t\n ']) {
+      it(`should reject an empty ID ${JSON.stringify(studentId)} before DB changes`, async () => {
+        const tx = {
+          groupWhitelist: {
+            findMany: stub().resolves([]),
+            deleteMany: stub(),
+            createMany: stub()
+          }
+        }
+
+        await expect(
+          service.updateWhitelist(
+            1,
+            [{ studentId, studentName: 'Student' }],
+            tx as unknown as Prisma.TransactionClient
+          )
+        ).to.be.rejectedWith(
+          UnprocessableDataException,
+          'Student ID cannot be empty'
+        )
+        expect(tx.groupWhitelist.findMany.notCalled).to.be.true
+        expect(tx.groupWhitelist.deleteMany.notCalled).to.be.true
+        expect(tx.groupWhitelist.createMany.notCalled).to.be.true
+      })
+    }
+
+    it('should add, delete, and rename students', async () => {
+      const groupId = faker.number.int()
+      const currentWhitelist = [
+        {
+          studentId: '20250001',
+          studentName: '삭제할 학생'
+        },
+        {
+          studentId: '20250002',
+          studentName: '이전 이름'
+        },
+        {
+          studentId: '20250003',
+          studentName: '유지할 학생'
+        }
+      ]
+      const newWhitelist = [
+        {
+          studentId: '20250002',
+          studentName: '변경된 이름'
+        },
+        {
+          studentId: '20250003',
+          studentName: '유지할 학생'
+        },
+        {
+          studentId: '20250004',
+          studentName: '추가할 학생'
+        }
+      ]
+
+      db.groupWhitelist.findMany.resolves(currentWhitelist)
+      db.groupWhitelist.deleteMany.resolves({ count: 2 })
+      db.groupWhitelist.createMany.resolves({ count: 2 })
+
+      const tx = db as unknown as Prisma.TransactionClient
+
+      await service.updateWhitelist(groupId, newWhitelist, tx)
+
+      expect(
+        db.groupWhitelist.deleteMany.calledWith({
+          where: {
+            groupId,
+            studentId: {
+              in: ['20250001', '20250002']
+            }
+          }
+        })
+      ).to.be.true
+
+      expect(
+        db.groupWhitelist.createMany.calledWith({
+          data: [
+            {
+              groupId,
+              studentId: '20250002',
+              studentName: '변경된 이름'
+            },
+            {
+              groupId,
+              studentId: '20250004',
+              studentName: '추가할 학생'
+            }
+          ]
         })
       ).to.be.true
     })
@@ -643,6 +916,19 @@ describe('WhitelistService', () => {
           data: studentIds.map((studentId) => ({ groupId, studentId }))
         })
       ).to.be.true
+    })
+
+    it('should rethrow unexpected database errors unchanged', async () => {
+      const error = new Error('Database unavailable')
+      db.groupWhitelist.deleteMany.resolves({ count: 0 })
+      db.groupWhitelist.createMany.rejects(error)
+
+      const caught = await service.createWhitelist(1, ['20250001']).then(
+        () => undefined,
+        (reason) => reason
+      )
+
+      expect(caught).to.equal(error)
     })
 
     it('should throw an error if there are duplicate student IDs', async () => {
@@ -684,6 +970,22 @@ describe('WhitelistService', () => {
           where: { groupId }
         })
       ).to.be.true
+    })
+  })
+})
+
+describe('CourseService', () => {
+  it('should reject a QnA lookup when the course has no matching question', async () => {
+    const prisma = { courseQnA: { findUnique: stub().resolves(null) } }
+    const service = new CourseService(prisma as unknown as PrismaService)
+
+    await expect(service.getCourseQnA(1, 2)).to.be.rejectedWith(
+      EntityNotExistException,
+      'CourseQnA'
+    )
+    expect(prisma.courseQnA.findUnique.firstCall.args[0].where).to.deep.equal({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      groupId_order: { groupId: 1, order: 2 }
     })
   })
 })
