@@ -3,14 +3,18 @@ import { PrismaClient, Role, type Prisma } from '@prisma/client'
 import { expect } from 'chai'
 import { randomUUID } from 'crypto'
 import { restore } from 'sinon'
-import { AuthenticatedUser } from '@libs/auth'
+import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
 import { MAX_DATE } from '@libs/constants'
-import { UnprocessableDataException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  UnprocessableDataException
+} from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { AssignmentEventService } from '@admin/assignment/assignment-event.service'
 import { AssignmentProblemService } from '@admin/assignment/assignment-problem.service'
 import { AssignmentService } from '@admin/assignment/assignment.service'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
+import { BlueprintAssignmentResolver } from './blueprint-assignment.resolver'
 import { BlueprintAssignmentService } from './blueprint-assignment.service'
 import type {
   CreateBlueprintAssignmentInput,
@@ -50,6 +54,8 @@ integration('Blueprint Assignment database transactions', () => {
     new BlueprintAccessService(prisma),
     events
   )
+
+  const resolver = new BlueprintAssignmentResolver(service)
 
   const assignments = new AssignmentService(prisma, emitter, {} as never)
 
@@ -790,11 +796,15 @@ integration('Blueprint Assignment database transactions', () => {
       { timeout: 10000 }
     )
     await locked
-    const save = service.updateAssignmentById(user, source.id, {
-      operationId: randomUUID(),
-      expectedRevision: source.revision,
-      title: 'Only title'
-    })
+    const save = resolver.updateBlueprintAssignment(
+      { user } as AuthenticatedRequest,
+      source.id,
+      {
+        operationId: randomUUID(),
+        expectedRevision: source.revision,
+        title: 'Only title'
+      }
+    )
     let timer: ReturnType<typeof setTimeout> | undefined
     try {
       const completed = await Promise.race([
@@ -1244,5 +1254,69 @@ integration('Blueprint Assignment database transactions', () => {
           event.assignmentId === copy.id && event.name === 'assignment.graded'
       ).length
     ).to.equal(2)
+  })
+
+  it('rejects changing the assignment type or setting visibility outside a section without writes', async () => {
+    const source = await service.save(user, courseId, input)
+    const before = await snapshot(source.id)
+    for (const [patch, message] of [
+      [{ isExercise: true }, 'Assignment type cannot change'],
+      ...['isVisible', 'isRankVisible', 'isJudgeResultVisible'].map(
+        (key) => [{ [key]: false }, `${key} must be set per section`] as const
+      )
+    ] as const) {
+      await expect(
+        service.updateAssignmentById(user, source.id, {
+          operationId: randomUUID(),
+          expectedRevision: source.revision,
+          ...patch
+        })
+      ).to.be.rejectedWith(UnprocessableDataException, message)
+      expect(await snapshot(source.id)).to.deep.equal(before)
+    }
+  })
+
+  it('unlinks through the resolver, keeps repeated Unlink idempotent and rejects missing assignments', async () => {
+    const source = await service.save(user, courseId, input)
+    const copy = source.assignment[0]
+    const other = await getCopy(source.assignment[1].id)
+    const first = await resolver.unlinkBlueprintAssignment(
+      copy.groupId,
+      copy.id
+    )
+    expect(first.blueprintAssignmentId).to.equal(null)
+    expect(
+      await resolver.unlinkBlueprintAssignment(copy.groupId, copy.id)
+    ).to.deep.equal(first)
+    await expect(
+      resolver.unlinkBlueprintAssignment(copy.groupId, 2147483647)
+    ).to.be.rejectedWith(EntityNotExistException, 'Assignment does not exist')
+    expect(await getCopy(other.id)).to.deep.equal(other)
+    expect(
+      (await service.getAssignmentById(user, source.id)).assignment.map(
+        ({ id }) => id
+      )
+    ).to.deep.equal([other.id])
+  })
+
+  it('refreshes problem visibility when a linked section changes endTime and preserves the Link', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const copy = source.assignment[0]
+    const other = await getCopy(source.assignment[1].id)
+    const before = await getCopy(copy.id)
+    const endTime = new Date('2027-03-01')
+    await assignments.updateAssignment(copy.groupId, { id: copy.id, endTime })
+    const updated = await getCopy(copy.id)
+    expect(updated.endTime).to.deep.equal(endTime)
+    expect(updated.blueprintAssignmentId).to.equal(source.id)
+    expect(updated.assignmentProblem).to.deep.equal(before.assignmentProblem)
+    expect(
+      (await db.problem.findUniqueOrThrow({ where: { id: problemId } }))
+        .visibleLockTime
+    ).to.deep.equal(endTime)
+    expect(await getCopy(other.id)).to.deep.equal(other)
+    await assignments.updateAssignment(copy.groupId, { id: copy.id, endTime })
+    expect(await getCopy(copy.id)).to.deep.equal(updated)
   })
 })

@@ -374,10 +374,9 @@ export class BlueprintAssignmentService {
     tx: Prisma.TransactionClient,
     source: BlueprintAssignment,
     groupId: number,
-    patch:
-      | BlueprintAssignmentSectionInput
-      | BlueprintAssignmentSectionUpdateInput
-      | undefined,
+    patch: Partial<
+      BlueprintAssignmentSectionInput | BlueprintAssignmentSectionUpdateInput
+    > = {},
     userId: number,
     pending: AssignmentLifecycleEvent[],
     previous?: Prisma.AssignmentGetPayload<{
@@ -403,7 +402,7 @@ export class BlueprintAssignmentService {
       await updateAssignmentSectionSettings(
         tx,
         previous,
-        patch ?? {},
+        patch,
         pending,
         content
       )
@@ -418,7 +417,7 @@ export class BlueprintAssignmentService {
       isJudgeResultVisible: source.isJudgeResultVisible,
       isFinalScoreVisible: false
     }
-    const settings = resolveAssignmentSectionSettings(defaults, patch ?? {})
+    const settings = resolveAssignmentSectionSettings(defaults, patch)
     const copy = await tx.assignment.create({
       data: {
         ...content,
