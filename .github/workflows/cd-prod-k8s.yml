@@ -100,8 +100,13 @@ jobs:
           push: true
           # The other NEXT_PUBLIC_* values come from the Dockerfile defaults,
           # which are production values.
+          # SENTRY_DSN is the `frontend_dsn` output of infra/sentry.
           build-args: |
             ADMIN_REST_URL=https://codedang.com/admin-api
+            SENTRY_DSN=https://2790520e2aede180be7ada4e3f4f2a4a@o4510317578092544.ingest.us.sentry.io/4512486861897728
+            SENTRY_ENVIRONMENT=production
+          secrets: |
+            sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:${{github.sha}}
             ghcr.io/${{ github.repository_owner }}/codedang-frontend:production

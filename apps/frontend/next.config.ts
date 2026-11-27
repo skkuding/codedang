@@ -1,4 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer'
+import { withSentryConfig } from '@sentry/nextjs/config'
 import type { NextConfig } from 'next'
 import path from 'path'
 
@@ -100,4 +101,21 @@ const nextConfig = {
   }
 } satisfies NextConfig
 
-export default withBundleAnalyzer(withPWA(nextConfig))
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN
+
+export default withSentryConfig(withBundleAnalyzer(withPWA(nextConfig)), {
+  org: 'skkuding',
+  project: 'codedang-frontend',
+  authToken: sentryAuthToken,
+  // The hook only instruments navigations for tracing, which is off.
+  suppressOnRouterTransitionStartWarning: true,
+  // Also upload maps of shared chunks: every map under static/ is deleted
+  // after upload, not only the page chunks uploaded by default.
+  widenClientFileUpload: true,
+  sourcemaps: {
+    // Without a token nothing is uploaded, so do not generate source maps
+    // either: they would otherwise be served to users.
+    disable: !sentryAuthToken,
+    deleteSourcemapsAfterUpload: true
+  }
+})

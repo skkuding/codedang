@@ -15,6 +15,7 @@ sentry.io `skkuding` 조직의 설정(팀, 프로젝트, DSN, 알림)을 Terrafo
 - **`terraform` Internal Integration과 토큰**
 - **Discord·GitHub 연동 설치**: Terraform에서는 설치된 연동을 조회만 할 수 있습니다.
 - **소스맵 업로드용 CI 토큰, 장애 진단 에이전트용 읽기 전용 토큰**
+  - CI 토큰은 Organization Auth Token으로 발급해 GitHub 저장소 secret `SENTRY_AUTH_TOKEN`에 넣습니다. 스테이지·프로덕션 배포 때 프론트 이미지를 빌드하면서 소스맵을 올리는 데 씁니다.
 
 ## Output
 
