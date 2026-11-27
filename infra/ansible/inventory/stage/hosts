@@ -1,7 +1,29 @@
-[k3s_server]
-server1.skkuding.dev
-server2.skkuding.dev
-server3.skkuding.dev
+# Stage: Debian 13 + kubeadm Kubernetes
+# node_name은 manifest의 nodeSelector(kubernetes.io/hostname)와 일치해야 한다.
+# 노드 IP는 호스트 이름의 DNS A 레코드에서 가져온다. 다른 IP를 쓰려면 node_ip=<IP>를 적는다.
+# skkuding-1: frigate, generic-device-plugin / skkuding-3: silo-shadow, arc
+[k8s_control_plane]
+server1.skkuding.dev node_name=skkuding-1
+server2.skkuding.dev node_name=skkuding-2
+server3.skkuding.dev node_name=skkuding-3
+
+[k8s_worker]
+
+[k8s_cluster:children]
+k8s_control_plane
+k8s_worker
+
+# playbooks/30_k8s_cluster.yml 설정
+[k8s_cluster:vars]
+k8s_cluster_name=codedang-stage
+# 기존 k3s와 같은 마이너 버전 (manifest/API 호환)
+k8s_version=1.34.13
+# kubeadm controlPlaneEndpoint는 바꾸기 어려워 IP 대신 이름을 쓴다.
+# 지금은 노드 /etc/hosts에서 첫 control-plane IP를 가리키고, 추가 IP를 받으면 VIP로 바꾼다.
+k8s_control_plane_endpoint=k8s-api.stage.codedang.com
+# 기존 k3s(10.42/10.43)와 겹치지 않게 한다.
+k8s_pod_subnet=10.44.0.0/16
+k8s_service_subnet=10.45.0.0/16
 
 [all:vars]
 ansible_port=21541

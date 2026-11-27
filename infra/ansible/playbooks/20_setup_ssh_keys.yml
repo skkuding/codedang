@@ -44,7 +44,8 @@
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^#?Port'
-        line: 'Port {{ ansible_port }}'
+        # 새로 설치한 서버는 22번으로 접속하므로 ssh_port로 목표 포트를 따로 지정할 수 있다.
+        line: 'Port {{ ssh_port | default(ansible_port) }}'
         state: present
       notify: Restart sshd
 

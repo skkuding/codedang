@@ -1,0 +1,7 @@
+---
+# 노드 IP는 inventory 호스트 이름(serverN.skkuding.dev)의 A 레코드에서 가져온다.
+# kubelet node-ip, kubeadm advertiseAddress, API 서버 인증서 SAN에 쓰인다.
+# DNS와 다른 IP를 써야 하는 노드만 inventory에 node_ip=<IP>를 적는다. (host 변수가 이 값보다 우선한다)
+# VIP는 노드 IP가 아니므로 여기에 넣지 않는다. control-plane endpoint는 k8s_control_plane_endpoint로 따로 관리한다.
+# 관리 PC에 Python dnspython 패키지가 필요하다. (10_check_tools.yml에서 확인)
+node_ip: "{{ lookup('community.general.dig', inventory_hostname, 'qtype=A') }}"
