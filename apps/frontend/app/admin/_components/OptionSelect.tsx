@@ -8,6 +8,7 @@ import {
   SelectValue
 } from '@/components/shadcn/select'
 import { cn } from '@/libs/utils'
+import type { ComponentProps } from 'react'
 
 interface OptionSelectOption {
   label: string
@@ -25,6 +26,10 @@ interface OptionSelectProps {
   disabled?: boolean
   prefix?: string
   tabIndex?: number
+  triggerProps?: Pick<
+    ComponentProps<typeof SelectTrigger>,
+    'id' | 'aria-label' | 'aria-invalid' | 'aria-describedby'
+  >
 }
 
 export function OptionSelect({
@@ -35,7 +40,8 @@ export function OptionSelect({
   className,
   disabled,
   prefix,
-  tabIndex
+  tabIndex,
+  triggerProps
 }: OptionSelectProps) {
   const normalizedOptions = options.map((option) =>
     typeof option === 'string' ? { label: option, value: option } : option
@@ -48,6 +54,7 @@ export function OptionSelect({
       disabled={disabled}
     >
       <SelectTrigger
+        {...triggerProps}
         className={cn(
           'focus:ring-primary text-sub4_sb_14 w-full rounded-full bg-white p-4 hover:bg-gray-50 focus:ring-offset-0',
           className

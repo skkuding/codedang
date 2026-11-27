@@ -13,6 +13,9 @@ export default defineConfig({
     }
   },
   resolve: {
-    alias: [{ find: '@', replacement: __dirname }]
+    alias: [
+      { find: '@generated', replacement: `${__dirname}/__generated__` },
+      { find: '@', replacement: __dirname }
+    ]
   }
 })
