@@ -1,7 +1,8 @@
-import { Args, Context, Int, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
 import { RequiredIntPipe } from '@libs/pipe'
 import { BlueprintAssignmentProblemService } from './blueprint-assignment-problem.service'
+import { BlueprintAssignmentProblemInput } from './model/blueprint-assignment-problem.input'
 import { BlueprintAssignmentProblemOutput } from './model/blueprint-assignment-problem.output'
 
 @Resolver(() => BlueprintAssignmentProblemOutput)
@@ -24,6 +25,25 @@ export class BlueprintAssignmentProblemResolver {
     return await this.blueprintAssignmentProblemService.getBlueprintAssignmentProblems(
       req.user,
       blueprintAssignmentId
+    )
+  }
+
+  @Mutation(() => [BlueprintAssignmentProblemOutput])
+  async importProblemsToBlueprintAssignment(
+    @Context('req') req: AuthenticatedRequest,
+    @Args(
+      'blueprintAssignmentId',
+      { type: () => Int },
+      new RequiredIntPipe('blueprintAssignmentId')
+    )
+    blueprintAssignmentId: number,
+    @Args('problems', { type: () => [BlueprintAssignmentProblemInput] })
+    problems: BlueprintAssignmentProblemInput[]
+  ) {
+    return await this.blueprintAssignmentProblemService.importProblemsToBlueprintAssignment(
+      req.user,
+      blueprintAssignmentId,
+      problems
     )
   }
 }
