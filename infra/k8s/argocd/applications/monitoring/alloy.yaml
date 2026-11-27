@@ -30,6 +30,7 @@ spec:
             releaseName: alloy
             valueFiles:
               - '$codedang/infra/k8s/monitoring/alloy/values.yaml'
+              - '$codedang/infra/k8s/monitoring/alloy/values-rbac.yaml'
               - '$codedang/infra/k8s/monitoring/alloy/values-{{.env}}.yaml'
             fileParameters:
               - name: alloy.configMap.content

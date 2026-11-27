@@ -17,6 +17,7 @@ import {
   TableRow
 } from '@/components/shadcn/table'
 import { cn } from '@/libs/utils'
+import FilterIcon from '@/public/icons/filter.svg'
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
@@ -69,7 +70,7 @@ function DateSortDropdown() {
           variant="outline"
           className="h-auto rounded-full border border-neutral-200 px-5 py-[11px] font-semibold text-black hover:bg-gray-50"
         >
-          <img src="/icons/filter.svg" alt="" className="mr-2 h-5 w-5" />
+          <FilterIcon className="text-color-neutral-30 mr-2 size-5" />
           <p className="text-body1_m_16">{label}</p>
         </Button>
       </DropdownMenuTrigger>
