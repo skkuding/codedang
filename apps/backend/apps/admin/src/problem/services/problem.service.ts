@@ -18,7 +18,6 @@ import {
   UnprocessableFileDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
-import { StorageService } from '@libs/storage'
 import { ImportedProblemHeader } from '../model/problem.constants'
 import {
   CreateProblemInput,
@@ -30,16 +29,26 @@ import type { ProblemWithIsVisible } from '../model/problem.output'
 import type { Solution } from '../model/solution.input'
 import type { Template } from '../model/template.input'
 import type { Testcase } from '../model/testcase.input'
+import {
+  PROBLEM_ATTACHMENT_FIELDS,
+  ProblemAttachmentService
+} from './problem-attachment.service'
 import { TagService } from './tag.service'
 import { TestcaseService } from './testcase.service'
+
+/**
+ * Problem writes also create or sync testcases in the same transaction,
+ * so they get more time than Prisma's 5s interactive transaction default.
+ */
+const PROBLEM_TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 30_000 }
 
 @Injectable()
 export class ProblemService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService,
     private readonly testcaseService: TestcaseService,
-    private readonly tagService: TagService
+    private readonly tagService: TagService,
+    private readonly problemAttachmentService: ProblemAttachmentService
   ) {}
 
   async createProblem(
@@ -103,23 +112,42 @@ export class ProblemService {
       seen.add(lang)
     })
 
-    const problem = await this.prisma.problem.create({
-      data: {
-        ...data,
-        solution,
-        visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
-        createdById: userId,
-        languages,
-        template: [JSON.stringify(template)],
-        problemTag: {
-          create: tagIds.map((tagId) => {
-            return { tagId }
-          })
+    this.problemAttachmentService.assertNoStorageUrl(data)
+    const attachmentIds = this.problemAttachmentService.extractIds(data)
+
+    const problem = await this.prisma.$transaction(async (tx) => {
+      await this.problemAttachmentService.assertAttachmentsReferencedById(
+        tx,
+        data
+      )
+      const problem = await tx.problem.create({
+        data: {
+          ...data,
+          solution,
+          visibleLockTime: isVisible ? MIN_DATE : MAX_DATE,
+          createdById: userId,
+          languages,
+          template: [JSON.stringify(template)],
+          problemTag: {
+            create: tagIds.map((tagId) => {
+              return { tagId }
+            })
+          }
         }
-      }
-    })
-    // TODO: do not create testcases in createProblem
-    await this.testcaseService.createTestcasesLegacy(problem.id, testcases)
+      })
+      await this.problemAttachmentService.attach(tx, {
+        problemId: problem.id,
+        userId,
+        ids: attachmentIds
+      })
+      // TODO: do not create testcases in createProblem
+      await this.testcaseService.createTestcasesLegacy(
+        problem.id,
+        testcases,
+        tx
+      )
+      return problem
+    }, PROBLEM_TRANSACTION_OPTIONS)
     return this.changeVisibleLockTimeToIsVisible(problem)
   }
 
@@ -666,14 +694,10 @@ export class ProblemService {
     //   ? await this.tagService.updateProblemTag(id, tags)
     //   : undefined
 
-    if (testcases?.length) {
-      await this.testcaseService.syncTestcases(
-        id,
-        problem.isSampleUploadedByZip,
-        problem.isHiddenUploadedByZip,
-        testcases
-      )
-    }
+    this.problemAttachmentService.assertNoStorageUrl(data)
+    const isAttachmentFieldUpdated = PROBLEM_ATTACHMENT_FIELDS.some(
+      (field) => data[field] !== undefined
+    )
 
     const updatedInfo = updatedInfos
       .filter((info) => info.current !== info.previous)
@@ -683,34 +707,100 @@ export class ProblemService {
         previous
       }))
 
-    const updatedProblem = await this.prisma.problem.update({
-      where: { id },
-      data: {
-        ...data,
-        ...(isVisible != undefined && {
-          visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
-        }),
-        ...(languages && { languages }),
-        ...(template && { template: [JSON.stringify(template)] }),
-        ...(solution && { solution }),
-        ...(updatedFields.length > 0 && {
-          updateHistory: {
-            create: [
-              {
-                updatedFields,
-                updatedAt: new Date(),
-                updatedBy: { connect: { id: updatedByid } },
-                updatedInfo
-              }
-            ]
+    const { updatedProblem, deletableFiles } = await this.prisma.$transaction(
+      async (tx) => {
+        // Lock the row so concurrent updates read the latest body and flags
+        await tx.$queryRaw`SELECT id FROM problem WHERE id = ${id} FOR UPDATE`
+        const current = await tx.problem.findUniqueOrThrow({
+          where: { id },
+          select: {
+            description: true,
+            inputDescription: true,
+            outputDescription: true,
+            isSampleUploadedByZip: true,
+            isHiddenUploadedByZip: true
           }
-        }),
-        updateContentTime: new Date()
+        })
+
+        let deletableFiles: string[] = []
+        if (isAttachmentFieldUpdated) {
+          const nextFields = {
+            description: data.description ?? current.description,
+            inputDescription: data.inputDescription ?? current.inputDescription,
+            outputDescription:
+              data.outputDescription ?? current.outputDescription
+          }
+          await this.problemAttachmentService.assertAttachmentsReferencedById(
+            tx,
+            nextFields
+          )
+          const prevIds = this.problemAttachmentService.extractIds(current)
+          const nextIds = this.problemAttachmentService.extractIds(nextFields)
+          const { removed } = this.problemAttachmentService.diff(
+            prevIds,
+            nextIds
+          )
+
+          // Validate every id the saved body keeps, not only the added ones
+          await this.problemAttachmentService.attach(tx, {
+            problemId: id,
+            userId,
+            ids: nextIds
+          })
+          deletableFiles = this.problemAttachmentService.excludeReferenced(
+            nextFields,
+            await this.problemAttachmentService.findDeletable(tx, id, removed)
+          )
+          await this.problemAttachmentService.deleteRecords(
+            tx,
+            id,
+            deletableFiles
+          )
+        }
+
+        if (testcases?.length) {
+          await this.testcaseService.syncTestcases(
+            id,
+            current.isSampleUploadedByZip,
+            current.isHiddenUploadedByZip,
+            testcases,
+            tx
+          )
+        }
+
+        const updatedProblem = await tx.problem.update({
+          where: { id },
+          data: {
+            ...data,
+            ...(isVisible != undefined && {
+              visibleLockTime: isVisible ? MIN_DATE : MAX_DATE
+            }),
+            ...(languages && { languages }),
+            ...(template && { template: [JSON.stringify(template)] }),
+            ...(solution && { solution }),
+            ...(updatedFields.length > 0 && {
+              updateHistory: {
+                create: [
+                  {
+                    updatedFields,
+                    updatedAt: new Date(),
+                    updatedBy: { connect: { id: updatedByid } },
+                    updatedInfo
+                  }
+                ]
+              }
+            }),
+            updateContentTime: new Date()
+          },
+          include: {
+            updateHistory: true // 항상 updateHistory 포함
+          }
+        })
+        return { updatedProblem, deletableFiles }
       },
-      include: {
-        updateHistory: true // 항상 updateHistory 포함
-      }
-    })
+      PROBLEM_TRANSACTION_OPTIONS
+    )
+    await this.problemAttachmentService.deleteFromStorage(deletableFiles)
 
     return this.changeVisibleLockTimeToIsVisible(updatedProblem)
   }
@@ -735,40 +825,22 @@ export class ProblemService {
       throw new ForbiddenException('User can only delete problems they created')
     }
 
-    // HOTFIX: Disable attachment deletion to prevent data loss.
-    /*
-    // Problem description에 이미지가 포함되어 있다면 삭제
-    const uuidImageFileNames = this.extractUUIDs(problem.description)
-    if (uuidImageFileNames) {
-      await this.prisma.file.deleteMany({
-        where: {
-          filename: {
-            in: uuidImageFileNames
-          }
-        }
-      })
+    const { deletedProblem, deletableFiles } = await this.prisma.$transaction(
+      async (tx) => {
+        const deletableFiles =
+          await this.problemAttachmentService.findDeletable(tx, id)
+        await this.problemAttachmentService.deleteRecords(
+          tx,
+          id,
+          deletableFiles
+        )
+        const deletedProblem = await tx.problem.delete({ where: { id } })
+        return { deletedProblem, deletableFiles }
+      }
+    )
+    await this.problemAttachmentService.deleteFromStorage(deletableFiles)
 
-      const deleteFromS3Results = uuidImageFileNames.map((filename: string) => {
-        return this.storageService.deleteFile(filename)
-      })
-
-      await Promise.all(deleteFromS3Results)
-    }
-    */
-
-    return await this.prisma.problem.delete({
-      where: { id }
-    })
-  }
-
-  extractUUIDs(input: string) {
-    const uuidRegex =
-      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi
-    const matches = input.match(uuidRegex)
-    if (!matches) {
-      return []
-    }
-    return matches
+    return deletedProblem
   }
 
   async getSharedGroups(problemId: number) {

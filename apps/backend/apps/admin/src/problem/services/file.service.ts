@@ -104,41 +104,27 @@ export class FileService {
   }
 
   async deleteFile(filename: string, userId: number) {
-    const deletedFile = await this.prisma.$transaction(async (tx) => {
-      const fileExists = await tx.file.findFirst({
-        where: {
-          filename,
-          createdById: userId
-        }
-      })
-
-      if (!fileExists) {
-        throw new UnprocessableDataException(
-          'File not found or you do not have permission to delete this file'
-        )
-      }
-      // HOTFIX: Disable attachment deletion to prevent data loss.
-      /*
-
-      const file = await tx.file.delete({
-        where: {
-          filename,
-          createdById: userId
-        }
-      })
-
-      try {
-        await this.storageService.deleteFile(filename)
-      } catch (error) {
-        throw new UnprocessableDataException(
-          `Failed to delete file from storage: ${error.message}`
-        )
-      }
-      */
-      return fileExists
+    const file = await this.prisma.file.findFirst({
+      where: { filename, createdById: userId }
     })
 
-    return deletedFile
+    if (!file) {
+      throw new UnprocessableDataException(
+        'File not found or you do not have permission to delete this file'
+      )
+    }
+
+    if (file.status === FileStatus.Attached) {
+      throw new UnprocessableDataException(
+        'Attached files are deleted by updating or deleting the problem'
+      )
+    }
+
+    // HOTFIX: Temporary and Unmanaged files are not deleted here, because a
+    // saved body may still reference them in a form this check cannot see.
+    // Attached files are removed through problem update and delete, and
+    // unreferenced files are left to a separate orphan cleanup.
+    return file
   }
 
   async getFileSize(readStream: Readable, maxSize: number): Promise<number> {
