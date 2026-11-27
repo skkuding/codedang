@@ -36,7 +36,6 @@ export class GroupService {
    *
    * @throws EntityNotExistException - 사용자가 존재하지 않는 경우
    * @throws ForbiddenAccessException - 사용자가 강좌 생성 권한(canCreateCourse)을 가지고 있지 않은 경우
-   * @throws UnprocessableDataException - 강좌 생성 중 DB 에러 발생 시
    */
   async createCourse(
     input: CourseInput,
@@ -57,49 +56,45 @@ export class GroupService {
       throw new ForbiddenAccessException('No Access to create course')
     }
 
-    try {
-      const createdCourse = await this.prisma.group.create({
-        data: {
-          groupName: input.courseTitle,
-          groupType: GroupType.Course,
-          config: JSON.parse(JSON.stringify(input.config)),
-          courseInfo: {
-            create: {
-              courseNum: input.courseNum,
-              classNum: input.classNum,
-              professor: input.professor,
-              semester: input.semester,
-              week: input.week,
-              email: input.email,
-              website: input.website,
-              office: input.office,
-              phoneNum: input.phoneNum
-            }
+    const createdCourse = await this.prisma.group.create({
+      data: {
+        groupName: input.courseTitle,
+        groupType: GroupType.Course,
+        config: JSON.parse(JSON.stringify(input.config)),
+        courseInfo: {
+          create: {
+            courseNum: input.courseNum,
+            classNum: input.classNum,
+            professor: input.professor,
+            semester: input.semester,
+            week: input.week,
+            email: input.email,
+            website: input.website,
+            office: input.office,
+            phoneNum: input.phoneNum
           }
+        }
+      },
+      select: {
+        id: true,
+        groupName: true,
+        groupType: true,
+        config: true,
+        courseInfo: true
+      }
+    })
+    await this.prisma.userGroup.create({
+      data: {
+        user: {
+          connect: { id: user.id }
         },
-        select: {
-          id: true,
-          groupName: true,
-          groupType: true,
-          config: true,
-          courseInfo: true
-        }
-      })
-      await this.prisma.userGroup.create({
-        data: {
-          user: {
-            connect: { id: user.id }
-          },
-          group: {
-            connect: { id: createdCourse.id }
-          },
-          isGroupLeader: true
-        }
-      })
-      return createdCourse
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
-    }
+        group: {
+          connect: { id: createdCourse.id }
+        },
+        isGroupLeader: true
+      }
+    })
+    return createdCourse
   }
 
   /**
@@ -235,8 +230,6 @@ export class GroupService {
    * @param input - 변경할 강좌 정보 (설정, CourseInfo 포함)
    * @returns 수정된 강좌 객체
    *
-   * @throws UnprocessableDataException - 업데이트 중 DB 에러 발생 시
-   *
    * @remarks
    * `showOnList` 설정이 false일 경우 `allowJoinFromSearch`도 강제로 false로 설정됩니다.
    */
@@ -245,39 +238,35 @@ export class GroupService {
       input.config.allowJoinFromSearch = false
     }
 
-    try {
-      return await this.prisma.group.update({
-        where: {
-          id
-        },
-        data: {
-          groupName: input.courseTitle,
-          groupType: GroupType.Course,
-          config: JSON.parse(JSON.stringify(input.config)),
-          courseInfo: {
-            update: {
-              courseNum: input.courseNum,
-              classNum: input.classNum,
-              professor: input.professor,
-              semester: input.semester,
-              email: input.email,
-              website: input.website,
-              office: input.office,
-              phoneNum: input.phoneNum
-            }
+    return await this.prisma.group.update({
+      where: {
+        id
+      },
+      data: {
+        groupName: input.courseTitle,
+        groupType: GroupType.Course,
+        config: JSON.parse(JSON.stringify(input.config)),
+        courseInfo: {
+          update: {
+            courseNum: input.courseNum,
+            classNum: input.classNum,
+            professor: input.professor,
+            semester: input.semester,
+            email: input.email,
+            website: input.website,
+            office: input.office,
+            phoneNum: input.phoneNum
           }
-        },
-        select: {
-          id: true,
-          groupName: true,
-          groupType: true,
-          config: true,
-          courseInfo: true
         }
-      })
-    } catch (error) {
-      throw new UnprocessableDataException(error.message)
-    }
+      },
+      select: {
+        id: true,
+        groupName: true,
+        groupType: true,
+        config: true,
+        courseInfo: true
+      }
+    })
   }
 
   /**
