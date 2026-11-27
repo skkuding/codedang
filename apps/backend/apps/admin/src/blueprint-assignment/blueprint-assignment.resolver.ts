@@ -1,9 +1,19 @@
 import { Args, Context, Int, Mutation, Resolver, Query } from '@nestjs/graphql'
-import { AuthenticatedRequest, UseDisableAdminGuard } from '@libs/auth'
-import { IDValidationPipe, CursorValidationPipe } from '@libs/pipe'
+import {
+  AuthenticatedRequest,
+  UseDisableAdminGuard,
+  UseGroupLeaderGuard
+} from '@libs/auth'
+import { IDValidationPipe, CursorValidationPipe, GroupIDPipe } from '@libs/pipe'
 import { BlueprintAssignmentService } from './blueprint-assignment.service'
-import { CreateBlueprintAssignmentInput } from './model/blueprint-assignment.input'
-import { BlueprintAssignmentOutput } from './model/blueprint-assignment.output'
+import {
+  CreateBlueprintAssignmentInput,
+  UpdateBlueprintAssignmentInput
+} from './model/blueprint-assignment.input'
+import {
+  BlueprintAssignmentOutput,
+  BlueprintAssignmentUnlinkResult
+} from './model/blueprint-assignment.output'
 
 @Resolver(() => BlueprintAssignmentOutput)
 @UseDisableAdminGuard()
@@ -48,5 +58,25 @@ export class BlueprintAssignmentResolver {
     id: number
   ) {
     return this.service.getAssignmentById(req.user, id)
+  }
+
+  @Mutation(() => BlueprintAssignmentOutput)
+  updateBlueprintAssignment(
+    @Context('req') req: AuthenticatedRequest,
+    @Args('blueprintAssignmentId', { type: () => Int }, IDValidationPipe)
+    id: number,
+    @Args('input') input: UpdateBlueprintAssignmentInput
+  ) {
+    return this.service.updateAssignmentById(req.user, id, input)
+  }
+
+  @Mutation(() => BlueprintAssignmentUnlinkResult)
+  @UseGroupLeaderGuard()
+  unlinkBlueprintAssignment(
+    @Args('groupId', { type: () => Int }, GroupIDPipe) groupId: number,
+    @Args('assignmentId', { type: () => Int }, IDValidationPipe)
+    assignmentId: number
+  ) {
+    return this.service.unlink(groupId, assignmentId)
   }
 }

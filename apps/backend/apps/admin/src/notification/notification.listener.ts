@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import {
   MAX_DATE,
@@ -15,6 +15,8 @@ const ASSIGNMENT_REMINDER = [
 
 @Injectable()
 export class NotificationListener {
+  private readonly logger = new Logger(NotificationListener.name)
+
   constructor(
     private readonly notificationService: NotificationService,
     private readonly notificationScheduler: NotificationScheduler
@@ -45,7 +47,7 @@ export class NotificationListener {
 
   @OnEvent('assignment.graded')
   async handleAssignmentGraded(payload: { assignmentId: number }) {
-    this.notificationService.notifyAssignmentGraded(payload.assignmentId)
+    await this.notificationService.notifyAssignmentGraded(payload.assignmentId)
   }
 
   @OnEvent('assignment.created')
@@ -53,26 +55,52 @@ export class NotificationListener {
     assignmentId: number
     dueTime: Date
   }) {
-    this.notificationService.notifyAssignmentCreated(payload.assignmentId)
-
-    if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
-
-    const title = 'assignment-due-reminder'
-    const data = { assignmentId: payload.assignmentId }
-
-    const reminders = ASSIGNMENT_REMINDER.map((reminder) => {
-      const jobId = this.assignmentDueReminderJobId(
-        payload.assignmentId,
-        reminder.id
-      )
-      const delay = this.calculateDelay(payload.dueTime, reminder.offset)
-      if (delay <= 0) {
-        return null
+    const tasks: { name: string; run: () => Promise<unknown> }[] = [
+      {
+        name: 'assignment-created',
+        run: () =>
+          this.notificationService.notifyAssignmentCreated(payload.assignmentId)
       }
-      return this.notificationScheduler.scheduleJob(title, data, jobId, delay)
-    }).filter(Boolean)
-
-    await Promise.all(reminders)
+    ]
+    if (payload.dueTime.getTime() !== MAX_DATE.getTime()) {
+      for (const reminder of ASSIGNMENT_REMINDER) {
+        const jobId = this.assignmentDueReminderJobId(
+          payload.assignmentId,
+          reminder.id
+        )
+        const delay = this.calculateDelay(payload.dueTime, reminder.offset)
+        if (delay <= 0) continue
+        tasks.push({
+          name: jobId,
+          run: () =>
+            this.notificationScheduler.scheduleJob(
+              'assignment-due-reminder',
+              { assignmentId: payload.assignmentId },
+              jobId,
+              delay
+            )
+        })
+      }
+    }
+    // Finish every independent delivery before reporting failures to the publisher.
+    const results = await Promise.allSettled(
+      tasks.map(async (task) => task.run())
+    )
+    const errors = results.flatMap((result, index) => {
+      if (result.status !== 'rejected') return []
+      this.logger.error(
+        `Assignment ${payload.assignmentId} task ${tasks[index].name} failed`,
+        result.reason instanceof Error
+          ? result.reason.stack
+          : String(result.reason)
+      )
+      return [result.reason]
+    })
+    if (errors.length)
+      throw new AggregateError(
+        errors,
+        'Assignment creation notification or reminder scheduling failed'
+      )
   }
 
   @OnEvent('assignment.updated')

@@ -16,11 +16,17 @@ import {
   type AssignmentLifecycleEvent
 } from '@admin/assignment/assignment-event.service'
 import { lockBlueprintAssignment } from '@admin/assignment/assignment-link'
-import { resolveAssignmentSectionSettings } from '@admin/assignment/assignment-section-settings'
+import { lockAssignmentProblems } from '@admin/assignment/assignment-problem-access'
+import {
+  resolveAssignmentSectionSettings,
+  updateAssignmentSectionSettings
+} from '@admin/assignment/assignment-section-settings'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
 import type {
   CreateBlueprintAssignmentInput,
-  BlueprintAssignmentSectionInput
+  BlueprintAssignmentSectionInput,
+  UpdateBlueprintAssignmentInput,
+  BlueprintAssignmentSectionUpdateInput
 } from './model/blueprint-assignment.input'
 
 @Injectable()
@@ -108,18 +114,28 @@ export class BlueprintAssignmentService {
     return this.getAssignment(user, await this.findCourseId(id), id)
   }
 
+  async updateAssignmentById(
+    user: AuthenticatedUser,
+    id: number,
+    input: UpdateBlueprintAssignmentInput
+  ) {
+    return this.save(user, await this.findCourseId(id), input, id)
+  }
+
   async save(
     user: AuthenticatedUser,
     blueprintCourseId: number,
-    input: CreateBlueprintAssignmentInput
+    input: CreateBlueprintAssignmentInput | UpdateBlueprintAssignmentInput,
+    id?: number
   ) {
     await this.access.assertBlueprintLeader(user, blueprintCourseId)
     const requestHash = createHash('sha256')
-      .update(JSON.stringify({ blueprintCourseId, id: undefined, input }))
+      .update(JSON.stringify({ blueprintCourseId, id, input }))
       .digest('hex')
     const pending: AssignmentLifecycleEvent[] = []
     const saved = await this.prisma.$transaction(
       async (tx) => {
+        // A failed save leaves no receipt; a successful duplicate never reapplies content.
         await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${input.operationId}, 0))::text`
         const receipt = await tx.blueprintAssignmentSave.findUnique({
           where: { id: input.operationId }
@@ -134,22 +150,102 @@ export class BlueprintAssignmentService {
             })
           )
         }
-        await this.validate(tx, blueprintCourseId, input)
-        const { operationId, sections, ...content } = input
-        const source = await tx.blueprintAssignment.create({
-          data: { ...content, blueprintCourseId, createdById: user.id }
-        })
-        for (const section of [...sections].sort(
-          (a, b) => a.groupId - b.groupId
-        ))
+        await this.validate(tx, blueprintCourseId, input, id === undefined)
+        const { operationId, sections, ...raw } = input
+        const { expectedRevision, ...content } = raw as typeof raw & {
+          expectedRevision?: number
+        }
+        const copies = new Map<
+          number,
+          Prisma.AssignmentGetPayload<{
+            include: { assignmentProblem: true }
+          }>
+        >()
+        let source: BlueprintAssignment
+        if (id !== undefined) {
+          await lockBlueprintAssignment(tx, id)
+          const current = await tx.blueprintAssignment.findFirstOrThrow({
+            where: { id, blueprintCourseId },
+            include: { assignment: { include: { assignmentProblem: true } } }
+          })
+          if (current.revision !== expectedRevision)
+            throw new UnprocessableDataException(
+              'STALE_REVISION: reload the assignment before saving'
+            )
+          const linkedIds = new Set(
+            current.assignment.map((copy) => copy.groupId)
+          )
+          if (
+            (sections ?? []).some((section) => !linkedIds.has(section.groupId))
+          )
+            throw new UnprocessableDataException(
+              'Section settings can only update currently linked copies'
+            )
+          if (
+            content.isExercise !== undefined &&
+            content.isExercise !== current.isExercise
+          )
+            throw new UnprocessableDataException(
+              'Assignment type cannot change'
+            )
+          for (const copy of current.assignment) copies.set(copy.groupId, copy)
+          source = await tx.blueprintAssignment.update({
+            where: { id },
+            data: { ...content, revision: { increment: 1 } }
+          })
+        } else {
+          const createInput = input as CreateBlueprintAssignmentInput
+          source = await tx.blueprintAssignment.create({
+            data: {
+              ...content,
+              title: createInput.title,
+              description: createInput.description,
+              week: createInput.week,
+              isVisible: createInput.isVisible,
+              isRankVisible: createInput.isRankVisible,
+              isJudgeResultVisible: createInput.isJudgeResultVisible,
+              blueprintCourseId,
+              createdById: user.id
+            }
+          })
+        }
+        // Existing problem rows are read only here. Problem mutations own composition.
+        // Schedule changes still need to recalculate visibility under the same locks.
+        await lockAssignmentProblems(
+          tx,
+          Array.from(copies.values())
+            .filter((copy) => {
+              const nextEndTime = sections?.find(
+                (section) => section.groupId === copy.groupId
+              )?.endTime
+              return (
+                nextEndTime !== undefined &&
+                nextEndTime.getTime() !== copy.endTime.getTime()
+              )
+            })
+            .flatMap((copy) =>
+              copy.assignmentProblem.map((problem) => problem.problemId)
+            )
+        )
+        const patches = new Map(
+          (sections ?? []).map((section) => [section.groupId, section])
+        )
+        const groupIds =
+          id === undefined
+            ? Array.from(patches.keys())
+            : Array.from(copies.keys())
+        for (const groupId of groupIds.sort((a, b) => a - b)) {
           await this.applySection(
             tx,
             source,
-            section.groupId,
-            section,
+            groupId,
+            patches.get(groupId),
             user.id,
-            pending
+            pending,
+            copies.get(groupId)
           )
+        }
+        // This is a completed-request receipt, never a partial-success or retry queue.
         await tx.blueprintAssignmentSave.create({
           data: {
             id: operationId,
@@ -169,6 +265,7 @@ export class BlueprintAssignmentService {
       },
       { timeout: 30000 }
     )
+    // A rolled-back save cannot publish any of its queued events.
     await this.events.publish(pending)
     return saved
   }
@@ -192,14 +289,16 @@ export class BlueprintAssignmentService {
   private async validate(
     tx: Prisma.TransactionClient,
     blueprintCourseId: number,
-    input: CreateBlueprintAssignmentInput
+    input: CreateBlueprintAssignmentInput | UpdateBlueprintAssignmentInput,
+    isCreate: boolean
   ) {
     const createInput = input as CreateBlueprintAssignmentInput
     if (
-      input.title === undefined ||
-      input.description === undefined ||
-      input.week === undefined ||
-      input.sections === undefined
+      isCreate &&
+      (input.title === undefined ||
+        input.description === undefined ||
+        input.week === undefined ||
+        input.sections === undefined)
     )
       throw new UnprocessableDataException(
         'Create requires content and section schedules'
@@ -209,8 +308,10 @@ export class BlueprintAssignmentService {
       'isRankVisible',
       'isJudgeResultVisible'
     ] as const) {
-      if (typeof createInput[key] !== 'boolean')
+      if (isCreate && typeof createInput[key] !== 'boolean')
         throw new UnprocessableDataException(`${key} must be a boolean`)
+      if (!isCreate && createInput[key] !== undefined)
+        throw new UnprocessableDataException(`${key} must be set per section`)
     }
     const course = await tx.blueprintCourse.findUniqueOrThrow({
       where: { id: blueprintCourseId }
@@ -249,8 +350,8 @@ export class BlueprintAssignmentService {
       (input.sections !== undefined && !Array.isArray(input.sections))
     )
       throw new UnprocessableDataException('sections must be an array')
-    const sections = input.sections
-    if (sections.length === 0)
+    const sections = input.sections ?? []
+    if (isCreate && sections.length === 0)
       throw new UnprocessableDataException('Select at least one section')
     if (
       new Set(sections.map((section) => section.groupId)).size !==
@@ -273,9 +374,14 @@ export class BlueprintAssignmentService {
     tx: Prisma.TransactionClient,
     source: BlueprintAssignment,
     groupId: number,
-    patch: BlueprintAssignmentSectionInput,
+    patch: Partial<
+      BlueprintAssignmentSectionInput | BlueprintAssignmentSectionUpdateInput
+    > = {},
     userId: number,
-    pending: AssignmentLifecycleEvent[]
+    pending: AssignmentLifecycleEvent[],
+    previous?: Prisma.AssignmentGetPayload<{
+      include: { assignmentProblem: true }
+    }>
   ) {
     const section = await tx.courseInfo.findFirst({
       where: { groupId, blueprintCourseId: source.blueprintCourseId }
@@ -291,6 +397,16 @@ export class BlueprintAssignmentService {
       enableCopyPaste: source.enableCopyPaste,
       autoFinalizeScore: source.autoFinalizeScore,
       isExercise: source.isExercise
+    }
+    if (previous) {
+      await updateAssignmentSectionSettings(
+        tx,
+        previous,
+        patch,
+        pending,
+        content
+      )
+      return
     }
     const defaults = {
       startTime: patch?.startTime as Date,
@@ -324,6 +440,21 @@ export class BlueprintAssignmentService {
       name: 'assignment.created',
       assignmentId: copy.id,
       dueTime: copy.dueTime ?? copy.endTime
+    })
+  }
+
+  async unlink(groupId: number, assignmentId: number) {
+    return this.prisma.$transaction(async (tx) => {
+      const copy = await tx.assignment.findFirst({
+        where: { id: assignmentId, groupId }
+      })
+      if (!copy) throw new EntityNotExistException('Assignment')
+      if (copy.blueprintAssignmentId == null) return copy
+      await lockBlueprintAssignment(tx, copy.blueprintAssignmentId)
+      return tx.assignment.update({
+        where: { id: assignmentId, groupId },
+        data: { blueprintAssignmentId: null }
+      })
     })
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
+import { assertAssignmentUnlinked } from './assignment-link'
 import type { AssignmentProblemUpdateInput } from './model/assignment-problem.input'
 
 @Injectable()
@@ -39,9 +40,12 @@ export class AssignmentProblemService {
     assignmentId: number,
     assignmentProblemUpdateInput: AssignmentProblemUpdateInput[]
   ) {
-    await this.prisma.assignment.findFirstOrThrow({
+    const assignment = await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
+    if (assignmentProblemUpdateInput.some(({ score }) => score !== undefined)) {
+      assertAssignmentUnlinked(assignment)
+    }
 
     const queries = assignmentProblemUpdateInput.map((record) => {
       return this.prisma.assignmentProblem.update({
@@ -80,9 +84,10 @@ export class AssignmentProblemService {
     assignmentId: number,
     orders: number[]
   ) {
-    await this.prisma.assignment.findFirstOrThrow({
+    const assignment = await this.prisma.assignment.findFirstOrThrow({
       where: { id: assignmentId, groupId }
     })
+    assertAssignmentUnlinked(assignment)
 
     const assignmentProblems = await this.prisma.assignmentProblem.findMany({
       where: { assignmentId },

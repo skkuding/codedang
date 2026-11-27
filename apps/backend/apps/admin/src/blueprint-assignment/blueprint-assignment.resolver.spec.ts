@@ -29,12 +29,19 @@ describe('BlueprintAssignment GraphQL contract', () => {
   it('exposes create, edit, delete and immediate unlink mutations', () => {
     expect(
       Object.keys(schema.getMutationType()!.getFields())
-    ).to.include.members(['createBlueprintAssignment'])
+    ).to.include.members([
+      'createBlueprintAssignment',
+      'updateBlueprintAssignment',
+      'unlinkBlueprintAssignment'
+    ])
   })
 
   it('returns the saved source for create and edit', () => {
     const fields = schema.getMutationType()!.getFields()
-    for (const name of ['createBlueprintAssignment']) {
+    for (const name of [
+      'createBlueprintAssignment',
+      'updateBlueprintAssignment'
+    ]) {
       expect(getNamedType(fields[name].type).name).to.equal(
         'BlueprintAssignmentOutput'
       )
@@ -81,6 +88,48 @@ describe('BlueprintAssignment GraphQL contract', () => {
       'isRankVisible',
       'isJudgeResultVisible',
       'problems'
+    ])
+  })
+
+  it('requires content/settings but leaves problem writes to the separate Problem APIs', () => {
+    const input = schema.getType(
+      'UpdateBlueprintAssignmentInput'
+    ) as GraphQLObjectType
+    for (const field of ['operationId', 'expectedRevision']) {
+      expect(input.getFields()[field].type.toString()).to.match(/!$/)
+    }
+    for (const field of ['sections', 'title', 'description']) {
+      expect(input.getFields()[field].type.toString()).not.to.match(/!$/)
+    }
+    for (const field of [
+      'isVisible',
+      'isRankVisible',
+      'isJudgeResultVisible',
+      'isFinalScoreVisible'
+    ]) {
+      expect(input.getFields()).not.to.have.property(field)
+    }
+    const settings = schema.getType(
+      'BlueprintAssignmentSectionUpdateInput'
+    ) as GraphQLObjectType
+    for (const field of [
+      'startTime',
+      'dueTime',
+      'endTime',
+      'isVisible',
+      'isFinalScoreVisible',
+      'isRankVisible',
+      'isJudgeResultVisible'
+    ]) {
+      expect(settings.getFields()[field].type.toString()).not.to.match(/!$/)
+    }
+    const unlink = getNamedType(
+      schema.getMutationType()!.getFields().unlinkBlueprintAssignment.type
+    ) as GraphQLObjectType
+    expect(Object.keys(unlink.getFields()).sort()).to.deep.equal([
+      'blueprintAssignmentId',
+      'groupId',
+      'id'
     ])
   })
 })

@@ -72,6 +72,7 @@ describe('AssignmentProblemService', () => {
       db.assignmentProblem.findFirstOrThrow.resetBehavior()
       db.assignmentProblem.findMany.resetBehavior()
       db.assignment.findFirstOrThrow.resetBehavior()
+      db.assignment.findFirstOrThrow.resolves(exampleAssignment)
     })
     it('should return order-updated AssignmentProblems', async () => {
       //given
