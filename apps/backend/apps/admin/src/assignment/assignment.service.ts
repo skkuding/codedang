@@ -393,6 +393,7 @@ export class AssignmentService {
       )
     }
 
+    // Protect learning records for every section assignment, even after Unlink.
     if (
       assignment.blueprintAssignmentId != null ||
       assignment.group?.courseInfo?.blueprintCourseId != null

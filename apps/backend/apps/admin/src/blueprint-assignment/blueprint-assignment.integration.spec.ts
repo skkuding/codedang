@@ -1573,4 +1573,85 @@ integration('Blueprint Assignment database transactions', () => {
         .visibleLockTime
     ).to.deep.equal(other.endTime)
   })
+  for (const kind of ['submission', 'grade'] as const) {
+    it(`preserves an unlinked section assignment and its ${kind} when deletion is rejected`, async () => {
+      const source = await service.save(user, courseId, input)
+      await addProblemFixture(source)
+      const target = source.assignment[0]
+      await service.unlink(target.groupId, target.id)
+      if (kind === 'submission') {
+        await db.submission.create({
+          data: {
+            assignmentId: target.id,
+            problemId,
+            userId: user.id,
+            code: [],
+            language: 'Python3',
+            result: 'Accepted'
+          }
+        })
+      } else {
+        await db.assignmentProblemRecord.updateMany({
+          where: { assignmentId: target.id },
+          data: { finalScore: 0 }
+        })
+      }
+      const read = async () => ({
+        copy: await getCopy(target.id),
+        records: await db.assignmentProblemRecord.findMany({
+          where: { assignmentId: target.id }
+        }),
+        submissions: await db.submission.findMany({
+          where: { assignmentId: target.id }
+        }),
+        blueprint: await snapshot(source.id)
+      })
+      const before = await read()
+      await expect(
+        assignments.deleteAssignment(target.groupId, target.id)
+      ).to.be.rejectedWith(ConflictFoundException, 'Learning records exist')
+      expect(await read()).to.deep.equal(before)
+    })
+  }
+
+  it('preserves ordinary Course assignment deletion with submissions', async () => {
+    const group = await db.group.create({
+      data: {
+        groupName: 'Regular Course',
+        userGroup: { create: { userId: user.id, isGroupLeader: true } },
+        config: {},
+        courseInfo: {
+          create: { courseNum: 'REG', professor: 'P', semester: '2026' }
+        }
+      }
+    })
+    const regular = await assignments.createAssignment(group.id, user.id, {
+      title: 'Regular',
+      description: 'Existing flow',
+      week: 1,
+      isVisible: true,
+      isRankVisible: true,
+      isJudgeResultVisible: true,
+      autoFinalizeScore: false,
+      startTime: input.sections[0].startTime,
+      endTime: input.sections[0].endTime,
+      dueTime: input.sections[0].dueTime ?? null
+    })
+    await db.submission.create({
+      data: {
+        assignmentId: regular.id,
+        problemId,
+        userId: user.id,
+        code: [],
+        language: 'Python3',
+        result: 'Accepted'
+      }
+    })
+    expect(
+      (await assignments.deleteAssignment(group.id, regular.id)).id
+    ).to.equal(regular.id)
+    expect(
+      await db.assignment.findUnique({ where: { id: regular.id } })
+    ).to.equal(null)
+  })
 })
