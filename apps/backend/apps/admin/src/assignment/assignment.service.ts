@@ -221,7 +221,27 @@ export class AssignmentService {
             tx,
             current.assignmentProblem.map(({ problemId }) => problemId)
           )
-        return updateAssignmentSectionSettings(tx, current, assignment, pending)
+        const updated = await updateAssignmentSectionSettings(
+          tx,
+          current,
+          assignment,
+          pending
+        )
+        const settingsChanged = ASSIGNMENT_SECTION_SETTING_KEYS.some((key) => {
+          const before = current[key]
+          const after = updated[key]
+          return before instanceof Date && after instanceof Date
+            ? before.getTime() !== after.getTime()
+            : before !== after
+        })
+        // Invalidate Blueprint forms opened before a linked section's local edit.
+        if (current.blueprintAssignmentId != null && settingsChanged) {
+          await tx.blueprintAssignment.update({
+            where: { id: current.blueprintAssignmentId },
+            data: { revision: { increment: 1 } }
+          })
+        }
+        return updated
       })
       await new AssignmentEventService(this.eventEmitter).publish(pending)
       return updated

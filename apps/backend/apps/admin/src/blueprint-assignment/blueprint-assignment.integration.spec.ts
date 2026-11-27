@@ -1347,4 +1347,72 @@ integration('Blueprint Assignment database transactions', () => {
     await assignments.updateAssignment(copy.groupId, { id: copy.id, endTime })
     expect(await getCopy(copy.id)).to.deep.equal(updated)
   })
+
+  it('rejects an old Blueprint save after a local section edit and accepts a refreshed revision', async () => {
+    const source = await service.save(user, courseId, input)
+    const copy = source.assignment[0]
+    const dueTime = new Date('2027-01-02T12:00:00Z')
+    await assignments.updateAssignment(copy.groupId, { id: copy.id, dueTime })
+    const before = await snapshot(source.id)
+    expect(before.source.revision).to.equal(source.revision + 1)
+    expect((await getCopy(copy.id)).blueprintAssignmentId).to.equal(source.id)
+    await expect(
+      service.updateAssignmentById(user, source.id, {
+        operationId: randomUUID(),
+        expectedRevision: source.revision,
+        title: 'Stale edit',
+        sections: input.sections
+      })
+    ).to.be.rejectedWith(UnprocessableDataException, 'STALE_REVISION')
+    expect(await snapshot(source.id)).to.deep.equal(before)
+    const saved = await service.updateAssignmentById(user, source.id, {
+      operationId: randomUUID(),
+      expectedRevision: before.source.revision,
+      title: 'Refreshed edit',
+      sections: [{ groupId: copy.groupId, dueTime }]
+    })
+    expect(saved.title).to.equal('Refreshed edit')
+    expect((await getCopy(copy.id)).dueTime).to.deep.equal(dueTime)
+  })
+
+  it('increments the Blueprint revision for local visibility changes but not no-op or failed edits', async () => {
+    const source = await service.save(user, courseId, input)
+    const copy = source.assignment[0]
+    await assignments.updateAssignment(copy.groupId, {
+      id: copy.id,
+      isVisible: !copy.isVisible
+    })
+    const before = await snapshot(source.id)
+    expect(before.source.revision).to.equal(source.revision + 1)
+    await assignments.updateAssignment(copy.groupId, {
+      id: copy.id,
+      isVisible: !copy.isVisible,
+      startTime: new Date(copy.startTime),
+      endTime: new Date(copy.endTime),
+      dueTime: copy.dueTime
+    })
+    expect(await snapshot(source.id)).to.deep.equal(before)
+    await expect(
+      assignments.updateAssignment(copy.groupId, {
+        id: copy.id,
+        isVisible: copy.isVisible,
+        endTime: new Date('2026-01-01')
+      })
+    ).to.be.rejectedWith(UnprocessableDataException)
+    expect(await snapshot(source.id)).to.deep.equal(before)
+  })
+
+  it('does not change the Blueprint revision when editing an unlinked assignment', async () => {
+    const source = await service.save(user, courseId, input)
+    const copy = source.assignment[0]
+    await service.unlink(copy.groupId, copy.id)
+    const before = await snapshot(source.id)
+    await assignments.updateAssignment(copy.groupId, {
+      id: copy.id,
+      isVisible: !copy.isVisible
+    })
+    expect((await getCopy(copy.id)).isVisible).to.equal(!copy.isVisible)
+    expect((await getCopy(copy.id)).blueprintAssignmentId).to.equal(null)
+    expect(await snapshot(source.id)).to.deep.equal(before)
+  })
 })
