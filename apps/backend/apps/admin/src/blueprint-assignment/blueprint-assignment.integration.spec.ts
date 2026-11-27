@@ -12,6 +12,7 @@ import {
 } from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
 import { AssignmentEventService } from '@admin/assignment/assignment-event.service'
+import { deleteAssignmentCopy } from '@admin/assignment/assignment-link'
 import { AssignmentProblemService } from '@admin/assignment/assignment-problem.service'
 import { AssignmentService } from '@admin/assignment/assignment.service'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
@@ -1480,5 +1481,96 @@ integration('Blueprint Assignment database transactions', () => {
       assignments.deleteAssignment(target.groupId, target.id)
     ).to.be.rejectedWith(ConflictFoundException, 'Learning records exist')
     expect(await snapshot(source.id)).to.deep.equal(before)
+  })
+  it('rejects a null section endTime through schedule validation before comparing timestamps', async () => {
+    const source = await service.save(user, courseId, input)
+    const copy = source.assignment[0]
+    const before = await snapshot(source.id)
+    await expect(
+      assignments.updateAssignment(copy.groupId, {
+        id: copy.id,
+        endTime: null
+      } as never)
+    ).to.be.rejectedWith(
+      UnprocessableDataException,
+      'endTime must be a valid date'
+    )
+    expect(await snapshot(source.id)).to.deep.equal(before)
+    await assignments.updateAssignment(copy.groupId, {
+      id: copy.id,
+      dueTime: null
+    })
+    expect((await getCopy(copy.id)).dueTime).to.equal(null)
+  })
+
+  it('serializes problem removal behind section deletion without reversing problem locks', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const target = source.assignment[0]
+    await service.unlink(target.groupId, target.id)
+    const other = await getCopy(source.assignment[1].id)
+    let removal!: Promise<unknown>
+    await db.$transaction(
+      async (tx) => {
+        const [holder] = await tx.$queryRaw<
+          { pid: number }[]
+        >`SELECT pg_backend_pid() AS pid`
+        await tx.$queryRaw`SELECT id FROM assignment WHERE id = ${target.id} FOR UPDATE`
+        await tx.$queryRaw`SELECT assignment_id, problem_id FROM assignment_problem WHERE assignment_id = ${target.id} FOR UPDATE`
+        removal = assignments
+          .removeProblemsFromAssignment(target.groupId, target.id, [problemId])
+          .then(
+            () => null,
+            (error: unknown) => error
+          )
+        let blocked = false
+        for (let attempt = 0; attempt < 100; attempt++) {
+          const [waiter] = await db.$queryRaw<
+            { blocked: boolean }[]
+          >`SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE ${holder.pid} = ANY(pg_blocking_pids(pid))) AS blocked`
+          if (waiter.blocked) {
+            blocked = true
+            break
+          }
+          await new Promise((resolve) => setTimeout(resolve, 10))
+        }
+        expect(blocked).to.equal(true)
+        // Removal must wait on Assignment before holding a Problem lock needed here.
+        await tx.$executeRaw`SET LOCAL lock_timeout = '1000ms'`
+        await deleteAssignmentCopy(tx, target.id, target.groupId, [])
+      },
+      { timeout: 10000 }
+    )
+    const error = await removal
+    expect(error).to.be.instanceOf(UnprocessableDataException)
+    expect(String(error)).not.to.include('deadlock')
+    expect(
+      await db.assignment.findUnique({ where: { id: target.id } })
+    ).to.equal(null)
+    expect(await getCopy(other.id)).to.deep.equal(other)
+  })
+  it('removes a problem from an unlinked assignment under the ordered locks and preserves the source and other copy', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const target = source.assignment[0]
+    const other = await getCopy(source.assignment[1].id)
+    await service.unlink(target.groupId, target.id)
+    const before = await service.getAssignmentById(user, source.id)
+    const removed = await assignments.removeProblemsFromAssignment(
+      target.groupId,
+      target.id,
+      [problemId]
+    )
+    expect(removed.map(({ problemId }) => problemId)).to.deep.equal([problemId])
+    expect((await getCopy(target.id)).assignmentProblem).to.deep.equal([])
+    expect((await getCopy(target.id)).blueprintAssignmentId).to.equal(null)
+    expect(await getCopy(other.id)).to.deep.equal(other)
+    expect(await service.getAssignmentById(user, source.id)).to.deep.equal(
+      before
+    )
+    expect(
+      (await db.problem.findUniqueOrThrow({ where: { id: problemId } }))
+        .visibleLockTime
+    ).to.deep.equal(other.endTime)
   })
 })

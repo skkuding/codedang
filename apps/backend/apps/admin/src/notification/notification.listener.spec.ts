@@ -1,5 +1,6 @@
+import { Logger } from '@nestjs/common'
 import { expect } from 'chai'
-import { stub } from 'sinon'
+import { restore, stub } from 'sinon'
 import { MAX_DATE, MILLISECONDS_PER_DAY } from '@libs/constants'
 import { NotificationListener } from './notification.listener'
 import type { NotificationScheduler } from './notification.scheduler'
@@ -36,8 +37,10 @@ describe('Committed assignment grade notifications', () => {
 })
 
 describe('Independent assignment creation notifications and reminders', () => {
+  afterEach(() => restore())
   for (const failure of ['none', 'notification', 'reminder', 'both']) {
     it(`attempts all deliveries and reports their failures: ${failure}`, async () => {
+      const log = stub(Logger.prototype, 'error')
       const notificationError = new Error('notification failed')
       const reminderError = new Error('reminder failed')
       const notifications = { notifyAssignmentCreated: stub().resolves() }
@@ -72,6 +75,19 @@ describe('Independent assignment creation notifications and reminders', () => {
       expect(
         notifications.notifyAssignmentCreated.calledOnceWithExactly(42)
       ).to.equal(true)
+      expect(log.callCount).to.equal(errors.length)
+      for (const error of errors) {
+        const task =
+          error === notificationError
+            ? 'assignment-created'
+            : 'assignment:42:due-reminder:1d'
+        expect(
+          log.calledWithExactly(
+            `Assignment 42 task ${task} failed`,
+            error.stack
+          )
+        ).to.equal(true)
+      }
       expect(scheduler.scheduleJob.callCount).to.equal(2)
       expect(scheduler.scheduleJob.firstCall.args[2]).to.equal(
         'assignment:42:due-reminder:1d'

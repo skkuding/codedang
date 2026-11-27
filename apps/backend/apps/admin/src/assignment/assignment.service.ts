@@ -23,6 +23,7 @@ import {
 import { lockAssignmentProblems } from './assignment-problem-access'
 import {
   ASSIGNMENT_SECTION_SETTING_KEYS,
+  resolveAssignmentSectionSettings,
   updateAssignmentSectionSettings
 } from './assignment-section-settings'
 import type { UpdateAssignmentProblemRecordInput } from './model/assignment-problem-record-input'
@@ -214,9 +215,10 @@ export class AssignmentService {
           where: { id: assignment.id, groupId },
           include: { assignmentProblem: true }
         })
+        const settings = resolveAssignmentSectionSettings(current, assignment)
         if (
-          assignment.endTime !== undefined &&
-          assignment.endTime.getTime() !== current.endTime.getTime()
+          settings.endTime !== undefined &&
+          settings.endTime.getTime() !== current.endTime.getTime()
         )
           await lockAssignmentProblems(
             tx,
@@ -225,7 +227,7 @@ export class AssignmentService {
         const updated = await updateAssignmentSectionSettings(
           tx,
           current,
-          assignment,
+          settings,
           pending
         )
         const settingsChanged = ASSIGNMENT_SECTION_SETTING_KEYS.some((key) => {
@@ -585,81 +587,41 @@ export class AssignmentService {
     assertAssignmentUnlinked(assignment)
 
     const assignmentProblems: AssignmentProblem[] = []
-
     for (const problemId of problemIds) {
-      // 문제가 포함된 대회 중 가장 늦게 끝나는 대회의 종료시각으로 visibleLockTime 설정 (없을시 비공개 전환)
-      let visibleLockTime = MAX_DATE
-
-      const assignmentIds = (
-        await this.prisma.assignmentProblem.findMany({
-          where: {
-            problemId
-          }
-        })
-      )
-        .filter(
-          (assignmentProblem) => assignmentProblem.assignmentId !== assignmentId
-        )
-        .map((assignmentProblem) => assignmentProblem.assignmentId)
-
-      if (assignmentIds.length) {
-        const latestAssignment = await this.prisma.assignment.findFirst({
-          where: {
-            id: {
-              in: assignmentIds
-            }
-          },
-          orderBy: {
-            endTime: 'desc'
-          },
-          select: {
-            endTime: true
-          }
-        })
-
-        if (!latestAssignment) {
-          throw new EntityNotExistException('Assignment')
-        }
-
-        visibleLockTime = latestAssignment.endTime
-      }
-
       try {
-        const [, assignmentProblem] = await this.prisma.$transaction([
-          this.prisma.problem.updateMany({
+        const assignmentProblem = await this.prisma.$transaction(async (tx) => {
+          // Match whole-assignment deletion: Assignment -> AssignmentProblem -> Problem.
+          await tx.$queryRaw`SELECT id FROM assignment WHERE id = ${assignmentId} FOR UPDATE`
+          await tx.$queryRaw`SELECT assignment_id, problem_id FROM assignment_problem WHERE assignment_id = ${assignmentId} AND problem_id = ${problemId} FOR UPDATE`
+          await lockAssignmentProblems(tx, [problemId])
+          const current = await tx.assignment.findUniqueOrThrow({
+            where: { id: assignmentId }
+          })
+          assertAssignmentUnlinked(current)
+          const latestAssignment = await tx.assignment.findFirst({
             where: {
-              id: problemId,
-              visibleLockTime: {
-                lte: assignment.endTime
-              }
+              id: { not: assignmentId },
+              assignmentProblem: { some: { problemId } }
             },
-            data: {
-              visibleLockTime
-            }
-          }),
-          this.prisma.assignmentProblem.delete({
+            orderBy: { endTime: 'desc' },
+            select: { endTime: true }
+          })
+          await tx.problem.updateMany({
+            where: { id: problemId, visibleLockTime: { lte: current.endTime } },
+            data: { visibleLockTime: latestAssignment?.endTime ?? MAX_DATE }
+          })
+          const removed = await tx.assignmentProblem.delete({
             where: {
               // eslint-disable-next-line @typescript-eslint/naming-convention
-              assignmentId_problemId: {
-                assignmentId,
-                problemId
-              }
-            }
-          }),
-          this.prisma.problem.update({
-            where: {
-              id: problemId
-            },
-            data: {
-              sharedGroups: {
-                // TODO: 하나의 Group에 2개의 assignment가 있고 이 두 과제가 같은 문제를 공유하는 경우, 하나의 assignment에서 problem을 삭제하면 sharedGroups도 삭제되지만 실제로는 나머지 하나의 assignment에 포함되어있으므로 sharedGroups를 disconnect하면 안됨.
-                // TODO: 해당 Group의 하나의 assignment에만 포함되어있을 때 sharedGroups를 삭제하도록 수정해야함.
-                disconnect: [{ id: groupId }]
-              }
+              assignmentId_problemId: { assignmentId, problemId }
             }
           })
-        ])
-
+          await tx.problem.update({
+            where: { id: problemId },
+            data: { sharedGroups: { disconnect: [{ id: groupId }] } }
+          })
+          return removed
+        })
         assignmentProblems.push(assignmentProblem)
       } catch (error) {
         throw new UnprocessableDataException(error.message)
