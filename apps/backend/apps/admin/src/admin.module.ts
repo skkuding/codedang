@@ -50,6 +50,7 @@ import { WorkbookModule } from './workbook/workbook.module'
         autoSchemaFile: 'schema.gql',
         sortSchema: true,
         introspection: true,
+        includeStacktraceInErrorResponses: false,
         formatError: apolloErrorFormatter,
         playground: configService.get<string>('APP_ENV') !== 'production'
       }),
