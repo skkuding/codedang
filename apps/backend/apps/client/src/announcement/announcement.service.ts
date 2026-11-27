@@ -6,6 +6,15 @@ import { PrismaService } from '@libs/prisma'
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Gets the announcements of a contest, newest first.
+   * The problemId of each announcement is converted to its problem order in the contest (problemOrder),
+   * and problemOrder is null for announcements not linked to a problem.
+   *
+   * @param {number} contestId Contest ID
+   * @returns Announcements with problemOrder instead of problemId
+   * @throws {Prisma.PrismaClientKnownRequestError} Thrown with code P2025 if the contest with contestId does not exist
+   */
   async getContestAnnouncements(
     contestId: number
   ): Promise<

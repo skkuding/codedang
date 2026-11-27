@@ -17,6 +17,9 @@ export class WorkbookController {
 
   constructor(private readonly workbookService: WorkbookService) {}
 
+  /**
+   * Gets the visible workbooks of a group.
+   */
   @Get()
   async getWorkbooks(
     @Query('cursor', CursorValidationPipe) cursor: number | null,
@@ -31,6 +34,9 @@ export class WorkbookController {
     )
   }
 
+  /**
+   * Gets a visible workbook and its problems.
+   */
   @Get(':workbookId')
   async getWorkbook(
     @Param('workbookId', new RequiredIntPipe('workbookId')) workbookId,
