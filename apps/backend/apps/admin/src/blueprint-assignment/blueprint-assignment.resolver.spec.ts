@@ -69,11 +69,11 @@ describe('BlueprintAssignment GraphQL contract', () => {
       'assignment',
       'blueprintAssignmentProblem'
     ])
-    expect(Object.keys(output.getFields())).not.to.include.members([
+    expect(output.getFields()).not.to.have.any.keys(
       '_count',
       'createdBy',
       'blueprintCourse'
-    ])
+    )
     const section = getNamedType(
       output.getFields().assignment.type
     ) as GraphQLObjectType
