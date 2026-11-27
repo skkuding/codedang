@@ -19,3 +19,17 @@ export const buildMediaUrl = (config: ConfigService, filename: string) => {
     ? `${endpoint}/${bucket}/${filename}`
     : `https://${bucket}.s3.ap-northeast-2.amazonaws.com/${filename}`
 }
+
+export interface Attachment {
+  id: string
+  url: string
+}
+
+export const buildAttachments = (
+  config: ConfigService,
+  files: Array<{ filename: string }> = []
+): Attachment[] =>
+  files.map(({ filename }) => ({
+    id: filename,
+    url: buildMediaUrl(config, filename)
+  }))

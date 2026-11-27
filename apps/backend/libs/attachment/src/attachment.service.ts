@@ -1,59 +1,176 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { UnprocessableDataException } from '@libs/exception'
 import { StorageService } from '@libs/storage'
-import { buildMediaUrl } from './media-url'
+import { readHtmlAttributes } from './html-attributes'
+import { type Attachment, buildAttachments, buildMediaUrl } from './media-url'
+import {
+  type StorageLocation,
+  decodeCharacterReferences,
+  findUrlCandidates,
+  normalizeForFilenameSearch,
+  toStorageKey,
+  toStorageLocation
+} from './storage-url'
 
-/**
- * 본문 HTML에 data-attachment-id로 삽입되는 첨부 파일의 공통 기능을 제공한다.
- *
- * 특정 도메인(Problem 등)이나 소유 관계에 의존하지 않으며,
- * 도메인별 귀속·삭제 대상 판단은 각 도메인 서비스가 담당한다.
- */
+const ATTACHMENT_ID_ATTRIBUTE = 'data-attachment-id'
+const UUID_PATTERN =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
+
+// Endpoints that serve the media bucket, in virtual-hosted and path styles
+const S3_HOSTS = [
+  's3.ap-northeast-2.amazonaws.com',
+  's3.dualstack.ap-northeast-2.amazonaws.com',
+  's3-ap-northeast-2.amazonaws.com',
+  's3.amazonaws.com'
+]
+
 @Injectable()
 export class AttachmentService {
+  private readonly logger = new Logger(AttachmentService.name)
+
   constructor(
     private readonly config: ConfigService,
     private readonly storageService: StorageService
   ) {}
 
   /**
-   * HTML 목록에서 data-attachment-id 값을 추출한다. (중복 제거)
+   * Reads data-attachment-id only from attributes of start tags, so the same
+   * text inside body content or another attribute's value is ignored.
    */
   extractIds(htmls: Array<string | null | undefined>): string[] {
-    throw new Error('Not implemented')
+    const ids = new Set<string>()
+    for (const { name, value } of this.readAttributes(htmls)) {
+      if (name === ATTACHMENT_ID_ATTRIBUTE && value) ids.add(value)
+    }
+    return [...ids]
   }
 
   /**
-   * 수정 전후 첨부 ID의 차이를 계산한다.
+   * Returns filenames of our media storage referenced by URL in tag
+   * attributes (e.g. img src/srcset, file node href, style url()).
    */
+  extractStorageFilenames(htmls: Array<string | null | undefined>): string[] {
+    const locations = this.getStorageLocations()
+    const filenames = new Set<string>()
+    for (const { name, value } of this.readAttributes(htmls)) {
+      for (const candidate of findUrlCandidates(name, value)) {
+        const filename = toStorageKey(candidate, locations)
+        if (filename) filenames.add(filename)
+      }
+    }
+    return [...filenames]
+  }
+
+  /**
+   * Returns the filenames that still appear anywhere in the HTML. Used as a
+   * last check before deleting files, so a reference the parsers miss keeps
+   * its file instead of losing it.
+   */
+  findReferencedFilenames(
+    htmls: Array<string | null | undefined>,
+    filenames: string[]
+  ): string[] {
+    if (!filenames.length) return []
+    const text = htmls
+      .filter((html): html is string => !!html)
+      .map(normalizeForFilenameSearch)
+      .join('\n')
+    return filenames.filter((filename) => text.includes(filename.toLowerCase()))
+  }
+
+  /**
+   * Returns every UUID written anywhere in the HTML, in lower case, after the
+   * same normalization as findReferencedFilenames.
+   */
+  findUuids(htmls: Array<string | null | undefined>): string[] {
+    const uuids = new Set<string>()
+    for (const html of htmls) {
+      if (!html) continue
+      for (const [uuid] of normalizeForFilenameSearch(html).matchAll(
+        UUID_PATTERN
+      )) {
+        uuids.add(uuid)
+      }
+    }
+    return [...uuids]
+  }
+
   diff(
     prevIds: string[],
     nextIds: string[]
   ): { added: string[]; removed: string[] } {
-    throw new Error('Not implemented')
+    const prev = new Set(prevIds)
+    const next = new Set(nextIds)
+    return {
+      added: [...next].filter((id) => !prev.has(id)),
+      removed: [...prev].filter((id) => !next.has(id))
+    }
   }
 
-  /**
-   * filename으로 공개 접근 URL을 만든다. (기존 업로드 응답과 같은 형식)
-   */
   toUrl(filename: string): string {
     return buildMediaUrl(this.config, filename)
   }
 
-  /**
-   * 트랜잭션 커밋 후 스토리지에서 파일을 삭제한다.
-   * 실패해도 예외를 던지지 않고 로그만 남긴다.
-   */
+  toAttachments(files: Array<{ filename: string }> = []): Attachment[] {
+    return buildAttachments(this.config, files)
+  }
+
   async deleteFromStorage(filenames: string[]): Promise<void> {
-    throw new Error('Not implemented')
+    const results = await Promise.allSettled(
+      filenames.map((filename) => this.storageService.deleteFile(filename))
+    )
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        this.logger.error(
+          `Failed to delete attachment ${filenames[index]} from storage`,
+          result.reason
+        )
+      }
+    })
   }
 
   /**
-   * 설정이 활성화된 경우, HTML에 스토리지 URL이 직접 들어 있으면 거부한다.
-   * 첨부를 ID 방식으로 관리하는 필드에만 적용해야 한다.
-   * (기존 데이터 마이그레이션 완료 후 활성화)
+   * Throws when ATTACHMENT_REJECT_STORAGE_URL is "true" and any HTML
+   * contains a public media URL instead of a data-attachment-id.
    */
   assertNoStorageUrl(htmls: Array<string | null | undefined>): void {
-    throw new Error('Not implemented')
+    if (this.config.get<string>('ATTACHMENT_REJECT_STORAGE_URL') !== 'true') {
+      return
+    }
+
+    if (this.extractStorageFilenames(htmls).length) {
+      throw new UnprocessableDataException(
+        'Attachments must be referenced by data-attachment-id, not by URL'
+      )
+    }
+  }
+
+  private *readAttributes(
+    htmls: Array<string | null | undefined>
+  ): Generator<{ name: string; value: string }> {
+    for (const html of htmls) {
+      if (!html) continue
+      for (const { name, value } of readHtmlAttributes(html)) {
+        yield { name, value: decodeCharacterReferences(value).trim() }
+      }
+    }
+  }
+
+  private getStorageLocations(): StorageLocation[] {
+    const bucket = this.config.get<string>('MEDIA_BUCKET_NAME')
+    const cdnUrl = this.config.get<string>('MEDIA_CDN_URL')
+    const endpoint = this.config.get<string>('MINIO_ENDPOINT_URL')
+
+    return [
+      cdnUrl ? toStorageLocation(cdnUrl) : null,
+      endpoint && bucket ? toStorageLocation(endpoint, `/${bucket}/`) : null,
+      ...(bucket
+        ? S3_HOSTS.flatMap((host) => [
+            { host: `${bucket}.${host}`, pathPrefix: '/' },
+            { host, pathPrefix: `/${bucket}/` }
+          ])
+        : [])
+    ].filter((location): location is StorageLocation => !!location)
   }
 }
