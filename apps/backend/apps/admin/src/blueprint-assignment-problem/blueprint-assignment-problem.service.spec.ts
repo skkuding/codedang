@@ -38,14 +38,17 @@ const createDb = () => {
     blueprintAssignmentProblem: {
       findMany: stub().resolves([]),
       createMany: stub().resolves({ count: 0 }),
-      update: stub().resolves({})
+      update: stub().resolves({}),
+      deleteMany: stub().resolves({ count: 0 })
     },
     assignment: {
       findMany: stub().resolves([])
     },
     assignmentProblem: {
       createMany: stub().resolves({ count: 0 }),
-      updateMany: stub().resolves({ count: 0 })
+      updateMany: stub().resolves({ count: 0 }),
+      deleteMany: stub().resolves({ count: 0 }),
+      findMany: stub().resolves([])
     },
     assignmentRecord: {
       findMany: stub().resolves([])
@@ -62,8 +65,15 @@ const createDb = () => {
     },
     problem: {
       findMany: stub().resolves([]),
+      findUniqueOrThrow: stub().resolves({ visibleLockTime: new Date() }),
       update: stub().resolves({}),
       updateMany: stub().resolves({ count: 0 })
+    },
+    workbookProblem: {
+      findFirst: stub().resolves(null)
+    },
+    contestProblem: {
+      findMany: stub().resolves([])
     },
     $queryRaw: stub().resolves([]),
     $transaction: stub()
@@ -467,6 +477,103 @@ describe('BlueprintAssignmentProblemService', () => {
       await expect(updateOrder([1, 999])).to.be.rejectedWith(
         UnprocessableDataException
       )
+    })
+  })
+
+  describe('removeProblemsFromBlueprintAssignment', () => {
+    const removeProblems = (problemIds: number[]) =>
+      service.removeProblemsFromBlueprintAssignment(
+        user,
+        blueprintAssignmentId,
+        problemIds
+      )
+
+    beforeEach(() => {
+      db.blueprintAssignmentProblem.findMany
+        .onFirstCall()
+        .resolves([bap(1, 0), bap(2, 1), bap(3, 2)])
+    })
+
+    it('throws ForbiddenAccessException before opening a transaction', async () => {
+      access.assertBlueprintLeader.rejects(new ForbiddenAccessException('no'))
+
+      await expect(removeProblems([1])).to.be.rejectedWith(
+        ForbiddenAccessException
+      )
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('removes from the blueprint only when there are no copies', async () => {
+      const result = await removeProblems([2])
+
+      expect(result).to.deep.equal([bap(2, 1)])
+      expect(
+        db.blueprintAssignmentProblem.deleteMany.firstCall.args[0]
+      ).to.deep.equal({
+        where: { blueprintAssignmentId, problemId: { in: [2] } }
+      })
+      expect(db.assignmentProblem.deleteMany.called).to.be.false
+    })
+
+    it('closes order gaps of the remaining problems', async () => {
+      await removeProblems([1])
+
+      expect(
+        db.blueprintAssignmentProblem.update
+          .getCalls()
+          .map((c) => [
+            c.args[0].where.blueprintAssignmentId_problemId.problemId,
+            c.args[0].data.order
+          ])
+      ).to.deep.equal([
+        [2, 0],
+        [3, 1]
+      ])
+    })
+
+    it('removes from linked copies and refreshes access per group', async () => {
+      db.assignment.findMany.resolves([copyA, copyB])
+
+      await removeProblems([2])
+
+      expect(db.assignmentProblem.deleteMany.firstCall.args[0]).to.deep.equal({
+        where: {
+          assignmentId: { in: [copyA.id, copyB.id] },
+          problemId: { in: [2] }
+        }
+      })
+      expect(
+        db.problem.update.getCalls().map((c) => c.args[0].where.id)
+      ).to.deep.equal([2, 2])
+      expect(
+        db.assignmentProblem.updateMany.getCalls().map((c) => c.args[0])
+      ).to.deep.equal([
+        {
+          where: { assignmentId: { in: [copyA.id, copyB.id] }, problemId: 1 },
+          data: { order: 0 }
+        },
+        {
+          where: { assignmentId: { in: [copyA.id, copyB.id] }, problemId: 3 },
+          data: { order: 1 }
+        }
+      ])
+    })
+
+    it('throws EntityNotExistException when a problem is not imported', async () => {
+      await expect(removeProblems([1, 999])).to.be.rejectedWith(
+        EntityNotExistException
+      )
+      expect(db.blueprintAssignmentProblem.deleteMany.called).to.be.false
+    })
+
+    it('throws ConflictFoundException when a linked copy has submissions', async () => {
+      db.assignment.findMany.resolves([copyA])
+      db.submission.count.resolves(1)
+
+      await expect(removeProblems([1])).to.be.rejectedWith(
+        ConflictFoundException
+      )
+      expect(db.blueprintAssignmentProblem.deleteMany.called).to.be.false
     })
   })
 })

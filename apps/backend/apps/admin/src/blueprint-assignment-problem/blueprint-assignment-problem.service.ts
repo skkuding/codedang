@@ -10,7 +10,10 @@ import {
 import { PrismaService } from '@libs/prisma'
 import { assertAssignmentsHaveNoLearningRecords } from '@admin/assignment/assignment-learning-records'
 import { lockBlueprintAssignment } from '@admin/assignment/assignment-link'
-import { lockAssignmentProblems } from '@admin/assignment/assignment-problem-access'
+import {
+  lockAssignmentProblems,
+  refreshAssignmentProblemAccess
+} from '@admin/assignment/assignment-problem-access'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
 import type { BlueprintAssignmentProblemInput } from './model/blueprint-assignment-problem.input'
 
@@ -252,6 +255,76 @@ export class BlueprintAssignmentProblemService {
         where: { blueprintAssignmentId },
         orderBy: { order: 'asc' }
       })
+    })
+  }
+
+  async removeProblemsFromBlueprintAssignment(
+    user: AuthenticatedUser,
+    blueprintAssignmentId: number,
+    problemIds: number[]
+  ) {
+    await this.assertAccess(user, blueprintAssignmentId)
+
+    const ids = [...new Set(problemIds)]
+
+    return await this.prisma.$transaction(async (tx) => {
+      await lockBlueprintAssignment(tx, blueprintAssignmentId)
+
+      const copies = await tx.assignment.findMany({
+        where: { blueprintAssignmentId },
+        select: { id: true, groupId: true },
+        orderBy: { id: 'asc' }
+      })
+      const copyIds = copies.map(({ id }) => id)
+      await assertAssignmentsHaveNoLearningRecords(tx, copyIds)
+
+      const current = await tx.blueprintAssignmentProblem.findMany({
+        where: { blueprintAssignmentId },
+        orderBy: { order: 'asc' }
+      })
+      const removed = current.filter(({ problemId }) => ids.includes(problemId))
+      if (removed.length !== ids.length) {
+        throw new EntityNotExistException('BlueprintAssignmentProblem')
+      }
+      await lockAssignmentProblems(tx, ids)
+
+      await tx.blueprintAssignmentProblem.deleteMany({
+        where: { blueprintAssignmentId, problemId: { in: ids } }
+      })
+      if (copyIds.length) {
+        // AssignmentProblemRecord rows are removed by cascade.
+        await tx.assignmentProblem.deleteMany({
+          where: { assignmentId: { in: copyIds }, problemId: { in: ids } }
+        })
+        for (const groupId of new Set(copies.map(({ groupId }) => groupId))) {
+          await refreshAssignmentProblemAccess(tx, ids, groupId)
+        }
+      }
+
+      // Close order gaps so the next import can append from the count.
+      const remaining = current.filter(
+        ({ problemId }) => !ids.includes(problemId)
+      )
+      for (const [order, { problemId }] of remaining.entries()) {
+        await tx.blueprintAssignmentProblem.update({
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            blueprintAssignmentId_problemId: {
+              blueprintAssignmentId,
+              problemId
+            }
+          },
+          data: { order }
+        })
+        if (copyIds.length) {
+          await tx.assignmentProblem.updateMany({
+            where: { assignmentId: { in: copyIds }, problemId },
+            data: { order }
+          })
+        }
+      }
+
+      return removed
     })
   }
 
