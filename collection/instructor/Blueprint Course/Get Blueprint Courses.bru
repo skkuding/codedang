@@ -1,0 +1,49 @@
+meta {
+  name: Get Blueprint Courses
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getBlueprintCourses {
+      id courseTitle courseNum semester
+      sections { id groupName config memberNum courseInfo { blueprintCourseId classNum } }
+    }
+  }
+}
+
+tests {
+  test("Returns accessible courses and all sections", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    expect(body.data.getBlueprintCourses).to.be.an("array");
+    const courses = body.data.getBlueprintCourses;
+    expect(new Set(courses.map(course => course.id)).size).to.equal(courses.length);
+    for (const course of courses) {
+      expect(course.courseTitle).to.be.a("string");
+      expect(course.sections).to.be.an("array");
+      for (const section of course.sections) {
+        expect(section.courseInfo.blueprintCourseId).to.equal(Number(course.id));
+        expect(section.memberNum).to.be.at.least(0);
+      }
+    }
+    const selectedId = bru.getEnvVar("blueprintCourseId") || bru.getVar("blueprintCourseId") || courses[0]?.id;
+    bru.setVar("blueprintCourseId", selectedId ? Number(selectedId) : undefined);
+    const selected = courses.find(course => Number(course.id) === Number(selectedId));
+    bru.setVar("blueprintExpectedCourseId", selected ? Number(selected.id) : undefined);
+    bru.setVar("blueprintExpectedSections", selected ? selected.sections.map(section => section.id) : undefined);
+  });
+}
+
+docs {
+  Lists courses for the seeded instructor. Set blueprintCourseId to choose a detail target.
+  An empty list is valid; detail success requires an existing accessible Blueprint.
+}

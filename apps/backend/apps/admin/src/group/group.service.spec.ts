@@ -138,6 +138,9 @@ const db = {
     findUnique: stub(),
     findMany: stub()
   },
+  courseInfo: {
+    findUnique: stub()
+  },
   user: {
     findUnique: stub()
   },
@@ -326,6 +329,18 @@ describe('GroupService', () => {
   })
 
   describe('deleteGroup', () => {
+    const leader = new AuthenticatedUser(userId, user.username, Role.User)
+    const deletedGroup = { ...group, courseInfo }
+
+    beforeEach(() => {
+      db.userGroup.findUnique.reset()
+      db.courseInfo.findUnique.reset()
+      db.assignment.findFirst.reset()
+      db.group.delete.reset()
+      db.userGroup.findUnique.resolves({ isGroupLeader: true })
+      db.group.delete.resolves(deletedGroup)
+    })
+
     it('should throw error when either user is not group leader or their role is higher than Admin', async () => {
       const userReq = new AuthenticatedUser(
         userId,
@@ -337,6 +352,118 @@ describe('GroupService', () => {
       await expect(
         service.deleteGroup(groupId, GroupType.Course, userReq)
       ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.group.delete.called).to.be.false
+    })
+
+    it('should not check learning records for a member who is not a leader', async () => {
+      db.userGroup.findUnique.resolves({ isGroupLeader: false })
+
+      await expect(
+        service.deleteGroup(groupId, GroupType.Course, leader)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.courseInfo.findUnique.called).to.be.false
+      expect(db.group.delete.called).to.be.false
+    })
+
+    it('should delete a regular course without checking learning records', async () => {
+      db.courseInfo.findUnique.resolves({ blueprintCourseId: null })
+
+      const res = await service.deleteGroup(groupId, GroupType.Course, leader)
+
+      expect(res).to.equal(deletedGroup)
+      expect(db.assignment.findFirst.called).to.be.false
+      expect(db.group.delete.firstCall.args[0]).to.deep.equal({
+        where: { id: groupId },
+        include: { courseInfo: true }
+      })
+    })
+
+    it('should delete a course without course info as before', async () => {
+      db.courseInfo.findUnique.resolves(null)
+
+      await service.deleteGroup(groupId, GroupType.Course, leader)
+
+      expect(db.assignment.findFirst.called).to.be.false
+      expect(db.group.delete.calledOnce).to.be.true
+    })
+
+    it('should delete a blueprint section that has no learning records', async () => {
+      db.courseInfo.findUnique.resolves({ blueprintCourseId: 7 })
+      db.assignment.findFirst.resolves(null)
+
+      const res = await service.deleteGroup(groupId, GroupType.Course, leader)
+
+      expect(res).to.equal(deletedGroup)
+      expect(db.courseInfo.findUnique.firstCall.args[0]).to.deep.equal({
+        where: { groupId },
+        select: { blueprintCourseId: true }
+      })
+      expect(db.assignment.findFirst.calledBefore(db.group.delete)).to.be.true
+      expect(db.group.delete.calledOnce).to.be.true
+    })
+
+    it('should look for any submission, submitted record or comment of any user in the section assignments', async () => {
+      db.courseInfo.findUnique.resolves({ blueprintCourseId: 7 })
+      db.assignment.findFirst.resolves(null)
+
+      await service.deleteGroup(groupId, GroupType.Course, leader)
+
+      // 작성자(학생/교수·조교)로 거르지 않고, finalScore는 조건에 넣지 않습니다.
+      expect(db.assignment.findFirst.firstCall.args[0]).to.deep.equal({
+        where: {
+          groupId,
+          OR: [
+            { submission: { some: {} } },
+            {
+              assignmentRecord: {
+                some: {
+                  assignmentProblemRecord: {
+                    some: {
+                      OR: [{ isSubmitted: true }, { comment: { not: '' } }]
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        select: { id: true }
+      })
+    })
+
+    it('should not treat finalScore as a learning record', async () => {
+      db.courseInfo.findUnique.resolves({ blueprintCourseId: 7 })
+      db.assignment.findFirst.resolves(null)
+
+      await service.deleteGroup(groupId, GroupType.Course, leader)
+
+      expect(
+        JSON.stringify(db.assignment.findFirst.firstCall.args[0])
+      ).to.not.include('finalScore')
+      expect(db.group.delete.calledOnce).to.be.true
+    })
+
+    it('should throw ConflictFoundException and not delete a blueprint section that has learning records', async () => {
+      db.courseInfo.findUnique.resolves({ blueprintCourseId: 7 })
+      db.assignment.findFirst.resolves({ id: 3 })
+
+      await expect(
+        service.deleteGroup(groupId, GroupType.Course, leader)
+      ).to.be.rejectedWith(
+        ConflictFoundException,
+        'Cannot delete a section that has learning records'
+      )
+      expect(db.group.delete.called).to.be.false
+    })
+
+    it('should not check course info for a non-course group', async () => {
+      await service.deleteGroup(groupId, GroupType.Study, leader)
+
+      expect(db.courseInfo.findUnique.called).to.be.false
+      expect(db.group.delete.firstCall.args[0]).to.deep.equal({
+        where: { id: groupId },
+        include: {}
+      })
     })
   })
 

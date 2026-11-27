@@ -1,0 +1,44 @@
+meta {
+  name: Blueprint Course
+  seq: 20
+}
+
+auth {
+  mode: inherit
+}
+
+docs {
+  # Blueprint Course
+
+  폴더를 통째로 Run 하면 seq 순서로 실행됩니다.
+  instructor 컬렉션 공통 로그인(seed의 `instructor`)과 Local 환경(admin `:3000`, client `:4000`)을 사용합니다.
+
+  ## 사전 준비
+
+  1. Docker 컨테이너 실행 (`codedang-test-database` 포함)
+  2. 테스트 DB 마이그레이션과 seed (`apps/backend`에서)
+
+     ```bash
+     set -a && . ./.env && set +a
+     DATABASE_URL="$TEST_DATABASE_URL" pnpm prisma migrate reset --force
+     ```
+
+  3. admin, client 서버를 테스트 DB로 실행 (`DATABASE_URL="$TEST_DATABASE_URL"`)
+  4. 접근 가능한 Blueprint가 하나도 없으면 `Course/Create Blueprint Course/Succeed`를 한 번 실행
+
+  ## Section fixture (`Update Blueprint Course - Fixture Sections`, seq 20~21)
+
+  Section 생성 API가 아직 없어서 Section이 있는 Blueprint는 SQL fixture로 만듭니다.
+  저장소 루트에서 실행합니다.
+
+  ```bash
+  docker exec -i codedang-test-database psql -v ON_ERROR_STOP=1 -U postgres -d skkuding \
+    < "collection/instructor/Blueprint Course/blueprint-sections.fixture.sql"
+  ```
+
+  - Blueprint `BRU3201`(instructor 생성)과 Section 2개(classNum 41, 42)를 만듭니다.
+  - 다시 실행하면 이전 fixture(`BRU3201`과 그 Section)만 지우고 새로 만듭니다. 다른 데이터는 건드리지 않습니다.
+  - 서버가 사용하는 DB에 넣어야 합니다. 개발 DB(`codedang-database`)에는 넣지 마세요.
+  - fixture가 없거나 Section이 0개이면 seq 20~21은 건너뛰지 않고 **실패**합니다.
+  - `pnpm test`는 테스트 DB를 초기화하므로, 그 뒤에는 fixture를 다시 넣어야 합니다.
+}

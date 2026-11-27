@@ -1,0 +1,25 @@
+meta {
+  name: Get Blueprint Course - NOT_FOUND
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query { getBlueprintCourse(blueprintCourseId: -1) { id } }
+}
+
+tests {
+  test("Reports a nonexistent Blueprint", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.be.an("array").that.is.not.empty;
+    expect(body.errors[0].extensions.code).to.equal("NOT_FOUND");
+    expect(body.data).to.equal(null);
+  });
+}

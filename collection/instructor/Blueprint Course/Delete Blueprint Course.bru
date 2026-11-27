@@ -1,0 +1,43 @@
+meta {
+  name: Delete Blueprint Course
+  type: graphql
+  seq: 14
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation {
+    deleteBlueprintCourse(blueprintCourseId: {{deleteBlueprintCourseId}}) {
+      id courseTitle courseNum semester week professor
+      email website office phoneNum createdById createTime updateTime
+    }
+  }
+}
+
+script:pre-request {
+  const id = Number(bru.getVar("deleteBlueprintCourseId"));
+  if (!Number.isInteger(id) || id < 1) {
+    throw new Error("Run Delete Blueprint Course - Setup first.");
+  }
+}
+
+tests {
+  test("Deletes a Blueprint without sections and returns it", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const course = body.data.deleteBlueprintCourse;
+    expect(Number(course.id)).to.equal(Number(bru.getVar("deleteBlueprintCourseId")));
+    expect(course.courseTitle).to.equal("Bruno Delete Target");
+  });
+}
+
+docs {
+  Deletes the Blueprint created by "Delete Blueprint Course - Setup" as the seeded instructor.
+  BlueprintAssignments of the Blueprint are deleted by CASCADE.
+}

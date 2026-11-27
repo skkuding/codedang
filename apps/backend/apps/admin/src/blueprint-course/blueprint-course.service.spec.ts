@@ -1,18 +1,23 @@
+import { BadRequestException } from '@nestjs/common'
 import { Test, type TestingModule } from '@nestjs/testing'
-import { Role } from '@prisma/client'
+import { Prisma, Role } from '@prisma/client'
 import { expect } from 'chai'
 import { plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import { stub } from 'sinon'
 import { AuthenticatedUser } from '@libs/auth'
 import {
+  ConflictFoundException,
   EntityNotExistException,
   ForbiddenAccessException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from './blueprint-access.service'
 import { BlueprintCourseService } from './blueprint-course.service'
-import { BlueprintCourseInput } from './model/blueprint-course.input'
+import {
+  BlueprintCourseInput,
+  UpdateBlueprintCourseInput
+} from './model/blueprint-course.input'
 
 const userId = 1
 const user = new AuthenticatedUser(userId, 'professor', Role.User)
@@ -42,8 +47,20 @@ const db = {
     findUnique: stub()
   },
   blueprintCourse: {
-    create: stub()
-  }
+    create: stub(),
+    findMany: stub(),
+    findUnique: stub(),
+    update: stub(),
+    delete: stub()
+  },
+  courseInfo: {
+    updateMany: stub(),
+    count: stub()
+  },
+  // batch transaction: 전달된 쿼리를 순서대로 실행한 결과를 돌려줍니다.
+  $transaction: stub().callsFake((queries: Promise<unknown>[]) =>
+    Promise.all(queries)
+  )
 }
 
 describe('BlueprintCourseService', () => {
@@ -64,10 +81,594 @@ describe('BlueprintCourseService', () => {
   afterEach(() => {
     db.user.findUnique.reset()
     db.blueprintCourse.create.reset()
+    db.blueprintCourse.findMany.reset()
+    db.blueprintCourse.findUnique.reset()
+    db.blueprintCourse.update.reset()
+    db.courseInfo.updateMany.reset()
+    db.blueprintCourse.delete.reset()
+    db.courseInfo.count.reset()
+    db.$transaction.resetHistory()
   })
 
   it('should be defined', () => {
     expect(service).to.be.ok
+  })
+
+  describe('getBlueprintCourse', () => {
+    const blueprintCourseId = 1
+    const details = { ...createdBlueprintCourse, courseInfo: [] }
+
+    for (const scenario of [
+      {
+        name: 'creator without sections',
+        role: Role.User,
+        owner: userId,
+        sections: []
+      },
+      {
+        name: 'section leader',
+        role: Role.User,
+        owner: 99,
+        sections: [{ groupId: 101 }]
+      },
+      {
+        name: 'Admin without membership',
+        role: Role.Admin,
+        owner: 99,
+        sections: []
+      },
+      {
+        name: 'SuperAdmin without membership',
+        role: Role.SuperAdmin,
+        owner: 99,
+        sections: []
+      },
+      {
+        name: 'section leader after owner deletion',
+        role: Role.User,
+        owner: null,
+        sections: [{ groupId: 101 }]
+      }
+    ]) {
+      it(`should allow the ${scenario.name}`, async () => {
+        const requester = new AuthenticatedUser(
+          userId,
+          'requester',
+          scenario.role
+        )
+        db.blueprintCourse.findUnique.onFirstCall().resolves({
+          createdById: scenario.owner,
+          courseInfo: scenario.sections
+        })
+        db.blueprintCourse.findUnique.onSecondCall().resolves(details)
+        expect(
+          await service.getBlueprintCourse(blueprintCourseId, requester)
+        ).to.deep.equal({ ...createdBlueprintCourse, sections: [] })
+        expect(db.blueprintCourse.findUnique.calledTwice).to.be.true
+        for (const call of db.blueprintCourse.findUnique.getCalls()) {
+          expect(call.args[0].where).to.deep.equal({ id: blueprintCourseId })
+        }
+      })
+    }
+
+    it('should reject an unrelated user before loading details', async () => {
+      db.blueprintCourse.findUnique.resolves({
+        createdById: 99,
+        courseInfo: []
+      })
+      await expect(
+        service.getBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.blueprintCourse.findUnique.calledOnce).to.be.true
+    })
+
+    for (const role of [Role.User, Role.Admin, Role.SuperAdmin]) {
+      it(`should report a missing course for ${role}`, async () => {
+        db.blueprintCourse.findUnique.resolves(null)
+        await expect(
+          service.getBlueprintCourse(
+            blueprintCourseId,
+            new AuthenticatedUser(userId, 'requester', role)
+          )
+        ).to.be.rejectedWith(EntityNotExistException)
+        expect(db.blueprintCourse.findUnique.calledOnce).to.be.true
+      })
+    }
+
+    it('should report deletion between authorization and detail lookup', async () => {
+      db.blueprintCourse.findUnique
+        .onFirstCall()
+        .resolves({ createdById: userId, courseInfo: [] })
+      db.blueprintCourse.findUnique.onSecondCall().resolves(null)
+      await expect(
+        service.getBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(EntityNotExistException)
+    })
+
+    it('should return all sections even when access comes from only one section', async () => {
+      db.blueprintCourse.findUnique.onFirstCall().resolves({
+        createdById: 99,
+        courseInfo: [{ groupId: 101 }]
+      })
+      const groups = [101, 102].map((id, index) => ({
+        id,
+        groupName: `Section ${id}`,
+        config: { showOnList: true },
+        courseInfo: { classNum: index + 1 },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { userGroup: index * 3 }
+      }))
+      db.blueprintCourse.findUnique.onSecondCall().resolves({
+        ...createdBlueprintCourse,
+        email: null,
+        courseInfo: groups.map((group) => ({ group }))
+      })
+      const result = await service.getBlueprintCourse(blueprintCourseId, user)
+      expect(result).to.deep.equal({
+        ...createdBlueprintCourse,
+        email: null,
+        sections: groups.map((group) => ({
+          ...group,
+          memberNum: group._count.userGroup
+        }))
+      })
+      const relation =
+        db.blueprintCourse.findUnique.secondCall.args[0].include.courseInfo
+      expect(relation).to.not.have.property('where')
+      expect(relation.orderBy).to.deep.equal({ classNum: 'asc' })
+      expect(db.blueprintCourse.findUnique.calledTwice).to.be.true
+    })
+
+    it('should propagate detail lookup errors', async () => {
+      db.blueprintCourse.findUnique
+        .onFirstCall()
+        .resolves({ createdById: userId, courseInfo: [] })
+      db.blueprintCourse.findUnique
+        .onSecondCall()
+        .rejects(new Error('Database unavailable'))
+      await expect(
+        service.getBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith('Database unavailable')
+    })
+  })
+
+  describe('getBlueprintCourses', () => {
+    const summary = {
+      id: 1,
+      courseTitle: input.courseTitle,
+      courseNum: input.courseNum,
+      semester: input.semester
+    }
+
+    it('should return an empty list when no courses match', async () => {
+      db.blueprintCourse.findMany.resolves([])
+      expect(await service.getBlueprintCourses(userId)).to.deep.equal([])
+    })
+
+    it('should preserve courses without sections', async () => {
+      db.blueprintCourse.findMany.resolves([{ ...summary, courseInfo: [] }])
+      expect(await service.getBlueprintCourses(userId)).to.deep.equal([
+        { ...summary, sections: [] }
+      ])
+    })
+
+    for (const role of [Role.User, Role.Admin, Role.SuperAdmin]) {
+      it(`should restrict the list to created or led courses for ${role}`, async () => {
+        const requester = new AuthenticatedUser(42, 'requester', role)
+        db.blueprintCourse.findMany.resolves([])
+        await service.getBlueprintCourses(requester.id)
+        const query = db.blueprintCourse.findMany.firstCall.args[0]
+        expect(query.where).to.deep.equal({
+          OR: [
+            { createdById: 42 },
+            {
+              courseInfo: {
+                some: {
+                  group: {
+                    userGroup: {
+                      some: { userId: 42, isGroupLeader: true }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        })
+        // Restrict courses, but do not filter their returned sections.
+        expect(query.select.courseInfo).to.not.have.property('where')
+        expect(query.orderBy).to.deep.equal({ id: 'desc' })
+        expect(query.select.courseInfo.orderBy).to.deep.equal({
+          classNum: 'asc'
+        })
+      })
+    }
+
+    it('should map every section and its member count without per-section queries', async () => {
+      const groups = [3, 0].map((count, index) => ({
+        id: 101 + index,
+        groupName: `Section ${41 + index}`,
+        config: { showOnList: true },
+        courseInfo: { classNum: 41 + index },
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        _count: { userGroup: count }
+      }))
+      db.blueprintCourse.findMany.resolves([
+        { ...summary, courseInfo: groups.map((group) => ({ group })) },
+        { ...summary, id: 2, courseInfo: [] }
+      ])
+      const result = await service.getBlueprintCourses(userId)
+      expect(result).to.have.lengthOf(2)
+      expect(result[0]).to.include(summary)
+      expect(result[0]).to.not.have.property('courseInfo')
+      expect(result[0].sections.map((section) => section.id)).to.deep.equal([
+        101, 102
+      ])
+      expect(
+        result[0].sections.map((section) => section.memberNum)
+      ).to.deep.equal([3, 0])
+      expect(result[0].sections[0].config).to.deep.equal({ showOnList: true })
+      expect(result[0].sections[0].courseInfo).to.deep.equal({ classNum: 41 })
+      expect(result[1].sections).to.deep.equal([])
+      expect(db.blueprintCourse.findMany.calledOnce).to.be.true
+      expect(db.user.findUnique.called).to.be.false
+    })
+
+    it('should propagate database errors instead of returning an empty list', async () => {
+      db.blueprintCourse.findMany.rejects(new Error('Database unavailable'))
+      await expect(service.getBlueprintCourses(userId)).to.be.rejectedWith(
+        'Database unavailable'
+      )
+    })
+  })
+
+  describe('updateBlueprintCourse', () => {
+    const blueprintCourseId = 7
+    const leaderAccess = { createdById: userId, courseInfo: [] }
+    const updated = { ...createdBlueprintCourse, id: blueprintCourseId }
+
+    const allowLeader = () => {
+      db.blueprintCourse.findUnique.resolves(leaderAccess)
+      db.blueprintCourse.update.resolves(updated)
+      db.courseInfo.updateMany.resolves({ count: 2 })
+    }
+
+    const expectNoWrite = () => {
+      expect(db.blueprintCourse.update.called).to.be.false
+      expect(db.courseInfo.updateMany.called).to.be.false
+      expect(db.$transaction.called).to.be.false
+    }
+
+    for (const [name, emptyInput] of [
+      ['an empty object', {}],
+      ['only omitted fields', { courseTitle: undefined, email: undefined }]
+    ] as const) {
+      it(`should reject ${name} before checking access or writing`, async () => {
+        allowLeader()
+
+        await expect(
+          service.updateBlueprintCourse(
+            blueprintCourseId,
+            emptyInput as UpdateBlueprintCourseInput,
+            user
+          )
+        ).to.be.rejectedWith(BadRequestException)
+        expect(db.blueprintCourse.findUnique.called).to.be.false
+        expectNoWrite()
+      })
+    }
+
+    it('should throw ForbiddenAccessException and not write for a non-leader', async () => {
+      db.blueprintCourse.findUnique.resolves({
+        createdById: 99,
+        courseInfo: []
+      })
+
+      await expect(
+        service.updateBlueprintCourse(
+          blueprintCourseId,
+          { semester: '2027 Spring' },
+          user
+        )
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expectNoWrite()
+    })
+
+    it('should throw EntityNotExistException and not write for a missing blueprint', async () => {
+      db.blueprintCourse.findUnique.resolves(null)
+
+      await expect(
+        service.updateBlueprintCourse(
+          blueprintCourseId,
+          { semester: '2027 Spring' },
+          user
+        )
+      ).to.be.rejectedWith(EntityNotExistException)
+      expectNoWrite()
+    })
+
+    it('should update the blueprint and all sections with the same provided common fields in one transaction', async () => {
+      allowLeader()
+
+      const res = await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { semester: '2027 Spring', week: 15, professor: '이교수' },
+        user
+      )
+
+      const data = { semester: '2027 Spring', week: 15, professor: '이교수' }
+      expect(res).to.equal(updated)
+      expect(db.$transaction.calledOnce).to.be.true
+      expect(db.$transaction.firstCall.args[0]).to.have.length(2)
+      expect(db.blueprintCourse.update.firstCall.args[0]).to.deep.equal({
+        where: { id: blueprintCourseId },
+        data
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0]).to.deep.equal({
+        where: { blueprintCourseId },
+        data
+      })
+    })
+
+    it('should update the blueprint before the sections', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { courseNum: 'SWE3003' },
+        user
+      )
+
+      expect(db.blueprintCourse.update.calledBefore(db.courseInfo.updateMany))
+        .to.be.true
+    })
+
+    it('should save courseTitle only on the blueprint without touching sections', async () => {
+      allowLeader()
+
+      const res = await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { courseTitle: '새 강좌명' },
+        user
+      )
+
+      expect(res).to.equal(updated)
+      expect(db.blueprintCourse.update.firstCall.args[0]).to.deep.equal({
+        where: { id: blueprintCourseId },
+        data: { courseTitle: '새 강좌명' }
+      })
+      expect(db.courseInfo.updateMany.called).to.be.false
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('should keep courseTitle out of the section update', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { courseTitle: '새 강좌명', semester: '2027 Spring' },
+        user
+      )
+
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal({
+        courseTitle: '새 강좌명',
+        semester: '2027 Spring'
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal({
+        semester: '2027 Spring'
+      })
+    })
+
+    it('should keep null to delete optional fields and drop omitted fields', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        { email: null, website: undefined, phoneNum: '010-0000-0000' },
+        user
+      )
+
+      const data = { email: null, phoneNum: '010-0000-0000' }
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal(
+        data
+      )
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal(
+        data
+      )
+    })
+
+    it('should sync every common field and allow values equal to the current ones', async () => {
+      allowLeader()
+      const { courseTitle, ...common } = input
+
+      await service.updateBlueprintCourse(blueprintCourseId, input, user)
+
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal({
+        courseTitle,
+        ...common
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal(
+        common
+      )
+    })
+
+    it('should ignore section-only fields that are not part of the input type', async () => {
+      allowLeader()
+
+      await service.updateBlueprintCourse(
+        blueprintCourseId,
+        {
+          semester: '2027 Spring',
+          classNum: 3,
+          groupName: 'x',
+          config: {}
+        } as UpdateBlueprintCourseInput,
+        user
+      )
+
+      expect(db.blueprintCourse.update.firstCall.args[0].data).to.deep.equal({
+        semester: '2027 Spring'
+      })
+      expect(db.courseInfo.updateMany.firstCall.args[0].data).to.deep.equal({
+        semester: '2027 Spring'
+      })
+    })
+
+    it('should propagate a transaction failure', async () => {
+      allowLeader()
+      db.courseInfo.updateMany.rejects(new Error('section update failed'))
+
+      await expect(
+        service.updateBlueprintCourse(
+          blueprintCourseId,
+          { semester: '2027 Spring' },
+          user
+        )
+      ).to.be.rejectedWith('section update failed')
+    })
+  })
+
+  describe('deleteBlueprintCourse', () => {
+    const blueprintCourseId = 7
+    const deleted = { ...createdBlueprintCourse, id: blueprintCourseId }
+    const foreignKeyError = () =>
+      new Prisma.PrismaClientKnownRequestError(
+        'Foreign key constraint violated',
+        { code: 'P2003', clientVersion: '6.13.0' }
+      )
+
+    const allowCreator = () =>
+      db.blueprintCourse.findUnique.resolves({
+        createdById: userId,
+        courseInfo: []
+      })
+
+    it('should delete a blueprint without sections and return it', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      db.blueprintCourse.delete.resolves(deleted)
+
+      const res = await service.deleteBlueprintCourse(blueprintCourseId, user)
+
+      expect(res).to.equal(deleted)
+      expect(db.courseInfo.count.firstCall.args[0]).to.deep.equal({
+        where: { blueprintCourseId }
+      })
+      expect(db.blueprintCourse.delete.firstCall.args[0]).to.deep.equal({
+        where: { id: blueprintCourseId }
+      })
+    })
+
+    it('should check access and sections before deleting', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      db.blueprintCourse.delete.resolves(deleted)
+
+      await service.deleteBlueprintCourse(blueprintCourseId, user)
+
+      expect(db.blueprintCourse.findUnique.calledBefore(db.courseInfo.count)).to
+        .be.true
+      expect(db.courseInfo.count.calledBefore(db.blueprintCourse.delete)).to.be
+        .true
+    })
+
+    for (const [name, accessor, access] of [
+      [
+        'an admin',
+        new AuthenticatedUser(userId, 'admin', Role.Admin),
+        { createdById: 99, courseInfo: [] }
+      ],
+      [
+        'a super admin',
+        new AuthenticatedUser(userId, 'superadmin', Role.SuperAdmin),
+        { createdById: 99, courseInfo: [] }
+      ],
+      [
+        'a section leader',
+        user,
+        { createdById: 99, courseInfo: [{ groupId: 3 }] }
+      ]
+    ] as const) {
+      it(`should allow ${name} to delete`, async () => {
+        db.blueprintCourse.findUnique.resolves(access)
+        db.courseInfo.count.resolves(0)
+        db.blueprintCourse.delete.resolves(deleted)
+
+        expect(
+          await service.deleteBlueprintCourse(blueprintCourseId, accessor)
+        ).to.equal(deleted)
+      })
+    }
+
+    it('should throw ForbiddenAccessException and not delete for a non-leader', async () => {
+      db.blueprintCourse.findUnique.resolves({
+        createdById: 99,
+        courseInfo: []
+      })
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.courseInfo.count.called).to.be.false
+      expect(db.blueprintCourse.delete.called).to.be.false
+    })
+
+    it('should throw EntityNotExistException and not delete for a missing blueprint', async () => {
+      db.blueprintCourse.findUnique.resolves(null)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.blueprintCourse.delete.called).to.be.false
+    })
+
+    it('should throw ConflictFoundException and not delete when sections exist', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(2)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(db.blueprintCourse.delete.called).to.be.false
+    })
+
+    it('should convert a section foreign key failure into ConflictFoundException', async () => {
+      allowCreator()
+      // 확인 때는 0개였지만 삭제 직전에 Section이 생성되어 RESTRICT에 걸린 경우
+      db.courseInfo.count.onFirstCall().resolves(0)
+      db.courseInfo.count.onSecondCall().resolves(1)
+      db.blueprintCourse.delete.rejects(foreignKeyError())
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(db.courseInfo.count.calledTwice).to.be.true
+    })
+
+    it('should rethrow a foreign key failure that is not caused by sections', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      const error = foreignKeyError()
+      db.blueprintCourse.delete.rejects(error)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(error)
+    })
+
+    it('should rethrow other database errors without checking sections again', async () => {
+      allowCreator()
+      db.courseInfo.count.resolves(0)
+      const error = new Prisma.PrismaClientKnownRequestError(
+        'Record to delete does not exist',
+        { code: 'P2025', clientVersion: '6.13.0' }
+      )
+      db.blueprintCourse.delete.rejects(error)
+
+      await expect(
+        service.deleteBlueprintCourse(blueprintCourseId, user)
+      ).to.be.rejectedWith(error)
+      expect(db.courseInfo.count.calledOnce).to.be.true
+    })
   })
 
   describe('createBlueprintCourse', () => {
@@ -168,4 +769,72 @@ describe('BlueprintCourseInput', () => {
 
     expect(errors.map((error) => error.property)).to.deep.equal(['week'])
   })
+})
+
+describe('UpdateBlueprintCourseInput', () => {
+  const validateInput = (value: object) =>
+    validate(plainToInstance(UpdateBlueprintCourseInput, value))
+  const failedProperties = async (value: object) =>
+    (await validateInput(value)).map((error) => error.property)
+
+  it('should pass an empty object (rejected later by the service)', async () => {
+    expect(await validateInput({})).to.be.empty
+  })
+
+  it('should pass when every field is provided', async () => {
+    expect(await validateInput(input)).to.be.empty
+  })
+
+  for (const field of [
+    'courseTitle',
+    'courseNum',
+    'semester',
+    'professor'
+  ] as const) {
+    it(`should pass when only ${field} is provided`, async () => {
+      expect(await validateInput({ [field]: input[field] })).to.be.empty
+    })
+
+    for (const invalid of [null, '', '   ', '\t', '\n ']) {
+      it(`should reject ${field} = ${JSON.stringify(invalid)}`, async () => {
+        expect(await failedProperties({ [field]: invalid })).to.deep.equal([
+          field
+        ])
+      })
+    }
+
+    it(`should keep surrounding spaces in ${field}`, async () => {
+      const value = `  ${input[field]}  `
+      const instance = plainToInstance(UpdateBlueprintCourseInput, {
+        [field]: value
+      })
+
+      expect(await validate(instance)).to.be.empty
+      expect(instance[field]).to.equal(value)
+    })
+  }
+
+  for (const invalid of [null, 0, -1, 1.5, '16']) {
+    it(`should reject week = ${JSON.stringify(invalid)}`, async () => {
+      expect(await failedProperties({ week: invalid })).to.deep.equal(['week'])
+    })
+  }
+
+  it('should pass week = 1', async () => {
+    expect(await validateInput({ week: 1 })).to.be.empty
+  })
+
+  for (const field of ['email', 'website', 'office', 'phoneNum'] as const) {
+    it(`should allow null to delete ${field}`, async () => {
+      expect(await validateInput({ [field]: null })).to.be.empty
+    })
+
+    for (const invalid of ['', '   ', '\t']) {
+      it(`should reject ${field} = ${JSON.stringify(invalid)}`, async () => {
+        expect(await failedProperties({ [field]: invalid })).to.deep.equal([
+          field
+        ])
+      })
+    }
+  }
 })

@@ -1,0 +1,50 @@
+meta {
+  name: Update Blueprint Course - Sections Synced
+  type: graphql
+  seq: 8
+}
+
+post {
+  url: {{gqlUrl}}
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    getBlueprintCourse(blueprintCourseId: {{blueprintCourseId}}) {
+      id courseTitle semester professor email
+      sections { id groupName courseInfo { semester professor email } }
+    }
+  }
+}
+
+script:pre-request {
+  const id = Number(bru.getEnvVar("blueprintCourseId") || bru.getVar("blueprintCourseId"));
+  if (!Number.isInteger(id) || id < 1) {
+    throw new Error("Run Update Blueprint Course first or set blueprintCourseId.");
+  }
+  bru.setVar("blueprintCourseId", id);
+}
+
+tests {
+  test("Every section has the Blueprint common fields", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.errors).to.equal(undefined);
+    const course = body.data.getBlueprintCourse;
+    expect(course.semester).to.equal("2027 Spring");
+    expect(course.professor).to.equal("Bruno Professor");
+    expect(course.email).to.equal(null);
+    for (const section of course.sections) {
+      expect(section.courseInfo.semester).to.equal(course.semester);
+      expect(section.courseInfo.professor).to.equal(course.professor);
+      expect(section.courseInfo.email).to.equal(null);
+    }
+  });
+}
+
+docs {
+  Run after "Update Blueprint Course". A Blueprint without sections passes with an empty list.
+  courseTitle is not synced: section groupName keeps its own value.
+}
