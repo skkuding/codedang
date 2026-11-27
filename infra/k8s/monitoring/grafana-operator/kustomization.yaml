@@ -4,3 +4,12 @@ kind: Kustomization
 resources:
   - grafana.yaml
   - service-accounts.yaml
+  - dashboards.yaml
+
+configMapGenerator:
+  - name: operator-dashboards
+    files:
+      - dashboards/endpoint-latency.json
+
+generatorOptions:
+  disableNameSuffixHash: true

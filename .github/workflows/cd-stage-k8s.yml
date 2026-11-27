@@ -26,12 +26,14 @@ jobs:
             build-args: |
               target=client
               app_env=stage
+              version=${{ github.sha }}
           - target: admin-api
             file: ./apps/backend/Dockerfile
             context: .
             build-args: |
               target=admin
               app_env=stage
+              version=${{ github.sha }}
           - target: iris
             file: ''
             context: apps/iris

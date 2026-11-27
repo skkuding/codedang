@@ -1,0 +1,556 @@
+{
+  "uid": "endpoint-latency",
+  "title": "API 엔드포인트 응답시간",
+  "description": "엔드포인트별 응답시간. Prometheus 수집과 헬스체크 요청은 뺀다. 버전은 배포된 커밋 SHA다.",
+  "tags": ["backend", "latency"],
+  "timezone": "browser",
+  "editable": false,
+  "schemaVersion": 41,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "",
+  "templating": {
+    "list": [
+      {
+        "name": "job",
+        "label": "서비스",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": {
+          "qryType": 1,
+          "query": "label_values(http_server_duration_milliseconds_count, job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "definition": "label_values(http_server_duration_milliseconds_count, job)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "client-api",
+          "value": "client-api"
+        }
+      },
+      {
+        "name": "version",
+        "label": "버전",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": {
+          "qryType": 1,
+          "query": "label_values(http_server_duration_milliseconds_count{job=\"$job\"}, service_version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "definition": "label_values(http_server_duration_milliseconds_count{job=\"$job\"}, service_version)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": ["All"],
+          "value": ["$__all"]
+        }
+      },
+      {
+        "name": "route",
+        "label": "엔드포인트",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": {
+          "qryType": 1,
+          "query": "label_values(http_server_duration_milliseconds_count{job=\"$job\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\"}, http_route)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "definition": "label_values(http_server_duration_milliseconds_count{job=\"$job\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\"}, http_route)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "text": ["All"],
+          "value": ["$__all"]
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "table",
+      "title": "엔드포인트별 응답시간",
+      "description": "선택한 시간 범위 전체를 합쳐 계산한다. p50·p95는 구간(bucket) 경계 사이를 직선으로 나눠 어림한 값이다.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "count",
+          "expr": "sum by (http_route) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "avg",
+          "expr": "sum by (http_route) (increase(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])) / sum by (http_route) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "p50",
+          "expr": "histogram_quantile(0.5, sum by (le, http_route) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "p95",
+          "expr": "histogram_quantile(0.95, sum by (le, http_route) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "exclude",
+            "match": "any",
+            "filters": [
+              {
+                "fieldName": "Value #count",
+                "config": {
+                  "id": "lower",
+                  "options": {
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "http_route": 0,
+              "Value #count": 1,
+              "Value #avg": 2,
+              "Value #p50": 3,
+              "Value #p95": 4
+            },
+            "renameByName": {
+              "http_route": "엔드포인트",
+              "Value #count": "요청 수",
+              "Value #avg": "평균",
+              "Value #p50": "p50",
+              "Value #p95": "p95"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "엔드포인트"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 420
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "요청 수"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "p95",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "버전별 비교",
+      "description": "같은 엔드포인트를 배포 버전(커밋 SHA)별로 나눠 본다. 시간 범위를 두 배포에 걸치게 잡으면 전후를 비교할 수 있다.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "count",
+          "expr": "sum by (http_route, service_version) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "avg",
+          "expr": "sum by (http_route, service_version) (increase(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])) / sum by (http_route, service_version) (increase(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range]))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "p50",
+          "expr": "histogram_quantile(0.5, sum by (le, http_route, service_version) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "p95",
+          "expr": "histogram_quantile(0.95, sum by (le, http_route, service_version) (increase(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__range])))",
+          "editorMode": "code",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "exclude",
+            "match": "any",
+            "filters": [
+              {
+                "fieldName": "Value #count",
+                "config": {
+                  "id": "lower",
+                  "options": {
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "http_route": 0,
+              "service_version": 1,
+              "Value #count": 2,
+              "Value #avg": 3,
+              "Value #p50": 4,
+              "Value #p95": 5
+            },
+            "renameByName": {
+              "http_route": "엔드포인트",
+              "service_version": "버전",
+              "Value #count": "요청 수",
+              "Value #avg": "평균",
+              "Value #p50": "p50",
+              "Value #p95": "p95"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "엔드포인트"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 420
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "요청 수"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "엔드포인트",
+            "desc": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "p95 응답시간",
+      "description": "요청 95%가 이 시간 안에 끝났다.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le, http_route) (rate(http_server_duration_milliseconds_bucket{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval])))",
+          "editorMode": "code",
+          "range": true,
+          "legendFormat": "{{http_route}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["mean", "max"]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "평균 응답시간",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "A",
+          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_sum{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval])) / sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval]))",
+          "editorMode": "code",
+          "range": true,
+          "legendFormat": "{{http_route}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["mean", "max"]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "초당 요청 수",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 38,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "refId": "A",
+          "expr": "sum by (http_route) (rate(http_server_duration_milliseconds_count{job=\"$job\", http_route=~\"$route\", http_route!=\"\", http_route!~\"/api/internal/prisma|/health/ready\", service_version=~\"$version\"}[$__rate_interval]))",
+          "editorMode": "code",
+          "range": true,
+          "legendFormat": "{{http_route}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": ["mean", "max"]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    }
+  ]
+}

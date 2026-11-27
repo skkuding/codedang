@@ -36,4 +36,8 @@ COPY --from=builder /build/out /app
 COPY ./apps/backend/entrypoint.sh /app
 WORKDIR /app
 
+# Git commit SHA of the build, reported as the telemetry service.version
+ARG version
+ENV APP_VERSION=${version}
+
 ENTRYPOINT ["/app/entrypoint.sh"]
