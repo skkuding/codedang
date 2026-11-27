@@ -82,6 +82,10 @@ describe('Blueprint list and master URLs', () => {
     )
     expect(blueprintKind('/admin/blueprint/51/exercise')).toBe('exercise')
     expect(blueprintKind('/admin/blueprint/51/exercise/92')).toBe('exercise')
+    expect(blueprintKind('/admin/blueprint/51/notice')).toBe('notice')
+    expect(
+      blueprintListHref(51, 'notice', { cursor: 81, take: 20, page: 3 })
+    ).toBe('/admin/blueprint/51/notice?cursor=81&take=20&page=3')
   })
 
   it('carries Blueprint, kind and page identity into list state ownership', () => {

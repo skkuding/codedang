@@ -2,6 +2,7 @@ import type { Route } from 'next'
 import type { BlueprintListScope } from './types'
 
 export type BlueprintContentKind = 'assignment' | 'exercise'
+export type BlueprintWorkspaceKind = BlueprintContentKind | 'notice'
 
 export interface BlueprintListLocation {
   cursor: number | null
@@ -21,8 +22,9 @@ export function blueprintBaseHref(blueprintId: number): Route {
   return `/admin/blueprint/${blueprintId}` as Route
 }
 
-export function blueprintKind(pathname: string): BlueprintContentKind {
-  return pathname.split('/')[4] === 'exercise' ? 'exercise' : 'assignment'
+export function blueprintKind(pathname: string): BlueprintWorkspaceKind {
+  const kind = pathname.split('/')[4]
+  return kind === 'exercise' || kind === 'notice' ? kind : 'assignment'
 }
 
 export function blueprintListLocation(params: {
@@ -54,7 +56,7 @@ function listQuery(location?: BlueprintListLocation): string {
 
 export function blueprintListHref(
   blueprintId: number,
-  kind: BlueprintContentKind,
+  kind: BlueprintWorkspaceKind,
   location?: BlueprintListLocation
 ): Route {
   return `/admin/blueprint/${blueprintId}/${kind}${listQuery(location)}` as Route
