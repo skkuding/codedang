@@ -16,10 +16,14 @@ export const middleware = async (req: NextRequest) => {
   const { pathname } = req.nextUrl
 
   const isCourseDetailPath = /^\/course\/.+/.test(pathname)
+  const isBlueprintPath = /^\/admin\/blueprint(?:\/|$)/.test(pathname)
 
-  if (isCourseDetailPath && !token) {
+  if ((isCourseDetailPath || isBlueprintPath) && !token) {
     const loginUrl = new URL('/login', req.url)
-    loginUrl.searchParams.set('redirectUrl', pathname)
+    loginUrl.searchParams.set(
+      'redirectUrl',
+      isBlueprintPath ? `${pathname}${req.nextUrl.search}` : pathname
+    )
     return NextResponse.redirect(loginUrl)
   }
 
@@ -110,6 +114,21 @@ export const middleware = async (req: NextRequest) => {
     } catch {
       // If reissue is failed, delete session token.
       req.cookies.delete(sessionCookieName)
+
+      if (isBlueprintPath) {
+        const loginUrl = new URL('/login', req.url)
+        loginUrl.searchParams.set(
+          'redirectUrl',
+          `${pathname}${req.nextUrl.search}`
+        )
+        const deletedResponse = NextResponse.redirect(loginUrl)
+        deletedResponse.cookies.delete({
+          name: sessionCookieName,
+          secure: sessionCookieName.startsWith('__Secure-')
+        })
+
+        return deletedResponse
+      }
 
       const deletedResponse = NextResponse.next({
         request: {

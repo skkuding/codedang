@@ -33,6 +33,7 @@ import {
   FaUser
 } from 'react-icons/fa6'
 import { SideBar } from '../../../components/SideBar'
+import { isManagementNavItemActive } from '../_libs/isManagementNavItemActive'
 
 interface NavItem {
   name: string
@@ -91,6 +92,7 @@ function SidebarLink({
     <Link
       href={item.path as Route}
       onClick={onClick}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
         'flex items-center px-4 py-3 transition',
         isActive
@@ -229,11 +231,22 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
         >
           {isMainSidebarExpanded ? (
             <Link href="/">
-              <Image src={codedangWithTextIcon} alt="코드당" />
+              <Image
+                src={codedangWithTextIcon}
+                alt="코드당"
+                width={146}
+                height={20}
+              />
             </Link>
           ) : (
             <Link href="/" className="h-5 w-10">
-              <Image src={codedangIcon} alt="코드당" className="max-w-[30px]" />
+              <Image
+                src={codedangIcon}
+                alt="코드당"
+                width={264}
+                height={133}
+                className="max-w-[30px]"
+              />
             </Link>
           )}
         </div>
@@ -243,11 +256,7 @@ export function ManagementSidebar({ session }: ManagementSidebarProps) {
             <div key={item.name}>
               <SidebarLink
                 item={item}
-                isActive={
-                  item.name === 'Dashboard'
-                    ? pathname === item.path
-                    : pathname.startsWith(item.path)
-                }
+                isActive={isManagementNavItemActive(pathname, item.path)}
                 isExpanded={isMainSidebarExpanded}
                 onClick={() => {
                   if (!isMainSidebarExpanded) {
