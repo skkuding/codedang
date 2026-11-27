@@ -221,7 +221,8 @@ describe('GroupService', () => {
             email: 'example01@skku.edu',
             website: 'https://seclab.com',
             office: null,
-            phoneNum: null
+            phoneNum: null,
+            blueprintCourseId: null
           },
           memberNum: 11,
           isGroupLeader: true
