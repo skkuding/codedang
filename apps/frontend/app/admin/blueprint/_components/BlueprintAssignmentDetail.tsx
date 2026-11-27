@@ -42,12 +42,14 @@ export function BlueprintAssignmentDetail({
   state,
   isExercise,
   onBack,
+  onEdit,
   information,
   navigation
 }: {
   state: BlueprintReadState<Detail>
   isExercise: boolean
   onBack: () => void
+  onEdit?: () => void
   information?: BlueprintReadState<BlueprintCourseInformation> | null
   navigation?: ReactNode
 }) {
@@ -128,6 +130,11 @@ export function BlueprintAssignmentDetail({
             >
               {isExercise ? (
                 <header className="flex flex-col gap-2">
+                  {onEdit && (
+                    <Button type="button" onClick={onEdit} className="self-end">
+                      Edit
+                    </Button>
+                  )}
                   <h1 className="text-head3_sb_28">Master Information</h1>
                   <h2 className="text-head5_sb_24 break-words">
                     {detail.title}
@@ -166,12 +173,19 @@ export function BlueprintAssignmentDetail({
                         />
                       )}
                     </div>
-                    <Link
-                      href="/admin/course"
-                      className="text-body2_m_14 text-color-neutral-50 hover:text-primary rounded-sm underline underline-offset-4 focus-visible:outline focus-visible:outline-2"
-                    >
-                      Back to Course List
-                    </Link>
+                    <div className="flex shrink-0 items-center gap-3">
+                      {onEdit && (
+                        <Button type="button" onClick={onEdit}>
+                          Edit
+                        </Button>
+                      )}
+                      <Link
+                        href="/admin/course"
+                        className="text-body2_m_14 text-color-neutral-50 hover:text-primary rounded-sm underline underline-offset-4 focus-visible:outline focus-visible:outline-2"
+                      >
+                        Back to Course List
+                      </Link>
+                    </div>
                   </header>
                   <p className="text-body2_m_14 mt-2 pl-12">
                     Week {detail.week}

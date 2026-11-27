@@ -140,6 +140,31 @@ describe.each([false, true])(
 )
 
 describe('Blueprint master information', () => {
+  it.each([false, true])(
+    'retains Edit on the successful original detail, isExercise=%s',
+    (isExercise) => {
+      const onEdit = vi.fn()
+      const { rerender } = render(
+        <BlueprintAssignmentDetail
+          state={{ status: 'success', data: detail(isExercise) }}
+          isExercise={isExercise}
+          onBack={vi.fn()}
+          onEdit={onEdit}
+        />
+      )
+      fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+      expect(onEdit).toHaveBeenCalledOnce()
+      rerender(
+        <BlueprintAssignmentDetail
+          state={{ status: 'forbidden' }}
+          isExercise={isExercise}
+          onBack={vi.fn()}
+          onEdit={onEdit}
+        />
+      )
+      expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull()
+    }
+  )
   it('sorts a copy of the problem relation and computes its total', () => {
     const data = detail()
     render(

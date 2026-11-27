@@ -5,10 +5,11 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { blueprintKeys } from '../_libs/queries'
 import {
   blueprintKind,
+  blueprintDetailHref,
   blueprintListHref,
-  parseBlueprintId,
   blueprintListLocation,
   blueprintScope,
+  parseBlueprintId,
   type BlueprintContentKind,
   type BlueprintListLocation
 } from '../_libs/routes'
@@ -47,6 +48,9 @@ export function BlueprintWorkspace({
   const scope = blueprintScope(blueprintId, kind, location)
   const viewState = useBlueprintAssignmentListState(scope)
   const source = useBlueprintDataSource()
+  const editId = pathname.endsWith('/edit')
+    ? parseBlueprintId(pathname.split('/')[5] ?? '')
+    : null
   const information = useBlueprintRead(
     blueprintKeys.course(blueprintId),
     source ? () => source.readCourse(blueprintId) : null
@@ -61,8 +65,14 @@ export function BlueprintWorkspace({
         kind={kind}
         information={information}
         creation={pathname.endsWith('/create')}
-        listHref={blueprintListHref(blueprintId, kind, location)}
+        editing={editId !== null}
+        listHref={
+          editId !== null
+            ? blueprintDetailHref(blueprintId, kind, editId, location)
+            : blueprintListHref(blueprintId, kind, location)
+        }
         detail={
+          editId === null &&
           kind === 'assignment' &&
           parseBlueprintId(pathname.split('/')[5] ?? '') !== null
         }

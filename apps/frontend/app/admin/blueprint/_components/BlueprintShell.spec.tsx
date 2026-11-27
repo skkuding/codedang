@@ -29,6 +29,37 @@ const information: BlueprintReadState<BlueprintCourseInformation> = {
 
 describe('BlueprintShell', () => {
   it.each(['assignment', 'exercise'] as const)(
+    'prioritizes the %s editing header and scoped detail Back over detail presentation',
+    (kind) => {
+      const detailHref =
+        `/admin/blueprint/72/${kind}/91?cursor=60&take=2&page=3` as const
+      render(
+        <BlueprintShell
+          blueprintId={72}
+          kind={kind}
+          information={information}
+          editing
+          detail
+          listHref={detailHref}
+        >
+          <p>Editing content</p>
+        </BlueprintShell>
+      )
+      expect(
+        screen.getByRole('heading', { name: `EDIT ${kind.toUpperCase()}` })
+      ).toBeTruthy()
+      expect(
+        screen
+          .getByRole('link', { name: 'Back to Master Information' })
+          .getAttribute('href')
+      ).toBe(detailHref)
+      expect(
+        screen.queryByRole('navigation', { name: 'Blueprint content' })
+      ).toBeNull()
+      expect(screen.getByText('Editing content')).toBeTruthy()
+    }
+  )
+  it.each(['assignment', 'exercise'] as const)(
     'retains the %s creation header and scoped Back without list tabs',
     (kind) => {
       const listHref =

@@ -18,6 +18,7 @@ interface BlueprintShellProps {
   information: BlueprintReadState<BlueprintCourseInformation> | null
   children: ReactNode
   creation?: boolean
+  editing?: boolean
   listHref?: Route
   detail?: boolean
 }
@@ -32,15 +33,19 @@ export function BlueprintShell({
   kind,
   information,
   creation = false,
+  editing = false,
   listHref,
   children,
   detail = false
 }: BlueprintShellProps) {
+  const formPage = creation || editing
   let headerInformation: ReactNode
-  if (creation) {
+  if (formPage) {
     headerInformation = (
       <p className="text-body2_m_14 text-color-cool-neutral-60 mt-1 pl-10 tracking-[-0.42px]">
-        저장 시 선택한 분반에 콘텐츠가 생성되고 연결됩니다.
+        {editing
+          ? '연결된 분반의 콘텐츠와 일정을 검토하고 수정합니다.'
+          : '저장 시 선택한 분반에 콘텐츠가 생성되고 연결됩니다.'}
       </p>
     )
   } else {
@@ -50,25 +55,29 @@ export function BlueprintShell({
     <div
       className={cn(
         'w-full px-6 py-10 lg:pb-[71px] lg:pl-[86px] lg:pr-[106px] lg:pt-[80px]',
-        detail && 'lg:pb-16 lg:pl-[55px] lg:pr-[68px] lg:pt-16',
-        creation && 'lg:pb-[100px] lg:pl-16 lg:pr-[116px] lg:pt-[80px]'
+        detail && !formPage && 'lg:pb-16 lg:pl-[55px] lg:pr-[68px] lg:pt-16',
+        formPage && 'lg:pb-[100px] lg:pl-16 lg:pr-[116px] lg:pt-[80px]'
       )}
     >
-      <div className={cn('w-full', creation && 'max-w-[1000px]')}>
-        {!detail && (
+      <div className={cn('w-full', formPage && 'max-w-[1000px]')}>
+        {(!detail || formPage) && (
           <>
             <header className="flex flex-col">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                 <div
                   className={cn(
                     'flex items-center gap-2',
-                    creation && 'flex-wrap'
+                    formPage && 'flex-wrap'
                   )}
                 >
-                  {creation && (
+                  {formPage && (
                     <Link
                       href={listHref ?? blueprintListHref(blueprintId, kind)}
-                      aria-label={`Back to ${kind === 'exercise' ? 'Exercises' : 'Assignments'}`}
+                      aria-label={
+                        editing
+                          ? 'Back to Master Information'
+                          : `Back to ${kind === 'exercise' ? 'Exercises' : 'Assignments'}`
+                      }
                       className="shrink-0 rounded-sm focus-visible:outline focus-visible:outline-2"
                     >
                       <BackIcon aria-hidden="true" />
@@ -76,17 +85,18 @@ export function BlueprintShell({
                   )}
                   <h1
                     className={
-                      creation ? 'text-head2_b_32' : 'text-head3_sb_28'
+                      formPage ? 'text-head2_b_32' : 'text-head3_sb_28'
                     }
                   >
-                    {creation ? 'CREATE ' : ''}
+                    {editing && 'EDIT '}
+                    {creation && !editing && 'CREATE '}
                     {kind === 'exercise' ? 'EXERCISE' : 'ASSIGNMENT'}
                   </h1>
                   <span className="bg-primary text-caption2_m_12 rounded-full px-4 py-1.5 tracking-[-0.36px] text-white">
                     Blueprint
                   </span>
                 </div>
-                {!creation && (
+                {!formPage && (
                   <Link
                     href="/admin/course"
                     className="text-body2_m_14 text-color-neutral-50 hover:text-primary rounded-sm underline underline-offset-4 focus-visible:outline focus-visible:outline-2"
@@ -97,7 +107,7 @@ export function BlueprintShell({
               </div>
               {headerInformation}
             </header>
-            {!creation && (
+            {!formPage && (
               <BlueprintContentTabs blueprintId={blueprintId} kind={kind} />
             )}
           </>
