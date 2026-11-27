@@ -8,4 +8,12 @@ const CREATE_NOTICE = gql(`
   }
 `)
 
-export { CREATE_NOTICE }
+const DELETE_NOTICE = gql(`
+  mutation DeleteNotice($noticeId: Int!) {
+    deleteNotice(noticeId: $noticeId) {
+      id
+    }
+  }
+`)
+
+export { CREATE_NOTICE, DELETE_NOTICE }
