@@ -8,7 +8,8 @@ const config: KnipConfig = {
     'apps/backend': {
       entry: [
         'apps/{admin,client}/**/{main.ts,app.module.ts}',
-        'prisma/seed.ts'
+        'prisma/seed.ts',
+        'scripts/assert-test-db.ts' // pretest에서 swc-node로 실행
       ],
       project: ['**/*.ts'],
       ignoreDependencies: [

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { PrismaClient, type Prisma } from '@prisma/client'
 import type { Paginator } from './prisma.service'
+import { runTestDatabaseGuard } from './test-db-guard'
 
 export type FlatTransactionClient = Prisma.TransactionClient & {
   $commit: () => Promise<void>
@@ -19,6 +20,8 @@ export class PrismaTestService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
+    // mocha의 사전 검사(mocha-db-guard.ts)를 거치지 않는 실행 방식에 대비해 연결 직전에 한 번 더 검사합니다.
+    runTestDatabaseGuard('connect')
     super({
       datasources: {
         db: {

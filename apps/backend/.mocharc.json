@@ -1,6 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/mocharc",
   "extension": "spec.ts",
-  "require": ["@swc-node/register", "./mocha-fixture.ts"],
+  "require": [
+    "@swc-node/register",
+    "./mocha-db-guard.ts",
+    "./mocha-fixture.ts"
+  ],
   "reporter": "dot"
 }
