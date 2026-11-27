@@ -9,6 +9,7 @@ export interface Notice {
   title: string
   isVisible: boolean
   isFixed: boolean
+  createdBy?: string
   createTime?: Date
   updateTime: Date
 }
@@ -46,7 +47,7 @@ export const columns: ColumnDef<Notice>[] = [
     ),
     cell: ({ row }) =>
       row.getValue('isVisible') ? (
-        <FaEye className="text-gray-400" size={18} />
+        <FaEye className="text-primary" size={18} />
       ) : (
         <FaEyeSlash className="text-gray-400" size={18} />
       ),
@@ -59,7 +60,7 @@ export const columns: ColumnDef<Notice>[] = [
     ),
     cell: ({ row }) =>
       row.getValue('isFixed') ? (
-        <TbPinned className="text-gray-400" size={18} />
+        <TbPinned className="text-primary" size={18} />
       ) : (
         <TbPinnedOff className="text-gray-400" size={18} />
       ),
@@ -81,6 +82,14 @@ export const columns: ColumnDef<Notice>[] = [
         </div>
       )
     },
+    enableSorting: false
+  },
+  {
+    accessorKey: 'createdBy',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Writer" />
+    ),
+    cell: ({ row }) => row.getValue('createdBy') ?? '-',
     enableSorting: false
   },
   {

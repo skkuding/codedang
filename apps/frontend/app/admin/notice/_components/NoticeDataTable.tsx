@@ -16,7 +16,9 @@ import { columns } from './NoticeColumns'
 export function NoticeDataTable() {
   const client = useApolloClient()
 
-  const { data } = useSuspenseQuery(GET_NOTICES, { variables: { take: 10 } })
+  const { data } = useSuspenseQuery(GET_NOTICES, {
+    variables: { take: 40 }
+  })
   const notices = useMemo(
     () =>
       data.getNotices.map((notice) => ({
@@ -24,6 +26,7 @@ export function NoticeDataTable() {
         title: notice?.title ?? '-',
         isVisible: notice?.isVisible ?? true,
         isFixed: notice?.isFixed ?? false,
+        createdBy: notice?.createdBy?.username,
         creteTime: notice?.createTime,
         updateTime: notice?.updateTime
       })),
