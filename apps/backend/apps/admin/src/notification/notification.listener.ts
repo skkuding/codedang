@@ -53,26 +53,38 @@ export class NotificationListener {
     assignmentId: number
     dueTime: Date
   }) {
-    await this.notificationService.notifyAssignmentCreated(payload.assignmentId)
-
-    if (payload.dueTime.getTime() === MAX_DATE.getTime()) return
-
-    const title = 'assignment-due-reminder'
-    const data = { assignmentId: payload.assignmentId }
-
-    const reminders = ASSIGNMENT_REMINDER.map((reminder) => {
-      const jobId = this.assignmentDueReminderJobId(
-        payload.assignmentId,
-        reminder.id
-      )
-      const delay = this.calculateDelay(payload.dueTime, reminder.offset)
-      if (delay <= 0) {
-        return null
+    const tasks: (() => Promise<unknown>)[] = [
+      () =>
+        this.notificationService.notifyAssignmentCreated(payload.assignmentId)
+    ]
+    if (payload.dueTime.getTime() !== MAX_DATE.getTime()) {
+      for (const reminder of ASSIGNMENT_REMINDER) {
+        const jobId = this.assignmentDueReminderJobId(
+          payload.assignmentId,
+          reminder.id
+        )
+        const delay = this.calculateDelay(payload.dueTime, reminder.offset)
+        if (delay <= 0) continue
+        tasks.push(() =>
+          this.notificationScheduler.scheduleJob(
+            'assignment-due-reminder',
+            { assignmentId: payload.assignmentId },
+            jobId,
+            delay
+          )
+        )
       }
-      return this.notificationScheduler.scheduleJob(title, data, jobId, delay)
-    }).filter(Boolean)
-
-    await Promise.all(reminders)
+    }
+    // Finish every independent delivery before reporting failures to the publisher.
+    const results = await Promise.allSettled(tasks.map(async (task) => task()))
+    const errors = results.flatMap((result) =>
+      result.status === 'rejected' ? [result.reason] : []
+    )
+    if (errors.length)
+      throw new AggregateError(
+        errors,
+        'Assignment creation notification or reminder scheduling failed'
+      )
   }
 
   @OnEvent('assignment.updated')

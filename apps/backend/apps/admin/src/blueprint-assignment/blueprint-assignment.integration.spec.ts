@@ -7,6 +7,7 @@ import { AuthenticatedUser, type AuthenticatedRequest } from '@libs/auth'
 import { MAX_DATE } from '@libs/constants'
 import {
   EntityNotExistException,
+  ConflictFoundException,
   UnprocessableDataException
 } from '@libs/exception'
 import type { PrismaService } from '@libs/prisma'
@@ -1413,6 +1414,71 @@ integration('Blueprint Assignment database transactions', () => {
     })
     expect((await getCopy(copy.id)).isVisible).to.equal(!copy.isVisible)
     expect((await getCopy(copy.id)).blueprintAssignmentId).to.equal(null)
+    expect(await snapshot(source.id)).to.deep.equal(before)
+  })
+  for (const hasProblems of [false, true]) {
+    it(`deletes only the selected linked copy with problems=${hasProblems}`, async () => {
+      const source = await service.save(user, courseId, input)
+      if (hasProblems) await addProblemFixture(source)
+      const target = source.assignment[0]
+      const other = await getCopy(source.assignment[1].id)
+      const beforeSource = await db.blueprintAssignment.findUniqueOrThrow({
+        where: { id: source.id }
+      })
+      const eventCount = published.length
+      const deleted = await assignments.deleteAssignment(
+        target.groupId,
+        target.id
+      )
+      expect(deleted.id).to.equal(target.id)
+      expect(
+        await db.assignment.findUnique({ where: { id: target.id } })
+      ).to.equal(null)
+      expect(await getCopy(other.id)).to.deep.equal(other)
+      expect(
+        await db.blueprintAssignment.findUniqueOrThrow({
+          where: { id: source.id }
+        })
+      ).to.deep.equal(beforeSource)
+      expect(
+        await db.assignmentRecord.count({ where: { assignmentId: target.id } })
+      ).to.equal(0)
+      expect(
+        await db.assignmentProblemRecord.count({
+          where: { assignmentId: target.id }
+        })
+      ).to.equal(0)
+      expect(
+        published
+          .slice(eventCount)
+          .filter((event) => event.name === 'assignment.deleted')
+          .map((event) => event.assignmentId)
+      ).to.deep.equal([target.id])
+      if (hasProblems) {
+        const problem = await db.problem.findUniqueOrThrow({
+          where: { id: problemId },
+          include: { sharedGroups: true }
+        })
+        expect(problem.visibleLockTime).to.deep.equal(other.endTime)
+        expect(problem.sharedGroups.map(({ id }) => id))
+          .to.include(other.groupId)
+          .and.not.include(target.groupId)
+      }
+    })
+  }
+
+  it('rejects direct section deletion with learning records without deleting any content or emitting events', async () => {
+    const source = await service.save(user, courseId, input)
+    await addProblemFixture(source)
+    const target = source.assignment[0]
+    await db.assignmentProblemRecord.updateMany({
+      where: { assignmentId: target.id },
+      data: { finalScore: 0 }
+    })
+    const before = await snapshot(source.id)
+    await expect(
+      assignments.deleteAssignment(target.groupId, target.id)
+    ).to.be.rejectedWith(ConflictFoundException, 'Learning records exist')
     expect(await snapshot(source.id)).to.deep.equal(before)
   })
 })
