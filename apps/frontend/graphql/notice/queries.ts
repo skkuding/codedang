@@ -9,4 +9,20 @@ const GET_NOTICE = gql(`
   }
 `)
 
-export { GET_NOTICE }
+const GET_NOTICES = gql(`
+  query GetNotices($cursor: Int, $take: Int!) {
+    getNotices(cursor: $cursor, take: $take) {
+      id
+      createdBy {
+        username
+      }
+      title
+      isVisible
+      isFixed
+      createTime
+      updateTime
+    }
+  }
+`)
+
+export { GET_NOTICE, GET_NOTICES }
