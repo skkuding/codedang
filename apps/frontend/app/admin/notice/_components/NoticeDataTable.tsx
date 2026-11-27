@@ -9,7 +9,7 @@ import {
 } from '@/app/admin/_components/table'
 import { GET_NOTICES } from '@/graphql/notice/queries'
 import { useApolloClient, useSuspenseQuery } from '@apollo/client'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { DeleteNoticeButton } from './DeleteNoticeButton'
 import { columns } from './NoticeColumns'
 

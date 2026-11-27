@@ -2,7 +2,7 @@ import { DataTableColumnHeader } from '@/app/admin/_components/table/DataTableCo
 import { Checkbox } from '@/components/shadcn/checkbox'
 import type { ColumnDef } from '@tanstack/react-table'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
-import { TbPinned, TbPinnedOff } from 'react-icons/tb'
+import { PiPushPinFill, PiPushPinSlashBold } from 'react-icons/pi'
 
 export interface Notice {
   id: number
@@ -60,9 +60,9 @@ export const columns: ColumnDef<Notice>[] = [
     ),
     cell: ({ row }) =>
       row.getValue('isFixed') ? (
-        <TbPinned className="text-primary" size={18} />
+        <PiPushPinFill className="text-primary" size={18} />
       ) : (
-        <TbPinnedOff className="text-gray-400" size={18} />
+        <PiPushPinSlashBold className="text-gray-400" size={18} />
       ),
     enableSorting: false
   },

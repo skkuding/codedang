@@ -23,9 +23,6 @@ export default function Page() {
           </Button>
         </Link>
       </div>
-      <h1 className="text-lg font-normal text-gray-500">
-        Here’s a Notice list you made
-      </h1>
       <ErrorBoundary fallback={FetchErrorFallback}>
         <Suspense fallback={<NoticeDataTableFallback />}>
           <NoticeDataTable />

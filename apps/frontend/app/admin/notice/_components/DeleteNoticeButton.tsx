@@ -1,4 +1,4 @@
-import { DELETE_COURSE } from '@/graphql/course/mutation'
+import { DELETE_NOTICE } from '@/graphql/notice/mutation'
 import { useMutation } from '@apollo/client'
 import { DataTableDeleteButton } from '../../_components/table/DataTableDeleteButton'
 import { useDataTable } from '../../_components/table/context'
@@ -9,19 +9,19 @@ interface DeleteNoticeButtonProps {
 
 export function DeleteNoticeButton({ onSuccess }: DeleteNoticeButtonProps) {
   const { table } = useDataTable()
-  const [deleteCourse] = useMutation(DELETE_COURSE)
+  const [deleteNotice] = useMutation(DELETE_NOTICE)
 
   const deleteTarget = (id: number) => {
-    return deleteCourse({
+    return deleteNotice({
       variables: {
-        groupId: id
+        noticeId: id
       }
     })
   }
 
   return (
     <DataTableDeleteButton
-      target="course"
+      target="notice"
       deleteTarget={deleteTarget}
       onSuccess={onSuccess}
       className="ml-auto"
