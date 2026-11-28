@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common'
+import type { Prisma } from '@prisma/client'
 import type { AuthenticatedUser } from '@libs/auth'
 import { MAX_DATE, MIN_DATE } from '@libs/constants'
-import { EntityNotExistException } from '@libs/exception'
+import {
+  EntityNotExistException,
+  ForbiddenAccessException
+} from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { assertAssignmentsHaveNoLearningRecords } from '@admin/assignment/assignment-learning-records'
 import { lockBlueprintAssignment } from '@admin/assignment/assignment-link'
@@ -60,6 +64,7 @@ export class BlueprintAssignmentProblemService {
       if (existingProblems.length !== problemIds.length) {
         throw new EntityNotExistException('Problem')
       }
+      await this.assertProblemAccess(tx, user, problemIds)
       await lockAssignmentProblems(tx, problemIds)
 
       const current = await tx.blueprintAssignmentProblem.findMany({
@@ -145,6 +150,38 @@ export class BlueprintAssignmentProblemService {
         orderBy: { order: 'asc' }
       })
     })
+  }
+
+  // Same rule as the problem API: creator or leader of a shared group.
+  private async assertProblemAccess(
+    tx: Prisma.TransactionClient,
+    user: AuthenticatedUser,
+    problemIds: number[]
+  ) {
+    if (user.isAdmin() || user.isSuperAdmin()) {
+      return
+    }
+    const leaderGroups = await tx.userGroup.findMany({
+      where: { userId: user.id, isGroupLeader: true },
+      select: { groupId: true }
+    })
+    const accessible = await tx.problem.findMany({
+      where: {
+        id: { in: problemIds },
+        OR: [
+          { createdById: user.id },
+          {
+            sharedGroups: {
+              some: { id: { in: leaderGroups.map(({ groupId }) => groupId) } }
+            }
+          }
+        ]
+      },
+      select: { id: true }
+    })
+    if (accessible.length !== problemIds.length) {
+      throw new ForbiddenAccessException('No access to some problems')
+    }
   }
 
   private async assertAccess(

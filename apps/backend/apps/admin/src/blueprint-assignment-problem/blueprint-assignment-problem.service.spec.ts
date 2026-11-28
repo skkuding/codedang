@@ -54,6 +54,9 @@ const createDb = () => {
     submission: {
       count: stub().resolves(0)
     },
+    userGroup: {
+      findMany: stub().resolves([])
+    },
     problem: {
       findMany: stub().resolves([]),
       update: stub().resolves({}),
@@ -207,6 +210,34 @@ describe('BlueprintAssignmentProblemService', () => {
         ])
       ).to.be.rejectedWith(EntityNotExistException)
       expect(db.blueprintAssignmentProblem.createMany.called).to.be.false
+    })
+
+    it('throws ForbiddenAccessException when a problem is not accessible', async () => {
+      db.problem.findMany.onFirstCall().resolves([{ id: 1 }, { id: 2 }])
+      db.problem.findMany.onSecondCall().resolves([{ id: 1 }])
+
+      await expect(
+        importProblems([
+          { problemId: 1, score: 10 },
+          { problemId: 2, score: 10 }
+        ])
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.blueprintAssignmentProblem.createMany.called).to.be.false
+    })
+
+    it('checks problem access by creator or shared leader group', async () => {
+      db.userGroup.findMany.resolves([{ groupId: 3 }])
+      db.problem.findMany.resolves([{ id: 1 }])
+
+      await importProblems([{ problemId: 1, score: 10 }])
+
+      expect(db.problem.findMany.secondCall.args[0].where).to.deep.equal({
+        id: { in: [1] },
+        OR: [
+          { createdById: user.id },
+          { sharedGroups: { some: { id: { in: [3] } } } }
+        ]
+      })
     })
 
     it('syncs problems, groups, visibility and records to linked copies', async () => {
