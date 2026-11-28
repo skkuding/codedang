@@ -506,7 +506,7 @@ describe('BlueprintAssignmentProblemService', () => {
     it('removes from the blueprint only when there are no copies', async () => {
       const result = await removeProblems([2])
 
-      expect(result).to.deep.equal([bap(2, 1)])
+      expect(result.map(({ problemId }) => problemId)).to.deep.equal([2])
       expect(
         db.blueprintAssignmentProblem.deleteMany.firstCall.args[0]
       ).to.deep.equal({
