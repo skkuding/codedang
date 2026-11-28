@@ -19,13 +19,15 @@ export class MandeuldangResolver {
     problemIdPath: 'input.problemId'
   })
   async uploadMandeuldangTool(
+    @Context('req') req: AuthenticatedRequest,
     @Args('input') input: UploadMandeuldangToolInput
   ) {
     const file = await input.file
     return this.mandeuldangService.uploadMandeuldangTool(
       input.problemId,
       input.toolType,
-      file
+      file,
+      req.user
     )
   }
 

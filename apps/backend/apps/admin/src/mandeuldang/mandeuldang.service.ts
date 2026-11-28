@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
+import type { AuthenticatedRequest } from '@libs/auth'
 import { FileService } from './file/file.service'
 import { MandeuldangPublicationService } from './mandeuldang-pub.service'
 
@@ -14,12 +15,14 @@ export class MandeuldangService {
   async uploadMandeuldangTool(
     problemId: number,
     toolType: ToolType,
-    file: FileUpload
+    file: FileUpload,
+    requester: Pick<AuthenticatedRequest['user'], 'id' | 'role'>
   ) {
     return await this.fileService.uploadMandeuldangToolFile(
       problemId,
       toolType,
-      file
+      file,
+      requester
     )
   }
 

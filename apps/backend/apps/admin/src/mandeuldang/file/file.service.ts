@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { ToolType } from '@prisma/client'
+import { CollaboratorRole, ToolType } from '@prisma/client'
 import type { FileUpload } from 'graphql-upload/processRequest.mjs'
+import type { AuthenticatedRequest } from '@libs/auth'
 import { UnprocessableDataException } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { StorageService } from '@libs/storage'
+import { MandeuldangPermissionService } from '../auth/mandeuldang-permission.service'
 
 const MAX_TOOL_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TOOL_EXTENSIONS = ['.cpp', '.cc', '.cxx'] // C++만 허용
@@ -12,13 +14,15 @@ const ALLOWED_TOOL_EXTENSIONS = ['.cpp', '.cc', '.cxx'] // C++만 허용
 export class FileService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly permissionService: MandeuldangPermissionService
   ) {}
 
   async uploadMandeuldangToolFile(
     problemId: number,
     toolType: ToolType,
-    file: FileUpload
+    file: FileUpload,
+    requester: Pick<AuthenticatedRequest['user'], 'id' | 'role'>
   ) {
     const { filename, createReadStream } = file
 
@@ -40,6 +44,11 @@ export class FileService {
       chunks.push(chunk)
     }
     const fileContent = Buffer.concat(chunks).toString('utf-8')
+
+    // Recheck access after receiving the full file, before writing to storage.
+    await this.permissionService.assertAccess(problemId, requester, {
+      roles: [CollaboratorRole.Owner, CollaboratorRole.Editor]
+    })
 
     // S3에 저장
     const filePath = `mandeuldang/${problemId}/tools/${toolType}`
