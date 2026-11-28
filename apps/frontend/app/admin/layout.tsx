@@ -44,21 +44,26 @@ export default async function Layout({
 }: {
   children: React.ReactNode
 }) {
-  const [hasAnyGroupLeaderRole, hasAnyPermissionOnContest, session, user] =
-    await Promise.all([
-      fetchGroupLeaderRole(),
-      fetchContestRoles(),
-      auth(),
-      fetchUserPermissions()
-    ])
-  if (
-    !hasAnyGroupLeaderRole &&
-    !hasAnyPermissionOnContest &&
-    session?.user.role === 'User' &&
-    !user?.canCreateContest &&
-    !user?.canCreateCourse
-  ) {
-    redirect('/')
+  const session = await auth()
+  if (!session) {
+    redirect('/login?redirectUrl=/admin')
+  }
+
+  if (session.user.role === 'User') {
+    const [hasAnyGroupLeaderRole, hasAnyPermissionOnContest, user] =
+      await Promise.all([
+        fetchGroupLeaderRole(),
+        fetchContestRoles(),
+        fetchUserPermissions()
+      ])
+    if (
+      !hasAnyGroupLeaderRole &&
+      !hasAnyPermissionOnContest &&
+      !user?.canCreateContest &&
+      !user?.canCreateCourse
+    ) {
+      redirect('/')
+    }
   }
 
   return (
