@@ -19,6 +19,7 @@ import type { PrismaService } from '@libs/prisma'
 import { CollaboratorResolver } from '../collaborator/collaborator.resolver'
 import { MandeuldangResolver } from '../mandeuldang.resolver'
 import { MandeuldangProblemResolver } from '../problem/resolvers/problem.resolver'
+import { MandeuldangPermissionService } from './mandeuldang-permission.service'
 import { MandeuldangRolesGuard } from './mandeuldang-roles.guard'
 import { MANDEULDANG_ROLES_KEY } from './mandeuldang-roles.metadata'
 
@@ -123,7 +124,7 @@ describe('MandeuldangRolesGuard', () => {
   }
   const guard = new MandeuldangRolesGuard(
     new Reflector(),
-    db as unknown as PrismaService
+    new MandeuldangPermissionService(db as unknown as PrismaService)
   )
   const createContext = (
     handler: (...args: never[]) => unknown,
