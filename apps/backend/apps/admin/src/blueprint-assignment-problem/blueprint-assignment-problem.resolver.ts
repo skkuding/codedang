@@ -84,4 +84,23 @@ export class BlueprintAssignmentProblemResolver {
       orders
     )
   }
+
+  @Mutation(() => [BlueprintAssignmentProblemOutput])
+  async removeProblemsFromBlueprintAssignment(
+    @Context('req') req: AuthenticatedRequest,
+    @Args(
+      'blueprintAssignmentId',
+      { type: () => Int },
+      new RequiredIntPipe('blueprintAssignmentId')
+    )
+    blueprintAssignmentId: number,
+    @Args('problemIds', { type: () => [Int] }, ParseArrayPipe)
+    problemIds: number[]
+  ) {
+    return await this.blueprintAssignmentProblemService.removeProblemsFromBlueprintAssignment(
+      req.user,
+      blueprintAssignmentId,
+      problemIds
+    )
+  }
 }
