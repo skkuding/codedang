@@ -24,9 +24,62 @@ script:pre-request {
 }
 
 docs {
-  # Get Assignment Submission Summary
+  # 📘 Get Assignment Submission Summary
   
-  > 로그인이 필요한 API입니다.
+  **Get** `/assignment/:assignmentId/submission/summary`
   
-  Assignment의 모든 문제에 대한 최근 제출을 요약합니다.
+  Get a summary of a user's submissions for a specific assignment.
+  
+  특정 과제에 과제에 속한 문제별로 사용자의 제출 요약 정보를 가져옵니다.
+  
+  Submission Result, Testcase 개수와 accepted Testcase 개수를 포함합니다.
+  
+  ---
+  
+  ### 🔒 Authentication
+  
+  ✅ Required  
+  
+  ---
+  
+  ### 📥 Request Parameters
+  
+  #### Path Parameters
+  
+  | Name | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `assignmentId` | number | ✅       | ID of the assignment |
+  
+  ---
+  
+  ### 📝 Response Body
+  
+  #### Content-Type: `application/json`
+  
+  ```json
+  [
+    {
+      "problemId": 101,
+      "submission": {
+        "submissionTime": "2026-01-12T09:30:00.000Z",
+        "submissionResult": "Accepted",
+        "testcaseCount": 10,
+        "acceptedTestcaseCount": 10
+      }
+    },
+    {
+      "problemId": 102,
+      "submission": null
+    }
+  ]
+  
+  ```
+  
+  | Field | Type   | Required | Description              |
+  |------|--------|----------|--------------------------|
+  | `problemId` | number | ✅       | 해당 문제의 id |
+  | `submissionTime` | dare | ✅       | 제출 시간 |
+  | `submissionResult` | string | ✅       | 제출 결과값 |
+  | `testcaseCount` | number | ✅       | 전체 테스트 케이스 수 |
+  | `acceptedTestcaseCount` | number | ✅       | 통과한 테스트 케이스 수 |
 }
