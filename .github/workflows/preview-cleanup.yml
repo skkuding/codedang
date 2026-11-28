@@ -19,7 +19,7 @@ jobs:
           private-key: ${{ secrets.SKKUDING_BOT_PRIVATE_KEY }}
 
       - name: Remove preview label from stale PRs
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
