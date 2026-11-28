@@ -6,7 +6,8 @@ import { AuthenticatedUser } from '@libs/auth'
 import {
   ConflictFoundException,
   EntityNotExistException,
-  ForbiddenAccessException
+  ForbiddenAccessException,
+  UnprocessableDataException
 } from '@libs/exception'
 import { PrismaService } from '@libs/prisma'
 import { BlueprintAccessService } from '@admin/blueprint-course/blueprint-access.service'
@@ -36,13 +37,15 @@ const createDb = () => {
     },
     blueprintAssignmentProblem: {
       findMany: stub().resolves([]),
-      createMany: stub().resolves({ count: 0 })
+      createMany: stub().resolves({ count: 0 }),
+      update: stub().resolves({})
     },
     assignment: {
       findMany: stub().resolves([])
     },
     assignmentProblem: {
-      createMany: stub().resolves({ count: 0 })
+      createMany: stub().resolves({ count: 0 }),
+      updateMany: stub().resolves({ count: 0 })
     },
     assignmentRecord: {
       findMany: stub().resolves([])
@@ -293,6 +296,177 @@ describe('BlueprintAssignmentProblemService', () => {
       await expect(
         importProblems([{ problemId: 1, score: 10 }])
       ).to.be.rejectedWith('copy failed')
+    })
+  })
+
+  describe('updateBlueprintAssignmentProblems', () => {
+    const updateProblems = (problems: { problemId: number; score: number }[]) =>
+      service.updateBlueprintAssignmentProblems(
+        user,
+        blueprintAssignmentId,
+        problems
+      )
+
+    it('throws ForbiddenAccessException before opening a transaction', async () => {
+      access.assertBlueprintLeader.rejects(new ForbiddenAccessException('no'))
+
+      await expect(
+        updateProblems([{ problemId: 1, score: 10 }])
+      ).to.be.rejectedWith(ForbiddenAccessException)
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('updates score on the blueprint and linked copies', async () => {
+      db.assignment.findMany.resolves([{ id: copyA.id }, { id: copyB.id }])
+      db.blueprintAssignmentProblem.findMany
+        .onFirstCall()
+        .resolves([{ problemId: 1 }])
+
+      await updateProblems([{ problemId: 1, score: 30 }])
+
+      expect(
+        db.blueprintAssignmentProblem.update.firstCall.args[0]
+      ).to.deep.equal({
+        where: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          blueprintAssignmentId_problemId: {
+            blueprintAssignmentId,
+            problemId: 1
+          }
+        },
+        data: { score: 30 }
+      })
+      expect(db.assignmentProblem.updateMany.firstCall.args[0]).to.deep.equal({
+        where: { assignmentId: { in: [copyA.id, copyB.id] }, problemId: 1 },
+        data: { score: 30 }
+      })
+    })
+
+    it('updates only the blueprint when there are no copies', async () => {
+      db.blueprintAssignmentProblem.findMany
+        .onFirstCall()
+        .resolves([{ problemId: 1 }])
+
+      await updateProblems([{ problemId: 1, score: 30 }])
+
+      expect(db.blueprintAssignmentProblem.update.calledOnce).to.be.true
+      expect(db.assignmentProblem.updateMany.called).to.be.false
+    })
+
+    it('throws EntityNotExistException when a problem is not imported', async () => {
+      db.blueprintAssignmentProblem.findMany
+        .onFirstCall()
+        .resolves([{ problemId: 1 }])
+
+      await expect(
+        updateProblems([{ problemId: 999, score: 10 }])
+      ).to.be.rejectedWith(EntityNotExistException)
+      expect(db.blueprintAssignmentProblem.update.called).to.be.false
+    })
+
+    it('throws ConflictFoundException when a linked copy has submissions', async () => {
+      db.assignment.findMany.resolves([{ id: copyA.id }])
+      db.submission.count.resolves(1)
+
+      await expect(
+        updateProblems([{ problemId: 1, score: 10 }])
+      ).to.be.rejectedWith(ConflictFoundException)
+      expect(db.blueprintAssignmentProblem.update.called).to.be.false
+    })
+  })
+
+  describe('updateBlueprintAssignmentProblemsOrder', () => {
+    const updateOrder = (orders: number[]) =>
+      service.updateBlueprintAssignmentProblemsOrder(
+        user,
+        blueprintAssignmentId,
+        orders
+      )
+
+    beforeEach(() => {
+      db.blueprintAssignmentProblem.findMany
+        .onFirstCall()
+        .resolves([{ problemId: 1 }, { problemId: 2 }])
+    })
+
+    it('throws ForbiddenAccessException before opening a transaction', async () => {
+      access.assertBlueprintLeader.rejects(new ForbiddenAccessException('no'))
+
+      await expect(updateOrder([2, 1])).to.be.rejectedWith(
+        ForbiddenAccessException
+      )
+      expect(db.$transaction.called).to.be.false
+    })
+
+    it('sets order by index on the blueprint and linked copies', async () => {
+      db.assignment.findMany.resolves([{ id: copyA.id }])
+
+      await updateOrder([2, 1])
+
+      expect(
+        db.blueprintAssignmentProblem.update.getCalls().map((c) => c.args[0])
+      ).to.deep.equal([
+        {
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            blueprintAssignmentId_problemId: {
+              blueprintAssignmentId,
+              problemId: 2
+            }
+          },
+          data: { order: 0 }
+        },
+        {
+          where: {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            blueprintAssignmentId_problemId: {
+              blueprintAssignmentId,
+              problemId: 1
+            }
+          },
+          data: { order: 1 }
+        }
+      ])
+      expect(
+        db.assignmentProblem.updateMany.getCalls().map((c) => c.args[0])
+      ).to.deep.equal([
+        {
+          where: { assignmentId: { in: [copyA.id] }, problemId: 2 },
+          data: { order: 0 }
+        },
+        {
+          where: { assignmentId: { in: [copyA.id] }, problemId: 1 },
+          data: { order: 1 }
+        }
+      ])
+    })
+
+    it('allows reordering even when copies have submissions', async () => {
+      db.assignment.findMany.resolves([{ id: copyA.id }])
+      db.submission.count.resolves(1)
+
+      await updateOrder([2, 1])
+
+      expect(db.blueprintAssignmentProblem.update.calledTwice).to.be.true
+    })
+
+    it('throws UnprocessableDataException when a problem is missing', async () => {
+      await expect(updateOrder([1])).to.be.rejectedWith(
+        UnprocessableDataException
+      )
+      expect(db.blueprintAssignmentProblem.update.called).to.be.false
+    })
+
+    it('throws UnprocessableDataException when a problem is duplicated', async () => {
+      await expect(updateOrder([1, 1])).to.be.rejectedWith(
+        UnprocessableDataException
+      )
+    })
+
+    it('throws UnprocessableDataException when a problem is not imported', async () => {
+      await expect(updateOrder([1, 999])).to.be.rejectedWith(
+        UnprocessableDataException
+      )
     })
   })
 })
