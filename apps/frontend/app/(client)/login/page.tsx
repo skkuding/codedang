@@ -28,9 +28,18 @@ export default function LoginPage() {
   useEffect(() => {
     if (session) {
       const redirectUrl = searchParams.get('redirectUrl')
-      if (redirectUrl) {
-        router.push(redirectUrl as Route)
-      } else {
+      try {
+        const url = new URL(redirectUrl || '/', window.location.origin)
+
+        if (
+          url.origin === window.location.origin &&
+          (url.protocol === 'http:' || url.protocol === 'https:')
+        ) {
+          router.push(redirectUrl as Route)
+        } else {
+          router.push('/')
+        }
+      } catch {
         router.push('/')
       }
     }
